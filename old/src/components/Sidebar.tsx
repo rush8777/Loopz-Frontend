@@ -25,11 +25,7 @@ const SECTIONS: NavSection[] = [
   {
     label: "Analysis",
     accentVar: "--analysis",
-    items: [
-      { label: "Discovered Patterns", path: "/analysis/discovered" },
-      { label: "Pattern Analysis", path: "/analysis/patterns" },
-      { label: "Behavior Clusters", path: "/analysis/clusters" },
-    ],
+    items: [{ label: "Pattern Analysis", path: "/analysis/patterns" }],
   },
   {
     label: "Feedback",

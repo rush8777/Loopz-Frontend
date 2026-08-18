@@ -11,9 +11,6 @@ import { SessionDetailPage } from "./pages/observe/SessionDetailPage";
 import { HeatmapsPage } from "./pages/observe/HeatmapsPage";
 import { ReplayPage } from "./pages/observe/ReplayPage";
 import { PatternAnalysisPage } from "./pages/analysis/PatternAnalysisPage";
-import { PatternClusterPage } from "./pages/analysis/PatternClusterPage";
-import { DiscoveredPatternsPage } from "./pages/analysis/DiscoveredPatternsPage";
-import { PatternCandidateDetailPage } from "./pages/analysis/PatternCandidateDetailPage";
 
 function Workspace({ children }: { children: ReactNode }) {
   return <WorkspaceProvider>{children}</WorkspaceProvider>;
@@ -41,9 +38,6 @@ export default function App() {
               <Route path="observe/heatmaps" element={<HeatmapsPage />} />
               <Route path="observe/replay" element={<ReplayPage />} />
               <Route path="analysis/patterns" element={<PatternAnalysisPage />} />
-              <Route path="analysis/clusters" element={<PatternClusterPage />} />
-              <Route path="analysis/discovered" element={<DiscoveredPatternsPage />} />
-              <Route path="analysis/discovered/:candidateId" element={<PatternCandidateDetailPage />} />
             </Route>
           </Route>
 

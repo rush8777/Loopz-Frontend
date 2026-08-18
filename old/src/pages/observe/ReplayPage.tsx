@@ -9,9 +9,6 @@ import { RrwebSnapshotFrame } from "./RrwebSnapshotFrame";
 import { HeatmapOverlay, type HeatmapLayer } from "./HeatmapOverlay";
 
 const RENDER_WIDTH = 860;
-// The scrollable viewer's own height budget - the reconstructed page can be
-// much taller than this; the viewer (not the iframe) owns the scrolling.
-const VIEWER_MAX_HEIGHT = 640;
 const LAYERS: { id: HeatmapLayer; label: string }[] = [
   { id: "click", label: "Clicks" },
   { id: "hover", label: "Hovers" },
@@ -19,7 +16,7 @@ const LAYERS: { id: HeatmapLayer; label: string }[] = [
   { id: "scroll", label: "Scroll depth" },
 ];
 
-export function HeatmapsPage() {
+export function ReplayPage() {
   const { currentOrg, currentSite } = useWorkspace();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedSessionId = searchParams.get("session");
@@ -30,13 +27,7 @@ export function HeatmapsPage() {
   const [layer, setLayer] = useState<HeatmapLayer>("click");
   const [error, setError] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
-  // The reconstructed document's true full-page size (at its captured
-  // layout width), reported by RrwebSnapshotFrame once it has rebuilt and
-  // measured the snapshot. This - not any visitor's viewport - is what the
-  // page is rendered at and what heatmap coordinates are scaled against.
-  const [documentSize, setDocumentSize] = useState<{ width: number; height: number } | null>(null);
 
-  // Sessions with rrweb data available - the only ones a heatmap can be built from.
   useEffect(() => {
     if (!currentOrg || !currentSite) return;
     setReplaySessions(null);
@@ -57,7 +48,6 @@ export function HeatmapsPage() {
     if (!currentOrg || !currentSite || !selectedSessionId) return;
     setSessionDetail(null);
     setSnapshotNode(null);
-    setDocumentSize(null);
     setRenderError(null);
     setError(null);
 
@@ -79,9 +69,6 @@ export function HeatmapsPage() {
       });
   }, [currentOrg, currentSite, selectedSessionId]);
 
-  // The viewport size active when the snapshot was captured - used only to
-  // lay the reconstructed document out at its original width (so it
-  // reflows exactly as captured), never to scale heatmap coordinates.
   const capturedViewport = useMemo(() => {
     if (!sessionDetail) return null;
     const withViewport = sessionDetail.events.find((e) => e.viewportWidth && e.viewportHeight);
@@ -89,19 +76,14 @@ export function HeatmapsPage() {
     return { width: withViewport.viewportWidth, height: withViewport.viewportHeight };
   }, [sessionDetail]);
 
-  const captureWidth = capturedViewport?.width ?? RENDER_WIDTH;
-
-  // Rendered (on-screen) size of the full page, aspect-correct against the
-  // reconstructed document's real dimensions once known. Before that,
-  // fall back to a placeholder aspect ratio for the loading skeleton.
-  const renderHeight = documentSize
-    ? Math.round(RENDER_WIDTH * (documentSize.height / documentSize.width))
+  const renderHeight = capturedViewport
+    ? Math.round(RENDER_WIDTH * (capturedViewport.height / capturedViewport.width))
     : Math.round(RENDER_WIDTH * 0.65);
 
   if (!currentSite) {
     return (
       <>
-        <PageHeader section="Observe" title="Heatmaps" description="Interaction density overlaid on a page snapshot." />
+        <PageHeader section="Observe" title="Replay" description="Full session playback." />
         <div className="card">
           <EmptyState title="No site selected" description="Select a site from the switcher above." />
         </div>
@@ -113,8 +95,8 @@ export function HeatmapsPage() {
     <>
       <PageHeader
         section="Observe"
-        title="Heatmaps"
-        description="Captured interaction coordinates overlaid on the session's full-page reconstruction."
+        title="Replay"
+        description="Captured interaction coordinates overlaid on the session's page snapshot."
         actions={
           replaySessions && replaySessions.length > 0 ? (
             <select
@@ -151,7 +133,7 @@ export function HeatmapsPage() {
             title="No session replay data yet"
             description={
               <>
-                Heatmaps are built from an rrweb page snapshot plus captured interaction coordinates. No session on{" "}
+                Playback is built from an rrweb page snapshot plus captured interaction coordinates. No session on{" "}
                 <strong>{currentSite.name}</strong> has replay data yet — once the SDK sends snapshots to{" "}
                 <code>/public/sites/{currentSite.siteId}/replay</code>, this page will populate automatically.
               </>
@@ -189,54 +171,37 @@ export function HeatmapsPage() {
             <div className="skeleton" style={{ width: RENDER_WIDTH, height: renderHeight, maxWidth: "100%" }} />
           )}
 
-          {/*
-            Scrollable viewer: this element - not the iframe inside it -
-            owns vertical scrolling for pages taller than the viewer's
-            height budget. The reconstructed document is centered
-            horizontally within it.
-          */}
           {!renderError && sessionDetail && snapshotNode != null && (
             <div
               style={{
-                maxHeight: VIEWER_MAX_HEIGHT,
-                overflowY: "auto",
-                overflowX: "hidden",
+                position: "relative",
+                width: RENDER_WIDTH,
+                maxWidth: "100%",
+                overflow: "hidden",
                 borderRadius: "var(--radius-sm)",
                 border: "1px solid var(--border)",
-                background: "var(--bg-elevated)",
               }}
             >
-              <div
-                style={{
-                  position: "relative",
-                  width: RENDER_WIDTH,
-                  height: renderHeight,
-                  maxWidth: "100%",
-                  margin: "0 auto",
-                }}
-              >
-                <RrwebSnapshotFrame
-                  snapshotNode={snapshotNode as never}
-                  captureWidth={captureWidth}
-                  renderWidth={RENDER_WIDTH}
-                  onDimensions={(w, h) => setDocumentSize({ width: w, height: h })}
-                  onError={setRenderError}
-                />
-                <HeatmapOverlay
-                  events={sessionDetail.events}
-                  layer={layer}
-                  width={RENDER_WIDTH}
-                  height={renderHeight}
-                  documentSize={documentSize}
-                />
-              </div>
+              <RrwebSnapshotFrame
+                snapshotNode={snapshotNode as never}
+                width={RENDER_WIDTH}
+                height={renderHeight}
+                onError={setRenderError}
+              />
+              <HeatmapOverlay
+                events={sessionDetail.events}
+                layer={layer}
+                width={RENDER_WIDTH}
+                height={renderHeight}
+                capturedViewport={capturedViewport}
+              />
             </div>
           )}
 
           {!capturedViewport && sessionDetail && (
             <p style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 10 }}>
-              No viewport size was recorded for this session's events - the page is laid out at a default width and
-              coordinates may not align precisely with the snapshot.
+              No viewport size was recorded for this session's events — coordinates are shown unscaled and may not
+              align precisely with the snapshot.
             </p>
           )}
         </div>
