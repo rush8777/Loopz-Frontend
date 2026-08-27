@@ -13,20 +13,13 @@ const LAYER_COLOR: Record<HeatmapLayer, string> = {
 interface Props {
   events: SessionEvent[];
   layer: HeatmapLayer;
-  /** Rendered (on-screen, post-scale) canvas size - matches the reconstructed page's iframe size in RrwebSnapshotFrame. */
   width: number;
   height: number;
-  /**
-   * The reconstructed document's true full-page size (scrollWidth/scrollHeight
-   * at its captured layout width) - NOT the visitor's viewport size. Click,
-   * hover, and cursor coordinates are already document-relative (see the SDK's
-   * backendMapping.ts), so they scale directly against this, never against
-   * viewport dimensions.
-   */
-  documentSize: { width: number; height: number } | null;
+  /** The viewport size active when coordinates were captured - needed to scale onto the rendered snapshot's size. */
+  capturedViewport: { width: number; height: number } | null;
 }
 
-export function HeatmapOverlay({ events, layer, width, height, documentSize }: Props) {
+export function HeatmapOverlay({ events, layer, width, height, capturedViewport }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -40,13 +33,8 @@ export function HeatmapOverlay({ events, layer, width, height, documentSize }: P
     ctx.clearRect(0, 0, width, height);
 
     const color = LAYER_COLOR[layer];
-    // Document-relative coordinates scale against the reconstructed page's
-    // own full dimensions - e.g. documentWidth 1440 -> rendered width 860,
-    // documentHeight 4200 -> rendered height 2500 gives scaleX/scaleY here.
-    // Falls back to 1:1 only in the (should-be-rare) case dimensions aren't
-    // known yet.
-    const scaleX = documentSize ? width / documentSize.width : 1;
-    const scaleY = documentSize ? height / documentSize.height : 1;
+    const scaleX = capturedViewport ? width / capturedViewport.width : 1;
+    const scaleY = capturedViewport ? height / capturedViewport.height : 1;
 
     if (layer === "scroll") {
       // Scroll events have no x/y - scrollPercent implies a vertical
@@ -81,7 +69,7 @@ export function HeatmapOverlay({ events, layer, width, height, documentSize }: P
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
     }
-  }, [events, layer, width, height, documentSize]);
+  }, [events, layer, width, height, capturedViewport]);
 
   return (
     <canvas

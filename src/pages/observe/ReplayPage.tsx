@@ -9,7 +9,6 @@ import { RrwebSnapshotFrame } from "./RrwebSnapshotFrame";
 import { HeatmapOverlay, type HeatmapLayer } from "./HeatmapOverlay";
 
 const RENDER_WIDTH = 860;
-const VIEWER_MAX_HEIGHT = 640;
 const LAYERS: { id: HeatmapLayer; label: string }[] = [
   { id: "click", label: "Clicks" },
   { id: "hover", label: "Hovers" },
@@ -28,7 +27,6 @@ export function ReplayPage() {
   const [layer, setLayer] = useState<HeatmapLayer>("click");
   const [error, setError] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
-  const [documentSize, setDocumentSize] = useState<{ width: number; height: number } | null>(null);
 
   useEffect(() => {
     if (!currentOrg || !currentSite) return;
@@ -50,7 +48,6 @@ export function ReplayPage() {
     if (!currentOrg || !currentSite || !selectedSessionId) return;
     setSessionDetail(null);
     setSnapshotNode(null);
-    setDocumentSize(null);
     setRenderError(null);
     setError(null);
 
@@ -79,10 +76,8 @@ export function ReplayPage() {
     return { width: withViewport.viewportWidth, height: withViewport.viewportHeight };
   }, [sessionDetail]);
 
-  const captureWidth = capturedViewport?.width ?? RENDER_WIDTH;
-
-  const renderHeight = documentSize
-    ? Math.round(RENDER_WIDTH * (documentSize.height / documentSize.width))
+  const renderHeight = capturedViewport
+    ? Math.round(RENDER_WIDTH * (capturedViewport.height / capturedViewport.width))
     : Math.round(RENDER_WIDTH * 0.65);
 
   if (!currentSite) {
@@ -101,7 +96,7 @@ export function ReplayPage() {
       <PageHeader
         section="Observe"
         title="Replay"
-        description="Captured interaction coordinates overlaid on the session's full-page reconstruction."
+        description="Captured interaction coordinates overlaid on the session's page snapshot."
         actions={
           replaySessions && replaySessions.length > 0 ? (
             <select
@@ -179,45 +174,34 @@ export function ReplayPage() {
           {!renderError && sessionDetail && snapshotNode != null && (
             <div
               style={{
-                maxHeight: VIEWER_MAX_HEIGHT,
-                overflowY: "auto",
-                overflowX: "hidden",
+                position: "relative",
+                width: RENDER_WIDTH,
+                maxWidth: "100%",
+                overflow: "hidden",
                 borderRadius: "var(--radius-sm)",
                 border: "1px solid var(--border)",
-                background: "var(--bg-elevated)",
               }}
             >
-              <div
-                style={{
-                  position: "relative",
-                  width: RENDER_WIDTH,
-                  height: renderHeight,
-                  maxWidth: "100%",
-                  margin: "0 auto",
-                }}
-              >
-                <RrwebSnapshotFrame
-                  snapshotNode={snapshotNode as never}
-                  captureWidth={captureWidth}
-                  renderWidth={RENDER_WIDTH}
-                  onDimensions={(w, h) => setDocumentSize({ width: w, height: h })}
-                  onError={setRenderError}
-                />
-                <HeatmapOverlay
-                  events={sessionDetail.events}
-                  layer={layer}
-                  width={RENDER_WIDTH}
-                  height={renderHeight}
-                  documentSize={documentSize}
-                />
-              </div>
+              <RrwebSnapshotFrame
+                snapshotNode={snapshotNode as never}
+                width={RENDER_WIDTH}
+                height={renderHeight}
+                onError={setRenderError}
+              />
+              <HeatmapOverlay
+                events={sessionDetail.events}
+                layer={layer}
+                width={RENDER_WIDTH}
+                height={renderHeight}
+                capturedViewport={capturedViewport}
+              />
             </div>
           )}
 
           {!capturedViewport && sessionDetail && (
             <p style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 10 }}>
-              No viewport size was recorded for this session's events — the page is laid out at a default width and
-              coordinates may not align precisely with the snapshot.
+              No viewport size was recorded for this session's events — coordinates are shown unscaled and may not
+              align precisely with the snapshot.
             </p>
           )}
         </div>

@@ -177,7 +177,7 @@ export function PatternCandidateDetailPage() {
                     {ev.startReason} &rarr; {ev.endReason}
                   </td>
                   <td style={{ maxWidth: 420 }}>
-                    <TokenSequence tokens={ev.tokens} />
+                    <TokenSequence tokens={ev.steps} />
                   </td>
                 </tr>
               ))}

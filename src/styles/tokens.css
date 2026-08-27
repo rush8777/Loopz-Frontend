@@ -38,6 +38,8 @@
   --analysis-dim: #3fd4c01a;
   --feedback: #f0709a; /* rose - action taken on a visitor */
   --feedback-dim: #f0709a1a;
+  --users: #8b7fd6; /* violet - identity, who someone is */
+  --users-dim: #8b7fd61a;
 
   /* ---------- Semantic ---------- */
   --danger: #f2555c;

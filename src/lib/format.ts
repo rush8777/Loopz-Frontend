@@ -28,3 +28,9 @@ export function formatTimestamp(iso: string): string {
     second: "2-digit",
   });
 }
+
+/** "Chrome · desktop" style label for a session row - falls back gracefully when environment context wasn't captured (older SDK build, or the session's session_start hasn't landed yet). */
+export function formatDeviceLabel(s: { browserName?: string | null; deviceType?: string | null }): string {
+  const parts = [s.browserName, s.deviceType].filter((p): p is string => Boolean(p));
+  return parts.length > 0 ? parts.join(" · ") : "—";
+}

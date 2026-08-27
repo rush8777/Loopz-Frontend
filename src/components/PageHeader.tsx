@@ -6,12 +6,13 @@ export function PageHeader({
   description,
   actions,
 }: {
-  section: "Observe" | "Analysis" | "Feedback";
+  section: "Observe" | "Analysis" | "Feedback" | "Users";
   title: string;
   description?: string;
   actions?: ReactNode;
 }) {
-  const accentVar = section === "Observe" ? "--observe" : section === "Analysis" ? "--analysis" : "--feedback";
+  const accentVar =
+    section === "Observe" ? "--observe" : section === "Analysis" ? "--analysis" : section === "Users" ? "--users" : "--feedback";
   return (
     <div style={{ marginBottom: 24 }}>
       <div
