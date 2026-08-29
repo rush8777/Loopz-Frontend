@@ -15,7 +15,7 @@ import { PageDetailPage } from "./pages/observe/PageDetailPage";
 import { ElementsPage } from "./pages/observe/ElementsPage";
 import { SessionDetailPage } from "./pages/observe/SessionDetailPage";
 import { HeatmapsPage } from "./pages/observe/HeatmapsPage";
-import { ReplayPage } from "./pages/observe/ReplayPage";
+// import { ReplayPage } from "./pages/observe/ReplayPage";
 import { PatternAnalysisPage } from "./pages/analysis/PatternAnalysisPage";
 import { PatternClusterPage } from "./pages/analysis/PatternClusterPage";
 import { DiscoveredPatternsPage } from "./pages/analysis/DiscoveredPatternsPage";
@@ -23,6 +23,9 @@ import { PatternCandidateDetailPage } from "./pages/analysis/PatternCandidateDet
 import { UsersPage } from "./pages/users/UsersPage";
 import { UserProfilePage } from "./pages/users/UserProfilePage";
 import { AnonymousVisitorPage } from "./pages/users/AnonymousVisitorPage";
+import { SegmentsPage } from "./pages/segments/SegmentsPage";
+import { SegmentBuilderPage } from "./pages/segments/SegmentBuilderPage";
+import { SegmentDetailPage } from "./pages/segments/SegmentDetailPage";
 
 function Workspace({ children }: { children: ReactNode }) {
   return <WorkspaceProvider>{children}</WorkspaceProvider>;
@@ -63,6 +66,10 @@ export default function App() {
               <Route path="users" element={<UsersPage />} />
               <Route path="users/anonymous/:anonymousId" element={<AnonymousVisitorPage />} />
               <Route path="users/:userId" element={<UserProfilePage />} />
+              <Route path="segments" element={<SegmentsPage />} />
+              <Route path="segments/new" element={<SegmentBuilderPage />} />
+              <Route path="segments/:segmentId" element={<SegmentDetailPage />} />
+              <Route path="segments/:segmentId/edit" element={<SegmentBuilderPage />} />
             </Route>
           </Route>
 

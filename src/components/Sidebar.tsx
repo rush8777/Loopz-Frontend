@@ -38,7 +38,7 @@ const SECTIONS: NavSection[] = [
     accentVar: "--feedback",
     items: [{ label: "Campaigns", disabled: true }],
   },
-  { label: "", items: [{ label: "Pages", path: "/observe/pages" },{ label: "Users", path: "/users" }, { label: "Settings", disabled: true }] },
+  { label: "", items: [{ label: "Pages", path: "/observe/pages" }, { label: "Users", path: "/users" }, { label: "Segments", path: "/segments" }, { label: "Settings", disabled: true }] },
 ];
 
 export function Sidebar() {

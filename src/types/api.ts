@@ -447,7 +447,91 @@ export interface EventPageSummary {
   occurrences: number;
 }
 
-// --- Element catalog (from the SDK's ElementCrawler) ---
+// --- Segments (audience definitions - task brief "Build Segments V1") ---
+// Mirrors src/lib/segments/types.ts in Loopz-Backend; V1 has no shared
+// types package between the two repos, so this is a deliberate,
+// minimal duplication of the same shape (same precedent as
+// EventDefinitionSummary/PageRule above).
+
+export type SegmentTimeWindowUnit = "days";
+
+export interface SegmentTimeWindow {
+  value: number;
+  unit: SegmentTimeWindowUnit;
+}
+
+export type SegmentEventOperator = "performed" | "not_performed";
+
+export interface SegmentEventCondition {
+  type: "event";
+  eventName: string;
+  operator: SegmentEventOperator;
+  timeWindow?: SegmentTimeWindow;
+}
+
+export type SegmentPropertyOperator =
+  | "equals"
+  | "not_equals"
+  | "contains"
+  | "not_contains"
+  | "exists"
+  | "not_exists"
+  | "greater_than"
+  | "less_than"
+  | "greater_than_or_equal"
+  | "less_than_or_equal";
+
+export interface SegmentUserPropertyCondition {
+  type: "user_property";
+  propertyName: string;
+  operator: SegmentPropertyOperator;
+  value?: string | number | boolean;
+}
+
+export type SegmentPageOperator = "visited" | "not_visited";
+
+export interface SegmentPageCondition {
+  type: "page";
+  pageId: string;
+  operator: SegmentPageOperator;
+  timeWindow?: SegmentTimeWindow;
+}
+
+export type SegmentCondition = SegmentEventCondition | SegmentUserPropertyCondition | SegmentPageCondition;
+
+export type SegmentLogic = "and" | "or";
+
+export interface SegmentGroup {
+  logic: SegmentLogic;
+  conditions: SegmentNode[];
+}
+
+export type SegmentNode = SegmentCondition | SegmentGroup;
+export type SegmentDefinition = SegmentGroup;
+
+export function isSegmentGroup(node: SegmentNode): node is SegmentGroup {
+  return "logic" in node && "conditions" in node;
+}
+
+export interface Segment {
+  id: string;
+  siteId: string;
+  name: string;
+  description: string | null;
+  definition: SegmentDefinition;
+  audienceCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SegmentMember {
+  identityType: "identified" | "anonymous";
+  trackedUserId: string | null;
+  externalUserId: string | null;
+  anonymousId: string | null;
+  lastSeenAt: string | null;
+}
+
 
 export interface CatalogElement {
   id: string;
