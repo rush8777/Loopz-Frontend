@@ -310,7 +310,24 @@ export function UserProfilePage() {
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: 13.5 }}>{item.title}</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            {item.type === "custom" && (
+                              // Distinct visual treatment, same principle as
+                              // the session timeline - a business event
+                              // must never blend in with autocapture rows.
+                              <span className="badge badge-observe" style={{ fontSize: 10 }}>
+                                Custom
+                              </span>
+                            )}
+                            <div style={{ fontSize: 13.5 }}>{item.title}</div>
+                          </div>
+                          {item.type === "custom" && item.metadata.eventProperties && Object.keys(item.metadata.eventProperties).length > 0 && (
+                            <div className="mono" style={{ fontSize: 11.5, color: "var(--text-secondary)", marginTop: 4 }}>
+                              {Object.entries(item.metadata.eventProperties)
+                                .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : String(value)}`)
+                                .join(", ")}
+                            </div>
+                          )}
                           <div className="mono" style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
                             {item.sessionId}
                           </div>

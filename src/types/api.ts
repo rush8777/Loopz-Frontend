@@ -31,15 +31,26 @@ export interface SessionSummary {
 }
 
 export interface SessionEvent {
-  type: "page_view" | "hover" | "click" | "scroll" | "cursor";
+  id: string;
+  type: "page_view" | "hover" | "click" | "scroll" | "cursor" | "custom";
   timestamp: string;
+  eventId: string | null;
+  pageViewId: string | null;
+  pagePath: string | null;
   selector: string | null;
+  elementLabel: string | null;
+  elementRole: string | null;
   durationMs: number | null;
   scrollPercent: number | null;
   x: number | null;
   y: number | null;
   viewportWidth: number | null;
   viewportHeight: number | null;
+  // custom events only (type === "custom") - the developer-defined
+  // event's name and whatever JSON-serializable properties were passed
+  // to analytics.event(name, properties?). null for every other type.
+  name: string | null;
+  properties: Record<string, unknown> | null;
 }
 
 export interface SessionDetail {
@@ -133,6 +144,9 @@ export interface UserActivityItem {
     pagePath: string | null;
     durationMs: number | null;
     scrollPercent: number | null;
+    // custom events only (type === "custom").
+    eventName: string | null;
+    eventProperties: Record<string, unknown> | null;
   };
 }
 
@@ -343,6 +357,94 @@ export interface PagePreviewResult {
   matched: { pagePath: string; views: number }[];
   unmatchedSample: { pagePath: string; views: number }[];
   metrics: { views: number; uniqueVisitors: number; uniqueSessions: number };
+}
+
+// --- Event Explorer (developer-defined "custom" events) ---
+
+export interface EventDefinitionSummary {
+  name: string;
+  occurrences: number;
+  uniqueUsers: number;
+  sessions: number;
+  firstSeenAt: string;
+  lastSeenAt: string;
+}
+
+export interface UsedInPattern {
+  id: string;
+  name: string;
+}
+
+export interface EventSummary {
+  name: string;
+  occurrences: number;
+  uniqueUsers: number;
+  sessions: number;
+  firstSeenAt: string | null;
+  lastSeenAt: string | null;
+  usedIn: { patterns: UsedInPattern[] };
+}
+
+export interface TimeseriesPoint {
+  date: string;
+  count: number;
+}
+
+export type PropertyValueKind = "string" | "number" | "boolean" | "null" | "array" | "object";
+
+export interface PropertyCategoricalSummary {
+  name: string;
+  type: "string" | "boolean";
+  sampleCount: number;
+  values: { value: string; count: number; percent: number }[];
+}
+export interface PropertyNumericSummary {
+  name: string;
+  type: "number";
+  sampleCount: number;
+  min: number;
+  median: number;
+  max: number;
+}
+export interface PropertyComplexSummary {
+  name: string;
+  type: "array" | "object" | "null";
+  sampleCount: number;
+}
+export type PropertySummary = PropertyCategoricalSummary | PropertyNumericSummary | PropertyComplexSummary;
+
+export interface EventOccurrence {
+  id: string;
+  timestamp: string;
+  sessionId: string;
+  anonymousId: string | null;
+  trackedUserId: string | null;
+  externalUserId: string | null;
+  pagePath: string | null;
+  properties: Record<string, unknown> | null;
+}
+
+export interface EventUserSummary {
+  identityType: "identified" | "anonymous";
+  trackedUserId: string | null;
+  externalUserId: string | null;
+  anonymousId: string | null;
+  occurrences: number;
+  firstSeenAt: string;
+  lastSeenAt: string;
+}
+
+export interface EventSessionSummary {
+  sessionId: string;
+  anonymousId: string | null;
+  occurrences: number;
+  firstSeenAt: string;
+  lastSeenAt: string;
+}
+
+export interface EventPageSummary {
+  pagePath: string | null;
+  occurrences: number;
 }
 
 // --- Element catalog (from the SDK's ElementCrawler) ---

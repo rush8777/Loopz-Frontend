@@ -18,8 +18,8 @@ const SECTIONS: NavSection[] = [
     accentVar: "--observe",
     items: [
       { label: "Sessions", path: "/observe/sessions" },
-      { label: "Pages", path: "/observe/pages" },
-      { label: "Replay", path: "/observe/replay" },
+      { label: "Events", path: "/observe/events" },
+      // { label: "Replay", path: "/observe/replay" },
       { label: "Heatmaps", path: "/observe/heatmaps" },
       { label: "Elements", path: "/observe/elements" },
     ],
@@ -38,7 +38,7 @@ const SECTIONS: NavSection[] = [
     accentVar: "--feedback",
     items: [{ label: "Campaigns", disabled: true }],
   },
-  { label: "", items: [{ label: "Users", path: "/users" }, { label: "Settings", disabled: true }] },
+  { label: "", items: [{ label: "Pages", path: "/observe/pages" },{ label: "Users", path: "/users" }, { label: "Settings", disabled: true }] },
 ];
 
 export function Sidebar() {

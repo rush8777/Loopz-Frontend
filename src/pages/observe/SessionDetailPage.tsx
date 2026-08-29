@@ -12,8 +12,17 @@ const EVENT_LABEL: Record<string, string> = {
   hover: "Hover",
   click: "Click",
   scroll: "Scroll",
+  custom: "Custom",
   // cursor: "Cursor",
 };
+
+/** Compact "key: value, key: value" summary of a custom event's properties - deliberately not full JSON, this is a timeline row, not a debugger. */
+function formatProperties(properties: Record<string, unknown> | null): string {
+  if (!properties || Object.keys(properties).length === 0) return "—";
+  return Object.entries(properties)
+    .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : String(value)}`)
+    .join(", ");
+}
 
 export function SessionDetailPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -85,15 +94,26 @@ export function SessionDetailPage() {
                   .map((e, i) => (
                     <tr key={i} style={{ cursor: "default" }}>
                       <td>
-                        <span className="badge badge-neutral">{EVENT_LABEL[e.type] ?? e.type}</span>
+                        {e.type === "custom" ? (
+                          // Distinct visual treatment from autocapture badges
+                          // (badge-observe instead of badge-neutral) - a
+                          // custom event is an application/business event,
+                          // never an observed DOM interaction, and must
+                          // never read like one (task constraint: never
+                          // display it as "Clicked ...").
+                          <span className="badge badge-observe">{EVENT_LABEL.custom}</span>
+                        ) : (
+                          <span className="badge badge-neutral">{EVENT_LABEL[e.type] ?? e.type}</span>
+                        )}
+                      </td>
+                      <td className="mono" style={{ color: e.type === "custom" ? "var(--text-primary)" : "var(--text-secondary)" }}>
+                        {e.type === "custom" ? e.name : (e.selector ?? "—")}
                       </td>
                       <td className="mono" style={{ color: "var(--text-secondary)" }}>
-                        {e.selector ?? "—"}
-                      </td>
-                      <td className="mono" style={{ color: "var(--text-secondary)" }}>
-                        {e.durationMs != null ? `${e.durationMs}ms` : null}
-                        {e.scrollPercent != null ? `${e.scrollPercent}%` : null}
-                        {e.durationMs == null && e.scrollPercent == null ? "—" : null}
+                        {e.type === "custom" && formatProperties(e.properties)}
+                        {e.type !== "custom" && e.durationMs != null ? `${e.durationMs}ms` : null}
+                        {e.type !== "custom" && e.scrollPercent != null ? `${e.scrollPercent}%` : null}
+                        {e.type !== "custom" && e.durationMs == null && e.scrollPercent == null ? "—" : null}
                       </td>
                       <td className="mono" style={{ color: "var(--text-muted)" }}>
                         {formatTimestamp(e.timestamp)}
