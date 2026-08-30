@@ -533,6 +533,82 @@ export interface SegmentMember {
 }
 
 
+// --- Funnels (ordered step conversion analysis - task brief "Build Funnels V1") ---
+// Mirrors src/lib/funnels/types.ts in Loopz-Backend; duplicated here for the
+// same reason Segment types are (see the note above them).
+
+export type FunnelStepType = "event" | "page";
+
+export interface FunnelEventStep {
+  type: "event";
+  eventName: string;
+  label?: string;
+}
+
+export interface FunnelPageStep {
+  type: "page";
+  pageId: string;
+  label?: string;
+}
+
+export type FunnelStep = FunnelEventStep | FunnelPageStep;
+
+export interface Funnel {
+  id: string;
+  siteId: string;
+  name: string;
+  description: string | null;
+  steps: FunnelStep[];
+  conversionWindowMinutes: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FunnelListItem extends Funnel {
+  stepCount: number;
+  overallConversion: number;
+  totalUsers: number;
+}
+
+export interface FunnelStepResult {
+  index: number;
+  type: FunnelStepType;
+  label: string;
+  eventName?: string;
+  pageId?: string;
+  users: number;
+  conversionFromStart: number;
+  conversionFromPrevious: number;
+  droppedBeforeNext: number;
+}
+
+export interface FunnelTrendPoint {
+  date: string;
+  startedUsers: number;
+  convertedUsers: number;
+  conversion: number;
+}
+
+export interface FunnelAnalysis {
+  steps: FunnelStepResult[];
+  totalUsers: number;
+  convertedUsers: number;
+  overallConversion: number;
+  trend: FunnelTrendPoint[];
+  since: string;
+  until: string;
+}
+
+export interface FunnelStepUser {
+  identityType: "identified" | "anonymous";
+  trackedUserId: string | null;
+  externalUserId: string | null;
+  anonymousId: string | null;
+  lastSeenAt: string | null;
+}
+
+// --- Element catalog (from the SDK's ElementCrawler) ---
+
 export interface CatalogElement {
   id: string;
   selector: string;
