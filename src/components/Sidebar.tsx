@@ -24,15 +24,17 @@ const SECTIONS: NavSection[] = [
       { label: "Elements", path: "/observe/elements" },
     ],
   },
-  {
-    label: "Analysis",
-    accentVar: "--analysis",
-    items: [
-      { label: "Discovered Patterns", path: "/analysis/discovered" },
-      { label: "Pattern Analysis", path: "/analysis/patterns" },
-      { label: "Behavior Clusters", path: "/analysis/clusters" },
-    ],
-  },
+  // TEMPORARILY DISABLED: Analysis / behavioral analytics / pattern detection is not part of the MVP.
+  // Kept here as commented code so the navigation can be restored later without losing the work.
+  // {
+  //   label: "Analysis",
+  //   accentVar: "--analysis",
+  //   items: [
+  //     { label: "Discovered Patterns", path: "/analysis/discovered" },
+  //     { label: "Pattern Analysis", path: "/analysis/patterns" },
+  //     { label: "Behavior Clusters", path: "/analysis/clusters" },
+  //   ],
+  // },
   {
     label: "Feedback",
     accentVar: "--feedback",
