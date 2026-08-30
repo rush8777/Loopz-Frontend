@@ -16,14 +16,10 @@ import { ElementsPage } from "./pages/observe/ElementsPage";
 import { SessionDetailPage } from "./pages/observe/SessionDetailPage";
 import { HeatmapsPage } from "./pages/observe/HeatmapsPage";
 // import { ReplayPage } from "./pages/observe/ReplayPage";
-
-// TEMPORARILY DISABLED: Analysis / behavioral analytics / pattern detection MVP work.
-// Keep these imports commented out so the implementation remains available for later.
-// import { PatternAnalysisPage } from "./pages/analysis/PatternAnalysisPage";
-// import { PatternClusterPage } from "./pages/analysis/PatternClusterPage";
-// import { DiscoveredPatternsPage } from "./pages/analysis/DiscoveredPatternsPage";
-// import { PatternCandidateDetailPage } from "./pages/analysis/PatternCandidateDetailPage";
-
+import { PatternAnalysisPage } from "./pages/analysis/PatternAnalysisPage";
+import { PatternClusterPage } from "./pages/analysis/PatternClusterPage";
+import { DiscoveredPatternsPage } from "./pages/analysis/DiscoveredPatternsPage";
+import { PatternCandidateDetailPage } from "./pages/analysis/PatternCandidateDetailPage";
 import { UsersPage } from "./pages/users/UsersPage";
 import { UserProfilePage } from "./pages/users/UserProfilePage";
 import { AnonymousVisitorPage } from "./pages/users/AnonymousVisitorPage";
@@ -63,13 +59,10 @@ export default function App() {
               <Route path="observe/elements" element={<ElementsPage />} />
               <Route path="observe/heatmaps" element={<HeatmapsPage />} />
               {/* <Route path="observe/replay" element={<ReplayPage />} /> */}
-
-              {/* TEMPORARILY DISABLED: Analysis / behavioral analytics / pattern detection MVP work. */}
-              {/* <Route path="analysis/patterns" element={<PatternAnalysisPage />} /> */}
-              {/* <Route path="analysis/clusters" element={<PatternClusterPage />} /> */}
-              {/* <Route path="analysis/discovered" element={<DiscoveredPatternsPage />} /> */}
-              {/* <Route path="analysis/discovered/:candidateId" element={<PatternCandidateDetailPage />} /> */}
-
+              <Route path="analysis/patterns" element={<PatternAnalysisPage />} />
+              <Route path="analysis/clusters" element={<PatternClusterPage />} />
+              <Route path="analysis/discovered" element={<DiscoveredPatternsPage />} />
+              <Route path="analysis/discovered/:candidateId" element={<PatternCandidateDetailPage />} />
               <Route path="users" element={<UsersPage />} />
               <Route path="users/anonymous/:anonymousId" element={<AnonymousVisitorPage />} />
               <Route path="users/:userId" element={<UserProfilePage />} />
