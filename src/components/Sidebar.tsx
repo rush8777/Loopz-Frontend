@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import type { SettingsSection } from "./settings/SettingsModal";
 
 interface NavItem {
   label: string;
@@ -19,29 +20,30 @@ const SECTIONS: NavSection[] = [
     items: [
       { label: "Sessions", path: "/observe/sessions" },
       { label: "Events", path: "/observe/events" },
+      { label: "Funnels", path: "/observe/funnels" },
       // { label: "Replay", path: "/observe/replay" },
       { label: "Heatmaps", path: "/observe/heatmaps" },
       { label: "Elements", path: "/observe/elements" },
     ],
   },
-  {
-    label: "Analysis",
-    accentVar: "--analysis",
-    items: [
-      { label: "Discovered Patterns", path: "/analysis/discovered" },
-      { label: "Pattern Analysis", path: "/analysis/patterns" },
-      { label: "Behavior Clusters", path: "/analysis/clusters" },
-    ],
-  },
+  // {
+  //   label: "Analysis",
+  //   accentVar: "--analysis",
+  //   items: [
+  //     { label: "Discovered Patterns", path: "/analysis/discovered" },
+  //     { label: "Pattern Analysis", path: "/analysis/patterns" },
+  //     { label: "Behavior Clusters", path: "/analysis/clusters" },
+  //   ],
+  // },
   {
     label: "Feedback",
     accentVar: "--feedback",
     items: [{ label: "Campaigns", disabled: true }],
   },
-  { label: "", items: [{ label: "Pages", path: "/observe/pages" }, { label: "Users", path: "/users" }, { label: "Segments", path: "/segments" }, { label: "Settings", disabled: true }] },
+  { label: "", items: [{ label: "Pages", path: "/observe/pages" }, { label: "Users", path: "/users" }, { label: "Segments", path: "/segments" }] },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onOpenSettings }: { onOpenSettings: (section?: SettingsSection) => void }) {
   return (
     <nav
       style={{
@@ -150,6 +152,15 @@ export function Sidebar() {
           </div>
         </div>
       ))}
+
+      <button
+        type="button"
+        className="btn btn-ghost btn-block"
+        onClick={() => onOpenSettings("general")}
+        style={{ marginTop: "auto", justifyContent: "flex-start", padding: "7px 8px", height: 34 }}
+      >
+        Settings
+      </button>
     </nav>
   );
 }
