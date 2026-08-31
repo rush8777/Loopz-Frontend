@@ -12,7 +12,6 @@ import { EventsPage } from "./pages/observe/EventsPage";
 import { EventDetailPage } from "./pages/observe/EventDetailPage";
 import { PageEditorPage } from "./pages/observe/PageEditorPage";
 import { PageDetailPage } from "./pages/observe/PageDetailPage";
-import { ElementsPage } from "./pages/observe/ElementsPage";
 import { SessionDetailPage } from "./pages/observe/SessionDetailPage";
 import { HeatmapsPage } from "./pages/observe/HeatmapsPage";
 // import { ReplayPage } from "./pages/observe/ReplayPage";
@@ -63,7 +62,7 @@ export default function App() {
               <Route path="observe/pages/new" element={<PageEditorPage />} />
               <Route path="observe/pages/:pageId" element={<PageDetailPage />} />
               <Route path="observe/pages/:pageId/edit" element={<PageEditorPage />} />
-              <Route path="observe/elements" element={<ElementsPage />} />
+              <Route path="observe/elements" element={<Navigate to="/observe/pages" replace />} />
               <Route path="observe/heatmaps" element={<HeatmapsPage />} />
               {/* <Route path="observe/replay" element={<ReplayPage />} /> */}
               {/* <Route path="analysis/patterns" element={<PatternAnalysisPage />} /> */}

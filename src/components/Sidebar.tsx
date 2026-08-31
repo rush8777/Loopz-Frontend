@@ -18,12 +18,12 @@ const SECTIONS: NavSection[] = [
     label: "Observe",
     accentVar: "--observe",
     items: [
+      { label: "Pages", path: "/observe/pages" },
       { label: "Sessions", path: "/observe/sessions" },
       { label: "Events", path: "/observe/events" },
       { label: "Funnels", path: "/observe/funnels" },
       // { label: "Replay", path: "/observe/replay" },
       { label: "Heatmaps", path: "/observe/heatmaps" },
-      { label: "Elements", path: "/observe/elements" },
     ],
   },
   // {
@@ -40,7 +40,7 @@ const SECTIONS: NavSection[] = [
     accentVar: "--feedback",
     items: [{ label: "Campaigns", disabled: true }],
   },
-  { label: "", items: [{ label: "Pages", path: "/observe/pages" }, { label: "Users", path: "/users" }, { label: "Segments", path: "/segments" }] },
+  { label: "", items: [{ label: "Users", path: "/users" }, { label: "Segments", path: "/segments" }] },
 ];
 
 export function Sidebar({ onOpenSettings }: { onOpenSettings: (section?: SettingsSection) => void }) {

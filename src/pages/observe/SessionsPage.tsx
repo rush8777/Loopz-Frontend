@@ -12,99 +12,44 @@ export function SessionsPage() {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<SessionSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!currentOrg || !currentSite) return;
+    let current = true;
     setSessions(null);
     setError(null);
-    sessionsApi
-      .listSessions(currentOrg.orgId, currentSite.id, { limit: 100 })
-      .then((res) => setSessions(res.sessions))
-      .catch(() => setError("Couldn't load sessions."));
-  }, [currentOrg, currentSite]);
+    sessionsApi.listSessions(currentOrg.orgId, currentSite.id, { limit: 100 }).then((res) => {
+      if (current) setSessions(res.sessions);
+    }).catch(() => {
+      if (current) setError("Couldn't load sessions.");
+    });
+    return () => { current = false; };
+  }, [currentOrg, currentSite, reloadKey]);
 
   if (!currentSite) {
-    return (
-      <>
-        <PageHeader section="Observe" title="Sessions" description="Every captured visitor session for this site." />
-        <div className="card">
-          <EmptyState
-            title="No site selected"
-            description="Create or select a site from the switcher above to see its sessions."
-          />
-        </div>
-      </>
-    );
+    return <><PageHeader section="Observe" title="Sessions" description="Every captured visitor session for this site." /><div className="card"><EmptyState title="No site selected" description="Create or select a site from the switcher above to see its sessions." /></div></>;
   }
 
   return (
     <>
-      <PageHeader
-        section="Observe"
-        title="Sessions"
-        description={`Every captured visitor session on ${currentSite.name}.`}
-      />
-
+      <PageHeader section="Observe" title="Sessions" description={`Recorded session activity on ${currentSite.name}.`} />
       <div className="card">
-        {error && (
-          <div style={{ padding: 16 }}>
-            <div className="error-banner">{error}</div>
-          </div>
-        )}
-
-        {!error && sessions === null && (
-          <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="skeleton" style={{ height: 44 }} />
-            ))}
-          </div>
-        )}
-
-        {sessions && sessions.length === 0 && (
-          <EmptyState
-            title="No sessions yet"
-            description={
-              <>
-                Once the SDK sends events for this site to{" "}
-                <code>/public/sites/{currentSite.siteId}/events</code>, sessions will appear here.
-              </>
-            }
-          />
-        )}
-
+        {error && <div style={{ padding: 16 }}><div className="error-banner" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span>{error}</span><button className="btn btn-sm" onClick={() => setReloadKey((key) => key + 1)}>Retry</button></div></div>}
+        {!error && sessions === null && <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>{[...Array(5)].map((_, i) => <div key={i} className="skeleton" style={{ height: 44 }} />)}</div>}
+        {sessions && sessions.length === 0 && <EmptyState title="No sessions yet" description={<>Once the SDK sends events for this site to <code>/public/sites/{currentSite.siteId}/events</code>, sessions will appear here.</>} />}
         {sessions && sessions.length > 0 && (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Session</th>
-                <th>Events</th>
-                <th>Duration</th>
-                <th>Last active</th>
-                <th>Replay</th>
+          <div style={{ overflowX: "auto" }}><table className="table">
+            <thead><tr><th>Visitor</th><th>Started</th><th>Observed duration</th><th>Pages</th><th>Clicks</th><th>Application events</th><th>Last observed</th></tr></thead>
+            <tbody>{sessions.map((session) => (
+              <tr key={session.sessionId} tabIndex={0} onClick={() => navigate(`/observe/sessions/${session.sessionId}`)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") navigate(`/observe/sessions/${session.sessionId}`); }} aria-label={`Open session ${session.sessionId}`}>
+                <td style={{ color: "var(--text-primary)" }}>{session.visitor?.label ?? "Unresolved visitor"}</td>
+                <td style={{ color: "var(--text-secondary)" }}>{formatRelativeTime(session.firstSeen)}</td>
+                <td className="mono">{formatDuration(session.durationMs)}</td><td className="mono">{session.pageVisitCount ?? 0}</td><td className="mono">{session.clickCount ?? 0}</td><td className="mono">{session.customEventCount ?? 0}</td>
+                <td style={{ color: "var(--text-secondary)" }}>{formatRelativeTime(session.lastSeen)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {sessions.map((s) => (
-                <tr key={s.sessionId} onClick={() => navigate(`/observe/sessions/${s.sessionId}`)}>
-                  <td className="mono" style={{ color: "var(--text-primary)" }}>
-                    {s.sessionId}
-                  </td>
-                  <td className="mono">{s.eventCount}</td>
-                  <td className="mono">{formatDuration(s.durationMs)}</td>
-                  <td style={{ color: "var(--text-secondary)" }}>{formatRelativeTime(s.lastSeen)}</td>
-                  <td>
-                    {s.hasReplay ? (
-                      <span className="badge badge-observe">
-                        <span className="badge-dot" /> Available
-                      </span>
-                    ) : (
-                      <span style={{ color: "var(--text-muted)" }}>—</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}</tbody>
+          </table></div>
         )}
       </div>
     </>

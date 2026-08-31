@@ -60,6 +60,7 @@ interface RequestOptions {
   query?: Record<string, string | number | undefined>;
   /** Set for the two auth endpoints that must not trigger a refresh-and-retry loop. */
   skipAuthRetry?: boolean;
+  signal?: AbortSignal;
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -78,6 +79,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      signal: options.signal,
     });
 
   let res = await doFetch();

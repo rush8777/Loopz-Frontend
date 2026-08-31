@@ -24,10 +24,21 @@ export interface SessionSummary {
   lastSeen: string;
   durationMs: number;
   hasReplay: boolean;
+  /** Present on the generic Observe Sessions endpoint; optional for older/profile-specific consumers. */
+  pageVisitCount?: number;
+  clickCount?: number;
+  customEventCount?: number;
+  visitor?: SessionVisitor | null;
   /** Only populated on the tracked-user/anonymous-visitor session lists (routes/tracked-users.ts, routes/anonymous-users.ts) - the generic Observe > Sessions list doesn't resolve these. */
   deviceType?: "desktop" | "mobile" | "tablet" | null;
   browserName?: string | null;
   osName?: string | null;
+}
+
+export interface SessionVisitor {
+  type: "identified" | "anonymous";
+  id: string;
+  label: string;
 }
 
 export interface SessionEvent {
@@ -57,6 +68,63 @@ export interface SessionDetail {
   sessionId: string;
   hasReplay: boolean;
   events: SessionEvent[];
+}
+
+export interface SessionActivityEvidence {
+  distanceMoved?: number;
+  numberOfDirectionChanges?: number;
+  sampleCount?: number;
+  minDistanceToTarget?: number;
+  maxDistanceToTarget?: number;
+  durationMs?: number;
+  windowMs?: number;
+  targetIsClickable?: boolean;
+  sourceEventIds?: string[];
+  sourceEventCount?: number;
+  provenance: "best_effort_time_window";
+}
+
+export interface SessionActivityItem {
+  id: string;
+  kind: "click" | "custom" | "long_hover" | "derived_signal";
+  signalKind?: "dwell" | "element_approach" | "element_leave" | "hesitation" | "reversal" | "repeated_attention" | "hover_intent";
+  timestamp: string;
+  estimatedStartTimestamp?: string;
+  element?: { selector?: string; label?: string; role?: string };
+  durationMs?: number;
+  name?: string;
+  properties?: Record<string, unknown>;
+  count?: number;
+  evidence?: SessionActivityEvidence;
+}
+
+export interface SessionActivityPageGroup {
+  id: string;
+  pageViewId: string | null;
+  path: string | null;
+  pageName: string | null;
+  attribution: "recorded" | "inferred" | "unknown";
+  firstObserved: string;
+  lastObserved: string;
+  deepestScrollPercent: number | null;
+  scrollSampleCount: number;
+  items: SessionActivityItem[];
+  pointerSignalsAvailable: number;
+  geometryEvidenceUsable: boolean;
+}
+
+export interface SessionActivity {
+  sessionId: string;
+  hasReplay: boolean;
+  visitor: SessionVisitor | null;
+  firstObserved: string;
+  lastObserved: string;
+  observedDurationMs: number;
+  counts: { pageVisits: number; clicks: number; customEvents: number };
+  environment: EnvironmentContext | null;
+  pages: SessionActivityPageGroup[];
+  coverage: { complete: boolean; rawEventCount: number; cursorSampleCount: number };
+  limitations: { observedDuration: string; hover: string; pointer: string };
 }
 
 export interface SnapshotResponse {
@@ -329,6 +397,7 @@ export interface PageDefinition {
   area: string | null;
   pageType: PageType | null;
   rules: PageRule[];
+  heatmapEnabled: boolean;
   views: number;
   uniqueVisitors: number;
   uniqueSessions: number;
@@ -621,4 +690,40 @@ export interface CatalogElement {
   seenCount: number;
   firstSeenAt: string;
   lastSeenAt: string;
+}
+
+export type HeatmapDevice = "desktop" | "tablet" | "mobile";
+export type HeatmapLayer = "click" | "hover" | "cursor" | "scroll";
+
+export interface PageHeatmapState {
+  id: string;
+  name: string;
+  selector: string | null;
+}
+
+export interface PageHeatmapPoint {
+  x?: number;
+  y?: number;
+  scrollPercent?: number;
+  count: number;
+}
+
+export interface PageHeatmapResult {
+  pageId: string;
+  stateId: string;
+  device: HeatmapDevice;
+  layer: HeatmapLayer;
+  interactionCount: number;
+  points: PageHeatmapPoint[];
+  snapshot: null | {
+    imageDataUrl: string;
+    pagePath: string;
+    documentWidth: number;
+    documentHeight: number;
+    capturedAt: string;
+  };
+}
+
+export interface PageElement extends CatalogElement {
+  matchedPaths: string[];
 }
