@@ -1,8 +1,4 @@
-/* =========================================================
-   Premium dark component system (shadcn-inspired primitives,
-   built as plain CSS classes on top of tokens.css variables so
-   every existing component picks up the theme automatically).
-   ========================================================= */
+/* Phase 1 compatibility classes for pages migrating in Phases 2 and 3. */
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -31,7 +27,7 @@
 }
 .btn:focus-visible {
   outline: none;
-  box-shadow: var(--ring);
+  box-shadow: var(--focus-ring);
 }
 .btn:disabled {
   opacity: 0.45;
@@ -40,15 +36,15 @@
 }
 
 .btn-primary {
-  background: var(--primary-gradient);
-  color: #fff;
-  border-color: transparent;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
   font-weight: 600;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 6px 16px rgba(139, 92, 246, 0.28);
+  box-shadow: rgba(255, 255, 255, 0.2) 0 0.75px 0 inset, rgba(0, 0, 0, 0.4) 0 1px 2px;
 }
 .btn-primary:hover {
-  filter: brightness(1.08);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 8px 22px rgba(139, 92, 246, 0.4);
+  background: var(--primary-hover);
+  box-shadow: rgba(255, 255, 255, 0.2) 0 0.75px 0 inset, rgba(0, 0, 0, 0.4) 0 1px 2px;
 }
 
 .btn-ghost {
@@ -97,7 +93,7 @@
 }
 .input:focus {
   border-color: var(--primary);
-  box-shadow: var(--ring);
+  box-shadow: var(--focus-ring);
   background: var(--bg-elevated);
 }
 .input::placeholder {
@@ -106,7 +102,7 @@
 
 /* ---------- Cards ---------- */
 .card {
-  background: linear-gradient(180deg, var(--surface-raised) 0%, var(--surface) 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
@@ -131,9 +127,9 @@
   border: 1px solid transparent;
 }
 .badge-observe {
-  background: var(--observe-dim);
-  color: var(--observe);
-  border-color: color-mix(in srgb, var(--observe) 25%, transparent);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border-color: var(--border);
 }
 .badge-neutral {
   background: var(--surface-raised);
@@ -145,7 +141,6 @@
   height: 6px;
   border-radius: 50%;
   background: currentColor;
-  box-shadow: 0 0 6px currentColor;
 }
 
 /* ---------- Tables ---------- */
@@ -204,7 +199,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, var(--surface-raised), var(--surface));
+  background: var(--surface);
   border: 1px solid var(--border);
   margin-bottom: 8px;
   color: var(--primary);
@@ -323,7 +318,7 @@
   cursor: pointer;
 }
 .settings-nav button:hover { background: var(--surface-hover); color: var(--text-primary); }
-.settings-nav button:focus-visible { outline: none; box-shadow: var(--ring); }
+.settings-nav button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .settings-nav button.is-active { background: var(--primary-dim); color: var(--text-primary); font-weight: 600; }
 .settings-content { min-width: 0; padding: 26px 28px 32px; }
 .settings-section-heading { margin-bottom: 24px; }
@@ -341,7 +336,7 @@
 .settings-site-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
 .settings-site { width: 100%; padding: 12px 14px; display: flex; align-items: center; gap: 11px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-elevated); color: var(--text-primary); text-align: left; cursor: pointer; }
 .settings-site:hover { border-color: var(--border-hover); background: var(--surface-raised); }
-.settings-site:focus-visible { outline: none; box-shadow: var(--ring); }
+.settings-site:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .settings-site.is-current { border-color: color-mix(in srgb, var(--primary) 55%, var(--border)); }
 .settings-site-dot { width: 9px; height: 9px; flex: 0 0 auto; border: 2px solid var(--text-muted); border-radius: 50%; }
 .settings-site.is-current .settings-site-dot { border-color: var(--primary); background: var(--primary); box-shadow: 0 0 0 3px var(--primary-dim); }

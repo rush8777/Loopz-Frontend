@@ -2,32 +2,16 @@ import type { ReactNode } from "react";
 
 export function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--bg)",
-        padding: 20,
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: 380 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 32, justifyContent: "center" }}>
-          <div
-            style={{
-              width: 22,
-              height: 22,
-              borderRadius: 6,
-              background: "linear-gradient(135deg, var(--observe), var(--analysis))",
-            }}
-          />
-          <span style={{ fontWeight: 600, fontSize: 15 }}>Behave</span>
+    <div className="flex min-h-dvh items-center justify-center bg-background px-5 py-10">
+      <div className="w-full max-w-[380px]">
+        <div className="mb-8 flex items-center justify-center gap-2">
+          <div className="grid size-7 place-items-center rounded-md bg-foreground text-xs font-bold text-background">L</div>
+          <span className="text-[15px] font-semibold">Loopz</span>
         </div>
 
-        <div className="card card-padded">
-          <h1 style={{ fontSize: 18, fontWeight: 600, margin: "0 0 4px" }}>{title}</h1>
-          <p style={{ fontSize: 13.5, color: "var(--text-secondary)", margin: "0 0 24px" }}>{subtitle}</p>
+        <div className="rounded-lg border bg-card p-6 shadow-[oklab(0_0_0/.07)_0_0_0_1px,rgba(0,0,0,.05)_0_1px_2px]">
+          <h1 className="m-0 text-lg font-semibold">{title}</h1>
+          <p className="mt-1 mb-6 text-[13px] text-muted-foreground">{subtitle}</p>
           {children}
         </div>
       </div>

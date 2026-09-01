@@ -28,9 +28,11 @@ export function InstallationSettings() {
             />
           </SettingsGroup>
           <SettingsGroup title="Install Loopz">
-            <div className="settings-code-wrap">
-              <pre className="settings-code mono">{installationSnippet(currentSite.siteId)}</pre>
+            <div className="relative">
+              <pre className="mono m-0 overflow-auto p-4 pr-24 text-xs leading-5 text-muted-foreground">{installationSnippet(currentSite.siteId)}</pre>
+              <div className="absolute top-2 right-2">
               <CopyButton value={installationSnippet(currentSite.siteId)} label="installation snippet" />
+              </div>
             </div>
           </SettingsGroup>
         </>

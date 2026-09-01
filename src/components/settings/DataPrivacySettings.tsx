@@ -10,7 +10,7 @@ export function DataPrivacySettings() {
         <SettingsRow label="Identity resolution" value={<span className="settings-status">Supported via identify()</span>} />
         <SettingsRow label="Custom events" value={<span className="settings-status">Supported</span>} />
       </SettingsGroup>
-      <p className="settings-note">These are SDK capabilities, not workspace-level toggles.</p>
+      <p className="text-xs text-muted-foreground">These are SDK capabilities, not workspace-level toggles.</p>
     </div>
   );
 }

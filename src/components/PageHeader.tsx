@@ -11,26 +11,18 @@ export function PageHeader({
   description?: string;
   actions?: ReactNode;
 }) {
-  const accentVar =
-    section === "Observe" ? "--observe" : section === "Analysis" ? "--analysis" : section === "Users" ? "--users" : "--feedback";
   return (
-    <div style={{ marginBottom: 24 }}>
-      <div
-        className="badge"
-        style={{ background: `var(${accentVar}-dim)`, color: `var(${accentVar})`, marginBottom: 10 }}
-      >
-        <span className="badge-dot" />
-        {section}
-      </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-        <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>{title}</h1>
+    <header className="mb-6 border-b pb-5">
+      <div className="mb-2 text-[10px] font-semibold uppercase text-muted-foreground">{section}</div>
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div className="min-w-0">
+          <h1 className="m-0 text-xl font-semibold">{title}</h1>
           {description && (
-            <p style={{ fontSize: 13.5, color: "var(--text-secondary)", margin: "6px 0 0" }}>{description}</p>
+            <p className="mt-1.5 mb-0 max-w-2xl text-[13px] text-muted-foreground">{description}</p>
           )}
         </div>
         {actions}
       </div>
-    </div>
+    </header>
   );
 }

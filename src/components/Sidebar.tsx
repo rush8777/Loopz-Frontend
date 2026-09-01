@@ -1,166 +1,23 @@
+import { BarChart3, ChevronDown, FileText, Flame, Gauge, MousePointerClick, Network, PanelLeftClose, Settings, Users, Waypoints, X } from "lucide-react";
+import type { ComponentType } from "react";
 import { NavLink } from "react-router-dom";
+import { useWorkspace } from "@/auth/WorkspaceContext";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { SettingsSection } from "./settings/SettingsModal";
-
-interface NavItem {
-  label: string;
-  path?: string;
-  disabled?: boolean;
-}
-interface NavSection {
-  label: string;
-  accentVar?: string; // CSS var name for the section's wayfinding color
-  items: NavItem[];
-}
-
-const SECTIONS: NavSection[] = [
-  { label: "", items: [{ label: "Overview", disabled: true }] },
-  {
-    label: "Observe",
-    accentVar: "--observe",
-    items: [
-      { label: "Pages", path: "/observe/pages" },
-      { label: "Sessions", path: "/observe/sessions" },
-      { label: "Events", path: "/observe/events" },
-      { label: "Funnels", path: "/observe/funnels" },
-      // { label: "Replay", path: "/observe/replay" },
-      { label: "Heatmaps", path: "/observe/heatmaps" },
-    ],
-  },
-  // {
-  //   label: "Analysis",
-  //   accentVar: "--analysis",
-  //   items: [
-  //     { label: "Discovered Patterns", path: "/analysis/discovered" },
-  //     { label: "Pattern Analysis", path: "/analysis/patterns" },
-  //     { label: "Behavior Clusters", path: "/analysis/clusters" },
-  //   ],
-  // },
-  {
-    label: "Feedback",
-    accentVar: "--feedback",
-    items: [{ label: "Campaigns", disabled: true }],
-  },
-  { label: "", items: [{ label: "Users", path: "/users" }, { label: "Segments", path: "/segments" }] },
+interface NavItem { label:string; path?:string; disabled?:boolean; icon:ComponentType<{className?:string}> } interface NavSection { label:string; items:NavItem[] }
+const SECTIONS:NavSection[]=[
+  {label:"Workspace",items:[{label:"Overview",disabled:true,icon:Gauge}]},
+  {label:"Observe",items:[{label:"Pages",path:"/observe/pages",icon:FileText},{label:"Sessions",path:"/observe/sessions",icon:MousePointerClick},{label:"Events",path:"/observe/events",icon:Waypoints},{label:"Funnels",path:"/observe/funnels",icon:Network},/* Replay stays disabled until its route is restored. */{label:"Heatmaps",path:"/observe/heatmaps",icon:Flame}]},
+  /* Analysis navigation stays disabled until its existing routes are restored. */
+  {label:"Feedback",items:[{label:"Campaigns",disabled:true,icon:BarChart3}]},
+  {label:"People",items:[{label:"Users",path:"/users",icon:Users},{label:"Segments",path:"/segments",icon:PanelLeftClose}]},
 ];
-
-export function Sidebar({ onOpenSettings }: { onOpenSettings: (section?: SettingsSection) => void }) {
-  return (
-    <nav
-      style={{
-        width: 220,
-        flexShrink: 0,
-        borderRight: "1px solid var(--border)",
-        padding: "16px 12px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 22,
-        height: "100vh",
-        position: "sticky",
-        top: 0,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 8px" }}>
-        <div
-          style={{
-            width: 20,
-            height: 20,
-            borderRadius: 5,
-            background: "linear-gradient(135deg, var(--observe), var(--analysis))",
-          }}
-        />
-        <span style={{ fontWeight: 600, fontSize: 14 }}>Behave</span>
-      </div>
-
-      {SECTIONS.map((section, i) => (
-        <div key={i}>
-          {section.label && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "0 8px 6px",
-                fontSize: 11,
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                color: "var(--text-muted)",
-              }}
-            >
-              {section.accentVar && (
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: `var(${section.accentVar})`,
-                  }}
-                />
-              )}
-              {section.label}
-            </div>
-          )}
-          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {section.items.map((item) =>
-              item.disabled || !item.path ? (
-                <div
-                  key={item.label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "7px 8px",
-                    borderRadius: "var(--radius-sm)",
-                    fontSize: 13.5,
-                    color: "var(--text-muted)",
-                    cursor: "not-allowed",
-                  }}
-                >
-                  {item.label}
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 600,
-                      color: "var(--text-muted)",
-                      background: "var(--surface-raised)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 4,
-                      padding: "1px 5px",
-                    }}
-                  >
-                    Soon
-                  </span>
-                </div>
-              ) : (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  style={({ isActive }) => ({
-                    display: "block",
-                    padding: "7px 8px",
-                    borderRadius: "var(--radius-sm)",
-                    fontSize: 13.5,
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
-                    background: isActive ? "var(--surface-raised)" : "transparent",
-                  })}
-                >
-                  {item.label}
-                </NavLink>
-              )
-            )}
-          </div>
-        </div>
-      ))}
-
-      <button
-        type="button"
-        className="btn btn-ghost btn-block"
-        onClick={() => onOpenSettings("general")}
-        style={{ marginTop: "auto", justifyContent: "flex-start", padding: "7px 8px", height: 34 }}
-      >
-        Settings
-      </button>
-    </nav>
-  );
+export function Sidebar({onOpenSettings,mobileOpen=false,onMobileClose}:{onOpenSettings:(section?:SettingsSection)=>void;mobileOpen?:boolean;onMobileClose?:()=>void}) {
+  const {currentOrg,currentSite}=useWorkspace();
+  const content=<aside className="flex h-full flex-col bg-[#fafafa] p-3"><div className="flex h-11 items-center gap-2 px-2"><div className="grid size-7 place-items-center rounded-md bg-foreground text-xs font-bold text-background">L</div><span className="text-sm font-semibold">Loopz</span>{onMobileClose&&<Button variant="ghost" size="icon" className="ml-auto lg:hidden" onClick={onMobileClose} aria-label="Close navigation"><X/></Button>}</div>
+    <button type="button" onClick={()=>onOpenSettings("sites")} className="mt-2 flex w-full items-center gap-2 rounded-md border bg-white px-2.5 py-2 text-left shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20"><span className="grid size-6 shrink-0 place-items-center rounded-sm bg-secondary text-[10px] font-semibold">{currentOrg?.name?.slice(0,1).toUpperCase()??"W"}</span><span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium">{currentOrg?.name??"Workspace"}</span><span className="block truncate text-[10px] text-muted-foreground">{currentSite?.domain??"Select a site"}</span></span><ChevronDown className="size-3.5 text-muted-foreground"/></button>
+    <nav className="mt-5 flex-1 space-y-5 overflow-y-auto" aria-label="Main navigation">{SECTIONS.map(section=><div key={section.label}><div className="mb-1 px-2 text-[10px] font-semibold uppercase text-muted-foreground">{section.label}</div><div className="space-y-0.5">{section.items.map(item=>{const Icon=item.icon;return item.disabled||!item.path?<div key={item.label} className="flex h-8 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground/65" aria-disabled="true"><Icon className="size-4"/><span className="flex-1">{item.label}</span><span className="rounded border px-1 text-[10px]">Soon</span></div>:<NavLink key={item.path} to={item.path} onClick={onMobileClose} className={({isActive})=>cn("flex h-8 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",isActive&&"bg-accent font-medium text-foreground")}><Icon className="size-4"/>{item.label}</NavLink>})}</div></div>)}</nav>
+    <Button type="button" variant="ghost" className="w-full justify-start text-muted-foreground" onClick={()=>onOpenSettings("general")}><Settings/>Settings</Button></aside>;
+  return <><div className="sticky top-0 hidden h-dvh w-[232px] border-r lg:block">{content}</div>{mobileOpen&&<div className="fixed inset-0 z-40 lg:hidden"><button className="absolute inset-0 bg-black/25" onClick={onMobileClose} aria-label="Close navigation overlay"/><div className="absolute inset-y-0 left-0 w-[min(300px,85vw)] border-r shadow-xl">{content}</div></div>}</>;
 }

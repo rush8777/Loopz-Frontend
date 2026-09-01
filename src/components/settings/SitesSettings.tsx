@@ -2,6 +2,12 @@ import { useState, type FormEvent } from "react";
 import * as sitesApi from "../../api/sites";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { SettingsHeading } from "./SettingsShared";
+import { Plus } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function SitesSettings() {
   const { currentOrg, sites, currentSite, setCurrentSiteId, refreshSites } = useWorkspace();
@@ -31,53 +37,49 @@ export function SitesSettings() {
   return (
     <div>
       <SettingsHeading title="Sites" description="Choose which site Loopz uses across the workspace." />
-      <div className="settings-site-list" aria-label="Sites">
-        {sites.length === 0 && <div className="settings-empty">No sites yet.</div>}
+      <div className="mb-5 flex flex-col gap-2" aria-label="Sites">
+        {sites.length === 0 && <div className="rounded-lg border border-dashed p-6 text-center text-[13px] text-muted-foreground">No sites yet.</div>}
         {sites.map((site) => {
           const isCurrent = site.id === currentSite?.id;
           return (
             <button
               type="button"
               key={site.id}
-              className={`settings-site${isCurrent ? " is-current" : ""}`}
+              className={`flex w-full items-center gap-3 rounded-lg border bg-card px-3.5 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20${isCurrent ? " border-primary/40" : ""}`}
               onClick={() => setCurrentSiteId(site.id)}
               aria-pressed={isCurrent}
             >
-              <span className="settings-site-dot" aria-hidden="true" />
-              <span className="settings-site-details">
-                <strong>{site.name}</strong>
-                <span>{site.domain ?? "No domain set"}</span>
+              <span className={`size-2 rounded-full border${isCurrent ? " border-primary bg-primary" : " border-muted-foreground"}`} aria-hidden="true" />
+              <span className="min-w-0 flex-1">
+                <strong className="block truncate text-[13px] font-medium">{site.name}</strong>
+                <span className="block truncate text-xs text-muted-foreground">{site.domain ?? "No domain set"}</span>
               </span>
-              {isCurrent && <span className="badge badge-neutral">Current</span>}
+              {isCurrent && <Badge variant="outline">Current</Badge>}
             </button>
           );
         })}
       </div>
 
       {!creatingSite ? (
-        <button type="button" className="btn btn-primary" onClick={() => setCreatingSite(true)} disabled={!currentOrg}>
-          + Add site
-        </button>
+        <Button type="button" aria-label="+ Add site" onClick={() => setCreatingSite(true)} disabled={!currentOrg}><Plus/>Add site</Button>
       ) : (
-        <form className="settings-create-site" onSubmit={(event) => void onCreateSite(event)}>
-          <label className="field">
-            <span>Site name</span>
-            <input
+        <form className="flex max-w-sm flex-col gap-3" onSubmit={(event) => void onCreateSite(event)}>
+          <div className="grid gap-1.5">
+            <Label htmlFor="new-site-name">Site name</Label>
+            <Input id="new-site-name"
               autoFocus
-              className="input"
               placeholder="My website"
               value={newSiteName}
               onChange={(event) => setNewSiteName(event.target.value)}
-            />
-          </label>
-          {error && <div className="error-banner">{error}</div>}
-          <div className="settings-form-actions">
-            <button type="submit" className="btn btn-primary" disabled={creating || !newSiteName.trim()}>
+            /></div>
+          {error && <Alert className="border-destructive/25 bg-red-50 text-destructive">{error}</Alert>}
+          <div className="flex gap-2">
+            <Button type="submit" disabled={creating || !newSiteName.trim()}>
               {creating ? "Creating…" : "Create site"}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={() => setCreatingSite(false)} disabled={creating}>
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setCreatingSite(false)} disabled={creating}>
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       )}

@@ -1,6 +1,7 @@
 import { useAuth } from "../../auth/AuthContext";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { SettingsGroup, SettingsHeading, SettingsRow } from "./SettingsShared";
+import { Button } from "@/components/ui/button";
 
 export function AccountSettings() {
   const { user, logout } = useAuth();
@@ -18,7 +19,7 @@ export function AccountSettings() {
             label="Organization"
             value={
               <select
-                className="input settings-select"
+                className="h-9 w-full max-w-60 rounded-md border bg-input px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20"
                 aria-label="Organization"
                 value={currentOrg?.orgId ?? ""}
                 onChange={(event) => setCurrentOrgId(event.target.value)}
@@ -31,9 +32,9 @@ export function AccountSettings() {
           />
         )}
       </SettingsGroup>
-      <button type="button" className="btn settings-sign-out" onClick={() => void logout()}>
+      <Button type="button" variant="outline" className="text-destructive hover:bg-red-50 hover:text-destructive" onClick={() => void logout()}>
         Sign out
-      </button>
+      </Button>
     </div>
   );
 }

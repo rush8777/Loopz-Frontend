@@ -3,6 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { ApiError } from "../../api/client";
 import { AuthLayout } from "./AuthLayout";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function SignupPage() {
   const { signup } = useAuth();
@@ -35,23 +39,21 @@ export function SignupPage() {
 
   return (
     <AuthLayout title="Create your workspace" subtitle="Set up your account and organization.">
-      <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        <div className="field">
-          <label htmlFor="orgName">Organization name</label>
-          <input
+      <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <div className="grid gap-1.5">
+          <Label htmlFor="orgName">Organization name</Label>
+          <Input
             id="orgName"
-            className="input"
             required
             value={orgName}
             onChange={(e) => setOrgName(e.target.value)}
             placeholder="Acme Inc."
           />
         </div>
-        <div className="field">
-          <label htmlFor="email">Email</label>
-          <input
+        <div className="grid gap-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input
             id="email"
-            className="input"
             type="email"
             autoComplete="email"
             required
@@ -60,11 +62,10 @@ export function SignupPage() {
             placeholder="you@company.com"
           />
         </div>
-        <div className="field">
-          <label htmlFor="password">Password</label>
-          <input
+        <div className="grid gap-1.5">
+          <Label htmlFor="password">Password</Label>
+          <Input
             id="password"
-            className="input"
             type="password"
             autoComplete="new-password"
             required
@@ -75,16 +76,16 @@ export function SignupPage() {
           />
         </div>
 
-        {error && <div className="error-banner">{error}</div>}
+        {error && <Alert className="border-destructive/25 bg-red-50 text-destructive">{error}</Alert>}
 
-        <button type="submit" className="btn btn-primary btn-block" disabled={submitting} style={{ marginTop: 4 }}>
+        <Button type="submit" className="mt-1 w-full" disabled={submitting}>
           {submitting ? "Creating workspace…" : "Create workspace"}
-        </button>
+        </Button>
       </form>
 
-      <p style={{ fontSize: 13, color: "var(--text-secondary)", textAlign: "center", marginTop: 20, marginBottom: 0 }}>
+      <p className="mt-5 mb-0 text-center text-[13px] text-muted-foreground">
         Already have a workspace?{" "}
-        <Link to="/login" style={{ color: "var(--text-primary)", fontWeight: 500 }}>
+        <Link to="/login" className="font-medium text-foreground hover:underline">
           Sign in
         </Link>
       </p>
