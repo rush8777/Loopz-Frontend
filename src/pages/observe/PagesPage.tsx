@@ -6,6 +6,10 @@ import { EmptyState } from "../../components/EmptyState";
 import * as pagesApi from "../../api/pages";
 import type { PageDefinition, UntaggedUrl } from "../../types/api";
 import { formatRelativeTime } from "../../lib/format";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DataTableFrame, ErrorNotice, FilterToolbar, LoadingRows, dataTableClass } from "@/components/PageSurface";
+import { cn } from "@/lib/utils";
 
 type Tab = "overview" | "untagged";
 
@@ -39,9 +43,9 @@ export function PagesPage() {
     return (
       <>
         <PageHeader section="Observe" title="Pages" description="Organize the raw URLs your app generates into logical pages." />
-        <div className="card">
+        <DataTableFrame>
           <EmptyState title="No site selected" description="Select a site from the switcher above." />
-        </div>
+        </DataTableFrame>
       </>
     );
   }
@@ -53,26 +57,22 @@ export function PagesPage() {
         title="Pages"
         description="Group the URLs your app generates into logical pages, so patterns, heatmaps, and replay can target them by name instead of raw paths."
         actions={
-          <button className="btn btn-primary" onClick={() => navigate("/observe/pages/new")}>
-            + Create Page
-          </button>
+          <Button onClick={() => navigate("/observe/pages/new")}><Plus />Create Page</Button>
         }
       />
 
-      <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+      <FilterToolbar className="justify-start gap-1">
         <TabButton active={tab === "overview"} onClick={() => setTab("overview")}>
           Overview{pages ? ` (${pages.length})` : ""}
         </TabButton>
         <TabButton active={tab === "untagged"} onClick={() => setTab("untagged")}>
           Untagged URLs{untagged ? ` (${untagged.length})` : ""}
         </TabButton>
-      </div>
+      </FilterToolbar>
 
-      <div className="card">
+      <DataTableFrame>
         {error && (
-          <div style={{ padding: 16 }}>
-            <div className="error-banner">{error}</div>
-          </div>
+          <div className="p-4"><ErrorNotice>{error}</ErrorNotice></div>
         )}
 
         {!error && tab === "overview" && <OverviewTab pages={pages} onOpen={(id) => navigate(`/observe/pages/${id}`)} />}
@@ -82,36 +82,29 @@ export function PagesPage() {
             onTag={(pagePath) => navigate(`/observe/pages/new?path=${encodeURIComponent(pagePath)}`)}
           />
         )}
-      </div>
+      </DataTableFrame>
     </>
   );
 }
 
 function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
+    <Button
+      type="button"
       onClick={onClick}
-      className="btn btn-ghost btn-sm"
-      style={{
-        borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
-        borderBottom: active ? "2px solid var(--observe)" : "2px solid transparent",
-        color: active ? "var(--text-primary)" : "var(--text-secondary)",
-        fontWeight: active ? 600 : 400,
-      }}
+      variant="ghost"
+      size="sm"
+      className={cn("rounded-b-none border-b-2 border-transparent text-muted-foreground", active && "border-primary font-semibold text-foreground")}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
 function OverviewTab({ pages, onOpen }: { pages: PageDefinition[] | null; onOpen: (id: string) => void }) {
   if (pages === null) {
     return (
-      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="skeleton" style={{ height: 44 }} />
-        ))}
-      </div>
+      <LoadingRows count={4} />
     );
   }
 
@@ -125,7 +118,7 @@ function OverviewTab({ pages, onOpen }: { pages: PageDefinition[] | null; onOpen
   }
 
   return (
-    <table className="table">
+    <table className={dataTableClass}>
       <thead>
         <tr>
           <th>Name</th>
@@ -140,22 +133,22 @@ function OverviewTab({ pages, onOpen }: { pages: PageDefinition[] | null; onOpen
       <tbody>
         {pages.map((p) => (
           <tr key={p.id} onClick={() => onOpen(p.id)}>
-            <td style={{ color: "var(--text-primary)" }}>
+            <td className="font-medium text-foreground">
               {p.name}
               {p.pageType && (
-                <span className="badge badge-neutral" style={{ marginLeft: 8, fontSize: 10 }}>
+                <span className="ml-2 inline-flex rounded-sm border px-1.5 text-[10px] font-medium text-muted-foreground">
                   {p.pageType}
                 </span>
               )}
             </td>
-            <td style={{ color: "var(--text-secondary)" }}>{p.area ?? "—"}</td>
-            <td className="mono" style={{ fontSize: 11.5, color: "var(--text-muted)" }}>
+            <td className="text-muted-foreground">{p.area ?? "—"}</td>
+            <td className="mono text-xs text-muted-foreground">
               {p.rules.length} rule{p.rules.length === 1 ? "" : "s"}
             </td>
             <td className="mono">{p.views.toLocaleString()}</td>
             <td className="mono">{p.uniqueVisitors.toLocaleString()}</td>
             <td className="mono">{p.uniqueSessions.toLocaleString()}</td>
-            <td style={{ color: "var(--text-secondary)" }}>{p.lastSeenAt ? formatRelativeTime(p.lastSeenAt) : "—"}</td>
+            <td className="text-muted-foreground">{p.lastSeenAt ? formatRelativeTime(p.lastSeenAt) : "—"}</td>
           </tr>
         ))}
       </tbody>
@@ -166,11 +159,7 @@ function OverviewTab({ pages, onOpen }: { pages: PageDefinition[] | null; onOpen
 function UntaggedTab({ untagged, onTag }: { untagged: UntaggedUrl[] | null; onTag: (pagePath: string) => void }) {
   if (untagged === null) {
     return (
-      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="skeleton" style={{ height: 44 }} />
-        ))}
-      </div>
+      <LoadingRows count={4} />
     );
   }
 
@@ -184,7 +173,7 @@ function UntaggedTab({ untagged, onTag }: { untagged: UntaggedUrl[] | null; onTa
   }
 
   return (
-    <table className="table">
+    <table className={dataTableClass}>
       <thead>
         <tr>
           <th>URL</th>
@@ -196,15 +185,15 @@ function UntaggedTab({ untagged, onTag }: { untagged: UntaggedUrl[] | null; onTa
       <tbody>
         {untagged.map((u) => (
           <tr key={u.pagePath}>
-            <td className="mono" style={{ color: "var(--text-primary)" }}>
+            <td className="mono max-w-md break-all text-foreground">
               {u.pagePath}
             </td>
             <td className="mono">{u.views.toLocaleString()}</td>
-            <td style={{ color: "var(--text-secondary)" }}>{formatRelativeTime(u.lastSeenAt)}</td>
+            <td className="text-muted-foreground">{formatRelativeTime(u.lastSeenAt)}</td>
             <td>
-              <button className="btn btn-ghost btn-sm" onClick={() => onTag(u.pagePath)}>
+              <Button variant="ghost" size="sm" onClick={() => onTag(u.pagePath)}>
                 Tag URL
-              </button>
+              </Button>
             </td>
           </tr>
         ))}

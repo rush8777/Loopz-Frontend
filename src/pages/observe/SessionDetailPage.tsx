@@ -6,6 +6,10 @@ import { EmptyState } from "../../components/EmptyState";
 import * as sessionsApi from "../../api/sessions";
 import type { SessionActivity, SessionActivityEvidence, SessionActivityItem } from "../../types/api";
 import { formatDuration, formatTimestamp } from "../../lib/format";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DataTableFrame, ErrorNotice, LoadingRows, Metric as SurfaceMetric, MetricGrid } from "@/components/PageSurface";
 
 type FilterKind = "click" | "custom" | "long_hover" | "derived_signal";
 
@@ -47,9 +51,9 @@ function Evidence({ evidence }: { evidence?: SessionActivityEvidence }) {
     evidence.sourceEventCount != null && `${evidence.sourceEventCount} best-effort source references`,
   ].filter(Boolean);
   return (
-    <div style={{ marginTop: 8, color: "var(--text-secondary)", fontSize: 12.5 }}>
+    <div className="mt-2 text-xs text-muted-foreground">
       {values.length > 0 && <div>{values.join(" · ")}</div>}
-      <div style={{ marginTop: 4 }}>Source references cover the compiler's time window and are not exact causal attribution.</div>
+      <div className="mt-1">Source references cover the compiler's time window and are not exact causal attribution.</div>
     </div>
   );
 }
@@ -65,18 +69,18 @@ function ActivityRow({ item, firstObserved }: { item: SessionActivityItem; first
   const badge = item.kind === "custom" ? "Application event" : item.kind === "long_hover" ? "Long hover" : item.kind === "click" ? "Click" : "Derived signal";
 
   return (
-    <details style={{ borderTop: "1px solid var(--border)", padding: "12px 0" }}>
-      <summary style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10, listStyle: "none" }}>
-        <span className={`badge ${item.kind === "custom" ? "badge-observe" : "badge-neutral"}`}>{badge}</span>
-        <span style={{ flex: 1, color: "var(--text-primary)" }}>{title}</span>
-        <time className="mono" title={formatTimestamp(item.timestamp)} style={{ color: "var(--text-muted)", fontSize: 12 }}>{relativeTimestamp(item.timestamp, firstObserved)}</time>
+    <details className="border-t py-3">
+      <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2.5">
+        <Badge variant={item.kind === "custom" ? "secondary" : "outline"}>{badge}</Badge>
+        <span className="min-w-0 flex-1 text-foreground">{title}</span>
+        <time className="mono text-xs text-muted-foreground" title={formatTimestamp(item.timestamp)}>{relativeTimestamp(item.timestamp, firstObserved)}</time>
       </summary>
-      <div style={{ padding: "10px 0 0 92px", color: "var(--text-secondary)", fontSize: 12.5 }}>
+      <div className="pt-2 text-xs text-muted-foreground sm:pl-[92px]">
         <div>Recorded: {formatTimestamp(item.timestamp)}</div>
         {item.estimatedStartTimestamp && <div>Estimated hover start: {formatTimestamp(item.estimatedStartTimestamp)}</div>}
         {item.kind === "long_hover" && <div>Duration was reported after pointer leave and was not visibility-verified.</div>}
-        {item.element?.selector && <div className="mono" style={{ marginTop: 6, overflowWrap: "anywhere" }}>Selector: {item.element.selector}</div>}
-        {item.kind === "custom" && <pre className="mono" style={{ whiteSpace: "pre-wrap", margin: "8px 0 0", fontSize: 12 }}>{propertyText(item.properties)}</pre>}
+        {item.element?.selector && <div className="mono mt-1.5 break-all">Selector: {item.element.selector}</div>}
+        {item.kind === "custom" && <pre className="mono mt-2 overflow-x-auto whitespace-pre-wrap text-xs">{propertyText(item.properties)}</pre>}
         {item.kind === "derived_signal" && <Evidence evidence={item.evidence} />}
       </div>
     </details>
@@ -84,7 +88,7 @@ function ActivityRow({ item, firstObserved }: { item: SessionActivityItem; first
 }
 
 function Metric({ label, children }: { label: string; children: ReactNode }) {
-  return <div className="card card-padded" style={{ minWidth: 130, flex: 1 }}><div style={{ color: "var(--text-muted)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".05em" }}>{label}</div><div style={{ marginTop: 6, fontSize: 16, color: "var(--text-primary)" }}>{children}</div></div>;
+  return <SurfaceMetric label={label} value={children} />;
 }
 
 export function SessionDetailPage() {
@@ -115,34 +119,34 @@ export function SessionDetailPage() {
 
   return (
     <>
-      <div style={{ marginBottom: 4 }}><Link to="/observe/sessions" style={{ fontSize: 13, color: "var(--text-secondary)" }}>← All sessions</Link></div>
+      <div className="mb-1"><Link to="/observe/sessions" className="text-[13px] text-muted-foreground hover:text-foreground">← All sessions</Link></div>
       <PageHeader section="Observe" title="Session activity" description={sessionId ? `Recorded evidence for ${sessionId}` : "Recorded session evidence"} />
 
-      {error && <div className="card" style={{ padding: 16 }}><div className="error-banner" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span>{error}</span><button className="btn btn-sm" onClick={() => setReloadKey((key) => key + 1)}>Retry</button></div></div>}
-      {notFound && <div className="card"><EmptyState title="Session not found" description="This session doesn't exist for this site." /></div>}
-      {!error && !notFound && session === null && <div className="card" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>{[...Array(6)].map((_, i) => <div key={i} className="skeleton" style={{ height: 44 }} />)}</div>}
+      {error && <div className="flex items-center gap-3"><div className="flex-1"><ErrorNotice>{error}</ErrorNotice></div><Button variant="outline" size="sm" onClick={() => setReloadKey((key) => key + 1)}>Retry</Button></div>}
+      {notFound && <DataTableFrame><EmptyState title="Session not found" description="This session doesn't exist for this site." /></DataTableFrame>}
+      {!error && !notFound && session === null && <DataTableFrame><LoadingRows count={6} /></DataTableFrame>}
 
       {session && (
         <>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
+          <MetricGrid className="mb-4 sm:grid-cols-2 lg:grid-cols-5">
             <Metric label="Visitor">{visitorPath ? <Link to={visitorPath}>{session.visitor?.label}</Link> : "Unresolved"}</Metric>
             <Metric label="Observed duration">{formatDuration(session.observedDurationMs)}</Metric>
             <Metric label="Page visits">{session.counts.pageVisits}</Metric><Metric label="Clicks">{session.counts.clicks}</Metric><Metric label="Application events">{session.counts.customEvents}</Metric>
-          </div>
-          <div className="card card-padded" style={{ marginBottom: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, fontSize: 13 }}>
-            <div><span style={{ color: "var(--text-muted)" }}>First observed</span><br />{formatTimestamp(session.firstObserved)}</div>
-            <div><span style={{ color: "var(--text-muted)" }}>Last observed</span><br />{formatTimestamp(session.lastObserved)}</div>
-            <div><span style={{ color: "var(--text-muted)" }}>Device and browser</span><br />{environmentLabel}</div>
-            <div><span style={{ color: "var(--text-muted)" }}>Referrer</span><br />{environment?.referrer || "Not recorded"}</div>
-            <div className="mono"><span style={{ color: "var(--text-muted)" }}>Session ID</span><br />{session.sessionId}</div>
-            {session.hasReplay && <div><button className="btn btn-sm" onClick={() => navigate(`/observe/heatmaps?session=${session.sessionId}`)}>View heatmap →</button></div>}
+          </MetricGrid>
+          <div className="mb-4 grid gap-3 rounded-lg border bg-card p-4 text-[13px] sm:grid-cols-2 lg:grid-cols-3">
+            <div><span className="text-muted-foreground">First observed</span><br />{formatTimestamp(session.firstObserved)}</div>
+            <div><span className="text-muted-foreground">Last observed</span><br />{formatTimestamp(session.lastObserved)}</div>
+            <div><span className="text-muted-foreground">Device and browser</span><br />{environmentLabel}</div>
+            <div className="break-all"><span className="text-muted-foreground">Referrer</span><br />{environment?.referrer || "Not recorded"}</div>
+            <div className="mono break-all"><span className="text-muted-foreground">Session ID</span><br />{session.sessionId}</div>
+            {session.hasReplay && <div><Button size="sm" onClick={() => navigate(`/observe/heatmaps?session=${session.sessionId}`)}>View heatmap →</Button></div>}
           </div>
 
-          <div className="card card-padded" style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-              <strong style={{ fontSize: 13 }}>Show</strong>
+          <div className="mb-3 rounded-lg border bg-card p-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <strong className="text-[13px]">Show</strong>
               {([['click', 'Clicks'], ['custom', 'Application events'], ['long_hover', 'Long hovers'], ['derived_signal', 'Derived signals']] as [FilterKind, string][]).map(([kind, label]) => (
-                <label key={kind} style={{ display: "inline-flex", gap: 7, alignItems: "center", fontSize: 13 }}><input type="checkbox" checked={filters[kind]} onChange={(event) => setFilters((value) => ({ ...value, [kind]: event.target.checked }))} />{label}</label>
+                <label key={kind} className="inline-flex cursor-pointer items-center gap-2 text-[13px]"><Checkbox checked={filters[kind]} onCheckedChange={(checked) => setFilters((value) => ({ ...value, [kind]: checked === true }))} />{label}</label>
               ))}
             </div>
           </div>
@@ -152,20 +156,20 @@ export function SessionDetailPage() {
             const standardItems = page.items.filter((item) => item.kind !== "derived_signal" && filters[item.kind]);
             const derivedItems = page.items.filter((item) => item.kind === "derived_signal");
             return (
-              <section className="card" key={page.id} style={{ marginBottom: 12 }} aria-labelledby={`page-${index}`}>
-                <div style={{ padding: "18px 20px", borderBottom: "1px solid var(--border)" }}>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}><h2 id={`page-${index}`} style={{ margin: 0, fontSize: 16 }}>{page.pageName ?? page.path ?? "Unknown page"}</h2>{page.pageName && page.path && <span className="mono" style={{ color: "var(--text-muted)", fontSize: 12 }}>{page.path}</span>}{page.attribution === "inferred" && <span className="badge badge-neutral">Inferred legacy attribution</span>}{page.attribution === "unknown" && <span className="badge badge-neutral">Uncertain attribution</span>}</div>
-                  <div style={{ marginTop: 7, color: "var(--text-secondary)", fontSize: 12.5 }}>{relativeTimestamp(page.firstObserved, session.firstObserved)} to {relativeTimestamp(page.lastObserved, session.firstObserved)} · {page.deepestScrollPercent == null ? "No scroll recorded" : `Deepest recorded scroll: ${page.deepestScrollPercent}%`}</div>
+              <section className="mb-3 overflow-hidden rounded-lg border bg-card" key={page.id} aria-labelledby={`page-${index}`}>
+                <div className="border-b px-5 py-[18px]">
+                  <div className="flex flex-wrap items-center gap-2"><h2 id={`page-${index}`} className="m-0 break-words text-base font-semibold">{page.pageName ?? page.path ?? "Unknown page"}</h2>{page.pageName && page.path && <span className="mono break-all text-xs text-muted-foreground">{page.path}</span>}{page.attribution === "inferred" && <Badge variant="secondary">Inferred legacy attribution</Badge>}{page.attribution === "unknown" && <Badge variant="secondary">Uncertain attribution</Badge>}</div>
+                  <div className="mt-[7px] text-[12.5px] text-muted-foreground">{relativeTimestamp(page.firstObserved, session.firstObserved)} to {relativeTimestamp(page.lastObserved, session.firstObserved)} · {page.deepestScrollPercent == null ? "No scroll recorded" : `Deepest recorded scroll: ${page.deepestScrollPercent}%`}</div>
                 </div>
-                <div style={{ padding: "0 20px" }}>
+                <div className="px-5">
                   {standardItems.map((item) => <ActivityRow key={item.id} item={item} firstObserved={session.firstObserved} />)}
-                  {standardItems.length === 0 && !filters.derived_signal && <div style={{ padding: "18px 0", color: "var(--text-muted)", fontSize: 13 }}>No activity matches the current filters.</div>}
-                  {filters.derived_signal && <details style={{ padding: "14px 0", borderTop: "1px solid var(--border)" }}><summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 13 }}>Derived pointer signals ({derivedItems.length})</summary><div style={{ marginTop: 8, color: "var(--text-muted)", fontSize: 12 }}>These threshold-qualified summaries are recorded geometry evidence, not proof of intent, frustration, or interest.</div>{derivedItems.map((item) => <ActivityRow key={item.id} item={item} firstObserved={session.firstObserved} />)}{derivedItems.length === 0 && <div style={{ paddingTop: 12, color: "var(--text-muted)", fontSize: 13 }}>No usable pointer-derived signals were recorded for this page visit.</div>}</details>}
+                  {standardItems.length === 0 && !filters.derived_signal && <div className="py-[18px] text-[13px] text-muted-foreground">No activity matches the current filters.</div>}
+                  {filters.derived_signal && <details className="border-t py-3.5"><summary className="cursor-pointer text-[13px] font-semibold">Derived pointer signals ({derivedItems.length})</summary><div className="mt-2 text-xs text-muted-foreground">These threshold-qualified summaries are recorded geometry evidence, not proof of intent, frustration, or interest.</div>{derivedItems.map((item) => <ActivityRow key={item.id} item={item} firstObserved={session.firstObserved} />)}{derivedItems.length === 0 && <div className="pt-3 text-[13px] text-muted-foreground">No usable pointer-derived signals were recorded for this page visit.</div>}</details>}
                 </div>
               </section>
             );
           })}
-          <div className="card card-padded" style={{ color: "var(--text-muted)", fontSize: 12.5, lineHeight: 1.6 }}><strong style={{ color: "var(--text-secondary)" }}>Evidence notes.</strong> {session.limitations.observedDuration} {session.limitations.hover} {session.limitations.pointer} The compact response covers all {session.coverage.rawEventCount} stored events and summarizes {session.coverage.cursorSampleCount} cursor samples without returning individual coordinates.</div>
+          <div className="rounded-lg border bg-card p-4 text-[12.5px] leading-relaxed text-muted-foreground"><strong className="text-foreground">Evidence notes.</strong> {session.limitations.observedDuration} {session.limitations.hover} {session.limitations.pointer} The compact response covers all {session.coverage.rawEventCount} stored events and summarizes {session.coverage.cursorSampleCount} cursor samples without returning individual coordinates.</div>
         </>
       )}
     </>

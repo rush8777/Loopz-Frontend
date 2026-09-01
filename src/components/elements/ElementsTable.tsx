@@ -4,6 +4,12 @@ import { EmptyState } from "../EmptyState";
 import * as elementsApi from "../../api/elements";
 import type { CatalogElement } from "../../types/api";
 import { formatRelativeTime } from "../../lib/format";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
+import { cn } from "@/lib/utils";
 
 function RenameField({ element, onSaved }: { element: CatalogElement; onSaved: (updated: CatalogElement) => void }) {
   const { currentOrg, currentSite } = useWorkspace();
@@ -27,17 +33,17 @@ function RenameField({ element, onSaved }: { element: CatalogElement; onSaved: (
   }
 
   if (editing) {
-    return <input className="input" aria-label={`Rename ${element.label ?? element.selector}`} autoFocus value={value} disabled={saving}
+    return <Input className="h-8 py-1 text-[13px]" aria-label={`Rename ${element.label ?? element.selector}`} autoFocus value={value} disabled={saving}
       onChange={(event) => setValue(event.target.value)} onBlur={() => void save()}
       onKeyDown={(event) => { if (event.key === "Enter") void save(); if (event.key === "Escape") { setValue(element.label ?? ""); setEditing(false); } }}
-      style={{ fontSize: 13, padding: "4px 8px" }} />;
+    />;
   }
 
   return (
-    <button onClick={() => setEditing(true)} style={{ border: "none", background: "none", padding: 0, textAlign: "left", cursor: "pointer" }} title="Click to rename">
-      <span style={{ color: element.label ? "var(--text-primary)" : "var(--text-muted)" }}>{element.label ?? "Unnamed — click to add a label"}</span>
-      {element.source === "manual" && <span className="badge badge-neutral" style={{ marginLeft: 8, fontSize: 10 }}>renamed</span>}
-    </button>
+    <Button variant="ghost" className="h-auto max-w-full justify-start whitespace-normal p-0 text-left font-normal hover:bg-transparent" onClick={() => setEditing(true)} title="Click to rename">
+      <span className={cn(element.label ? "text-foreground" : "text-muted-foreground")}>{element.label ?? "Unnamed — click to add a label"}</span>
+      {element.source === "manual" && <Badge variant="secondary">renamed</Badge>}
+    </Button>
   );
 }
 
@@ -63,32 +69,32 @@ export function ElementsTable({ elements, error, onUpdated, emptyDescription }: 
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-secondary)" }}>
-          <input type="checkbox" checked={showIgnored} onChange={(event) => setShowIgnored(event.target.checked)} /> Show ignored
+      <div className="mb-2.5 flex justify-end">
+        <label className="flex cursor-pointer items-center gap-2 text-[13px] text-muted-foreground">
+          <Checkbox checked={showIgnored} onCheckedChange={(checked) => setShowIgnored(checked === true)} /> Show ignored
         </label>
       </div>
-      <div className="card">
-        {error && <div style={{ padding: 16 }}><div className="error-banner">{error}</div></div>}
-        {!error && elements === null && <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>{[...Array(6)].map((_, index) => <div key={index} className="skeleton" style={{ height: 44 }} />)}</div>}
+      <DataTableFrame>
+        {error && <div className="p-4"><ErrorNotice>{error}</ErrorNotice></div>}
+        {!error && elements === null && <LoadingRows count={6} />}
         {elements && elements.length === 0 && <EmptyState title="No page elements discovered yet" description={emptyDescription} />}
         {visibleElements && visibleElements.length > 0 && (
-          <table className="table">
+          <table className={dataTableClass}>
             <thead><tr><th>Element</th><th>Type</th><th>Seen</th><th>Last seen</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>{visibleElements.map((element) => (
-              <tr key={element.id} style={{ opacity: element.isIgnored ? 0.5 : 1 }}>
-                <td style={{ minWidth: 260 }}><RenameField element={element} onSaved={onUpdated} /><div className="mono" style={{ color: "var(--text-secondary)", fontSize: 11.5, maxWidth: 360, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={element.selector}>{element.selector}</div></td>
-                <td style={{ color: "var(--text-muted)", fontSize: 12 }}>{element.role ?? element.tagName}</td>
+              <tr key={element.id} className={cn(element.isIgnored && "opacity-50")}>
+                <td className="min-w-[260px]"><RenameField element={element} onSaved={onUpdated} /><div className="mono max-w-[360px] truncate text-[11.5px] text-muted-foreground" title={element.selector}>{element.selector}</div></td>
+                <td className="text-xs text-muted-foreground">{element.role ?? element.tagName}</td>
                 <td className="mono">{element.seenCount.toLocaleString()}</td>
-                <td className="mono" style={{ color: "var(--text-secondary)" }}>{formatRelativeTime(element.lastSeenAt)}</td>
+                <td className="mono text-muted-foreground">{formatRelativeTime(element.lastSeenAt)}</td>
                 <td><span className={`badge ${element.isIgnored ? "badge-neutral" : "badge-observe"}`}>{element.isIgnored ? "Ignored" : "Active"}</span></td>
-                <td><button className="btn btn-ghost btn-sm" onClick={() => void toggleIgnored(element)}>{element.isIgnored ? "Unignore" : "Ignore"}</button></td>
+                <td><Button variant="ghost" size="sm" onClick={() => void toggleIgnored(element)}>{element.isIgnored ? "Unignore" : "Ignore"}</Button></td>
               </tr>
             ))}</tbody>
           </table>
         )}
         {elements && elements.length > 0 && visibleElements?.length === 0 && <EmptyState title="All elements are ignored" description="Turn on Show ignored above to see them." />}
-      </div>
+      </DataTableFrame>
     </>
   );
 }

@@ -8,6 +8,8 @@ import { resolveDateRange, type DateRangePreset } from "../../lib/dateRange";
 import { formatTimestamp } from "../../lib/format";
 import * as eventsApi from "../../api/events";
 import type { EventDefinitionSummary } from "../../types/api";
+import { Input } from "@/components/ui/input";
+import { DataTableFrame, ErrorNotice, FilterToolbar, LoadingRows, dataTableClass } from "@/components/PageSurface";
 
 export function EventsPage() {
   const { currentOrg, currentSite } = useWorkspace();
@@ -52,9 +54,9 @@ export function EventsPage() {
     return (
       <>
         <PageHeader section="Observe" title="Events" description="Track and explore the application events your product sends." />
-        <div className="card">
+        <DataTableFrame>
           <EmptyState title="No site selected" description="Select a site from the switcher above." />
-        </div>
+        </DataTableFrame>
       </>
     );
   }
@@ -67,10 +69,8 @@ export function EventsPage() {
         description="Application events reported with analytics.event(name, properties) - your product's business events, distinct from autocaptured clicks and hovers."
       />
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 16 }}>
-        <input
-          className="input"
-          style={{ maxWidth: 320 }}
+      <FilterToolbar>
+        <Input className="max-w-80"
           placeholder="Search events..."
           value={search}
           onChange={(e) => updateParams({ search: e.target.value || undefined })}
@@ -81,16 +81,14 @@ export function EventsPage() {
           customUntil={customUntil}
           onChange={(p, since, until) => updateParams({ range: p, since, until })}
         />
-      </div>
+      </FilterToolbar>
 
-      <div className="card">
+      <DataTableFrame>
         {error && (
-          <div style={{ padding: 16 }}>
-            <div className="error-banner">{error}</div>
-          </div>
+          <div className="p-4"><ErrorNotice>{error}</ErrorNotice></div>
         )}
         {!error && <EventsTable events={events} total={total} onOpen={(name) => navigate(`/observe/events/${encodeURIComponent(name)}`)} />}
-      </div>
+      </DataTableFrame>
     </>
   );
 }
@@ -106,11 +104,7 @@ function EventsTable({
 }) {
   if (events === null) {
     return (
-      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="skeleton" style={{ height: 44 }} />
-        ))}
-      </div>
+      <LoadingRows />
     );
   }
 
@@ -122,7 +116,7 @@ function EventsTable({
           <>
             Track your first application event with:
             <br />
-            <code className="mono" style={{ marginTop: 8, fontSize: 12.5, color: "var(--text-primary)" }}>
+            <code className="mono mt-2 text-xs text-foreground">
               analytics.event("event_name", properties)
             </code>
           </>
@@ -136,7 +130,7 @@ function EventsTable({
   }
 
   return (
-    <table className="table">
+    <table className={dataTableClass}>
       <thead>
         <tr>
           <th>Event</th>
@@ -150,14 +144,14 @@ function EventsTable({
       <tbody>
         {events.map((e) => (
           <tr key={e.name} onClick={() => onOpen(e.name)}>
-            <td className="mono" style={{ color: "var(--text-primary)", fontWeight: 500 }}>
+            <td className="mono max-w-sm break-all font-medium text-foreground">
               {e.name}
             </td>
             <td className="mono">{e.occurrences.toLocaleString()}</td>
             <td className="mono">{e.uniqueUsers.toLocaleString()} users</td>
             <td className="mono">{e.sessions.toLocaleString()} sessions</td>
-            <td style={{ color: "var(--text-secondary)" }}>{formatTimestamp(e.firstSeenAt)}</td>
-            <td style={{ color: "var(--text-secondary)" }}>{formatTimestamp(e.lastSeenAt)}</td>
+            <td className="text-muted-foreground">{formatTimestamp(e.firstSeenAt)}</td>
+            <td className="text-muted-foreground">{formatTimestamp(e.lastSeenAt)}</td>
           </tr>
         ))}
       </tbody>

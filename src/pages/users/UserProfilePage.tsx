@@ -6,30 +6,26 @@ import { EmptyState } from "../../components/EmptyState";
 import * as trackedUsersApi from "../../api/trackedUsers";
 import type { TrackedUserDetail, UserActivityItem, SessionSummary, EnvironmentContext } from "../../types/api";
 import { formatDuration, formatRelativeTime, formatTimestamp, formatDeviceLabel } from "../../lib/format";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { DataTableFrame, ErrorNotice, LoadingRows, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
+import { cn } from "@/lib/utils";
 
 type Tab = "overview" | "activity" | "properties" | "sessions";
 const PAGE_SIZE = 25;
 
 function StatBlock({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 18, fontWeight: 600, marginTop: 4 }}>{value}</div>
-    </div>
-  );
+  return <Metric label={label} value={value} />;
 }
 
 function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: string }) {
   return (
-    <button
+    <Button type="button" variant="ghost" size="sm"
       onClick={onClick}
-      className={active ? "btn btn-sm" : "btn btn-ghost btn-sm"}
-      style={active ? { background: "var(--users-dim)", color: "var(--users)", borderColor: "transparent" } : undefined}
+      className={cn("rounded-b-none border-b-2 border-transparent text-muted-foreground", active && "border-primary font-semibold text-foreground")}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -37,7 +33,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 export function EnvironmentBlock({ environment }: { environment: EnvironmentContext | null }) {
   if (!environment) {
     return (
-      <p style={{ fontSize: 12.5, color: "var(--text-muted)" }}>
+      <p className="text-xs text-muted-foreground">
         No environment data yet - it's captured automatically at the start of a session, so this fills in once
         they've had at least one.
       </p>
@@ -52,7 +48,7 @@ export function EnvironmentBlock({ environment }: { environment: EnvironmentCont
     environment.screenWidth && environment.screenHeight ? `${environment.screenWidth}×${environment.screenHeight}` : "—";
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 20 }}>
+    <div className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 lg:grid-cols-4">
       <StatBlock label="Device" value={environment.deviceType ?? "—"} />
       <StatBlock label="Browser" value={browser} />
       <StatBlock label="OS" value={os} />
@@ -144,30 +140,24 @@ export function UserProfilePage() {
 
   return (
     <>
-      <div style={{ marginBottom: 4 }}>
-        <Link to="/users" style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+      <div className="mb-1">
+        <Link to="/users" className="text-[13px] text-muted-foreground hover:text-foreground">
           ← All users
         </Link>
       </div>
       <PageHeader section="Users" title={user ? displayName : ""} description={user ? user.externalUserId : undefined} />
 
       {error && (
-        <div className="card" style={{ padding: 16, marginBottom: 16 }}>
-          <div className="error-banner">{error}</div>
-        </div>
+        <div className="mb-4"><ErrorNotice>{error}</ErrorNotice></div>
       )}
 
       {!error && !user && (
-        <div className="card" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="skeleton" style={{ height: 44 }} />
-          ))}
-        </div>
+        <DataTableFrame><LoadingRows count={4} /></DataTableFrame>
       )}
 
       {user && (
         <>
-          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+          <div className="mb-4 flex gap-1 overflow-x-auto border-b">
             <TabButton active={tab === "overview"} onClick={() => setTab("overview")}>
               Overview
             </TabButton>
@@ -183,47 +173,23 @@ export function UserProfilePage() {
           </div>
 
           {tab === "overview" && (
-            <div className="card card-padded">
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-                  gap: 20,
-                  marginBottom: 20,
-                }}
-              >
+            <div className="space-y-5 rounded-lg border bg-card p-5">
+              <MetricGrid className="lg:grid-cols-3">
                 <StatBlock label="First seen" value={user.stats.firstSeenAt ? formatRelativeTime(user.stats.firstSeenAt) : "—"} />
                 <StatBlock label="Last seen" value={user.stats.lastSeenAt ? formatRelativeTime(user.stats.lastSeenAt) : "—"} />
                 <StatBlock label="Sessions" value={String(user.stats.sessionCount)} />
                 <StatBlock label="Page views" value={String(user.stats.pageViewCount)} />
                 <StatBlock label="Events" value={String(user.stats.eventCount)} />
                 <StatBlock label="Active time" value={formatDuration(user.stats.totalActiveTimeMs)} />
-              </div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-                  gap: 20,
-                  paddingTop: 20,
-                  borderTop: "1px solid var(--border)",
-                }}
-              >
+              </MetricGrid>
+              <MetricGrid>
                 <StatBlock label="First page" value={user.stats.firstPage ?? "—"} />
                 <StatBlock label="Last page" value={user.stats.lastPage ?? "—"} />
                 <StatBlock label="Identified" value={formatRelativeTime(user.firstIdentifiedAt)} />
                 <StatBlock label="Anonymous IDs merged" value={String(user.anonymousIds.length)} />
-              </div>
-              <div style={{ paddingTop: 20, marginTop: 20, borderTop: "1px solid var(--border)" }}>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: "var(--text-muted)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    marginBottom: 14,
-                  }}
-                >
+              </MetricGrid>
+              <div className="border-t pt-5">
+                <div className="mb-3.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
                   Environment (most recent session)
                 </div>
                 <EnvironmentBlock environment={user.environment} />
@@ -232,11 +198,11 @@ export function UserProfilePage() {
           )}
 
           {tab === "properties" && (
-            <div className="card">
+            <DataTableFrame>
               {user.properties.length === 0 ? (
                 <EmptyState title="No properties" description="No attributes have been passed via identify() yet." />
               ) : (
-                <table className="table">
+                <table className={dataTableClass}>
                   <thead>
                     <tr>
                       <th>Name</th>
@@ -246,12 +212,12 @@ export function UserProfilePage() {
                   </thead>
                   <tbody>
                     {user.properties.map((p) => (
-                      <tr key={p.name} style={{ cursor: "default" }}>
-                        <td className="mono" style={{ color: "var(--text-secondary)" }}>
+                      <tr key={p.name} className="cursor-default">
+                        <td className="mono text-muted-foreground">
                           {p.name}
                         </td>
-                        <td>{p.valueType === "object" ? JSON.stringify(p.value) : String(p.value)}</td>
-                        <td className="mono" style={{ color: "var(--text-muted)", fontSize: 12 }}>
+                        <td className="max-w-[520px] break-words">{p.valueType === "object" ? JSON.stringify(p.value) : String(p.value)}</td>
+                        <td className="mono text-xs text-muted-foreground">
                           {formatRelativeTime(p.firstSeenAt)}
                         </td>
                       </tr>
@@ -260,122 +226,97 @@ export function UserProfilePage() {
                 </table>
               )}
 
-              <div style={{ padding: 16, borderTop: "1px solid var(--border)" }}>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    color: "var(--text-muted)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    marginBottom: 10,
-                  }}
-                >
+              <div className="border-t p-4">
+                <div className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
                   Automatically detected
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 16 }}>
+                <MetricGrid>
                   <StatBlock label="First seen" value={user.stats.firstSeenAt ? formatRelativeTime(user.stats.firstSeenAt) : "—"} />
                   <StatBlock label="Last seen" value={user.stats.lastSeenAt ? formatRelativeTime(user.stats.lastSeenAt) : "—"} />
                   <StatBlock label="Sessions" value={String(user.stats.sessionCount)} />
                   <StatBlock label="Page views" value={String(user.stats.pageViewCount)} />
-                </div>
+                </MetricGrid>
               </div>
-            </div>
+            </DataTableFrame>
           )}
 
           {tab === "activity" && (
-            <div className="card">
+            <DataTableFrame>
               {activity === null && (
-                <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="skeleton" style={{ height: 36 }} />
-                  ))}
-                </div>
+                <LoadingRows count={6} />
               )}
               {activity && activity.length === 0 && (
                 <EmptyState title="No activity yet" description="Nothing has been recorded for this user." />
               )}
               {activity && activity.length > 0 && (
                 <>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
+                  <div className="flex flex-col">
                     {activity.map((item) => (
                       <div
                         key={item.id}
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: 16,
-                          padding: "12px 16px",
-                          borderBottom: "1px solid var(--border)",
-                        }}
+                        className="flex justify-between gap-4 border-b px-4 py-3 last:border-b-0"
                       >
                         <div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <div className="flex items-center gap-2">
                             {item.type === "custom" && (
                               // Distinct visual treatment, same principle as
                               // the session timeline - a business event
                               // must never blend in with autocapture rows.
-                              <span className="badge badge-observe" style={{ fontSize: 10 }}>
+                              <Badge>
                                 Custom
-                              </span>
+                              </Badge>
                             )}
-                            <div style={{ fontSize: 13.5 }}>{item.title}</div>
+                            <div className="text-[13.5px]">{item.title}</div>
                           </div>
                           {item.type === "custom" && item.metadata.eventProperties && Object.keys(item.metadata.eventProperties).length > 0 && (
-                            <div className="mono" style={{ fontSize: 11.5, color: "var(--text-secondary)", marginTop: 4 }}>
+                            <div className="mono mt-1 break-words text-[11.5px] text-muted-foreground">
                               {Object.entries(item.metadata.eventProperties)
                                 .map(([key, value]) => `${key}: ${typeof value === "object" ? JSON.stringify(value) : String(value)}`)
                                 .join(", ")}
                             </div>
                           )}
-                          <div className="mono" style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+                          <div className="mono mt-0.5 break-all text-[11px] text-muted-foreground">
                             {item.sessionId}
                           </div>
                         </div>
-                        <div className="mono" style={{ fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                        <div className="mono whitespace-nowrap text-xs text-muted-foreground">
                           {formatTimestamp(item.timestamp)}
                         </div>
                       </div>
                     ))}
                   </div>
                   {activityTotal > PAGE_SIZE && (
-                    <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "12px 16px" }}>
-                      <button
-                        className="btn btn-ghost btn-sm"
+                    <div className="flex justify-end gap-2 border-t px-4 py-3">
+                      <Button variant="ghost" size="sm"
                         disabled={activityOffset === 0}
                         onClick={() => setActivityOffset(Math.max(0, activityOffset - PAGE_SIZE))}
                       >
                         Previous
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm"
+                      </Button>
+                      <Button variant="ghost" size="sm"
                         disabled={activityOffset + PAGE_SIZE >= activityTotal}
                         onClick={() => setActivityOffset(activityOffset + PAGE_SIZE)}
                       >
                         Next
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </>
               )}
-            </div>
+            </DataTableFrame>
           )}
 
           {tab === "sessions" && (
-            <div className="card">
+            <DataTableFrame>
               {sessions === null && (
-                <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="skeleton" style={{ height: 40 }} />
-                  ))}
-                </div>
+                <LoadingRows count={4} />
               )}
               {sessions && sessions.length === 0 && (
                 <EmptyState title="No sessions yet" description="This user has no recorded sessions." />
               )}
               {sessions && sessions.length > 0 && (
                 <>
-                  <table className="table">
+                  <table className={dataTableClass}>
                     <thead>
                       <tr>
                         <th>Session</th>
@@ -390,10 +331,10 @@ export function UserProfilePage() {
                       {sessions.map((s) => (
                         <tr key={s.sessionId} onClick={() => navigate(`/observe/sessions/${s.sessionId}`)}>
                           <td className="mono">{s.sessionId}</td>
-                          <td style={{ color: "var(--text-secondary)" }}>{formatDeviceLabel(s)}</td>
+                          <td className="text-muted-foreground">{formatDeviceLabel(s)}</td>
                           <td className="mono">{s.eventCount}</td>
                           <td className="mono">{formatDuration(s.durationMs)}</td>
-                          <td className="mono" style={{ color: "var(--text-secondary)" }}>
+                          <td className="mono text-muted-foreground">
                             {formatRelativeTime(s.lastSeen)}
                           </td>
                           <td>{s.hasReplay ? <span className="badge badge-observe">available</span> : "—"}</td>
@@ -402,26 +343,24 @@ export function UserProfilePage() {
                     </tbody>
                   </table>
                   {sessionsTotal > PAGE_SIZE && (
-                    <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "12px 16px" }}>
-                      <button
-                        className="btn btn-ghost btn-sm"
+                    <div className="flex justify-end gap-2 border-t px-4 py-3">
+                      <Button variant="ghost" size="sm"
                         disabled={sessionsOffset === 0}
                         onClick={() => setSessionsOffset(Math.max(0, sessionsOffset - PAGE_SIZE))}
                       >
                         Previous
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm"
+                      </Button>
+                      <Button variant="ghost" size="sm"
                         disabled={sessionsOffset + PAGE_SIZE >= sessionsTotal}
                         onClick={() => setSessionsOffset(sessionsOffset + PAGE_SIZE)}
                       >
                         Next
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </>
               )}
-            </div>
+            </DataTableFrame>
           )}
         </>
       )}

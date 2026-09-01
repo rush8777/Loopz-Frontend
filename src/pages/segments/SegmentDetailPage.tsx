@@ -7,6 +7,10 @@ import * as segmentsApi from "../../api/segments";
 import type { Segment, SegmentCondition, SegmentGroup, SegmentMember, SegmentNode } from "../../types/api";
 import { isSegmentGroup } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableFrame, ErrorNotice, LoadingRows, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
 
 const PAGE_SIZE = 25;
 
@@ -42,11 +46,11 @@ function DefinitionTree({ node, depth = 0 }: { node: SegmentNode; depth?: number
   if (isSegmentGroup(node)) {
     const group = node as SegmentGroup;
     return (
-      <div style={{ paddingLeft: depth > 0 ? 16 : 0, borderLeft: depth > 0 ? "2px solid var(--border)" : undefined }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-muted)", margin: "6px 0" }}>
+      <div className={depth > 0 ? "border-l-2 pl-4" : undefined}>
+        <div className="my-1.5 text-[10px] font-bold uppercase text-muted-foreground">
           {group.logic === "and" ? "ALL of:" : "ANY of:"}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div className="space-y-1.5">
           {group.conditions.map((child, i) => (
             <DefinitionTree key={i} node={child} depth={depth + 1} />
           ))}
@@ -54,7 +58,7 @@ function DefinitionTree({ node, depth = 0 }: { node: SegmentNode; depth?: number
       </div>
     );
   }
-  return <div style={{ fontSize: 12.5, color: "var(--text-primary)" }}>{describeCondition(node)}</div>;
+  return <div className="text-[13px] text-foreground">{describeCondition(node)}</div>;
 }
 
 export function SegmentDetailPage() {
@@ -112,11 +116,7 @@ export function SegmentDetailPage() {
     return (
       <>
         <PageHeader section="Users" title="Segment" />
-        <div className="card">
-          <div style={{ padding: 16 }}>
-            <div className="error-banner">{error}</div>
-          </div>
-        </div>
+        <ErrorNotice>{error}</ErrorNotice>
       </>
     );
   }
@@ -125,9 +125,7 @@ export function SegmentDetailPage() {
     return (
       <>
         <PageHeader section="Users" title="Segment" />
-        <div className="card" style={{ padding: 16 }}>
-          <div className="skeleton" style={{ height: 200 }} />
-        </div>
+        <Skeleton className="h-52 w-full" />
       </>
     );
   }
@@ -139,48 +137,33 @@ export function SegmentDetailPage() {
         title={segment.name}
         description={segment.description ?? undefined}
         actions={
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn btn-ghost" onClick={() => navigate(`/segments/${segment.id}/edit`)}>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate(`/segments/${segment.id}/edit`)}>
               Edit
-            </button>
-            <button className="btn btn-ghost" onClick={handleDelete} disabled={deleting}>
+            </Button>
+            <Button variant="ghost" className="text-destructive" onClick={handleDelete} disabled={deleting}>
               {deleting ? "Deleting…" : "Delete"}
-            </button>
+            </Button>
           </div>
         }
       />
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-        <div className="card card-padded" style={{ flex: 1 }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Audience</div>
-          <div style={{ fontSize: 22, fontWeight: 600 }}>{segment.audienceCount.toLocaleString()} users</div>
-        </div>
-        <div className="card card-padded" style={{ flex: 1 }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Last updated</div>
-          <div style={{ fontSize: 22, fontWeight: 600 }} title={formatTimestamp(segment.updatedAt)}>
-            {formatRelativeTime(segment.updatedAt)}
-          </div>
-        </div>
-      </div>
+      <MetricGrid className="mb-5 sm:grid-cols-2 lg:grid-cols-2"><Metric label="Audience" value={`${segment.audienceCount.toLocaleString()} users`} /><Metric label="Last updated" value={<span title={formatTimestamp(segment.updatedAt)}>{formatRelativeTime(segment.updatedAt)}</span>} /></MetricGrid>
 
-      <div className="card card-padded" style={{ marginBottom: 16 }}>
-        <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 10 }}>Definition</div>
+      <section className="mb-5 rounded-lg border bg-card p-4">
+        <h2 className="mb-3 text-sm font-semibold">Definition</h2>
         <DefinitionTree node={segment.definition} />
-      </div>
+      </section>
 
-      <div className="card">
-        <div style={{ padding: "14px 16px", fontWeight: 600, fontSize: 13.5, borderBottom: "1px solid var(--border)" }}>Users</div>
+      <DataTableFrame>
+        <div className="border-b px-4 py-3 text-sm font-semibold">Users</div>
         {members === null ? (
-          <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="skeleton" style={{ height: 40 }} />
-            ))}
-          </div>
+          <LoadingRows />
         ) : members.length === 0 ? (
           <EmptyState title="No users match yet" description="As users perform matching events or take on matching properties, they'll show up here." />
         ) : (
           <>
-            <table className="table">
+            <table className={dataTableClass}>
               <thead>
                 <tr>
                   <th>User</th>
@@ -191,15 +174,15 @@ export function SegmentDetailPage() {
               <tbody>
                 {members.map((m) => (
                   <tr key={m.trackedUserId ?? m.anonymousId} onClick={() => openMember(m)}>
-                    <td className="mono" style={{ color: "var(--text-primary)" }}>
+                    <td className="mono break-all text-foreground">
                       {m.identityType === "identified" ? m.externalUserId : m.anonymousId}
                     </td>
                     <td>
-                      <span className={`badge ${m.identityType === "identified" ? "badge-observe" : "badge-neutral"}`}>
+                      <Badge variant={m.identityType === "identified" ? "secondary" : "outline"}>
                         {m.identityType === "identified" ? "Identified" : "Anonymous"}
-                      </span>
+                      </Badge>
                     </td>
-                    <td style={{ color: "var(--text-secondary)" }} title={m.lastSeenAt ? formatTimestamp(m.lastSeenAt) : undefined}>
+                    <td className="text-muted-foreground" title={m.lastSeenAt ? formatTimestamp(m.lastSeenAt) : undefined}>
                       {m.lastSeenAt ? formatRelativeTime(m.lastSeenAt) : "—"}
                     </td>
                   </tr>
@@ -207,27 +190,26 @@ export function SegmentDetailPage() {
               </tbody>
             </table>
             {memberTotal > PAGE_SIZE && (
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px" }}>
-                <span style={{ fontSize: 12.5, color: "var(--text-secondary)" }}>
+              <div className="flex items-center justify-between gap-3 border-t px-4 py-3">
+                <span className="text-xs text-muted-foreground">
                   {offset + 1}–{Math.min(offset + PAGE_SIZE, memberTotal)} of {memberTotal.toLocaleString()}
                 </span>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="btn btn-ghost btn-sm" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}>
                     Previous
-                  </button>
-                  <button
-                    className="btn btn-ghost btn-sm"
+                  </Button>
+                  <Button variant="ghost" size="sm"
                     disabled={offset + PAGE_SIZE >= memberTotal}
                     onClick={() => setOffset(offset + PAGE_SIZE)}
                   >
                     Next
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
           </>
         )}
-      </div>
+      </DataTableFrame>
     </>
   );
 }

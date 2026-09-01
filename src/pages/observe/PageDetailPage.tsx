@@ -8,6 +8,10 @@ import * as pagesApi from "../../api/pages";
 import type { CatalogElement, PageDetail, PageElement, PageRuleOperator } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
 import { PageHeatmapTab } from "./PageHeatmapTab";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableFrame, ErrorNotice, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
 
 const OPERATOR_LABEL: Record<PageRuleOperator, string> = {
   equals: "is exactly",
@@ -18,33 +22,33 @@ const OPERATOR_LABEL: Record<PageRuleOperator, string> = {
 };
 
 function MetricCard({ label, value }: { label: string; value: string }) {
-  return <div className="card card-padded" style={{ flex: 1 }}><div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>{label}</div><div style={{ fontSize: 22, fontWeight: 600 }}>{value}</div></div>;
+  return <Metric label={label} value={value} />;
 }
 
 function Overview({ page }: { page: PageDetail }) {
   return (
     <>
-      <div className="card card-padded" style={{ marginBottom: 16 }}>
-        <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 10 }}>Rules</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <section className="mb-5 rounded-lg border bg-card p-4">
+        <h2 className="mb-3 text-sm font-semibold">Rules</h2>
+        <div className="space-y-2">
           {page.rules.map((rule) => (
-            <div key={rule.id} style={{ fontSize: 12.5, display: "flex", gap: 8, alignItems: "center" }}>
-              <span className={`badge ${rule.kind === "include" ? "badge-observe" : "badge-neutral"}`} style={{ fontSize: 10, textTransform: "uppercase" }}>{rule.kind}</span>
-              <span style={{ color: "var(--text-secondary)" }}>Path {OPERATOR_LABEL[rule.operator]}</span>
-              <code className="mono" style={{ color: "var(--text-primary)" }}>{rule.value}</code>
+            <div key={rule.id} className="flex flex-wrap items-center gap-2 text-[13px]">
+              <Badge variant={rule.kind === "include" ? "secondary" : "outline"} className="uppercase">{rule.kind}</Badge>
+              <span className="text-muted-foreground">Path {OPERATOR_LABEL[rule.operator]}</span>
+              <code className="mono break-all text-foreground">{rule.value}</code>
             </div>
           ))}
         </div>
-        {(page.area || page.pageType) && <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border)", fontSize: 12.5, color: "var(--text-secondary)" }}>{page.area && <div>Area: {page.area}</div>}{page.pageType && <div>Type: {page.pageType}</div>}</div>}
-      </div>
-      <div className="card">
-        <div style={{ padding: "14px 16px", fontWeight: 600, fontSize: 13.5, borderBottom: "1px solid var(--border)" }}>Matched URLs</div>
+        {(page.area || page.pageType) && <div className="mt-4 border-t pt-4 text-xs text-muted-foreground">{page.area && <div>Area: {page.area}</div>}{page.pageType && <div>Type: {page.pageType}</div>}</div>}
+      </section>
+      <DataTableFrame>
+        <div className="border-b px-4 py-3 text-sm font-semibold">Matched URLs</div>
         {page.matchedPaths.length === 0 ? <EmptyState title="No traffic matched yet" description="No recorded page views currently satisfy these rules." /> : (
-          <table className="table"><thead><tr><th>URL</th><th>Views</th><th>Last seen</th></tr></thead><tbody>
-            {page.matchedPaths.map((match) => <tr key={match.pagePath}><td className="mono" style={{ color: "var(--text-primary)" }}>{match.pagePath}</td><td className="mono">{match.views.toLocaleString()}</td><td style={{ color: "var(--text-secondary)" }} title={formatTimestamp(match.lastSeenAt)}>{formatRelativeTime(match.lastSeenAt)}</td></tr>)}
+          <table className={dataTableClass}><thead><tr><th>URL</th><th>Views</th><th>Last seen</th></tr></thead><tbody>
+            {page.matchedPaths.map((match) => <tr key={match.pagePath}><td className="mono max-w-lg break-all text-foreground">{match.pagePath}</td><td className="mono">{match.views.toLocaleString()}</td><td className="text-muted-foreground" title={formatTimestamp(match.lastSeenAt)}>{formatRelativeTime(match.lastSeenAt)}</td></tr>)}
           </tbody></table>
         )}
-      </div>
+      </DataTableFrame>
     </>
   );
 }
@@ -92,18 +96,18 @@ export function PageDetailPage() {
     }
   }
 
-  if (error) return <><PageHeader section="Observe" title="Page" /><div className="card"><div style={{ padding: 16 }}><div className="error-banner">{error}</div></div></div></>;
-  if (!page) return <><PageHeader section="Observe" title="Page" /><div className="card" style={{ padding: 16 }}><div className="skeleton" style={{ height: 200 }} /></div></>;
+  if (error) return <><PageHeader section="Observe" title="Page" /><ErrorNotice>{error}</ErrorNotice></>;
+  if (!page) return <><PageHeader section="Observe" title="Page" /><Skeleton className="h-52 w-full" /></>;
 
   return (
     <>
       <PageHeader section="Observe" title={page.name} description={page.description ?? page.rules.map((rule) => rule.value).join(", ")}
-        actions={<div style={{ display: "flex", gap: 8 }}><button className="btn btn-ghost" onClick={() => navigate(`/observe/pages/${page.id}/edit`)}>Edit</button><button className="btn btn-ghost" onClick={() => void handleDelete()} disabled={deleting}>{deleting ? "Deleting…" : "Delete"}</button></div>} />
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+        actions={<div className="flex gap-2"><Button variant="outline" onClick={() => navigate(`/observe/pages/${page.id}/edit`)}>Edit</Button><Button variant="destructive" onClick={() => void handleDelete()} disabled={deleting}>{deleting ? "Deleting…" : "Delete"}</Button></div>} />
+      <MetricGrid className="mb-5">
         <MetricCard label="Views" value={page.views.toLocaleString()} /><MetricCard label="Unique visitors" value={page.uniqueVisitors.toLocaleString()} /><MetricCard label="Sessions" value={page.uniqueSessions.toLocaleString()} /><MetricCard label="Last seen" value={page.lastSeenAt ? formatRelativeTime(page.lastSeenAt) : "—"} />
-      </div>
-      <div role="tablist" aria-label="Page detail" style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--border)", marginBottom: 16 }}>
-        {(["overview", "elements", "heatmap"] as const).map((tab) => <button key={tab} role="tab" aria-selected={activeTab === tab} className={`btn ${activeTab === tab ? "btn-primary" : "btn-ghost"}`} onClick={() => { setActiveTab(tab); setSearchParams(tab === "overview" ? {} : { tab }, { replace: true }); }} style={{ textTransform: "capitalize", borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>{tab}</button>)}
+      </MetricGrid>
+      <div role="tablist" aria-label="Page detail" className="mb-4 flex gap-1 overflow-x-auto border-b">
+        {(["overview", "elements", "heatmap"] as const).map((tab) => <Button key={tab} role="tab" aria-selected={activeTab === tab} variant="ghost" className={`rounded-b-none border-b-2 capitalize ${activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground"}`} onClick={() => { setActiveTab(tab); setSearchParams(tab === "overview" ? {} : { tab }, { replace: true }); }}>{tab}</Button>)}
       </div>
       {activeTab === "overview" && <Overview page={page} />}
       {activeTab === "elements" && <ElementsTable elements={elements} error={elementsError} onUpdated={patchElement} emptyDescription="No discovered elements have been reported from URLs matching this Page's current rules." />}

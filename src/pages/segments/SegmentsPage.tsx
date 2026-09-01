@@ -6,6 +6,10 @@ import { EmptyState } from "../../components/EmptyState";
 import * as segmentsApi from "../../api/segments";
 import type { Segment } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DataTableFrame, ErrorNotice, FilterToolbar, LoadingRows, dataTableClass } from "@/components/PageSurface";
 
 export function SegmentsPage() {
   const { currentOrg, currentSite } = useWorkspace();
@@ -47,9 +51,9 @@ export function SegmentsPage() {
     return (
       <>
         <PageHeader section="Users" title="Segments" description="Dynamic audiences of users, defined by their behavior and properties." />
-        <div className="card">
+        <DataTableFrame>
           <EmptyState title="No site selected" description="Select a site from the switcher above." />
-        </div>
+        </DataTableFrame>
       </>
     );
   }
@@ -61,30 +65,24 @@ export function SegmentsPage() {
         title="Segments"
         description="Dynamic audiences of users, defined by their behavior and properties. Membership updates automatically as user data changes."
         actions={
-          <button className="btn btn-primary" onClick={() => navigate("/segments/new")}>
-            + Create segment
-          </button>
+          <Button onClick={() => navigate("/segments/new")}><Plus />Create segment</Button>
         }
       />
 
-      <div style={{ marginBottom: 16 }}>
-        <input
-          className="input"
-          style={{ maxWidth: 320 }}
+      <FilterToolbar>
+        <Input className="max-w-80"
           placeholder="Search segments..."
           value={search}
           onChange={(e) => updateSearch(e.target.value)}
         />
-      </div>
+      </FilterToolbar>
 
-      <div className="card">
+      <DataTableFrame>
         {error && (
-          <div style={{ padding: 16 }}>
-            <div className="error-banner">{error}</div>
-          </div>
+          <div className="p-4"><ErrorNotice>{error}</ErrorNotice></div>
         )}
         {!error && <SegmentsTable segments={segments} total={total} onOpen={(id) => navigate(`/segments/${id}`)} />}
-      </div>
+      </DataTableFrame>
     </>
   );
 }
@@ -92,11 +90,7 @@ export function SegmentsPage() {
 function SegmentsTable({ segments, total, onOpen }: { segments: Segment[] | null; total: number; onOpen: (id: string) => void }) {
   if (segments === null) {
     return (
-      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="skeleton" style={{ height: 44 }} />
-        ))}
-      </div>
+      <LoadingRows />
     );
   }
 
@@ -114,7 +108,7 @@ function SegmentsTable({ segments, total, onOpen }: { segments: Segment[] | null
   }
 
   return (
-    <table className="table">
+    <table className={dataTableClass}>
       <thead>
         <tr>
           <th>Segment</th>
@@ -126,11 +120,11 @@ function SegmentsTable({ segments, total, onOpen }: { segments: Segment[] | null
         {segments.map((s) => (
           <tr key={s.id} onClick={() => onOpen(s.id)}>
             <td>
-              <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{s.name}</div>
-              {s.description && <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{s.description}</div>}
+              <div className="font-medium text-foreground">{s.name}</div>
+              {s.description && <div className="mt-0.5 text-xs text-muted-foreground">{s.description}</div>}
             </td>
             <td className="mono">{s.audienceCount.toLocaleString()} users</td>
-            <td style={{ color: "var(--text-secondary)" }} title={formatTimestamp(s.updatedAt)}>
+            <td className="text-muted-foreground" title={formatTimestamp(s.updatedAt)}>
               {formatRelativeTime(s.updatedAt)}
             </td>
           </tr>

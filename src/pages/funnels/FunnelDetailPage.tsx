@@ -7,6 +7,9 @@ import { DateRangePicker } from "../../components/DateRangePicker";
 import { SparkBarChart } from "../../components/SparkBarChart";
 import { resolveDateRange, type DateRangePreset } from "../../lib/dateRange";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableFrame, ErrorNotice, LoadingRows, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
 import * as funnelsApi from "../../api/funnels";
 import * as segmentsApi from "../../api/segments";
 import type { Funnel, FunnelAnalysis, FunnelStepUser, Segment } from "../../types/api";
@@ -98,11 +101,7 @@ export function FunnelDetailPage() {
     return (
       <>
         <PageHeader section="Observe" title="Funnel" />
-        <div className="card">
-          <div style={{ padding: 16 }}>
-            <div className="error-banner">{error}</div>
-          </div>
-        </div>
+        <ErrorNotice>{error}</ErrorNotice>
       </>
     );
   }
@@ -111,9 +110,7 @@ export function FunnelDetailPage() {
     return (
       <>
         <PageHeader section="Observe" title="Funnel" />
-        <div className="card" style={{ padding: 16 }}>
-          <div className="skeleton" style={{ height: 300 }} />
-        </div>
+        <Skeleton className="h-72 w-full" />
       </>
     );
   }
@@ -125,22 +122,22 @@ export function FunnelDetailPage() {
         title={funnel.name}
         description={funnel.description ?? undefined}
         actions={
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn btn-ghost" onClick={() => navigate(`/observe/funnels/${funnel.id}/edit`)}>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate(`/observe/funnels/${funnel.id}/edit`)}>
               Edit
-            </button>
-            <button className="btn btn-ghost" onClick={handleDelete} disabled={deleting}>
+            </Button>
+            <Button variant="ghost" className="text-destructive" onClick={handleDelete} disabled={deleting}>
               {deleting ? "Deleting…" : "Delete"}
-            </button>
+            </Button>
           </div>
         }
       />
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <DateRangePicker preset={preset} customSince={customSince} customUntil={customUntil} onChange={updateRange} />
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 12.5, color: "var(--text-secondary)" }}>Analyze users:</span>
-          <select className="input" style={{ width: 200 }} value={segmentId} onChange={(e) => updateSegment(e.target.value)}>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[12.5px] text-muted-foreground">Analyze users:</span>
+          <select className="h-9 w-[200px] rounded-md border bg-input px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20" value={segmentId} onChange={(e) => updateSegment(e.target.value)}>
             <option value="">All users</option>
             {segments.map((s) => (
               <option key={s.id} value={s.id}>
@@ -152,9 +149,7 @@ export function FunnelDetailPage() {
       </div>
 
       {analysis === null || !range ? (
-        <div className="card" style={{ padding: 16 }}>
-          <div className="skeleton" style={{ height: 260 }} />
-        </div>
+        <Skeleton className="h-64 w-full" />
       ) : (
         <FunnelResults
           analysis={analysis}
@@ -208,41 +203,26 @@ function FunnelResults({
 
   return (
     <>
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-        <div className="card card-padded" style={{ flex: 1 }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Conversion</div>
-          <div style={{ fontSize: 24, fontWeight: 600 }}>{analysis.overallConversion}%</div>
-        </div>
-        <div className="card card-padded" style={{ flex: 1 }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Started</div>
-          <div style={{ fontSize: 24, fontWeight: 600 }}>{analysis.totalUsers.toLocaleString()} users</div>
-        </div>
-        <div className="card card-padded" style={{ flex: 1 }}>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Completed</div>
-          <div style={{ fontSize: 24, fontWeight: 600 }}>{analysis.convertedUsers.toLocaleString()} users</div>
-        </div>
-      </div>
+      <MetricGrid className="mb-5 sm:grid-cols-3 lg:grid-cols-3"><Metric label="Conversion" value={`${analysis.overallConversion}%`} /><Metric label="Started" value={`${analysis.totalUsers.toLocaleString()} users`} /><Metric label="Completed" value={`${analysis.convertedUsers.toLocaleString()} users`} /></MetricGrid>
 
-      <div className="card card-padded" style={{ marginBottom: 16 }}>
-        <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 14 }}>Funnel</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <section className="mb-5 rounded-lg border bg-card p-4">
+        <h2 className="mb-3 text-sm font-semibold">Funnel</h2>
+        <div className="space-y-1">
           {analysis.steps.map((step, i) => (
             <div key={step.index}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
-                <div style={{ fontWeight: 500, fontSize: 13.5 }}>
+              <div className="mb-1 flex items-baseline justify-between gap-3">
+                <div className="min-w-0 break-words text-[13.5px] font-medium">
                   {i + 1}. {step.label}
                 </div>
-                <button className="btn btn-ghost btn-sm" onClick={() => onToggleStep(step.index)}>
+                <Button variant="ghost" size="sm" onClick={() => onToggleStep(step.index)}>
                   {step.users.toLocaleString()} users · {step.conversionFromStart}%
-                </button>
+                </Button>
               </div>
-              <div style={{ height: 22, background: "var(--surface-raised)", borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
+              <div className="h-[22px] overflow-hidden rounded-md bg-muted">
                 <div
+                  className="h-full rounded-md bg-primary"
                   style={{
-                    height: "100%",
                     width: `${Math.max(2, (step.users / maxUsers) * 100)}%`,
-                    background: "var(--observe)",
-                    borderRadius: "var(--radius-sm)",
                   }}
                 />
               </div>
@@ -261,7 +241,7 @@ function FunnelResults({
               )}
 
               {i < analysis.steps.length - 1 && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 4px", fontSize: 12, color: "var(--text-secondary)" }}>
+                <div className="flex items-center gap-1.5 px-1 py-1.5 text-xs text-muted-foreground">
                   <span>↓ {analysis.steps[i + 1].conversionFromPrevious}% conversion</span>
                   <span>·</span>
                   <span>{step.droppedBeforeNext.toLocaleString()} dropped off</span>
@@ -270,10 +250,10 @@ function FunnelResults({
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="card card-padded">
-        <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 10 }}>Conversion over time</div>
+      <div className="rounded-lg border bg-card p-4">
+        <div className="mb-2.5 text-[13.5px] font-semibold">Conversion over time</div>
         {analysis.trend.every((p) => p.startedUsers === 0) ? (
           <EmptyState title="No data in this range" description="Try a wider date range." />
         ) : (
@@ -318,18 +298,16 @@ function StepUsersPanel({
   }, [orgId, siteId, funnelId, stepIndex, since, until, segmentId, offset]);
 
   return (
-    <div className="card" style={{ margin: "6px 0 12px", background: "var(--surface-raised)" }}>
+    <DataTableFrame className="my-2 bg-muted/30">
       {users === null ? (
-        <div style={{ padding: 12 }}>
-          <div className="skeleton" style={{ height: 80 }} />
-        </div>
+        <LoadingRows count={2} />
       ) : users.length === 0 ? (
-        <div style={{ padding: 12 }}>
+        <div className="p-3">
           <EmptyState title="No users reached this step" description="Nobody matched in this date range and filter." />
         </div>
       ) : (
         <>
-          <table className="table">
+          <table className={dataTableClass}>
             <thead>
               <tr>
                 <th>User</th>
@@ -346,7 +324,7 @@ function StepUsersPanel({
                       {u.identityType === "identified" ? "Identified" : "Anonymous"}
                     </span>
                   </td>
-                  <td style={{ color: "var(--text-secondary)" }} title={u.lastSeenAt ? formatTimestamp(u.lastSeenAt) : undefined}>
+                  <td className="text-muted-foreground" title={u.lastSeenAt ? formatTimestamp(u.lastSeenAt) : undefined}>
                     {u.lastSeenAt ? formatRelativeTime(u.lastSeenAt) : "—"}
                   </td>
                 </tr>
@@ -354,22 +332,22 @@ function StepUsersPanel({
             </tbody>
           </table>
           {total > STEP_USERS_PAGE_SIZE && (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 16px" }}>
-              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+            <div className="flex items-center justify-between gap-3 border-t px-4 py-2.5">
+              <span className="text-xs text-muted-foreground">
                 {offset + 1}–{Math.min(offset + STEP_USERS_PAGE_SIZE, total)} of {total.toLocaleString()}
               </span>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button className="btn btn-ghost btn-sm" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - STEP_USERS_PAGE_SIZE))}>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - STEP_USERS_PAGE_SIZE))}>
                   Previous
-                </button>
-                <button className="btn btn-ghost btn-sm" disabled={offset + STEP_USERS_PAGE_SIZE >= total} onClick={() => setOffset(offset + STEP_USERS_PAGE_SIZE)}>
+                </Button>
+                <Button variant="ghost" size="sm" disabled={offset + STEP_USERS_PAGE_SIZE >= total} onClick={() => setOffset(offset + STEP_USERS_PAGE_SIZE)}>
                   Next
-                </button>
+                </Button>
               </div>
             </div>
           )}
         </>
       )}
-    </div>
+    </DataTableFrame>
   );
 }

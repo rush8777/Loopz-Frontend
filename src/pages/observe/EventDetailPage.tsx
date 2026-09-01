@@ -17,6 +17,11 @@ import type {
   EventSessionSummary,
   EventPageSummary,
 } from "../../types/api";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableFrame, ErrorNotice, LoadingRows, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
+import { cn } from "@/lib/utils";
 
 type Tab = "properties" | "occurrences" | "users" | "sessions" | "pages";
 
@@ -101,16 +106,14 @@ export function EventDetailPage() {
       />
 
       {error && (
-        <div className="error-banner" style={{ marginBottom: 16 }}>
-          {error}
-        </div>
+        <div className="mb-4"><ErrorNotice>{error}</ErrorNotice></div>
       )}
 
       {!error && (
         <>
           <OverviewSection summary={summary} range={range} orgId={currentOrg!.orgId} siteId={currentSite.id} eventName={eventName} />
 
-          <div style={{ display: "flex", gap: 4, marginTop: 24, marginBottom: 16 }}>
+          <div className="mt-6 mb-4 flex gap-1 overflow-x-auto border-b">
             {(["properties", "occurrences", "users", "sessions", "pages"] as Tab[]).map((t) => (
               <TabButton key={t} active={tab === t} onClick={() => updateParams({ tab: t })}>
                 {t[0].toUpperCase() + t.slice(1)}
@@ -118,7 +121,7 @@ export function EventDetailPage() {
             ))}
           </div>
 
-          <div className="card">
+          <DataTableFrame>
             {tab === "properties" && (
               <PropertiesTab orgId={currentOrg!.orgId} siteId={currentSite.id} eventName={eventName} range={range} />
             )}
@@ -139,7 +142,7 @@ export function EventDetailPage() {
               <SessionsTab orgId={currentOrg!.orgId} siteId={currentSite.id} eventName={eventName} range={range} onNavigate={navigate} />
             )}
             {tab === "pages" && <PagesTab orgId={currentOrg!.orgId} siteId={currentSite.id} eventName={eventName} range={range} />}
-          </div>
+          </DataTableFrame>
         </>
       )}
     </>
@@ -148,28 +151,17 @@ export function EventDetailPage() {
 
 function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button
+    <Button type="button" variant="ghost" size="sm"
       onClick={onClick}
-      className="btn btn-ghost btn-sm"
-      style={{
-        borderRadius: "var(--radius-sm) var(--radius-sm) 0 0",
-        borderBottom: active ? "2px solid var(--observe)" : "2px solid transparent",
-        color: active ? "var(--text-primary)" : "var(--text-secondary)",
-        fontWeight: active ? 600 : 400,
-      }}
+      className={cn("rounded-b-none border-b-2 border-transparent text-muted-foreground", active && "border-primary font-semibold text-foreground")}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
 function MetricCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="card card-padded" style={{ flex: 1 }}>
-      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 600 }}>{value}</div>
-    </div>
-  );
+  return <Metric label={label} value={value} />;
 }
 
 function OverviewSection({
@@ -195,36 +187,32 @@ function OverviewSection({
 
   if (!summary) {
     return (
-      <div style={{ display: "flex", gap: 12 }}>
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="card card-padded skeleton" style={{ flex: 1, height: 66 }} />
-        ))}
-      </div>
+      <MetricGrid>{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16" />)}</MetricGrid>
     );
   }
 
   return (
     <>
-      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+      <MetricGrid className="mb-4 sm:grid-cols-2 lg:grid-cols-5">
         <MetricCard label="Occurrences" value={summary.occurrences.toLocaleString()} />
         <MetricCard label="Unique users" value={summary.uniqueUsers.toLocaleString()} />
         <MetricCard label="Sessions" value={summary.sessions.toLocaleString()} />
         <MetricCard label="First seen" value={summary.firstSeenAt ? formatTimestamp(summary.firstSeenAt) : "—"} />
         <MetricCard label="Last seen" value={summary.lastSeenAt ? formatTimestamp(summary.lastSeenAt) : "—"} />
-      </div>
+      </MetricGrid>
 
-      <div className="card card-padded" style={{ marginBottom: 8 }}>
-        <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 12 }}>Occurrences over time</div>
-        {timeseries === null ? <div className="skeleton" style={{ height: 140 }} /> : <SparkBarChart points={timeseries} />}
+      <div className="mb-2 rounded-lg border bg-card p-4">
+        <div className="mb-3 text-[13.5px] font-semibold">Occurrences over time</div>
+        {timeseries === null ? <Skeleton className="h-[140px]" /> : <SparkBarChart points={timeseries} />}
       </div>
 
       {summary.usedIn.patterns.length > 0 && (
-        <div className="card card-padded">
-          <div style={{ fontWeight: 600, fontSize: 13.5, marginBottom: 8 }}>Used in</div>
-          <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginBottom: 4 }}>Patterns</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div className="rounded-lg border bg-card p-4">
+          <div className="mb-2 text-[13.5px] font-semibold">Used in</div>
+          <div className="mb-1 text-[12.5px] text-muted-foreground">Patterns</div>
+          <div className="flex flex-col gap-1">
             {summary.usedIn.patterns.map((p) => (
-              <div key={p.id} style={{ fontSize: 13, color: "var(--text-primary)" }}>
+              <div key={p.id} className="text-[13px] text-foreground">
                 {p.name}
               </div>
             ))}
@@ -256,9 +244,7 @@ function PropertiesTab({
 
   if (properties === null) {
     return (
-      <div style={{ padding: 16 }}>
-        <div className="skeleton" style={{ height: 100 }} />
-      </div>
+      <LoadingRows count={3} />
     );
   }
 
@@ -267,26 +253,26 @@ function PropertiesTab({
   }
 
   return (
-    <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 20 }}>
+    <div className="flex flex-col gap-5 p-4">
       {properties.map((p) => (
         <div key={p.name}>
-          <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="mb-2 flex items-center gap-2 text-[13px] font-semibold">
             {p.name}
-            <span className="badge badge-neutral" style={{ fontSize: 10 }}>
+            <Badge variant="secondary">
               {p.type}
-            </span>
+            </Badge>
           </div>
           {(p.type === "string" || p.type === "boolean") && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <div className="flex flex-col gap-1">
               {p.values.map((v) => (
-                <div key={v.value} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5 }}>
-                  <span className="mono" style={{ width: 120, color: "var(--text-secondary)" }}>
+                <div key={v.value} className="flex items-center gap-2 text-[12.5px]">
+                  <span className="mono w-[120px] truncate text-muted-foreground">
                     {v.value}
                   </span>
-                  <div style={{ flex: 1, background: "var(--surface-raised)", borderRadius: 3, height: 6, overflow: "hidden" }}>
-                    <div style={{ width: `${v.percent}%`, height: "100%", background: "var(--observe)" }} />
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-[3px] bg-muted">
+                    <div className="h-full bg-primary" style={{ width: `${v.percent}%` }} />
                   </div>
-                  <span className="mono" style={{ color: "var(--text-muted)", width: 70, textAlign: "right" }}>
+                  <span className="mono w-[70px] text-right text-muted-foreground">
                     {v.percent}% ({v.count})
                   </span>
                 </div>
@@ -294,23 +280,23 @@ function PropertiesTab({
             </div>
           )}
           {p.type === "number" && (
-            <div style={{ display: "flex", gap: 20, fontSize: 12.5 }}>
+            <div className="flex gap-5 text-[12.5px]">
               <div>
-                <div style={{ color: "var(--text-muted)" }}>min</div>
+                <div className="text-muted-foreground">min</div>
                 <div className="mono">{p.min}</div>
               </div>
               <div>
-                <div style={{ color: "var(--text-muted)" }}>median</div>
+                <div className="text-muted-foreground">median</div>
                 <div className="mono">{p.median}</div>
               </div>
               <div>
-                <div style={{ color: "var(--text-muted)" }}>max</div>
+                <div className="text-muted-foreground">max</div>
                 <div className="mono">{p.max}</div>
               </div>
             </div>
           )}
           {(p.type === "array" || p.type === "object" || p.type === "null") && (
-            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            <div className="text-xs text-muted-foreground">
               {p.sampleCount} sample{p.sampleCount === 1 ? "" : "s"} - see individual occurrences for full values
             </div>
           )}
@@ -357,9 +343,7 @@ function OccurrencesTab({
 
   if (occurrences === null) {
     return (
-      <div style={{ padding: 16 }}>
-        <div className="skeleton" style={{ height: 200 }} />
-      </div>
+      <LoadingRows />
     );
   }
 
@@ -369,7 +353,7 @@ function OccurrencesTab({
 
   return (
     <>
-      <table className="table">
+      <table className={dataTableClass}>
         <thead>
           <tr>
             <th>Timestamp</th>
@@ -382,7 +366,7 @@ function OccurrencesTab({
             <tr key={o.id} onClick={() => onSelect(o.id)}>
               <td className="mono">{formatTimestamp(o.timestamp)}</td>
               <td>{occurrenceUserLabel(o)}</td>
-              <td className="mono" style={{ color: "var(--text-secondary)" }}>
+              <td className="mono text-muted-foreground">
                 {o.pagePath ?? "—"}
               </td>
             </tr>
@@ -407,60 +391,44 @@ function OccurrenceDrawer({
   onNavigate: (path: string) => void;
 }) {
   return (
-    <div
-      role="dialog"
-      aria-label={`${eventName} occurrence`}
-      style={{
-        position: "fixed",
-        top: 0,
-        right: 0,
-        bottom: 0,
-        width: 380,
-        background: "var(--surface)",
-        borderLeft: "1px solid var(--border)",
-        padding: 20,
-        overflowY: "auto",
-        zIndex: 50,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div style={{ fontWeight: 600, fontSize: 15 }}>{eventName}</div>
-        <button className="btn btn-ghost btn-sm" onClick={onClose}>
+    <div role="dialog" aria-label={`${eventName} occurrence`} className="fixed inset-y-0 right-0 z-50 w-full max-w-[380px] overflow-y-auto border-l bg-card p-5 shadow-lg">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="min-w-0 break-words text-[15px] font-semibold">{eventName}</div>
+        <Button variant="ghost" size="sm" onClick={onClose}>
           Close
-        </button>
+        </Button>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, fontSize: 13 }}>
+      <div className="flex flex-col gap-3.5 text-[13px]">
         <Field label="Timestamp" value={formatTimestamp(occurrence.timestamp)} />
         <Field label="User" value={occurrenceUserLabel(occurrence)} />
         <Field label="Page" value={occurrence.pagePath ?? "—"} />
 
         <div>
-          <div style={{ color: "var(--text-secondary)", marginBottom: 6 }}>Properties</div>
+          <div className="mb-1.5 text-muted-foreground">Properties</div>
           {occurrence.properties && Object.keys(occurrence.properties).length > 0 ? (
             <pre
-              className="mono"
-              style={{ background: "var(--surface-raised)", padding: 10, borderRadius: "var(--radius-sm)", fontSize: 11.5, overflowX: "auto" }}
+              className="mono overflow-x-auto rounded-md bg-muted p-2.5 text-[11.5px]"
             >
               {JSON.stringify(occurrence.properties, null, 2)}
             </pre>
           ) : (
-            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>No properties recorded for this event.</div>
+            <div className="text-xs text-muted-foreground">No properties recorded for this event.</div>
           )}
         </div>
 
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button className="btn btn-ghost btn-sm" onClick={() => onNavigate(`/observe/sessions/${occurrence.sessionId}`)}>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => onNavigate(`/observe/sessions/${occurrence.sessionId}`)}>
             View session
-          </button>
+          </Button>
           {occurrence.trackedUserId ? (
-            <button className="btn btn-ghost btn-sm" onClick={() => onNavigate(`/users/${occurrence.trackedUserId}`)}>
+            <Button variant="outline" size="sm" onClick={() => onNavigate(`/users/${occurrence.trackedUserId}`)}>
               View user
-            </button>
+            </Button>
           ) : occurrence.anonymousId ? (
-            <button className="btn btn-ghost btn-sm" onClick={() => onNavigate(`/users/anonymous/${occurrence.anonymousId}`)}>
+            <Button variant="outline" size="sm" onClick={() => onNavigate(`/users/anonymous/${occurrence.anonymousId}`)}>
               View user
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>
@@ -471,8 +439,8 @@ function OccurrenceDrawer({
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div style={{ color: "var(--text-secondary)", marginBottom: 2 }}>{label}</div>
-      <div className="mono" style={{ color: "var(--text-primary)" }}>
+      <div className="mb-0.5 text-muted-foreground">{label}</div>
+      <div className="mono break-words text-foreground">
         {value}
       </div>
     </div>
@@ -502,15 +470,13 @@ function UsersTab({
 
   if (users === null) {
     return (
-      <div style={{ padding: 16 }}>
-        <div className="skeleton" style={{ height: 200 }} />
-      </div>
+      <LoadingRows />
     );
   }
   if (users.length === 0) return <EmptyState title="No occurrences in this date range." description="Try expanding the date range." />;
 
   return (
-    <table className="table">
+    <table className={dataTableClass}>
       <thead>
         <tr>
           <th>User</th>
@@ -527,8 +493,8 @@ function UsersTab({
           >
             <td>{u.identityType === "identified" ? u.externalUserId : "Anonymous"}</td>
             <td className="mono">{u.occurrences.toLocaleString()}</td>
-            <td style={{ color: "var(--text-secondary)" }}>{formatTimestamp(u.firstSeenAt)}</td>
-            <td style={{ color: "var(--text-secondary)" }}>{formatTimestamp(u.lastSeenAt)}</td>
+            <td className="text-muted-foreground">{formatTimestamp(u.firstSeenAt)}</td>
+            <td className="text-muted-foreground">{formatTimestamp(u.lastSeenAt)}</td>
           </tr>
         ))}
       </tbody>
@@ -559,15 +525,13 @@ function SessionsTab({
 
   if (sessions === null) {
     return (
-      <div style={{ padding: 16 }}>
-        <div className="skeleton" style={{ height: 200 }} />
-      </div>
+      <LoadingRows />
     );
   }
   if (sessions.length === 0) return <EmptyState title="No occurrences in this date range." description="Try expanding the date range." />;
 
   return (
-    <table className="table">
+    <table className={dataTableClass}>
       <thead>
         <tr>
           <th>Session</th>
@@ -581,8 +545,8 @@ function SessionsTab({
           <tr key={s.sessionId} onClick={() => onNavigate(`/observe/sessions/${s.sessionId}`)}>
             <td className="mono">{s.sessionId}</td>
             <td className="mono">{s.occurrences.toLocaleString()}</td>
-            <td style={{ color: "var(--text-secondary)" }}>{formatTimestamp(s.firstSeenAt)}</td>
-            <td style={{ color: "var(--text-secondary)" }}>{formatTimestamp(s.lastSeenAt)}</td>
+            <td className="text-muted-foreground">{formatTimestamp(s.firstSeenAt)}</td>
+            <td className="text-muted-foreground">{formatTimestamp(s.lastSeenAt)}</td>
           </tr>
         ))}
       </tbody>
@@ -611,15 +575,13 @@ function PagesTab({
 
   if (pages === null) {
     return (
-      <div style={{ padding: 16 }}>
-        <div className="skeleton" style={{ height: 200 }} />
-      </div>
+      <LoadingRows />
     );
   }
   if (pages.length === 0) return <EmptyState title="No occurrences in this date range." description="Try expanding the date range." />;
 
   return (
-    <table className="table">
+    <table className={dataTableClass}>
       <thead>
         <tr>
           <th>Page</th>
@@ -629,7 +591,7 @@ function PagesTab({
       <tbody>
         {pages.map((p, i) => (
           <tr key={i}>
-            <td className="mono" style={{ color: "var(--text-primary)" }}>
+            <td className="mono break-all text-foreground">
               {p.pagePath ?? "Unknown page"}
             </td>
             <td className="mono">{p.occurrences.toLocaleString()}</td>

@@ -7,6 +7,10 @@ import * as trackedUsersApi from "../../api/trackedUsers";
 import * as anonymousUsersApi from "../../api/anonymousUsers";
 import type { TrackedUserSummary, AnonymousVisitorSummary } from "../../types/api";
 import { formatRelativeTime } from "../../lib/format";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
+import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 25;
 
@@ -21,16 +25,18 @@ function displayName(user: TrackedUserSummary): string {
 
 function SegmentToggle({ segment, onChange }: { segment: Segment; onChange: (s: Segment) => void }) {
   return (
-    <div style={{ display: "flex", gap: 4, background: "var(--surface-raised)", padding: 3, borderRadius: 8 }}>
+    <div className="flex rounded-md bg-muted p-1">
       {(["identified", "anonymous"] as const).map((s) => (
-        <button
+        <Button
+          type="button"
           key={s}
           onClick={() => onChange(s)}
-          className={segment === s ? "btn btn-sm" : "btn btn-ghost btn-sm"}
-          style={segment === s ? { background: "var(--users-dim)", color: "var(--users)", borderColor: "transparent" } : undefined}
+          variant="ghost"
+          size="sm"
+          className={cn("h-7 font-normal text-muted-foreground", segment === s && "bg-card font-medium text-foreground shadow-sm hover:bg-card")}
         >
           {s === "identified" ? "Identified" : "Anonymous"}
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -90,9 +96,9 @@ export function UsersPage() {
     return (
       <>
         <PageHeader section="Users" title="Users" description="People and visitors seen on this site." />
-        <div className="card">
+        <DataTableFrame>
           <EmptyState title="No site selected" description="Select a site from the switcher above." />
-        </div>
+        </DataTableFrame>
       </>
     );
   }
@@ -108,32 +114,25 @@ export function UsersPage() {
             : "Visitors who have generated activity but haven't been identified via analytics.identify() yet."
         }
         actions={
-          <div style={{ display: "flex", gap: 12 }}>
+          <div className="flex flex-wrap gap-3">
             <SegmentToggle segment={segment} onChange={setSegment} />
-            <input
-              className="input"
+            <Input
+              className="w-60"
               placeholder={segment === "identified" ? "Search users..." : "Search by anonymous id..."}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ width: 240 }}
             />
           </div>
         }
       />
 
-      <div className="card">
+      <DataTableFrame>
         {error && (
-          <div style={{ padding: 16 }}>
-            <div className="error-banner">{error}</div>
-          </div>
+          <div className="p-4"><ErrorNotice>{error}</ErrorNotice></div>
         )}
 
         {!error && users === null && visitors === null && (
-          <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="skeleton" style={{ height: 44 }} />
-            ))}
-          </div>
+          <LoadingRows count={6} />
         )}
 
         {segment === "identified" && users && users.length === 0 && (
@@ -153,7 +152,7 @@ export function UsersPage() {
         )}
 
         {segment === "identified" && users && users.length > 0 && (
-          <table className="table">
+          <table className={dataTableClass}>
             <thead>
               <tr>
                 <th>User</th>
@@ -167,18 +166,18 @@ export function UsersPage() {
             <tbody>
               {users.map((user) => (
                 <tr key={user.id} onClick={() => navigate(`/users/${user.id}`)}>
-                  <td style={{ minWidth: 200 }}>
-                    <div style={{ color: "var(--text-primary)" }}>{displayName(user)}</div>
-                    <div className="mono" style={{ fontSize: 11.5, color: "var(--text-muted)" }}>
+                  <td className="min-w-52">
+                    <div className="font-medium text-foreground">{displayName(user)}</div>
+                    <div className="mono max-w-72 truncate text-xs text-muted-foreground">
                       {user.externalUserId}
                     </div>
                   </td>
-                  <td className="mono" style={{ color: "var(--text-secondary)" }}>
+                  <td className="mono text-muted-foreground">
                     {formatRelativeTime(user.lastSeenAt)}
                   </td>
                   <td className="mono">{user.sessionCount}</td>
                   {activeColumns.map((col) => (
-                    <td key={col} style={{ color: "var(--text-secondary)" }}>
+                    <td key={col} className="max-w-48 truncate text-muted-foreground">
                       {col in user.properties ? String(user.properties[col]) : "—"}
                     </td>
                   ))}
@@ -200,7 +199,7 @@ export function UsersPage() {
         )}
 
         {segment === "anonymous" && visitors && visitors.length > 0 && (
-          <table className="table">
+          <table className={dataTableClass}>
             <thead>
               <tr>
                 <th>Anonymous ID</th>
@@ -212,10 +211,10 @@ export function UsersPage() {
             <tbody>
               {visitors.map((v) => (
                 <tr key={v.anonymousId} onClick={() => navigate(`/users/anonymous/${v.anonymousId}`)}>
-                  <td className="mono" style={{ color: "var(--text-primary)" }}>
+                  <td className="mono max-w-sm break-all text-foreground">
                     {v.anonymousId}
                   </td>
-                  <td className="mono" style={{ color: "var(--text-secondary)" }}>
+                  <td className="mono text-muted-foreground">
                     {formatRelativeTime(v.lastSeenAt)}
                   </td>
                   <td className="mono">{v.sessionCount}</td>
@@ -228,38 +227,27 @@ export function UsersPage() {
 
         {((segment === "identified" && users && users.length > 0) || (segment === "anonymous" && visitors && visitors.length > 0)) &&
           total > PAGE_SIZE && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px 16px",
-                fontSize: 12.5,
-                color: "var(--text-secondary)",
-              }}
-            >
+            <div className="flex items-center justify-between gap-3 border-t px-4 py-3 text-xs text-muted-foreground">
               <span>
                 {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of {total}
               </span>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  className="btn btn-ghost btn-sm"
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm"
                   disabled={offset === 0}
                   onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
                 >
                   Previous
-                </button>
-                <button
-                  className="btn btn-ghost btn-sm"
+                </Button>
+                <Button variant="ghost" size="sm"
                   disabled={offset + PAGE_SIZE >= total}
                   onClick={() => setOffset(offset + PAGE_SIZE)}
                 >
                   Next
-                </button>
+                </Button>
               </div>
             </div>
           )}
-      </div>
+      </DataTableFrame>
     </>
   );
 }

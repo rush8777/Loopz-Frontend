@@ -6,6 +6,10 @@ import { EmptyState } from "../../components/EmptyState";
 import * as funnelsApi from "../../api/funnels";
 import type { FunnelListItem } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DataTableFrame, ErrorNotice, FilterToolbar, LoadingRows, dataTableClass } from "@/components/PageSurface";
 
 export function FunnelsPage() {
   const { currentOrg, currentSite } = useWorkspace();
@@ -46,9 +50,9 @@ export function FunnelsPage() {
     return (
       <>
         <PageHeader section="Observe" title="Funnels" description="How many users progress through an ordered sequence of steps, and where they drop off." />
-        <div className="card">
+        <DataTableFrame>
           <EmptyState title="No site selected" description="Select a site from the switcher above." />
-        </div>
+        </DataTableFrame>
       </>
     );
   }
@@ -60,30 +64,25 @@ export function FunnelsPage() {
         title="Funnels"
         description="How many users progress through an ordered sequence of steps, and where they drop off."
         actions={
-          <button className="btn btn-primary" onClick={() => navigate("/observe/funnels/new")}>
-            + Create funnel
-          </button>
+          <Button onClick={() => navigate("/observe/funnels/new")}><Plus />Create funnel</Button>
         }
       />
 
-      <div style={{ marginBottom: 16 }}>
-        <input
-          className="input"
-          style={{ maxWidth: 320 }}
+      <FilterToolbar>
+        <Input
+          className="max-w-80"
           placeholder="Search funnels..."
           value={search}
           onChange={(e) => updateSearch(e.target.value)}
         />
-      </div>
+      </FilterToolbar>
 
-      <div className="card">
+      <DataTableFrame>
         {error && (
-          <div style={{ padding: 16 }}>
-            <div className="error-banner">{error}</div>
-          </div>
+          <div className="p-4"><ErrorNotice>{error}</ErrorNotice></div>
         )}
         {!error && <FunnelsList funnels={funnels} total={total} onOpen={(id) => navigate(`/observe/funnels/${id}`)} />}
-      </div>
+      </DataTableFrame>
     </>
   );
 }
@@ -91,11 +90,7 @@ export function FunnelsPage() {
 function FunnelsList({ funnels, total, onOpen }: { funnels: FunnelListItem[] | null; total: number; onOpen: (id: string) => void }) {
   if (funnels === null) {
     return (
-      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="skeleton" style={{ height: 56 }} />
-        ))}
-      </div>
+      <LoadingRows />
     );
   }
 
@@ -113,7 +108,7 @@ function FunnelsList({ funnels, total, onOpen }: { funnels: FunnelListItem[] | n
   }
 
   return (
-    <table className="table">
+    <table className={dataTableClass}>
       <thead>
         <tr>
           <th>Funnel</th>
@@ -126,12 +121,12 @@ function FunnelsList({ funnels, total, onOpen }: { funnels: FunnelListItem[] | n
         {funnels.map((f) => (
           <tr key={f.id} onClick={() => onOpen(f.id)}>
             <td>
-              <div style={{ color: "var(--text-primary)", fontWeight: 500 }}>{f.name}</div>
-              {f.description && <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>{f.description}</div>}
+              <div className="font-medium text-foreground">{f.name}</div>
+              {f.description && <div className="mt-0.5 text-xs text-muted-foreground">{f.description}</div>}
             </td>
             <td className="mono">{f.stepCount} steps</td>
             <td className="mono">{f.overallConversion}% conversion</td>
-            <td style={{ color: "var(--text-secondary)" }} title={formatTimestamp(f.updatedAt)}>
+            <td className="text-muted-foreground" title={formatTimestamp(f.updatedAt)}>
               {formatRelativeTime(f.updatedAt)}
             </td>
           </tr>

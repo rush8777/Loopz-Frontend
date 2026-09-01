@@ -1,4 +1,7 @@
 import { DATE_RANGE_PRESETS, type DateRangePreset } from "../lib/dateRange";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 export function DateRangePicker({
   preset,
@@ -12,38 +15,33 @@ export function DateRangePicker({
   onChange: (preset: DateRangePreset, customSince?: string, customUntil?: string) => void;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ display: "flex", gap: 2, background: "var(--surface-raised)", borderRadius: "var(--radius-sm)", padding: 2 }}>
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="flex rounded-md bg-muted p-0.5">
         {DATE_RANGE_PRESETS.map((p) => (
-          <button
+          <Button
             key={p.value}
             onClick={() => onChange(p.value, customSince, customUntil)}
-            className="btn btn-sm"
-            style={{
-              background: preset === p.value ? "var(--surface)" : "transparent",
-              border: "none",
-              fontWeight: preset === p.value ? 600 : 400,
-              color: preset === p.value ? "var(--text-primary)" : "var(--text-secondary)",
-            }}
+            type="button"
+            variant="ghost"
+            size="sm"
+            className={cn("h-7 px-2.5 font-normal text-muted-foreground", preset === p.value && "bg-card font-semibold text-foreground shadow-sm hover:bg-card")}
           >
             {p.label}
-          </button>
+          </Button>
         ))}
       </div>
       {preset === "custom" && (
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          <input
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Input
             type="date"
-            className="input"
-            style={{ width: 150 }}
+            className="w-[150px]"
             value={customSince?.slice(0, 10) ?? ""}
             onChange={(e) => onChange("custom", e.target.value, customUntil)}
           />
-          <span style={{ color: "var(--text-muted)", fontSize: 12 }}>to</span>
-          <input
+          <span className="text-xs text-muted-foreground">to</span>
+          <Input
             type="date"
-            className="input"
-            style={{ width: 150 }}
+            className="w-[150px]"
             value={customUntil?.slice(0, 10) ?? ""}
             onChange={(e) => onChange("custom", customSince, e.target.value)}
           />

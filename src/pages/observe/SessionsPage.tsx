@@ -6,6 +6,8 @@ import { EmptyState } from "../../components/EmptyState";
 import * as sessionsApi from "../../api/sessions";
 import type { SessionSummary } from "../../types/api";
 import { formatDuration, formatRelativeTime } from "../../lib/format";
+import { Button } from "@/components/ui/button";
+import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
 
 export function SessionsPage() {
   const { currentOrg, currentSite } = useWorkspace();
@@ -28,30 +30,30 @@ export function SessionsPage() {
   }, [currentOrg, currentSite, reloadKey]);
 
   if (!currentSite) {
-    return <><PageHeader section="Observe" title="Sessions" description="Every captured visitor session for this site." /><div className="card"><EmptyState title="No site selected" description="Create or select a site from the switcher above to see its sessions." /></div></>;
+    return <><PageHeader section="Observe" title="Sessions" description="Every captured visitor session for this site." /><DataTableFrame><EmptyState title="No site selected" description="Create or select a site from the switcher above to see its sessions." /></DataTableFrame></>;
   }
 
   return (
     <>
       <PageHeader section="Observe" title="Sessions" description={`Recorded session activity on ${currentSite.name}.`} />
-      <div className="card">
-        {error && <div style={{ padding: 16 }}><div className="error-banner" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><span>{error}</span><button className="btn btn-sm" onClick={() => setReloadKey((key) => key + 1)}>Retry</button></div></div>}
-        {!error && sessions === null && <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>{[...Array(5)].map((_, i) => <div key={i} className="skeleton" style={{ height: 44 }} />)}</div>}
+      <DataTableFrame>
+        {error && <div className="flex items-center gap-3 p-4"><div className="flex-1"><ErrorNotice>{error}</ErrorNotice></div><Button variant="outline" size="sm" onClick={() => setReloadKey((key) => key + 1)}>Retry</Button></div>}
+        {!error && sessions === null && <LoadingRows />}
         {sessions && sessions.length === 0 && <EmptyState title="No sessions yet" description={<>Once the SDK sends events for this site to <code>/public/sites/{currentSite.siteId}/events</code>, sessions will appear here.</>} />}
         {sessions && sessions.length > 0 && (
-          <div style={{ overflowX: "auto" }}><table className="table">
+          <table className={dataTableClass}>
             <thead><tr><th>Visitor</th><th>Started</th><th>Observed duration</th><th>Pages</th><th>Clicks</th><th>Application events</th><th>Last observed</th></tr></thead>
             <tbody>{sessions.map((session) => (
               <tr key={session.sessionId} tabIndex={0} onClick={() => navigate(`/observe/sessions/${session.sessionId}`)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") navigate(`/observe/sessions/${session.sessionId}`); }} aria-label={`Open session ${session.sessionId}`}>
-                <td style={{ color: "var(--text-primary)" }}>{session.visitor?.label ?? "Unresolved visitor"}</td>
-                <td style={{ color: "var(--text-secondary)" }}>{formatRelativeTime(session.firstSeen)}</td>
+                <td className="font-medium text-foreground">{session.visitor?.label ?? "Unresolved visitor"}</td>
+                <td className="text-muted-foreground">{formatRelativeTime(session.firstSeen)}</td>
                 <td className="mono">{formatDuration(session.durationMs)}</td><td className="mono">{session.pageVisitCount ?? 0}</td><td className="mono">{session.clickCount ?? 0}</td><td className="mono">{session.customEventCount ?? 0}</td>
-                <td style={{ color: "var(--text-secondary)" }}>{formatRelativeTime(session.lastSeen)}</td>
+                <td className="text-muted-foreground">{formatRelativeTime(session.lastSeen)}</td>
               </tr>
             ))}</tbody>
-          </table></div>
+          </table>
         )}
-      </div>
+      </DataTableFrame>
     </>
   );
 }
