@@ -14,6 +14,7 @@ import { PageEditorPage } from "./pages/observe/PageEditorPage";
 import { PageDetailPage } from "./pages/observe/PageDetailPage";
 import { SessionDetailPage } from "./pages/observe/SessionDetailPage";
 import { HeatmapsPage } from "./pages/observe/HeatmapsPage";
+import { HeatmapDetailPage } from "./pages/observe/PageHeatmapTab";
 // import { ReplayPage } from "./pages/observe/ReplayPage";
 // import { PatternAnalysisPage } from "./pages/analysis/PatternAnalysisPage";
 // import { PatternClusterPage } from "./pages/analysis/PatternClusterPage";
@@ -64,6 +65,7 @@ export default function App() {
               <Route path="observe/pages/:pageId/edit" element={<PageEditorPage />} />
               <Route path="observe/elements" element={<Navigate to="/observe/pages" replace />} />
               <Route path="observe/heatmaps" element={<HeatmapsPage />} />
+              <Route path="observe/heatmaps/:pageId" element={<HeatmapDetailPage />} />
               {/* <Route path="observe/replay" element={<ReplayPage />} /> */}
               {/* <Route path="analysis/patterns" element={<PatternAnalysisPage />} /> */}
               {/* <Route path="analysis/clusters" element={<PatternClusterPage />} /> */}

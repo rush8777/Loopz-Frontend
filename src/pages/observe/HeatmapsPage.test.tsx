@@ -13,15 +13,15 @@ describe("HeatmapsPage", () => {
     vi.clearAllMocks();
     vi.mocked(workspace.useWorkspace).mockReturnValue({ currentOrg: { orgId: "org_1" }, currentSite: { id: "site_1", name: "Site" } } as never);
     vi.mocked(pagesApi.listHeatmaps).mockResolvedValue({ heatmaps: [
-      { id: "page_active", name: "Dashboard", heatmapEnabled: true, interactions: 42 },
-      { id: "page_disabled", name: "Settings", heatmapEnabled: false, interactions: 0 },
+      { id: "page_active", name: "Dashboard", heatmapEnabled: true, interactions: 42, clicks: 30, lastActivityAt: "2026-08-31T00:00:00.000Z", referenceStatus: "ready", referenceCapturedAt: "2026-08-31T00:00:00.000Z" },
+      { id: "page_disabled", name: "Settings", heatmapEnabled: false, interactions: 0, clicks: 0, lastActivityAt: null, referenceStatus: "needed", referenceCapturedAt: null },
     ] });
   });
 
-  it("lists Page heatmaps and routes analysis into Page Detail", async () => {
+  it("lists Page heatmaps and routes analysis into the dedicated Heatmap workspace", async () => {
     render(<MemoryRouter initialEntries={["/observe/heatmaps"]}><Routes>
       <Route path="/observe/heatmaps" element={<HeatmapsPage />} />
-      <Route path="/observe/pages/:pageId" element={<div>Page heatmap detail</div>} />
+      <Route path="/observe/heatmaps/:pageId" element={<div>Page heatmap detail</div>} />
     </Routes></MemoryRouter>);
     expect(await screen.findByText("Dashboard")).toBeInTheDocument();
     expect(screen.getByText("Active")).toBeInTheDocument();

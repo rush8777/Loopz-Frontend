@@ -1,5 +1,5 @@
 import { apiRequest } from "./client";
-import type { HeatmapDevice, HeatmapLayer, PageDefinition, PageDetail, PageElement, PageHeatmapResult, PageHeatmapState, PageRule, PageType, UntaggedUrl, PagePreviewResult } from "../types/api";
+import type { HeatmapDateRange, HeatmapDevice, HeatmapIndexRow, HeatmapLayer, PageDefinition, PageDetail, PageElement, PageHeatmapResult, PageHeatmapState, PageRule, PageType, UntaggedUrl, PagePreviewResult } from "../types/api";
 
 export interface PageInput {
   name: string;
@@ -45,8 +45,8 @@ export function previewPageRules(orgId: string, siteId: string, rules: PageRule[
   });
 }
 
-export function listHeatmaps(orgId: string, siteId: string) {
-  return apiRequest<{ heatmaps: { id: string; name: string; heatmapEnabled: boolean; interactions: number }[] }>(`/orgs/${orgId}/sites/${siteId}/heatmaps`);
+export function listHeatmaps(orgId: string, siteId: string, range?: HeatmapDateRange) {
+  return apiRequest<{ heatmaps: HeatmapIndexRow[] }>(`/orgs/${orgId}/sites/${siteId}/heatmaps`, { query: range ? { from: range.from, to: range.to } : undefined });
 }
 
 export function listPageHeatmapStates(orgId: string, siteId: string, pageId: string) {
@@ -57,10 +57,14 @@ export function createPageHeatmapState(orgId: string, siteId: string, pageId: st
   return apiRequest<PageHeatmapState>(`/orgs/${orgId}/sites/${siteId}/pages/${pageId}/heatmap/states`, { method: "POST", body: input });
 }
 
-export function getPageHeatmap(orgId: string, siteId: string, pageId: string, query: { stateId: string; device: HeatmapDevice; layer: HeatmapLayer }) {
-  return apiRequest<PageHeatmapResult>(`/orgs/${orgId}/sites/${siteId}/pages/${pageId}/heatmap`, { query });
+export function getPageHeatmap(orgId: string, siteId: string, pageId: string, query: { stateId: string; device: HeatmapDevice; layer: HeatmapLayer } & HeatmapDateRange) {
+  return apiRequest<PageHeatmapResult>(`/orgs/${orgId}/sites/${siteId}/pages/${pageId}/heatmap`, { query: { stateId: query.stateId, device: query.device, layer: query.layer, from: query.from, to: query.to } });
 }
 
-export function requestPageHeatmapCapture(orgId: string, siteId: string, pageId: string, input: { stateId: string; device: HeatmapDevice }) {
-  return apiRequest<{ captureToken: string; expiresAt: string; command: string }>(`/orgs/${orgId}/sites/${siteId}/pages/${pageId}/heatmap/capture-request`, { method: "POST", body: input });
+export function requestPageHeatmapCapture(orgId: string, siteId: string, pageId: string, input: { stateId: string; device: HeatmapDevice; targetUrl?: string }) {
+  return apiRequest<{ captureUrl: string; expiresAt: string; requestId: string }>(`/orgs/${orgId}/sites/${siteId}/pages/${pageId}/heatmap/capture-request`, { method: "POST", body: input });
+}
+
+export function getPageHeatmapCaptureStatus(orgId: string, siteId: string, pageId: string, requestId: string) {
+  return apiRequest<{ status: "pending" | "complete" | "expired" }>(`/orgs/${orgId}/sites/${siteId}/pages/${pageId}/heatmap/capture-request/${requestId}`);
 }

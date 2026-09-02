@@ -39,6 +39,16 @@ describe("PageDetailPage elements", () => {
     mockedWorkspace.useWorkspace.mockReturnValue({ currentOrg: { orgId: "org_1" }, currentSite: { id: "site_1" } } as any);
     mockedPages.getPage.mockResolvedValue(page);
     mockedPages.listPageElements.mockResolvedValue({ elements: [element] });
+    mockedPages.listHeatmaps.mockResolvedValue({ heatmaps: [{ id: page.id, name: page.name, heatmapEnabled: true, interactions: 18422, clicks: 12000, lastActivityAt: page.lastSeenAt, referenceStatus: "ready", referenceCapturedAt: "2026-08-31T00:00:00.000Z" }] });
+  });
+
+  it("shows only Overview and Elements and opens the dedicated Heatmap route", async () => {
+    render(<MemoryRouter initialEntries={["/observe/pages/page_1"]}><Routes><Route path="/observe/pages/:pageId" element={<PageDetailPage />} /><Route path="/observe/heatmaps/:pageId" element={<div>Dedicated heatmap</div>} /></Routes></MemoryRouter>);
+    await screen.findByRole("heading", { name: "Settings" });
+    expect(screen.queryByRole("tab", { name: "heatmap" })).not.toBeInTheDocument();
+    expect(screen.getByText("18,422 interactions")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Open heatmap" }));
+    expect(await screen.findByText("Dedicated heatmap")).toBeInTheDocument();
   });
 
   it("keeps the logical Page header and shows aggregated elements in its Elements tab", async () => {

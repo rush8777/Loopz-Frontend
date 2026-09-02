@@ -693,7 +693,9 @@ export interface CatalogElement {
 }
 
 export type HeatmapDevice = "desktop" | "tablet" | "mobile";
-export type HeatmapLayer = "click" | "hover" | "cursor" | "scroll";
+export type HeatmapLayer = "click" | "hover" | "cursor" | "scroll" | "rage_click";
+export interface HeatmapDateRange { from: string; to: string }
+export interface HeatmapIndexRow { id: string; name: string; heatmapEnabled: boolean; interactions: number; clicks: number; lastActivityAt: string | null; referenceStatus: "ready" | "needed"; referenceCapturedAt: string | null }
 
 export interface PageHeatmapState {
   id: string;
@@ -709,15 +711,21 @@ export interface PageHeatmapPoint {
 }
 
 export interface PageHeatmapResult {
-  pageId: string;
+  page: { id: string; name: string };
   stateId: string;
   device: HeatmapDevice;
   layer: HeatmapLayer;
   interactionCount: number;
   points: PageHeatmapPoint[];
+  metrics: { visits: number; totalClicks: number; averageTimeMs: number; dropOffRate: number };
+  topClickedElements: { selector: string; label: string | null; count: number; percentage: number }[];
+  scrollReach: { depth: number; reached: number }[];
+  targetUrl: string | null;
   snapshot: null | {
     imageDataUrl: string;
     pagePath: string;
+    viewportWidth: number;
+    viewportHeight: number;
     documentWidth: number;
     documentHeight: number;
     capturedAt: string;
