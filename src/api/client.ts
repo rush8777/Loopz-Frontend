@@ -4,7 +4,17 @@ export class ApiError extends Error {
   status: number;
   body: unknown;
   constructor(status: number, body: unknown) {
-    super(typeof body === "object" && body && "error" in body ? String((body as { error: unknown }).error) : `HTTP ${status}`);
+    const response = typeof body === "object" && body ? body as { error?: unknown; message?: unknown; details?: unknown } : null;
+    const details = response?.details && typeof response.details === "object"
+      ? JSON.stringify(response.details)
+      : null;
+    super(
+      typeof response?.message === "string" && response.message
+        ? response.message
+        : typeof response?.error === "string" && response.error
+          ? response.error
+          : details ?? `HTTP ${status}`,
+    );
     this.status = status;
     this.body = body;
   }
@@ -75,7 +85,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     fetch(url.toString(), {
       method: options.method ?? "GET",
       headers: {
-        "Content-Type": "application/json",
+        ...(options.body !== undefined ? { "Content-Type": "application/json" } : {}),
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,

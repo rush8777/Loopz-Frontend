@@ -1,4 +1,4 @@
-import { BarChart3, ChevronDown, FileText, Flame, Gauge, MousePointerClick, Network, PanelLeftClose, Settings, Users, Waypoints, X } from "lucide-react";
+import { BarChart3, BookOpen, ChevronDown, FileText, Flame, Gauge, LayoutTemplate, MousePointerClick, Network, PanelLeftClose, Settings, Sparkles, Users, Waypoints, X } from "lucide-react";
 import type { ComponentType } from "react";
 import { NavLink } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
@@ -9,6 +9,7 @@ interface NavItem { label:string; path?:string; disabled?:boolean; icon:Componen
 const SECTIONS:NavSection[]=[
   {label:"Workspace",items:[{label:"Overview",disabled:true,icon:Gauge}]},
   {label:"Observe",items:[{label:"Pages",path:"/observe/pages",icon:FileText},{label:"Sessions",path:"/observe/sessions",icon:MousePointerClick},{label:"Events",path:"/observe/events",icon:Waypoints},{label:"Funnels",path:"/observe/funnels",icon:Network},/* Replay stays disabled until its route is restored. */{label:"Heatmaps",path:"/observe/heatmaps",icon:Flame}]},
+  {label:"Experiences",items:[{label:"Guides",path:"/experiences/guides",icon:BookOpen},{label:"Widgets",path:"/experiences/widgets",icon:LayoutTemplate},{label:"Visual Builder",path:"/experiences/builder",icon:Sparkles}]},
   /* Analysis navigation stays disabled until its existing routes are restored. */
   {label:"Feedback",items:[{label:"Campaigns",disabled:true,icon:BarChart3}]},
   {label:"People",items:[{label:"Users",path:"/users",icon:Users},{label:"Segments",path:"/segments",icon:PanelLeftClose}]},

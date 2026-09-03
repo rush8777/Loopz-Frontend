@@ -6,7 +6,7 @@ export function PageHeader({
   description,
   actions,
 }: {
-  section: "Observe" | "Analysis" | "Feedback" | "Users";
+  section: "Observe" | "Analysis" | "Feedback" | "Users" | "Experiences";
   title: string;
   description?: string;
   actions?: ReactNode;

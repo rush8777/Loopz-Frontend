@@ -8,3 +8,7 @@ export function listSites(orgId: string) {
 export function createSite(orgId: string, input: { name: string; domain?: string }) {
   return apiRequest<Site>(`/orgs/${orgId}/sites`, { method: "POST", body: input });
 }
+
+export function updateSiteDomain(orgId: string, siteId: string, domain: string | null) {
+  return apiRequest<Site>(`/orgs/${orgId}/sites/${siteId}`, { method: "PATCH", body: { domain } });
+}

@@ -29,6 +29,9 @@ import { SegmentDetailPage } from "./pages/segments/SegmentDetailPage";
 import { FunnelsPage } from "./pages/funnels/FunnelsPage";
 import { FunnelBuilderPage } from "./pages/funnels/FunnelBuilderPage";
 import { FunnelDetailPage } from "./pages/funnels/FunnelDetailPage";
+import { ExperienceListPage } from "./pages/experiences/ExperienceListPage";
+import { VisualBuilderPage } from "./pages/experiences/VisualBuilderPage";
+import { ExperienceEditorPage } from "./pages/experiences/ExperienceEditorPage";
 
 function Workspace({ children }: { children: ReactNode }) {
   return <WorkspaceProvider>{children}</WorkspaceProvider>;
@@ -78,6 +81,10 @@ export default function App() {
               <Route path="segments/new" element={<SegmentBuilderPage />} />
               <Route path="segments/:segmentId" element={<SegmentDetailPage />} />
               <Route path="segments/:segmentId/edit" element={<SegmentBuilderPage />} />
+              <Route path="experiences/guides" element={<ExperienceListPage kind="guide" />} />
+              <Route path="experiences/widgets" element={<ExperienceListPage kind="widget" />} />
+              <Route path="experiences/builder" element={<VisualBuilderPage />} />
+              <Route path="experiences/:experienceId/edit" element={<ExperienceEditorPage />} />
             </Route>
           </Route>
 

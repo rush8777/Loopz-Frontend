@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import * as sitesApi from "../../api/sites";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { SettingsHeading } from "./SettingsShared";
@@ -13,8 +13,13 @@ export function SitesSettings() {
   const { currentOrg, sites, currentSite, setCurrentSiteId, refreshSites } = useWorkspace();
   const [creatingSite, setCreatingSite] = useState(false);
   const [newSiteName, setNewSiteName] = useState("");
+  const [newSiteDomain, setNewSiteDomain] = useState("");
+  const [domain, setDomain] = useState("");
+  const [savingDomain, setSavingDomain] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => setDomain(currentSite?.domain ?? ""), [currentSite?.id, currentSite?.domain]);
 
   async function onCreateSite(event: FormEvent) {
     event.preventDefault();
@@ -22,15 +27,31 @@ export function SitesSettings() {
     setCreating(true);
     setError(null);
     try {
-      const site = await sitesApi.createSite(currentOrg.orgId, { name: newSiteName.trim() });
+      const site = await sitesApi.createSite(currentOrg.orgId, { name: newSiteName.trim(), ...(newSiteDomain.trim() ? { domain: newSiteDomain.trim() } : {}) });
       await refreshSites();
       setCurrentSiteId(site.id);
       setCreatingSite(false);
       setNewSiteName("");
+      setNewSiteDomain("");
     } catch {
       setError("Couldn't create the site. Please try again.");
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function onSaveDomain(event: FormEvent) {
+    event.preventDefault();
+    if (!currentOrg || !currentSite) return;
+    setSavingDomain(true);
+    setError(null);
+    try {
+      await sitesApi.updateSiteDomain(currentOrg.orgId, currentSite.id, domain.trim() || null);
+      await refreshSites();
+    } catch {
+      setError("Enter a valid origin, such as http://127.0.0.1:8080.");
+    } finally {
+      setSavingDomain(false);
     }
   }
 
@@ -60,6 +81,17 @@ export function SitesSettings() {
         })}
       </div>
 
+      {currentSite && (
+        <form className="mb-5 grid max-w-lg gap-2" onSubmit={(event) => void onSaveDomain(event)}>
+          <Label htmlFor="site-domain">Site domain</Label>
+          <div className="flex gap-2">
+            <Input id="site-domain" placeholder="https://app.example.com" value={domain} onChange={(event) => setDomain(event.target.value)} />
+            <Button type="submit" variant="outline" disabled={savingDomain}>{savingDomain ? "Saving…" : "Save domain"}</Button>
+          </div>
+          <p className="m-0 text-xs text-muted-foreground">Use the exact origin that hosts your product. For the local SDK example: http://127.0.0.1:8080.</p>
+        </form>
+      )}
+
       {!creatingSite ? (
         <Button type="button" aria-label="+ Add site" onClick={() => setCreatingSite(true)} disabled={!currentOrg}><Plus/>Add site</Button>
       ) : (
@@ -72,6 +104,10 @@ export function SitesSettings() {
               value={newSiteName}
               onChange={(event) => setNewSiteName(event.target.value)}
             /></div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="new-site-domain">Site domain (optional)</Label>
+            <Input id="new-site-domain" placeholder="https://app.example.com" value={newSiteDomain} onChange={(event) => setNewSiteDomain(event.target.value)} />
+          </div>
           {error && <Alert className="border-destructive/25 bg-red-50 text-destructive">{error}</Alert>}
           <div className="flex gap-2">
             <Button type="submit" disabled={creating || !newSiteName.trim()}>
