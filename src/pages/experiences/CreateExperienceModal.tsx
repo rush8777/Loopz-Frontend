@@ -31,7 +31,7 @@ export function CreateExperienceModal({ kind, open, onOpenChange, onCreated }: {
   }
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-w-md"><div className="p-6"><DialogHeader><DialogTitle>Create {kind}</DialogTitle><DialogDescription>{kind === "widget" ? "Choose how it appears, then design it live inside your product." : "Create a multi-step guide on top of your product."}</DialogDescription></DialogHeader><div className="mt-5 grid gap-4">
     <Label className="grid gap-1.5">Name<Input value={name} onChange={(e)=>setName(e.target.value)} /></Label>
-    {kind === "widget" && <Label className="grid gap-1.5">Widget type<select className="h-9 rounded-md border bg-input px-3 text-sm" value={widgetType} onChange={(e)=>setWidgetType(e.target.value as WidgetType)}><option value="anchored_card">Anchored card</option><option value="toast">Toast</option><option value="cursor_follow">Cursor-follow card</option></select></Label>}
+    {kind === "widget" && <Label className="grid gap-1.5">Widget type<select className="h-9 rounded-md border bg-input px-3 text-sm" value={widgetType} onChange={(e)=>setWidgetType(e.target.value as WidgetType)}><option value="anchored_card">Anchored card / tooltip</option><option value="modal">Modal</option><option value="slideout">Slideout</option><option value="banner">Banner</option><option value="hotspot">Hotspot</option><option value="toast">Toast</option><option value="cursor_follow">Cursor-follow card</option></select></Label>}
     <Label className="grid gap-1.5">Build on page<select className="h-9 rounded-md border bg-input px-3 text-sm" value={source} onChange={(e)=>setSource(e.target.value)}>{pages.map((page)=><option key={page.id} value={page.id}>{page.name}</option>)}<option value="manual">Enter URL manually</option></select></Label>
     {source === "manual" && <Label className="grid gap-1.5">Page URL<Input type="url" placeholder="https://app.example.com/dashboard" value={manualUrl} onChange={(e)=>setManualUrl(e.target.value)} /></Label>}
     <Label className="grid gap-1.5">Template<select className="h-9 rounded-md border bg-input px-3 text-sm"><option>Start blank</option></select></Label>
@@ -39,4 +39,3 @@ export function CreateExperienceModal({ kind, open, onOpenChange, onCreated }: {
     {error && <p className="m-0 text-sm text-destructive">{error}</p>}
   </div><DialogFooter className="mt-6"><Button variant="outline" onClick={()=>onOpenChange(false)}>Cancel</Button><Button disabled={saving} onClick={submit}>{saving ? "Opening…" : "Open visual editor"}</Button></DialogFooter></div></DialogContent></Dialog>;
 }
-
