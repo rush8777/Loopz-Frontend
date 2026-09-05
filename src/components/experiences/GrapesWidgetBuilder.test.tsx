@@ -9,7 +9,7 @@ vi.mock("grapesjs", () => ({ default: { init: harness.init } }));
 function fakeEditor() {
   let html = '<section class="loopz-widget"><h2 data-loopz-content="heading">Hello</h2><p data-loopz-content="body">World</p></section>'; let css = ".loopz-widget{color:#111}"; let device = "Desktop"; const widgetElement = document.createElement("section");
   const editor: any = {
-    DomComponents: { addType: vi.fn() }, UndoManager: { undo: vi.fn(), redo: vi.fn() }, Canvas: { fitViewport: vi.fn(), getCoords: vi.fn(() => ({ x: 24, y: 36 })), setCoords: vi.fn() }, refresh: vi.fn(),
+    DomComponents: { addType: vi.fn() }, UndoManager: { undo: vi.fn(), redo: vi.fn() }, Canvas: { setZoom: vi.fn(), setCoords: vi.fn() }, refresh: vi.fn(),
     on: vi.fn((name: string, handler: (...args: any[]) => void) => harness.handlers.set(name, handler)), onReady: vi.fn((handler: () => void) => window.setTimeout(handler, 0)), destroy: harness.destroy,
     getHtml: vi.fn(() => html), getCss: vi.fn((options?: { avoidProtected?: boolean }) => options?.avoidProtected ? css : `*{box-sizing:border-box}body{margin:0}${css}`), getProjectData: vi.fn(() => ({ pages: [] })), getDirtyCount: vi.fn(() => harness.dirty), clearDirtyCount: vi.fn(), setDevice: vi.fn((name: string) => { device = name; }), getDevice: vi.fn(() => device), select: vi.fn(), setComponents: vi.fn((value: string) => { html = value; }), setStyle: vi.fn((value: string) => { css = value; }), getWrapper: vi.fn(() => ({ find: vi.fn((selector: string) => selector === ".loopz-widget" ? [{ getEl: () => widgetElement }] : []), components: vi.fn(() => ({ length: 0 })) })),
   };
@@ -45,17 +45,17 @@ describe("GrapesWidgetBuilder", () => {
     const canvas = document.querySelector<HTMLElement>(".loopz-builder-editor");
     expect(canvas).not.toBeNull();
     Object.defineProperties(canvas!, { clientWidth: { configurable: true, value: 720 }, clientHeight: { configurable: true, value: 560 } });
-    await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); });
+    await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
     const devices = harness.init.mock.calls[0][0].deviceManager.devices;
     expect(devices.map((entry: { width: string; height: string }) => [entry.width, entry.height])).toEqual([["1200px", "900px"], ["1200px", "900px"], ["1200px", "900px"]]);
-    expect(editor.Canvas.fitViewport).toHaveBeenCalledWith(expect.objectContaining({ el: expect.any(HTMLElement), gap: 40 }));
-    const fitOptions = editor.Canvas.fitViewport.mock.calls[0][0];
-    expect(fitOptions.zoom(150)).toBe(100);
-    expect(fitOptions.zoom(5)).toBe(10);
-    expect(editor.Canvas.setCoords).toHaveBeenCalledWith(24, 0);
-    const fitCount = editor.Canvas.fitViewport.mock.calls.length;
+    expect(editor.Canvas.setZoom).toHaveBeenCalledWith(100);
+    expect(editor.Canvas.setCoords).toHaveBeenCalledWith(-240, 0);
+    const widget = editor.getWrapper().find(".loopz-widget")[0].getEl();
+    Object.defineProperties(widget, { offsetWidth: { configurable: true, value: 900 }, offsetHeight: { configurable: true, value: 700 } });
     fireEvent.click(screen.getByRole("button", { name: /Mobile/ }));
+    act(() => vi.runAllTimers());
     expect(editor.setDevice).toHaveBeenLastCalledWith("Mobile");
-    expect(editor.Canvas.fitViewport).toHaveBeenCalledTimes(fitCount + 1);
+    expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(expect.closeTo(66.29, 1));
+    expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(expect.closeTo(-37.71, 1), 0);
   });
 });
