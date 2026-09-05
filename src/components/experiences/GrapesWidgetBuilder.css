@@ -1,0 +1,16 @@
+.loopz-builder-shell{overflow:hidden;border:1px solid var(--border);border-radius:.75rem;background:var(--card)}
+.loopz-builder-toolbar{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.75rem;border-bottom:1px solid var(--border);background:var(--muted)}
+.loopz-builder-toolbar__group{display:flex;align-items:center;gap:.4rem}
+.loopz-builder-view--hidden{display:none!important}
+.loopz-builder-workspace{display:grid;grid-template-columns:220px minmax(420px,1fr) 280px;height:min(680px,calc(100vh - 240px));min-height:520px}
+.loopz-builder-panel{min-height:0;overflow:auto;padding:1rem;border-right:1px solid var(--border);background:var(--background)}
+.loopz-builder-panel--right{border-right:0;border-left:1px solid var(--border)}
+.loopz-builder-panel h3{margin:0 0 .75rem;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.loopz-builder-hint{margin:-.25rem 0 .9rem;color:var(--muted-foreground);font-size:.72rem;line-height:1.4}
+.loopz-builder-canvas{position:relative;min-height:0;overflow:hidden;padding:0;background:#f8fafc}
+.loopz-builder-editor{height:100%;min-height:0;background:#f8fafc}.loopz-builder-loading{position:absolute;inset:0;z-index:2;display:grid;place-items:center;background:#f8fafc;color:#64748b;font-size:.85rem;pointer-events:none}
+.loopz-builder-editor>.gjs-editor{height:100%;background:#f8fafc}.loopz-builder-editor .gjs-cv-canvas{top:0;width:100%;height:100%;background:#f8fafc}.loopz-builder-editor .gjs-cv-canvas__frames,.loopz-builder-editor .gjs-frames{background:#f8fafc}
+.loopz-builder-code{display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1rem}.loopz-builder-code textarea{min-height:560px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+.loopz-action-inspector{display:grid;gap:.75rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)}.loopz-action-inspector p{margin:0;color:var(--muted-foreground);font-size:.8rem}
+.loopz-builder-shell .gjs-one-bg,.loopz-builder-shell .gjs-two-color{background:transparent;color:inherit}.loopz-builder-shell .gjs-blocks-c{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}.loopz-builder-shell .gjs-block{width:auto;min-height:58px;margin:0;padding:.55rem;border:1px solid var(--border);border-radius:.5rem;box-shadow:none;color:inherit}.loopz-builder-shell .gjs-block:hover{color:var(--primary)}.loopz-builder-shell .gjs-sm-sector{border-bottom:1px solid var(--border);box-shadow:none}.loopz-builder-shell .gjs-sm-sector-title,.loopz-builder-shell .gjs-sm-properties{background:transparent;color:inherit}.loopz-builder-shell .gjs-field{background:var(--input);color:inherit}.loopz-builder-shell .gjs-label{color:inherit}
+@media(max-width:1100px){.loopz-builder-workspace{grid-template-columns:180px minmax(360px,1fr);height:auto;min-height:0}.loopz-builder-editor{height:560px}.loopz-builder-panel--right{grid-column:1/-1;max-height:360px;border-top:1px solid var(--border);border-left:0}.loopz-builder-code{grid-template-columns:1fr}}
