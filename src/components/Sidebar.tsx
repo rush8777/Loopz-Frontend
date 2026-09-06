@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, ChevronDown, FileText, Flame, Gauge, LayoutTemplate, MousePointerClick, Network, PanelLeftClose, Settings, Sparkles, Users, Waypoints, X } from "lucide-react";
+import { BarChart3, BookOpen, CheckSquare, ChevronDown, FileText, Flame, Gauge, Info, LayoutTemplate, MousePointerClick, Network, PanelLeftClose, Settings, Sparkles, Users, Waypoints, X } from "lucide-react";
 import type { ComponentType } from "react";
 import { NavLink } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
@@ -8,10 +8,8 @@ import type { SettingsSection } from "./settings/SettingsModal";
 interface NavItem { label:string; path?:string; disabled?:boolean; icon:ComponentType<{className?:string}> } interface NavSection { label:string; items:NavItem[] }
 const SECTIONS:NavSection[]=[
   {label:"Workspace",items:[{label:"Overview",disabled:true,icon:Gauge}]},
+  {label:"Experiences",items:[{label:"Guides",path:"/experiences/guides",icon:BookOpen},{label:"Widgets",path:"/experiences/widgets",icon:LayoutTemplate},{label:"Visual Builder",path:"/experiences/builder",icon:Sparkles},{label:"Modals",path:"/experiences/modals",icon:LayoutTemplate},{label:"Tooltips",path:"/experiences/tooltips",icon:Info},{label:"Banners",path:"/experiences/banners",icon:BarChart3},{label:"Checklists",path:"/experiences/checklists",icon:CheckSquare}]},
   {label:"Observe",items:[{label:"Pages",path:"/observe/pages",icon:FileText},{label:"Sessions",path:"/observe/sessions",icon:MousePointerClick},{label:"Events",path:"/observe/events",icon:Waypoints},{label:"Funnels",path:"/observe/funnels",icon:Network},/* Replay stays disabled until its route is restored. */{label:"Heatmaps",path:"/observe/heatmaps",icon:Flame}]},
-  {label:"Experiences",items:[{label:"Guides",path:"/experiences/guides",icon:BookOpen},{label:"Widgets",path:"/experiences/widgets",icon:LayoutTemplate},{label:"Visual Builder",path:"/experiences/builder",icon:Sparkles}]},
-  /* Analysis navigation stays disabled until its existing routes are restored. */
-  {label:"Feedback",items:[{label:"Campaigns",disabled:true,icon:BarChart3}]},
   {label:"People",items:[{label:"Users",path:"/users",icon:Users},{label:"Segments",path:"/segments",icon:PanelLeftClose}]},
 ];
 export function Sidebar({onOpenSettings,mobileOpen=false,onMobileClose}:{onOpenSettings:(section?:SettingsSection)=>void;mobileOpen?:boolean;onMobileClose?:()=>void}) {

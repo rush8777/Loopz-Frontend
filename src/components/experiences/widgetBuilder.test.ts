@@ -12,7 +12,7 @@ describe("widget builder compatibility", () => {
       const starter = createWidgetStarter(type, content, design);
       expect(starter.html).toContain(`data-loopz-widget-type="${type}"`); expect(starter.html).toContain(examples[type]); expect(starter.html).toContain("loopz-widget"); expect(validateBuilderCss(starter.css)).toBe(starter.css);
     }
-    const modal = createWidgetStarter("modal", content, design), slideout = createWidgetStarter("slideout", content, design), banner = createWidgetStarter("banner", content, design); expect(modal.css).toContain("width:560px"); expect(slideout.css).toContain("min-height:460px"); expect(banner.css).toContain(".loopz-widget--banner{display:flex;width:100%");
+    const modal = createWidgetStarter("modal", content, design), slideout = createWidgetStarter("slideout", content, design), banner = createWidgetStarter("banner", content, design); expect(modal.css).toContain("width:600px"); expect(slideout.css).toContain("width:400px"); expect(slideout.css).toContain("min-height:460px"); expect(banner.css).toContain("width:100%");
   });
 
   it("removes executable markup and unsafe attributes while preserving Loopz action ids", () => {

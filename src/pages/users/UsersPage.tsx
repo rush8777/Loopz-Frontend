@@ -126,7 +126,8 @@ export function UsersPage() {
         }
       />
 
-      <DataTableFrame>
+      <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3"><span className="text-sm text-muted-foreground"><span className="font-medium text-foreground">{total} {segment === "identified" ? "users" : "visitors"}</span>{total > 0 && <> · Page {Math.floor(offset / PAGE_SIZE) + 1}</>}</span><span className="text-xs text-muted-foreground">Browse recorded people and visitors</span></div>
+      <DataTableFrame className="overflow-hidden">
         {error && (
           <div className="p-4"><ErrorNotice>{error}</ErrorNotice></div>
         )}
@@ -165,12 +166,9 @@ export function UsersPage() {
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id} onClick={() => navigate(`/users/${user.id}`)}>
+                <tr key={user.id} className="cursor-pointer" tabIndex={0} onClick={() => navigate(`/users/${user.id}`)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") navigate(`/users/${user.id}`); }}>
                   <td className="min-w-52">
-                    <div className="font-medium text-foreground">{displayName(user)}</div>
-                    <div className="mono max-w-72 truncate text-xs text-muted-foreground">
-                      {user.externalUserId}
-                    </div>
+                    <div className="flex items-center gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">{displayName(user).charAt(0).toUpperCase()}</span><div><div className="font-medium text-foreground">{displayName(user)}</div><div className="mono max-w-72 truncate text-xs text-muted-foreground">{user.externalUserId} · identified visitor</div></div></div>
                   </td>
                   <td className="mono text-muted-foreground">
                     {formatRelativeTime(user.lastSeenAt)}
@@ -210,10 +208,8 @@ export function UsersPage() {
             </thead>
             <tbody>
               {visitors.map((v) => (
-                <tr key={v.anonymousId} onClick={() => navigate(`/users/anonymous/${v.anonymousId}`)}>
-                  <td className="mono max-w-sm break-all text-foreground">
-                    {v.anonymousId}
-                  </td>
+                <tr key={v.anonymousId} className="cursor-pointer" tabIndex={0} onClick={() => navigate(`/users/anonymous/${v.anonymousId}`)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") navigate(`/users/anonymous/${v.anonymousId}`); }}>
+                  <td className="mono max-w-sm break-all text-foreground"><div className="flex items-center gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">{v.anonymousId.charAt(0).toUpperCase()}</span><div><div>{v.anonymousId}</div><div className="text-xs text-muted-foreground">anonymous visitor</div></div></div></td>
                   <td className="mono text-muted-foreground">
                     {formatRelativeTime(v.lastSeenAt)}
                   </td>

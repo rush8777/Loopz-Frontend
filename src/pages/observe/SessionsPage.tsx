@@ -5,55 +5,18 @@ import { PageHeader } from "../../components/PageHeader";
 import { EmptyState } from "../../components/EmptyState";
 import * as sessionsApi from "../../api/sessions";
 import type { SessionSummary } from "../../types/api";
-import { formatDuration, formatRelativeTime } from "../../lib/format";
+import { formatDuration, formatRelativeTime, formatTimestamp } from "../../lib/format";
 import { Button } from "@/components/ui/button";
-import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
+import { Input } from "@/components/ui/input";
+import { DataTableFrame, ErrorNotice, LoadingRows } from "@/components/PageSurface";
 
-export function SessionsPage() {
-  const { currentOrg, currentSite } = useWorkspace();
-  const navigate = useNavigate();
-  const [sessions, setSessions] = useState<SessionSummary[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [reloadKey, setReloadKey] = useState(0);
+const PAGE_SIZE = 25;
+const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
+function SessionRow({ session, onOpen }: { session: SessionSummary; onOpen: () => void }) { const visitor = session.visitor; const label = visitor?.label ?? "Unresolved visitor"; const initial = label.charAt(0).toUpperCase() || "?"; const device = [session.browserName, session.osName, session.deviceType].filter(Boolean).join(" · ") || "Not recorded"; return <div className="grid cursor-pointer gap-3 border-b px-4 py-4 transition-colors hover:bg-muted/40 focus-within:bg-muted/40 last:border-b-0 md:grid-cols-[minmax(180px,1.3fr)_100px_minmax(190px,1fr)_minmax(125px,.8fr)_90px_auto] md:items-center" role="button" tabIndex={0} onClick={onOpen} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onOpen(); }} aria-label={`Open session ${session.sessionId}`}><div className="flex min-w-0 gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">{initial}</span><span className="min-w-0"><span className="block truncate text-sm font-medium">{label}</span><span className="block text-xs text-muted-foreground">{visitor ? `${visitor.type} visitor` : "Visitor unavailable"}{session.hasReplay ? " · Replay available" : ""}</span></span></div><div><span className="block text-center text-[10px] font-semibold uppercase text-muted-foreground md:hidden">Observed duration</span><span className="mono block text-sm">{formatDuration(session.durationMs)}</span></div><div><span className="text-[10px] font-semibold uppercase text-muted-foreground md:hidden">Activity</span><span className="text-sm text-muted-foreground">{plural(session.pageVisitCount ?? 0, "page")} · {plural(session.clickCount ?? 0, "click")} · {plural(session.customEventCount ?? 0, "event")}</span></div><div className="text-sm text-muted-foreground"><span className="text-[10px] font-semibold uppercase text-muted-foreground md:hidden">Device</span><span className="block">{device}</span></div><time className="text-sm text-muted-foreground" title={formatTimestamp(session.lastSeen)}>{formatRelativeTime(session.lastSeen)}</time><Button variant="ghost" size="sm" className="justify-self-start" onClick={(event) => { event.stopPropagation(); onOpen(); }}>View session →</Button></div>; }
 
-  useEffect(() => {
-    if (!currentOrg || !currentSite) return;
-    let current = true;
-    setSessions(null);
-    setError(null);
-    sessionsApi.listSessions(currentOrg.orgId, currentSite.id, { limit: 100 }).then((res) => {
-      if (current) setSessions(res.sessions);
-    }).catch(() => {
-      if (current) setError("Couldn't load sessions.");
-    });
-    return () => { current = false; };
-  }, [currentOrg, currentSite, reloadKey]);
-
-  if (!currentSite) {
-    return <><PageHeader section="Observe" title="Sessions" description="Every captured visitor session for this site." /><DataTableFrame><EmptyState title="No site selected" description="Create or select a site from the switcher above to see its sessions." /></DataTableFrame></>;
-  }
-
-  return (
-    <>
-      <PageHeader section="Observe" title="Sessions" description={`Recorded session activity on ${currentSite.name}.`} />
-      <DataTableFrame>
-        {error && <div className="flex items-center gap-3 p-4"><div className="flex-1"><ErrorNotice>{error}</ErrorNotice></div><Button variant="outline" size="sm" onClick={() => setReloadKey((key) => key + 1)}>Retry</Button></div>}
-        {!error && sessions === null && <LoadingRows />}
-        {sessions && sessions.length === 0 && <EmptyState title="No sessions yet" description={<>Once the SDK sends events for this site to <code>/public/sites/{currentSite.siteId}/events</code>, sessions will appear here.</>} />}
-        {sessions && sessions.length > 0 && (
-          <table className={dataTableClass}>
-            <thead><tr><th>Visitor</th><th>Started</th><th>Observed duration</th><th>Pages</th><th>Clicks</th><th>Application events</th><th>Last observed</th></tr></thead>
-            <tbody>{sessions.map((session) => (
-              <tr key={session.sessionId} tabIndex={0} onClick={() => navigate(`/observe/sessions/${session.sessionId}`)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") navigate(`/observe/sessions/${session.sessionId}`); }} aria-label={`Open session ${session.sessionId}`}>
-                <td className="font-medium text-foreground">{session.visitor?.label ?? "Unresolved visitor"}</td>
-                <td className="text-muted-foreground">{formatRelativeTime(session.firstSeen)}</td>
-                <td className="mono">{formatDuration(session.durationMs)}</td><td className="mono">{session.pageVisitCount ?? 0}</td><td className="mono">{session.clickCount ?? 0}</td><td className="mono">{session.customEventCount ?? 0}</td>
-                <td className="text-muted-foreground">{formatRelativeTime(session.lastSeen)}</td>
-              </tr>
-            ))}</tbody>
-          </table>
-        )}
-      </DataTableFrame>
-    </>
-  );
+export function SessionsPage() { const { currentOrg, currentSite } = useWorkspace(); const navigate = useNavigate(); const [result, setResult] = useState<{ sessions: SessionSummary[]; total: number; limit: number; offset: number } | null>(null); const [error, setError] = useState<string | null>(null); const [reloadKey, setReloadKey] = useState(0); const [page, setPage] = useState(1); const [search, setSearch] = useState("");
+  useEffect(() => { if (!currentOrg || !currentSite) return; let current = true; setResult(null); setError(null); sessionsApi.listSessions(currentOrg.orgId, currentSite.id, { limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }).then((res) => { if (current) setResult(res); }).catch(() => { if (current) setError("Couldn't load sessions."); }); return () => { current = false; }; }, [currentOrg, currentSite, page, reloadKey]);
+  if (!currentSite) return <><PageHeader section="Observe" title="Sessions" description="Every captured visitor session for this site." /><DataTableFrame><EmptyState title="No site selected" description="Create or select a site from the switcher above to see its sessions." /></DataTableFrame></>;
+  const sessions = result?.sessions ?? []; const filtered = search.trim() ? sessions.filter((session) => [session.sessionId, session.visitor?.label, session.visitor?.id].some((value) => value?.toLowerCase().includes(search.toLowerCase()))) : sessions; const totalPages = Math.max(1, Math.ceil((result?.total ?? 0) / PAGE_SIZE));
+  return <><PageHeader section="Observe" title="Sessions" description={`Recorded session activity on ${currentSite.name}.`} /><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div className="text-sm text-muted-foreground">{result ? <><span className="font-medium text-foreground">{result.total} sessions</span><span className="mx-2">·</span>Page {page} of {totalPages}</> : "Sessions"}</div><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search visitor or session..." className="w-full sm:w-72" aria-label="Search visitor or session" /></div><DataTableFrame className="overflow-hidden">{error && <div className="flex items-center gap-3 p-4"><div className="flex-1"><ErrorNotice>{error}</ErrorNotice></div><Button variant="outline" size="sm" onClick={() => setReloadKey((key) => key + 1)}>Retry</Button></div>}{!error && !result && <LoadingRows count={8} />}{result && result.total === 0 && <EmptyState title="No sessions yet" description={<>Once the SDK sends events for this site to <code>/public/sites/{currentSite.siteId}/events</code>, sessions will appear here.</>} />}{result && result.total > 0 && filtered.length === 0 && <EmptyState title="No sessions match this search" description="Try a different visitor or session ID." />}{result && filtered.length > 0 && <><div className="hidden grid-cols-[minmax(180px,1.3fr)_100px_minmax(190px,1fr)_minmax(125px,.8fr)_90px_auto] gap-3 border-b bg-muted/30 px-4 py-2 text-[10px] font-semibold uppercase text-muted-foreground md:grid"><span className="text-center">Visitor</span><span className="text-center">Observed duration</span><span className="text-center">Activity</span><span className="text-center">Device</span><span className="text-center">Last seen</span><span /></div>{filtered.map((session) => <SessionRow key={session.sessionId} session={session} onOpen={() => navigate(`/observe/sessions/${session.sessionId}`)} />)}</>}</DataTableFrame>{result && result.total > 0 && !search && <div className="mt-4 flex items-center justify-between"><Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>← Previous</Button><span className="text-xs text-muted-foreground">Page {page} of {totalPages}</span><Button variant="outline" size="sm" disabled={result.offset + result.sessions.length >= result.total} onClick={() => setPage((value) => value + 1)}>Next →</Button></div>}</>;
 }

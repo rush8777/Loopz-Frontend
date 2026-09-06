@@ -2,7 +2,7 @@ import { apiRequest } from "./client";
 import type { SessionSummary, SessionDetail, SessionActivity, SnapshotResponse } from "../types/api";
 
 export function listSessions(orgId: string, siteId: string, opts?: { limit?: number; offset?: number }) {
-  return apiRequest<{ sessions: SessionSummary[]; limit: number; offset: number }>(
+  return apiRequest<{ sessions: SessionSummary[]; total: number; limit: number; offset: number }>(
     `/orgs/${orgId}/sites/${siteId}/sessions`,
     { query: { limit: opts?.limit, offset: opts?.offset } }
   );

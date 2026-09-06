@@ -5,6 +5,7 @@ import { SessionDetailPage } from "./SessionDetailPage";
 import * as sessionsApi from "../../api/sessions";
 import * as workspace from "../../auth/WorkspaceContext";
 import type { SessionActivity } from "../../types/api";
+import { activityDensity, createEpisodes } from "./session-detail/sessionTimeline";
 
 vi.mock("../../api/sessions");
 vi.mock("../../auth/WorkspaceContext");
@@ -57,7 +58,7 @@ describe("SessionDetailPage", () => {
 
   it("renders page evidence, distinct application events, scroll depth and long hover", async () => {
     renderPage();
-    expect(await screen.findByText("Pricing")).toBeInTheDocument();
+    expect((await screen.findAllByText("Pricing")).length).toBeGreaterThan(0);
     expect(screen.getByText("Deepest recorded scroll: 78%", { exact: false })).toBeInTheDocument();
     expect(screen.getByText("checkout_started")).toBeInTheDocument();
     expect(screen.getByText("Long hover on Plan comparison — 23s")).toBeInTheDocument();
@@ -66,7 +67,7 @@ describe("SessionDetailPage", () => {
 
   it("keeps derived signals off by default and collapsed after enabling", async () => {
     renderPage();
-    await screen.findByText("Pricing");
+    await screen.findAllByText("Pricing");
     fireEvent.click(screen.getByLabelText("Derived signals"));
     const section = screen.getByText("Derived pointer signals (1)");
     expect(section).toBeInTheDocument();
@@ -74,5 +75,20 @@ describe("SessionDetailPage", () => {
     fireEvent.click(section);
     expect(section.closest("details")).toHaveAttribute("open");
     expect(screen.getByText("Back-and-forth pointer movement near an interaction position")).toBeInTheDocument();
+  });
+});
+
+describe("session timeline helpers", () => {
+  it("uses the next page visit boundary and session end for episode windows", () => {
+    const timelineActivity: SessionActivity = { ...activity, lastObserved: "2026-08-30T10:30:00.000Z", observedDurationMs: 1_800_000, pages: [0, 9, 21, 25].map((minute, index) => ({ ...activity.pages[0], id: `page:${index}`, firstObserved: `2026-08-30T10:${String(minute).padStart(2, "0")}:00.000Z`, lastObserved: `2026-08-30T10:${String(Math.min(minute + 1, 29)).padStart(2, "0")}:00.000Z`, items: [] })) };
+    const episodes = createEpisodes(timelineActivity, { click: true, custom: true, long_hover: true, derived_signal: false });
+    expect(episodes.map((episode) => [episode.displayStartMs, episode.displayEndMs])).toEqual([[0, 540_000], [540_000, 1_260_000], [1_260_000, 1_500_000], [1_500_000, 1_800_000]]);
+  });
+
+  it("excludes derived signals from density until enabled", () => {
+    const off = activityDensity(activity, { click: false, custom: false, long_hover: false, derived_signal: false }, 4);
+    const on = activityDensity(activity, { click: false, custom: false, long_hover: false, derived_signal: true }, 4);
+    expect(off).toEqual([0, 0, 0, 0]);
+    expect(on.reduce((total, count) => total + count, 0)).toBe(1);
   });
 });
