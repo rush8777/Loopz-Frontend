@@ -135,8 +135,8 @@ describe("Settings modal", () => {
   it("shows installation guidance and copies the public Site ID", async () => {
     openSettings();
     fireEvent.click(screen.getByRole("button", { name: "Installation" }));
-    expect(screen.getByText(/npm install loopz/)).toBeInTheDocument();
-    expect(screen.getByText(/createAnalytics/)).toBeInTheDocument();
+    expect(screen.getByText(/https:\/\/cdn\.movcues\.com\/v1\.js/)).toBeInTheDocument();
+    expect(screen.getByText(/data-site-id="site_public_1"/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Copy Site ID" }));
     await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith("site_public_1"));
     expect(screen.getByRole("button", { name: "Copy Site ID" })).toHaveTextContent("Copied");
