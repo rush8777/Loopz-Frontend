@@ -7,9 +7,9 @@ interface Paginated {
   offset: number;
 }
 
-export function listUsers(orgId: string, siteId: string, opts: { search?: string; limit?: number; offset?: number } = {}) {
+export function listUsers(orgId: string, siteId: string, opts: { search?: string; limit?: number; offset?: number; segmentId?: string; since?: string; until?: string; eventName?: string; pageId?: string; sort?: string } = {}) {
   return apiRequest<{ users: TrackedUserSummary[] } & Paginated>(`/orgs/${orgId}/sites/${siteId}/users`, {
-    query: { search: opts.search, limit: opts.limit, offset: opts.offset },
+    query: opts,
   });
 }
 

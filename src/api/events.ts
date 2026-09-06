@@ -20,10 +20,10 @@ export interface Paginated {
   offset?: number;
 }
 
-export function listEvents(orgId: string, siteId: string, opts: { search?: string } & EventDateRange & Paginated = {}) {
+export function listEvents(orgId: string, siteId: string, opts: { search?: string; segmentId?: string; pageId?: string; sort?: string } & EventDateRange & Paginated = {}) {
   return apiRequest<{ events: EventDefinitionSummary[]; total: number; limit: number; offset: number }>(
     `/orgs/${orgId}/sites/${siteId}/events`,
-    { query: { search: opts.search, since: opts.since, until: opts.until, limit: opts.limit, offset: opts.offset } }
+    { query: { search: opts.search, since: opts.since, until: opts.until, segmentId: opts.segmentId, pageId: opts.pageId, sort: opts.sort, limit: opts.limit, offset: opts.offset } }
   );
 }
 

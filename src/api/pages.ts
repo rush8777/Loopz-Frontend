@@ -10,8 +10,8 @@ export interface PageInput {
   heatmapEnabled?: boolean;
 }
 
-export function listPages(orgId: string, siteId: string) {
-  return apiRequest<{ pages: PageDefinition[] }>(`/orgs/${orgId}/sites/${siteId}/pages`);
+export function listPages(orgId: string, siteId: string, opts: { since?: string; until?: string; segmentId?: string; area?: string; pageType?: string; sort?: string } = {}) {
+  return apiRequest<{ pages: PageDefinition[] }>(`/orgs/${orgId}/sites/${siteId}/pages`, { query: opts });
 }
 
 export function getPage(orgId: string, siteId: string, pageId: string) {
@@ -34,8 +34,8 @@ export function deletePage(orgId: string, siteId: string, pageId: string) {
   return apiRequest<void>(`/orgs/${orgId}/sites/${siteId}/pages/${pageId}`, { method: "DELETE" });
 }
 
-export function listUntaggedUrls(orgId: string, siteId: string) {
-  return apiRequest<{ untagged: UntaggedUrl[] }>(`/orgs/${orgId}/sites/${siteId}/pages/untagged`);
+export function listUntaggedUrls(orgId: string, siteId: string, opts: { since?: string; until?: string; search?: string; sort?: string } = {}) {
+  return apiRequest<{ untagged: UntaggedUrl[] }>(`/orgs/${orgId}/sites/${siteId}/pages/untagged`, { query: opts });
 }
 
 export function previewPageRules(orgId: string, siteId: string, rules: PageRule[]) {

@@ -2,6 +2,7 @@ import { BarChart3, BookOpen, CheckSquare, ChevronDown, FileText, Flame, Gauge, 
 import type { ComponentType } from "react";
 import { NavLink } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { SettingsSection } from "./settings/SettingsModal";
@@ -14,9 +15,16 @@ const SECTIONS:NavSection[]=[
 ];
 export function Sidebar({onOpenSettings,mobileOpen=false,onMobileClose}:{onOpenSettings:(section?:SettingsSection)=>void;mobileOpen?:boolean;onMobileClose?:()=>void}) {
   const {currentOrg,currentSite}=useWorkspace();
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function handleScroll() {
+    setIsScrolling(true);
+    if (scrollTimer.current) clearTimeout(scrollTimer.current);
+    scrollTimer.current = setTimeout(() => setIsScrolling(false), 700);
+  }
   const content=<aside className="flex h-full flex-col bg-[#fafafa] p-3"><div className="flex h-11 items-center gap-2 px-2"><div className="grid size-7 place-items-center rounded-md bg-foreground text-xs font-bold text-background">L</div><span className="text-sm font-semibold">Loopz</span>{onMobileClose&&<Button variant="ghost" size="icon" className="ml-auto lg:hidden" onClick={onMobileClose} aria-label="Close navigation"><X/></Button>}</div>
     <button type="button" onClick={()=>onOpenSettings("sites")} className="mt-2 flex w-full items-center gap-2 rounded-md border bg-white px-2.5 py-2 text-left shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20"><span className="grid size-6 shrink-0 place-items-center rounded-sm bg-secondary text-[10px] font-semibold">{currentOrg?.name?.slice(0,1).toUpperCase()??"W"}</span><span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium">{currentOrg?.name??"Workspace"}</span><span className="block truncate text-[10px] text-muted-foreground">{currentSite?.domain??"Select a site"}</span></span><ChevronDown className="size-3.5 text-muted-foreground"/></button>
-    <nav className="mt-5 flex-1 space-y-5 overflow-y-auto" aria-label="Main navigation">{SECTIONS.map(section=><div key={section.label}><div className="mb-1 px-2 text-[10px] font-semibold uppercase text-muted-foreground">{section.label}</div><div className="space-y-0.5">{section.items.map(item=>{const Icon=item.icon;return item.disabled||!item.path?<div key={item.label} className="flex h-8 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground/65" aria-disabled="true"><Icon className="size-4"/><span className="flex-1">{item.label}</span><span className="rounded border px-1 text-[10px]">Soon</span></div>:<NavLink key={item.path} to={item.path} onClick={onMobileClose} className={({isActive})=>cn("flex h-8 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",isActive&&"bg-accent font-medium text-foreground")}><Icon className="size-4"/>{item.label}</NavLink>})}</div></div>)}</nav>
+    <nav onScroll={handleScroll} className={cn("sidebar-scrollbar mt-5 flex-1 space-y-5 overflow-y-auto", isScrolling && "is-scrolling")} aria-label="Main navigation">{SECTIONS.map(section=><div key={section.label}><div className="mb-1 px-2 text-[10px] font-semibold uppercase text-muted-foreground">{section.label}</div><div className="space-y-0.5">{section.items.map(item=>{const Icon=item.icon;return item.disabled||!item.path?<div key={item.label} className="flex h-8 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground/65" aria-disabled="true"><Icon className="size-4"/><span className="flex-1">{item.label}</span><span className="rounded border px-1 text-[10px]">Soon</span></div>:<NavLink key={item.path} to={item.path} onClick={onMobileClose} className={({isActive})=>cn("flex h-8 items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20",isActive&&"bg-accent font-medium text-foreground")}><Icon className="size-4"/>{item.label}</NavLink>})}</div></div>)}</nav>
     <Button type="button" variant="ghost" className="w-full justify-start text-muted-foreground" onClick={()=>onOpenSettings("general")}><Settings/>Settings</Button></aside>;
   return <><div className="sticky top-0 hidden h-dvh w-[232px] border-r lg:block">{content}</div>{mobileOpen&&<div className="fixed inset-0 z-40 lg:hidden"><button className="absolute inset-0 bg-black/25" onClick={onMobileClose} aria-label="Close navigation overlay"/><div className="absolute inset-y-0 left-0 w-[min(300px,85vw)] border-r shadow-xl">{content}</div></div>}</>;
 }

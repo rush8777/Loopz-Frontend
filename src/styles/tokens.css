@@ -1,3 +1,8 @@
+/* Appcues' current public site uses GT Standard L Standard for body/UI copy.
+   Keep the browser fallbacks in place while the font loads. */
+@font-face { font-family: "Gt Standard L Standard"; src: url("https://cdn.prod.website-files.com/6a3458f1671a8f55edaa1863/6a43bc600dd0d7005f3155dd_GT-Standard-L-Standard-Regular.ttf") format("truetype"); font-style: normal; font-weight: 400; font-display: swap; }
+@font-face { font-family: "Gt Standard L Standard"; src: url("https://cdn.prod.website-files.com/6a3458f1671a8f55edaa1863/6a43bca94bf912aeed6d5d4a_GT-Standard-L-Standard-Semibold.otf") format("opentype"); font-style: normal; font-weight: 600; font-display: swap; }
+
 /* Phase 1 compatibility tokens. Legacy names remain until page migrations finish. */
 :root {
   --background: #fcfcfc; --background: lab(98.9676% -.0000298023 -.0000119209);
@@ -20,7 +25,7 @@
   --observe: var(--primary); --observe-dim: var(--primary-dim); --analysis: var(--primary); --analysis-dim: var(--primary-dim);
   --feedback: var(--primary); --feedback-dim: var(--primary-dim); --users: var(--primary); --users-dim: var(--primary-dim);
   --danger: #c63b3b; --danger-dim: #fff1f1; --success: #287a4d; --success-dim: #edf8f1;
-  --font-ui: Inter, "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-ui: "Gt Standard L Standard", Arial, sans-serif;
   --font-data: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-display: "PS Times", serif;
   --radius-sm: 6px; --radius-md: 8px; --radius-lg: 14px; --radius-full: 999px;
@@ -37,4 +42,48 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--font-ui); letter-spacing: normal; }
 button,input,select,textarea { font: inherit; color: inherit; } a { color: inherit; text-decoration: none; }
 ::selection { background: #dbe5ff; color: var(--foreground); }
 .mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
-.scrollable { overflow-y: auto; scrollbar-color: #cfcfcf transparent; scrollbar-width: thin; }
+.scrollable { overflow-y: auto; }
+
+/* Quiet, system-wide scrollbars using the app's primary blue. The sidebar
+   temporarily reveals its thumb while the user is actively scrolling. */
+/* Ultra-minimal scrollbar – appears only on hover/scroll, barely noticeable */
+* {
+  scrollbar-color: transparent transparent;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 6px; /* Thinner than current 8px */
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 35%, transparent); /* Muted – 35% opacity blend */
+  background-clip: content-box;
+  transition: all 200ms var(--ease); /* Smooth fade in/out */
+}
+
+/* Only show on hover – premium restraint */
+*:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--primary) 75%, transparent);
+}
+
+/* Sidebar: reveal only while actively scrolling */
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  transition: opacity 150ms var(--ease);
+}
+
+.sidebar-scrollbar.is-scrolling::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--primary) 60%, transparent);
+}

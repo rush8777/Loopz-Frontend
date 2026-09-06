@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
 import { EmptyState } from "../../components/EmptyState";
@@ -10,17 +10,26 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTableFrame, ErrorNotice, FilterToolbar, LoadingRows, dataTableClass } from "@/components/PageSurface";
 import { cn } from "@/lib/utils";
+import { AnalyticsFilterBar, type AppliedFilters, type FilterDefinition } from "@/components/filters/AnalyticsFilterBar";
+import { readFilters, writeFilters } from "@/components/filters/filterUrlState";
+import { resolveDateRange, type DateRangePreset } from "@/lib/dateRange";
 
 type Tab = "overview" | "untagged";
 
 export function PagesPage() {
   const { currentOrg, currentSite } = useWorkspace();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterQuery = searchParams.toString();
   const [tab, setTab] = useState<Tab>("overview");
 
   const [pages, setPages] = useState<PageDefinition[] | null>(null);
   const [untagged, setUntagged] = useState<UntaggedUrl[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const filters = readFilters(searchParams, ["range", "pageType"]);
+  const range = resolveDateRange((filters.range?.[0] ?? "30d") as DateRangePreset);
+  const sort = searchParams.get("sort") ?? "views";
+  const definitions: FilterDefinition[] = [{ key: "range", label: "Date range", options: [{ value: "today", label: "Today" }, { value: "7d", label: "Last 7 days" }, { value: "30d", label: "Last 30 days" }, { value: "90d", label: "Last 90 days" }] }, { key: "pageType", label: "Page type", options: ["landing", "marketing", "dashboard", "list", "detail", "settings", "checkout", "authentication", "pricing", "documentation", "other"].map((value) => ({ value, label: value.replace("_", " ") })) }];
 
   function reload() {
     if (!currentOrg || !currentSite) return;
@@ -28,7 +37,7 @@ export function PagesPage() {
     setPages(null);
     setUntagged(null);
     pagesApi
-      .listPages(currentOrg.orgId, currentSite.id)
+      .listPages(currentOrg.orgId, currentSite.id, { since: range?.since, until: range?.until, pageType: filters.pageType?.[0], sort })
       .then((res) => setPages(res.pages))
       .catch(() => setError("Couldn't load pages."));
     pagesApi
@@ -37,7 +46,7 @@ export function PagesPage() {
       .catch(() => setError("Couldn't load untagged URLs."));
   }
 
-  useEffect(reload, [currentOrg, currentSite]);
+  useEffect(reload, [currentOrg, currentSite, filterQuery]);
 
   if (!currentSite) {
     return (
@@ -69,6 +78,8 @@ export function PagesPage() {
           Untagged URLs{untagged ? ` (${untagged.length})` : ""}
         </TabButton>
       </FilterToolbar>
+
+      {tab === "overview" && <AnalyticsFilterBar definitions={definitions} values={filters} onChange={(next: AppliedFilters) => setSearchParams(writeFilters(searchParams, next, definitions.map((item) => item.key)), { replace: true })} sort={sort} onSortChange={(value) => { const next = new URLSearchParams(searchParams); next.set("sort", value); setSearchParams(next, { replace: true }); }} sortOptions={[{ value: "views", label: "Views" }, { value: "visitors", label: "Visitors" }, { value: "sessions", label: "Sessions" }, { value: "lastSeen", label: "Last seen" }, { value: "az", label: "A–Z" }, { value: "za", label: "Z–A" }]} />}
 
       <DataTableFrame>
         {error && (

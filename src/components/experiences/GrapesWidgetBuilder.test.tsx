@@ -21,7 +21,7 @@ describe("GrapesWidgetBuilder", () => {
   it("initializes once, mounts custom managers, bootstraps once, and destroys cleanly", async () => {
     vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn(); const props = { experienceKey: "exp:v1", widgetType: "modal" as const, content: { heading: "Hello", body: "World" }, design: { width: "md" as const, theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" as const } }, onChange, onPrimaryActionChange: vi.fn(), onSizeChange: vi.fn() };
     const view = render(<GrapesWidgetBuilder {...props} />); await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); });
-    expect(harness.init).toHaveBeenCalledTimes(1); const config = harness.init.mock.calls[0][0]; expect(config.storageManager).toBe(false); expect(config.blockManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.styleManager.appendTo).toBeInstanceOf(HTMLElement); expect(editor.setComponents).toHaveBeenCalledWith(expect.stringContaining('data-loopz-widget-type="modal"')); expect(onChange).toHaveBeenCalledTimes(1);
+    expect(harness.init).toHaveBeenCalledTimes(1); const config = harness.init.mock.calls[0][0]; expect(config.storageManager).toBe(false); expect(config.blockManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.traitManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.styleManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.blockManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-blocks-panel"); expect(config.traitManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-properties-panel"); expect(config.styleManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-properties-panel"); expect(editor.setComponents).toHaveBeenCalledWith(expect.stringContaining('data-loopz-widget-type="modal"')); expect(onChange).toHaveBeenCalledTimes(1);
     view.rerender(<GrapesWidgetBuilder {...props} content={{ heading: "Changed externally", body: "World" }} />); expect(harness.init).toHaveBeenCalledTimes(1); view.unmount(); expect(harness.destroy).toHaveBeenCalledTimes(1);
   });
 
@@ -64,5 +64,16 @@ describe("GrapesWidgetBuilder", () => {
     await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
     const width = screen.getByLabelText("Widget width"); expect(width).toHaveValue(380); fireEvent.change(width, { target: { value: "500" } }); expect(editor.Canvas.getDocument().head.querySelector("style[data-loopz-size-envelope]")?.textContent).toContain("width:500px!important"); expect(onSizeChange).not.toHaveBeenCalled(); fireEvent.change(width, { target: { value: "900" } }); fireEvent.blur(width);
     expect(width).toHaveValue(520); expect(screen.getByText("Maximum width for Toast is 520px.")).toBeInTheDocument(); expect(onSizeChange).toHaveBeenCalledWith({ width: { mode: "fixed", value: 520 }, height: { mode: "auto" } });
+  });
+
+  it("keeps manager targets mounted while switching sidebar tabs and opens Properties on selection", async () => {
+    vi.useFakeTimers(); fakeEditor(); render(<GrapesWidgetBuilder experienceKey="exp:v7" widgetType="modal" content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={vi.fn()} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
+    await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
+    const config = harness.init.mock.calls[0][0]; const managerTargets = [config.blockManager.appendTo, config.traitManager.appendTo, config.styleManager.appendTo] as HTMLElement[];
+    const blocksTab = screen.getByRole("tab", { name: "Blocks" }); const propertiesTab = screen.getByRole("tab", { name: "Properties" });
+    expect(blocksTab).toHaveAttribute("aria-selected", "true"); expect(propertiesTab).toHaveAttribute("aria-selected", "false");
+    fireEvent.click(propertiesTab); expect(propertiesTab).toHaveAttribute("aria-selected", "true"); expect(managerTargets.every(target => target.isConnected)).toBe(true);
+    fireEvent.click(blocksTab); act(() => harness.handlers.get("component:selected")?.({ getAttributes: () => ({}) }));
+    expect(propertiesTab).toHaveAttribute("aria-selected", "true");
   });
 });

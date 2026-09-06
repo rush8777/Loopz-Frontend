@@ -10,10 +10,10 @@ interface Paginated {
 export function listAnonymousVisitors(
   orgId: string,
   siteId: string,
-  opts: { search?: string; limit?: number; offset?: number } = {}
+    opts: { search?: string; limit?: number; offset?: number; since?: string; until?: string; sort?: string } = {}
 ) {
   return apiRequest<{ visitors: AnonymousVisitorSummary[] } & Paginated>(`/orgs/${orgId}/sites/${siteId}/anonymous-users`, {
-    query: { search: opts.search, limit: opts.limit, offset: opts.offset },
+    query: opts,
   });
 }
 

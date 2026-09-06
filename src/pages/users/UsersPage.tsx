@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
 import { EmptyState } from "../../components/EmptyState";
@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
 import { cn } from "@/lib/utils";
+import { AnalyticsFilterBar, type AppliedFilters, type FilterDefinition } from "@/components/filters/AnalyticsFilterBar";
+import { readFilters, writeFilters } from "@/components/filters/filterUrlState";
+import { resolveDateRange, type DateRangePreset } from "@/lib/dateRange";
+import * as segmentsApi from "../../api/segments";
 
 const PAGE_SIZE = 25;
 
@@ -45,6 +49,7 @@ function SegmentToggle({ segment, onChange }: { segment: Segment; onChange: (s: 
 export function UsersPage() {
   const { currentOrg, currentSite } = useWorkspace();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [segment, setSegment] = useState<Segment>("identified");
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
@@ -53,6 +58,11 @@ export function UsersPage() {
   const [users, setUsers] = useState<TrackedUserSummary[] | null>(null);
   const [visitors, setVisitors] = useState<AnonymousVisitorSummary[] | null>(null);
   const [total, setTotal] = useState(0);
+  const [savedSegments, setSavedSegments] = useState<{ id: string; name: string }[]>([]);
+  const filterQuery = searchParams.toString(); const filters = readFilters(searchParams, ["range", "segmentId"]);
+  const range = filters.range?.[0] ? resolveDateRange(filters.range[0] as DateRangePreset) : undefined;
+  const sort = searchParams.get("sort") ?? "lastSeen";
+  const definitions: FilterDefinition[] = [{ key: "range", label: "Last active", options: [{ value: "today", label: "Today" }, { value: "7d", label: "Last 7 days" }, { value: "30d", label: "Last 30 days" }, { value: "90d", label: "Last 90 days" }] }, { key: "segmentId", label: "Segment", options: savedSegments.map((item) => ({ value: item.id, label: item.name })) }];
 
   // Switching segment or search resets to the first page - a stale offset from the other list wouldn't mean anything here.
   useEffect(() => {
@@ -68,7 +78,7 @@ export function UsersPage() {
       () => {
         if (segment === "identified") {
           trackedUsersApi
-            .listUsers(currentOrg.orgId, currentSite.id, { search: search || undefined, limit: PAGE_SIZE, offset })
+            .listUsers(currentOrg.orgId, currentSite.id, { search: search || undefined, limit: PAGE_SIZE, offset, segmentId: filters.segmentId?.[0], since: range?.since, until: range?.until, sort })
             .then((res) => {
               setUsers(res.users);
               setTotal(res.total);
@@ -87,7 +97,9 @@ export function UsersPage() {
       search ? 250 : 0
     ); // debounce typing, but not the initial/paged load
     return () => clearTimeout(handle);
-  }, [currentOrg, currentSite, segment, search, offset]);
+  }, [currentOrg, currentSite, segment, search, offset, filterQuery]);
+
+  useEffect(() => { if (!currentOrg || !currentSite) return; void segmentsApi.listSegments(currentOrg.orgId, currentSite.id, { limit: 100 }).then((response) => setSavedSegments(response.segments)).catch(() => setSavedSegments([])); }, [currentOrg, currentSite]);
 
   // Which highlight properties actually appear on at least one user in this page, so we don't render empty columns.
   const activeColumns = HIGHLIGHT_PROPERTIES.filter((key) => users?.some((u) => key in u.properties && key !== "name"));
@@ -127,6 +139,7 @@ export function UsersPage() {
       />
 
       <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3"><span className="text-sm text-muted-foreground"><span className="font-medium text-foreground">{total} {segment === "identified" ? "users" : "visitors"}</span>{total > 0 && <> · Page {Math.floor(offset / PAGE_SIZE) + 1}</>}</span><span className="text-xs text-muted-foreground">Browse recorded people and visitors</span></div>
+      {segment === "identified" && <AnalyticsFilterBar definitions={definitions} values={filters} onChange={(next: AppliedFilters) => setSearchParams(writeFilters(searchParams, next, definitions.map((item) => item.key)), { replace: true })} sort={sort} onSortChange={(value) => { const next = new URLSearchParams(searchParams); next.set("sort", value); setSearchParams(next, { replace: true }); }} sortOptions={[{ value: "lastSeen", label: "Last active" }, { value: "firstSeen", label: "First seen" }, { value: "az", label: "A–Z" }, { value: "za", label: "Z–A" }]} />}
       <DataTableFrame className="overflow-hidden">
         {error && (
           <div className="p-4"><ErrorNotice>{error}</ErrorNotice></div>
