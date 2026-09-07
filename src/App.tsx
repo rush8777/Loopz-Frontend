@@ -30,7 +30,6 @@ import { FunnelsPage } from "./pages/funnels/FunnelsPage";
 import { FunnelBuilderPage } from "./pages/funnels/FunnelBuilderPage";
 import { FunnelDetailPage } from "./pages/funnels/FunnelDetailPage";
 import { ExperienceListPage } from "./pages/experiences/ExperienceListPage";
-import { VisualBuilderPage } from "./pages/experiences/VisualBuilderPage";
 import { ExperienceEditorPage } from "./pages/experiences/ExperienceEditorPage";
 
 function Workspace({ children }: { children: ReactNode }) {
@@ -82,8 +81,10 @@ export default function App() {
               <Route path="segments/:segmentId" element={<SegmentDetailPage />} />
               <Route path="segments/:segmentId/edit" element={<SegmentBuilderPage />} />
               <Route path="experiences/guides" element={<ExperienceListPage kind="guide" />} />
-              <Route path="experiences/widgets" element={<ExperienceListPage kind="widget" />} />
-              <Route path="experiences/builder" element={<VisualBuilderPage />} />
+              <Route path="experiences/modals" element={<ExperienceListPage kind="widget" widgetType="modal" singularLabel="modal" pluralLabel="Modals" description="Create focused modal experiences inside your product." />} />
+              <Route path="experiences/tooltips" element={<ExperienceListPage kind="widget" widgetType="anchored_card" singularLabel="tooltip" pluralLabel="Tooltips" description="Create anchored tooltip experiences on your product." />} />
+              <Route path="experiences/banners" element={<ExperienceListPage kind="widget" widgetType="banner" singularLabel="banner" pluralLabel="Banners" description="Create full-width banner experiences inside your product." />} />
+              <Route path="experiences/checklists" element={<ExperienceListPage kind="widget" singularLabel="checklist" pluralLabel="Checklists" unsupported />} />
               <Route path="experiences/:experienceId/edit" element={<ExperienceEditorPage />} />
             </Route>
           </Route>

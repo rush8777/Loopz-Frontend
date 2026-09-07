@@ -21,7 +21,8 @@ describe("GrapesWidgetBuilder", () => {
   it("initializes once, mounts custom managers, bootstraps once, and destroys cleanly", async () => {
     vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn(); const props = { experienceKey: "exp:v1", widgetType: "modal" as const, content: { heading: "Hello", body: "World" }, design: { width: "md" as const, theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" as const } }, onChange, onPrimaryActionChange: vi.fn(), onSizeChange: vi.fn() };
     const view = render(<GrapesWidgetBuilder {...props} />); await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); });
-    expect(harness.init).toHaveBeenCalledTimes(1); const config = harness.init.mock.calls[0][0]; expect(config.storageManager).toBe(false); expect(config.blockManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.traitManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.styleManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.blockManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-blocks-panel"); expect(config.traitManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-properties-panel"); expect(config.styleManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-properties-panel"); expect(editor.setComponents).toHaveBeenCalledWith(expect.stringContaining('data-loopz-widget-type="modal"')); expect(onChange).toHaveBeenCalledTimes(1);
+    expect(harness.init).toHaveBeenCalledTimes(1); const config = harness.init.mock.calls[0][0]; expect(config.storageManager).toBe(false); expect(config.blockManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.traitManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.styleManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.blockManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-blocks-panel"); expect(config.traitManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-properties-panel"); expect(config.styleManager.appendTo.closest("[role=tabpanel]")?.id).toBe("loopz-builder-properties-panel"); expect(editor.setComponents).toHaveBeenCalledWith(expect.stringContaining('data-loopz-widget-type="modal"')); expect(onChange).toHaveBeenCalledTimes(1); expect(onChange.mock.calls[0][0].builder.projectData).toEqual({ pages: [] });
+    fireEvent.click(screen.getByRole("button", { name: "Undo" })); fireEvent.click(screen.getByRole("button", { name: "Redo" })); expect(editor.UndoManager.undo).toHaveBeenCalledTimes(1); expect(editor.UndoManager.redo).toHaveBeenCalledTimes(1);
     view.rerender(<GrapesWidgetBuilder {...props} content={{ heading: "Changed externally", body: "World" }} />); expect(harness.init).toHaveBeenCalledTimes(1); view.unmount(); expect(harness.destroy).toHaveBeenCalledTimes(1);
   });
 
@@ -75,5 +76,13 @@ describe("GrapesWidgetBuilder", () => {
     fireEvent.click(propertiesTab); expect(propertiesTab).toHaveAttribute("aria-selected", "true"); expect(managerTargets.every(target => target.isConnected)).toBe(true);
     fireEvent.click(blocksTab); act(() => harness.handlers.get("component:selected")?.({ getAttributes: () => ({}) }));
     expect(propertiesTab).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("clamps visual root resizing through the existing size callback without recreating the editor", async () => {
+    vi.useFakeTimers(); fakeEditor(); const onSizeChange = vi.fn(); render(<GrapesWidgetBuilder experienceKey="exp:v8" widgetType="modal" content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={vi.fn()} onPrimaryActionChange={vi.fn()} onSizeChange={onSizeChange} />);
+    await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
+    const updateStyle = vi.fn(); const root = { getClasses: () => ["loopz-widget"] };
+    act(() => harness.handlers.get("component:resize:update")?.({ component: root, rect: { w: 1400, h: 1200 }, style: { width: "1400px", height: "1200px" }, partial: false, updateStyle }));
+    expect(updateStyle).toHaveBeenCalledWith({ width: "960px", height: "900px" }); expect(onSizeChange).toHaveBeenCalledWith({ width: { mode: "fixed", value: 960 }, height: { mode: "fixed", value: 900 } }); expect(harness.init).toHaveBeenCalledTimes(1);
   });
 });

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { builderSignature, createWidgetStarter, isSafeBuilderProjectData, projectLegacyContent, sanitizeBuilderHtml, validateBuilderCss, type BuilderExport } from "./widgetBuilder";
+import { installWidgetInteractions } from "./grapesWidgetInteractions";
 import { clampWidgetHeight, clampWidgetWidth, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS, widgetSizeCss } from "./widgetSizing";
 
 interface Props {
@@ -34,9 +35,9 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const fitCanvasRef = useRef<() => void>(() => void 0);
   const scheduleCanvasFitRef = useRef<() => void>(() => void 0);
   const applySizeEnvelopeRef = useRef<(next: ExperienceDesign) => void>(() => void 0);
-  const onChangeRef = useRef(onChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
+  const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
   const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedAction, setSelectedAction] = useState<"primary" | "secondary" | null>(null); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">("blocks");
-  useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { contentRef.current = content; }, [content]);
+  useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { contentRef.current = content; }, [content]);
   useEffect(() => { designRef.current = design; applySizeEnvelopeRef.current(design); scheduleCanvasFitRef.current(); }, [design]);
   useImperativeHandle(ref, () => ({ flush: () => flushExportRef.current() }), []);
 
@@ -99,7 +100,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         blockManager: { appendTo: blocksRef.current, blocks: blocks() },
         traitManager: { appendTo: traitsRef.current },
         styleManager: { appendTo: stylesRef.current, sectors: styleSectors() },
-        plugins: [instance => instance.DomComponents.addType("loopz-button", { isComponent: element => element.tagName === "BUTTON" && element.hasAttribute("data-loopz-action-id") ? { type: "loopz-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, traits: [] } } })],
+        plugins: [instance => instance.DomComponents.addType("loopz-button", { isComponent: element => element.tagName === "BUTTON" && element.hasAttribute("data-loopz-action-id") ? { type: "loopz-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, traits: [] } } }), instance => installWidgetInteractions(instance, { widgetType, design: () => designRef.current, onRootResize: (size, commit) => { const next = { ...designRef.current, size }; applySizeEnvelopeRef.current(next); if (commit) { designRef.current = next; onSizeChangeRef.current(size); scheduleCanvasFitRef.current(); } } })],
       });
       if (cancelled) { editor.destroy(); return; }
       editorRef.current = editor;
@@ -180,7 +181,8 @@ function blocks() { return [
 ]; }
 
 function styleSectors() { return [
-  { id: "layout", name: "Layout", open: true, properties: ["display", "flex-direction", "justify-content", "align-items", "gap", "width", "max-width", "min-height", "padding", "margin"] },
+  { id: "layout", name: "Layout", open: true, properties: ["display", "flex-direction", "justify-content", "align-items", "gap", "width", "height", "min-width", "max-width", "min-height", "max-height", "padding", "margin"] },
+  { id: "positioning", name: "Positioning", open: false, properties: ["position", "top", "right", "bottom", "left", "z-index"] },
   { id: "typography", name: "Typography", open: true, properties: ["font-family", "font-size", "font-weight", "line-height", "text-align", "color"] },
   { id: "appearance", name: "Appearance", open: true, properties: ["background-color", "border", "border-radius", "box-shadow", "opacity"] },
 ]; }

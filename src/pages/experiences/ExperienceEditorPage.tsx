@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ArrowDown, ArrowUp, ExternalLink, Plus, Trash2 } from "lucide-react";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import * as experiencesApi from "../../api/experiences"; import * as pagesApi from "../../api/pages"; import * as segmentsApi from "../../api/segments"; import * as eventsApi from "../../api/events";
@@ -13,7 +13,7 @@ const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const blankStep = (): GuideStep => ({ id: `step_${Date.now()}`, content: { heading: "Next step", body: "Explain what to do next." }, behavior: { placement: "auto", alignment: "center", offset: 8, dismissible: true } });
 
 export function ExperienceEditorPage() {
-  const { experienceId } = useParams(); const { currentOrg, currentSite } = useWorkspace(); const navigate = useNavigate();
+  const { experienceId } = useParams(); const { currentOrg, currentSite } = useWorkspace();
   const [experience, setExperience] = useState<Experience | null>(null); const [definition, setDefinition] = useState<ExperienceDefinition | null>(null); const [pages, setPages] = useState<PageDefinition[]>([]); const [segments, setSegments] = useState<Segment[]>([]); const [error, setError] = useState<string | null>(null); const [status, setStatus] = useState(""); const [selectedStep, setSelectedStep] = useState(0); const [publishing, setPublishing] = useState(false);
   const latest = useRef<ExperienceDefinition | null>(null); const timer = useRef<number | null>(null); const saveQueue = useRef<Promise<Experience> | null>(null); const dirty = useRef(false);
   const widgetBuilder = useRef<GrapesWidgetBuilderHandle | null>(null);
@@ -29,7 +29,7 @@ export function ExperienceEditorPage() {
   const mutateStep = (fn: (value: GuideStep) => void) => mutate(draft => { if (isGuideDefinition(draft)) fn(draft.steps[selectedStep]); });
   const move = (delta: -1 | 1) => { if (!guide) return; const nextIndex = selectedStep + delta; if (nextIndex < 0 || nextIndex >= guide.steps.length) return; mutate(draft => { if (isGuideDefinition(draft)) [draft.steps[selectedStep], draft.steps[nextIndex]] = [draft.steps[nextIndex], draft.steps[selectedStep]]; }); setSelectedStep(nextIndex); };
   const remove = () => { if (!guide || guide.steps.length === 1) return; mutate(draft => { if (isGuideDefinition(draft)) draft.steps.splice(selectedStep, 1); }); setSelectedStep(Math.max(0, selectedStep - 1)); };
-  const openLive = async () => { if (!currentOrg || !currentSite || !experience) return; try { widgetBuilder.current?.flush(); await flush(); const session = await experiencesApi.createEditorSession(currentOrg.orgId, currentSite.id, experience.id); const launch = new URL(session.launchUrl); if (guide) launch.searchParams.set("loopz_editor_step", String(selectedStep)); if (!window.open(launch.toString(), "_blank")) navigate(`/experiences/builder?experienceId=${experience.id}&popupBlocked=1`); } catch (caught) { setError(caught instanceof Error ? caught.message : "Couldn't open live editor."); } };
+  const openLive = async () => { if (!currentOrg || !currentSite || !experience) return; try { widgetBuilder.current?.flush(); await flush(); const session = await experiencesApi.createEditorSession(currentOrg.orgId, currentSite.id, experience.id); const launch = new URL(session.launchUrl); if (guide) launch.searchParams.set("loopz_editor_step", String(selectedStep)); if (!window.open(launch.toString(), "_blank")) setError("Your browser blocked the editor popup. Use Open live editor to try again."); } catch (caught) { setError(caught instanceof Error ? caught.message : "Couldn't open live editor."); } };
   const publish = async () => { if (!currentOrg || !currentSite || !experience || publishing) return; setError(null); setPublishing(true); try { widgetBuilder.current?.flush(); await flush(); const item = await experiencesApi.publishExperience(currentOrg.orgId, currentSite.id, experience.id); setExperience(item); setDefinition(item.draftVersion!.definition); latest.current = item.draftVersion!.definition; setStatus("Published"); } catch (caught) { const message = caught instanceof Error ? caught.message : "Publish failed"; setError(message === "target_required" ? "Select a target for every guide step in the live editor before publishing." : message); } finally { setPublishing(false); } };
   if (error && !experience) return <ErrorNotice>{error}</ErrorNotice>; if (!experience || !definition || !content) return <div className="text-sm text-muted-foreground">Loading experience...</div>;
   const widget = !isGuideDefinition(definition) ? definition : null;
