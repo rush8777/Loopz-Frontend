@@ -109,8 +109,21 @@ export interface SessionActivityPageGroup {
   deepestScrollPercent: number | null;
   scrollSampleCount: number;
   items: SessionActivityItem[];
+  episodes: SessionActivityEpisode[];
   pointerSignalsAvailable: number;
   geometryEvidenceUsable: boolean;
+}
+
+export interface SessionActivityEpisode {
+  id: string;
+  startedAt: string;
+  endedAt: string;
+  startReason: "session_start" | "page_enter" | "idle_gap";
+  endReason: "page_enter" | "idle_gap" | "session_end";
+  idleGapBeforeMs?: number;
+  pageViewId: string | null;
+  pagePath: string | null;
+  items: SessionActivityItem[];
 }
 
 export interface SessionActivity {
@@ -517,7 +530,7 @@ export interface EventPageSummary {
 }
 
 // --- Segments (audience definitions - task brief "Build Segments V1") ---
-// Mirrors src/lib/segments/types.ts in Loopz-Backend; V1 has no shared
+// Mirrors src/lib/segments/types.ts in movecues-Backend; V1 has no shared
 // types package between the two repos, so this is a deliberate,
 // minimal duplication of the same shape (same precedent as
 // EventDefinitionSummary/PageRule above).
@@ -603,7 +616,7 @@ export interface SegmentMember {
 
 
 // --- Funnels (ordered step conversion analysis - task brief "Build Funnels V1") ---
-// Mirrors src/lib/funnels/types.ts in Loopz-Backend; duplicated here for the
+// Mirrors src/lib/funnels/types.ts in movecues-Backend; duplicated here for the
 // same reason Segment types are (see the note above them).
 
 export type FunnelStepType = "event" | "page";

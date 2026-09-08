@@ -2,10 +2,10 @@ import type { Component, ComponentResizeEventUpdateProps, Editor, ResizerOptions
 import type { ExperienceDesign, ExperienceSize, WidgetType } from "../../types/experiences";
 import { clampWidgetHeight, clampWidgetWidth, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS } from "./widgetSizing";
 
-const FREE_POSITION_PROPERTY = "loopzFreePosition";
-const FLOW_POSITION_PROPERTY = "loopzFlowPosition";
-const PARENT_CONTEXT_PROPERTY = "loopzFreePositionParentContext";
-const PARENT_PREVIOUS_POSITION_PROPERTY = "loopzPreviousPosition";
+const FREE_POSITION_PROPERTY = "movecuesFreePosition";
+const FLOW_POSITION_PROPERTY = "movecuesFlowPosition";
+const PARENT_CONTEXT_PROPERTY = "movecuesFreePositionParentContext";
+const PARENT_PREVIOUS_POSITION_PROPERTY = "movecuesPreviousPosition";
 const POSITION_PROPERTIES = ["position", "top", "right", "bottom", "left", "z-index"] as const;
 const GRID_SIZE = 4;
 
@@ -29,12 +29,12 @@ const WIDTH_HANDLES = { tl: false, tc: false, tr: false, cl: true, cr: true, bl:
 export function interactionKind(component: Component): InteractionKind | null {
   const classes = new Set(component.getClasses?.() ?? []);
   const tagName = String(component.get?.("tagName") ?? component.getEl?.()?.tagName ?? "").toLowerCase();
-  if (classes.has("loopz-widget")) return "root";
+  if (classes.has("movecues-widget")) return "root";
   if (tagName === "img" || component.is?.("image")) return "image";
-  if (tagName === "button" || classes.has("loopz-widget__button")) return "button";
-  if (["h1", "h2", "h3", "h4", "p"].includes(tagName) || classes.has("loopz-widget__heading") || classes.has("loopz-widget__body") || classes.has("loopz-widget__eyebrow")) return "text";
-  if (classes.has("loopz-widget__spacer")) return "spacer";
-  if (["loopz-widget__container", "loopz-widget__row", "loopz-widget__columns", "loopz-widget__column", "loopz-widget__message", "loopz-widget__actions"].some(name => classes.has(name))) return "layout";
+  if (tagName === "button" || classes.has("movecues-widget__button")) return "button";
+  if (["h1", "h2", "h3", "h4", "p"].includes(tagName) || classes.has("movecues-widget__heading") || classes.has("movecues-widget__body") || classes.has("movecues-widget__eyebrow")) return "text";
+  if (classes.has("movecues-widget__spacer")) return "spacer";
+  if (["movecues-widget__container", "movecues-widget__row", "movecues-widget__columns", "movecues-widget__column", "movecues-widget__message", "movecues-widget__actions"].some(name => classes.has(name))) return "layout";
   return null;
 }
 

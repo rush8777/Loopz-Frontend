@@ -19,7 +19,7 @@ describe("HeatmapDetailPage", () => {
     vi.mocked(pagesApi.getPage).mockResolvedValue(page);
     vi.mocked(pagesApi.listPageHeatmapStates).mockResolvedValue({ states: [{ id: "default", name: "Default", selector: null }] });
     vi.mocked(pagesApi.getPageHeatmap).mockResolvedValue(result);
-    vi.mocked(pagesApi.requestPageHeatmapCapture).mockResolvedValue({ captureUrl: "https://customer.example/dashboard?__loopz_heatmap_capture=opaque", requestId: "request_1", expiresAt: "2026-09-01T01:00:00.000Z" });
+    vi.mocked(pagesApi.requestPageHeatmapCapture).mockResolvedValue({ captureUrl: "https://customer.example/dashboard?__movecues_heatmap_capture=opaque", requestId: "request_1", expiresAt: "2026-09-01T01:00:00.000Z" });
     vi.mocked(pagesApi.getPageHeatmapCaptureStatus).mockResolvedValue({ status: "pending" });
   });
 
@@ -28,6 +28,6 @@ describe("HeatmapDetailPage", () => {
     render(<MemoryRouter initialEntries={["/observe/heatmaps/page_1"]}><Routes><Route path="/observe/heatmaps/:pageId" element={<HeatmapDetailPage />} /></Routes></MemoryRouter>);
     await screen.findByText("Create project");
     fireEvent.click(screen.getByRole("button", { name: "Change image" }));
-    await waitFor(() => expect(open).toHaveBeenCalledWith("https://customer.example/dashboard?__loopz_heatmap_capture=opaque", "_blank", "noopener,noreferrer"));
+    await waitFor(() => expect(open).toHaveBeenCalledWith("https://customer.example/dashboard?__movecues_heatmap_capture=opaque", "_blank", "noopener,noreferrer"));
   });
 });

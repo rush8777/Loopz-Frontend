@@ -36,6 +36,7 @@ const activity: SessionActivity = {
     scrollSampleCount: 2,
     pointerSignalsAvailable: 1,
     geometryEvidenceUsable: true,
+    episodes: [],
     items: [
       { id: "click:1", kind: "click", timestamp: "2026-08-30T10:00:05.000Z", element: { label: "Start trial", selector: "#cta" } },
       { id: "custom:2", kind: "custom", timestamp: "2026-08-30T10:00:10.000Z", name: "checkout_started", properties: { plan: "pro" } },
@@ -44,6 +45,16 @@ const activity: SessionActivity = {
     ],
   }],
 };
+activity.pages[0].episodes = [{
+  id: "sess_1_episode_0",
+  startedAt: activity.pages[0].firstObserved,
+  endedAt: activity.pages[0].lastObserved,
+  startReason: "session_start",
+  endReason: "session_end",
+  pageViewId: "pv_1",
+  pagePath: "/pricing",
+  items: activity.pages[0].items,
+}];
 
 function renderPage() {
   return render(<MemoryRouter initialEntries={["/observe/sessions/sess_1"]}><Routes><Route path="/observe/sessions/:sessionId" element={<SessionDetailPage />} /></Routes></MemoryRouter>);
@@ -79,10 +90,10 @@ describe("SessionDetailPage", () => {
 });
 
 describe("session timeline helpers", () => {
-  it("uses the next page visit boundary and session end for episode windows", () => {
-    const timelineActivity: SessionActivity = { ...activity, lastObserved: "2026-08-30T10:30:00.000Z", observedDurationMs: 1_800_000, pages: [0, 9, 21, 25].map((minute, index) => ({ ...activity.pages[0], id: `page:${index}`, firstObserved: `2026-08-30T10:${String(minute).padStart(2, "0")}:00.000Z`, lastObserved: `2026-08-30T10:${String(Math.min(minute + 1, 29)).padStart(2, "0")}:00.000Z`, items: [] })) };
+  it("uses backend behavioral episode timestamps without manufacturing page windows", () => {
+    const timelineActivity: SessionActivity = { ...activity, lastObserved: "2026-08-30T10:30:00.000Z", observedDurationMs: 1_800_000, pages: [0, 9, 21, 25].map((minute, index) => { const startedAt = `2026-08-30T10:${String(minute).padStart(2, "0")}:00.000Z`; const endedAt = `2026-08-30T10:${String(Math.min(minute + 1, 29)).padStart(2, "0")}:00.000Z`; return { ...activity.pages[0], id: `page:${index}`, firstObserved: startedAt, lastObserved: endedAt, items: [], episodes: [{ id: `episode:${index}`, startedAt, endedAt, startReason: index ? "page_enter" as const : "session_start" as const, endReason: index === 3 ? "session_end" as const : "page_enter" as const, pageViewId: `pv_${index}`, pagePath: "/pricing", items: [] }] }; }) };
     const episodes = createEpisodes(timelineActivity, { click: true, custom: true, long_hover: true, derived_signal: false });
-    expect(episodes.map((episode) => [episode.displayStartMs, episode.displayEndMs])).toEqual([[0, 540_000], [540_000, 1_260_000], [1_260_000, 1_500_000], [1_500_000, 1_800_000]]);
+    expect(episodes.map((episode) => [episode.displayStartMs, episode.displayEndMs])).toEqual([[0, 60_000], [540_000, 600_000], [1_260_000, 1_320_000], [1_500_000, 1_560_000]]);
   });
 
   it("excludes derived signals from density until enabled", () => {
@@ -90,5 +101,14 @@ describe("session timeline helpers", () => {
     const on = activityDensity(activity, { click: false, custom: false, long_hover: false, derived_signal: true }, 4);
     expect(off).toEqual([0, 0, 0, 0]);
     expect(on.reduce((total, count) => total + count, 0)).toBe(1);
+  });
+
+  it("filters items without changing backend episode boundaries", () => {
+    const hidden = createEpisodes(activity, { click: false, custom: false, long_hover: false, derived_signal: false });
+    const shown = createEpisodes(activity, { click: true, custom: true, long_hover: true, derived_signal: true });
+    expect(hidden.map(({ id, displayStartMs, displayEndMs }) => ({ id, displayStartMs, displayEndMs })))
+      .toEqual(shown.map(({ id, displayStartMs, displayEndMs }) => ({ id, displayStartMs, displayEndMs })));
+    expect(hidden[0].visibleItems).toEqual([]);
+    expect(shown[0].visibleItems).toHaveLength(4);
   });
 });

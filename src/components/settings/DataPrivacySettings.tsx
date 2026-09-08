@@ -3,7 +3,7 @@ import { SettingsGroup, SettingsHeading, SettingsRow } from "./SettingsShared";
 export function DataPrivacySettings() {
   return (
     <div>
-      <SettingsHeading title="Data & Privacy" description="Data collection capabilities available in the Loopz SDK." />
+      <SettingsHeading title="Data & Privacy" description="Data collection capabilities available in the movecues SDK." />
       <SettingsGroup title="Data collection">
         <SettingsRow label="Autocapture" value={<span className="settings-status">Enabled by default</span>} />
         <SettingsRow label="Anonymous visitors" value={<span className="settings-status">Supported</span>} />

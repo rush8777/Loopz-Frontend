@@ -57,7 +57,7 @@ export function SitesSettings() {
 
   return (
     <div>
-      <SettingsHeading title="Sites" description="Choose which site Loopz uses across the workspace." />
+      <SettingsHeading title="Sites" description="Choose which site movecues uses across the workspace." />
       <div className="mb-5 flex flex-col gap-2" aria-label="Sites">
         {sites.length === 0 && <div className="rounded-lg border border-dashed p-6 text-center text-[13px] text-muted-foreground">No sites yet.</div>}
         {sites.map((site) => {

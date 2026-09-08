@@ -6,7 +6,7 @@ export function AuthLayout({ title, subtitle, children }: { title: string; subti
       <div className="w-full max-w-[380px]">
         <div className="mb-8 flex items-center justify-center gap-2">
           <div className="grid size-7 place-items-center rounded-md bg-foreground text-xs font-bold text-background">L</div>
-          <span className="text-[15px] font-semibold">Loopz</span>
+          <span className="text-[15px] font-semibold">movecues</span>
         </div>
 
         <div className="rounded-lg border bg-card p-6 shadow-[oklab(0_0_0/.07)_0_0_0_1px,rgba(0,0,0,.05)_0_1px_2px]">

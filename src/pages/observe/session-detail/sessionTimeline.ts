@@ -1,16 +1,18 @@
-import type { SessionActivity, SessionActivityItem, SessionActivityPageGroup } from "../../../types/api";
+import type { SessionActivity, SessionActivityEpisode, SessionActivityItem, SessionActivityPageGroup } from "../../../types/api";
 
 export type FilterKind = "click" | "custom" | "long_hover" | "derived_signal";
 export type SessionEpisodeViewModel = {
   id: string;
   index: number;
   page: SessionActivityPageGroup;
+  episode: SessionActivityEpisode;
   title: string;
   displayStartMs: number;
   displayEndMs: number;
   observedLastActivityMs: number;
   visibleItems: SessionActivityItem[];
   allQualifyingItems: SessionActivityItem[];
+  idleGapBeforeMs?: number;
 };
 
 const time = (value: string) => Date.parse(value);
@@ -28,20 +30,21 @@ export function visibleItems(items: SessionActivityItem[], filters: Record<Filte
 export function createEpisodes(session: SessionActivity, filters: Record<FilterKind, boolean>): SessionEpisodeViewModel[] {
   const sessionStart = time(session.firstObserved);
   const sessionEnd = Math.max(sessionStart, time(session.lastObserved));
-  return session.pages.map((page, index) => {
-    const start = Math.min(sessionEnd, Math.max(sessionStart, time(page.firstObserved)));
-    const nextStart = session.pages[index + 1] ? time(session.pages[index + 1].firstObserved) : sessionEnd;
-    const end = Math.min(sessionEnd, Math.max(start, nextStart));
+  return session.pages.flatMap((page) => page.episodes.map((episode) => ({ page, episode }))).map(({ page, episode }, index) => {
+    const start = Math.min(sessionEnd, Math.max(sessionStart, time(episode.startedAt)));
+    const end = Math.min(sessionEnd, Math.max(start, time(episode.endedAt)));
     return {
-      id: page.id,
+      id: episode.id,
       index,
       page,
-      title: page.pageName ?? page.path ?? "Unknown page",
+      episode,
+      title: `Episode ${index + 1}`,
       displayStartMs: start - sessionStart,
       displayEndMs: end - sessionStart,
-      observedLastActivityMs: Math.min(sessionEnd, Math.max(sessionStart, time(page.lastObserved))) - sessionStart,
-      visibleItems: visibleItems(page.items, filters),
-      allQualifyingItems: page.items,
+      observedLastActivityMs: end - sessionStart,
+      visibleItems: visibleItems(episode.items, filters),
+      allQualifyingItems: episode.items,
+      ...(episode.idleGapBeforeMs != null ? { idleGapBeforeMs: episode.idleGapBeforeMs } : {}),
     };
   });
 }

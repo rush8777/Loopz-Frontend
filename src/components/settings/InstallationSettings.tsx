@@ -10,7 +10,7 @@ export function InstallationSettings() {
 
   return (
     <div>
-      <SettingsHeading title="Installation" description="Add the Loopz SDK to your application." />
+      <SettingsHeading title="Installation" description="Add the movecues SDK to your application." />
       {!currentSite ? (
         <NoSiteMessage />
       ) : (
