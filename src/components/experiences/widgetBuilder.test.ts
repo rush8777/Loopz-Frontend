@@ -20,6 +20,11 @@ describe("widget builder compatibility", () => {
     expect(result).not.toMatch(/script|iframe|onclick|Duplicate/i); expect(result).toContain('data-movecues-action-id="primary"');
   });
 
+  it("preserves Free Layout root and stable item marker classes", () => {
+    const result = sanitizeBuilderHtml('<section class="movecues-widget movecues-widget--free-layout"><p class="movecues-free-item movecues-free-item--stable-1">Free text</p></section>');
+    expect(result).toContain("movecues-widget--free-layout"); expect(result).toContain("movecues-free-item--stable-1"); expect(validateBuilderCss(".movecues-widget .movecues-free-item--stable-1{position:absolute;left:12px;top:20px}")).toContain("movecues-free-item--stable-1");
+  });
+
   it("rejects executable or unscoped CSS", () => {
     expect(() => validateBuilderCss("button{color:red}")).toThrow(/scoped/i); expect(() => validateBuilderCss("@import url('https://evil.test/x.css')")).toThrow(/not allowed/i); expect(validateBuilderCss(".movecues-widget .button{color:red}")).toContain(".movecues-widget");
   });
