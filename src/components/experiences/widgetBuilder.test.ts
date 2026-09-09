@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ExperienceContent, ExperienceDesign, WidgetType } from "../../types/experiences";
-import { createWidgetStarter, isSafeBuilderProjectData, projectLegacyContent, sanitizeBuilderHtml, validateBuilderCss } from "./widgetBuilder";
+import { createWidgetStarter, isSafeBuilderProjectData, projectLegacyContent, sanitizeBuilderHtml, scopeEditorGeneratedCss, validateBuilderCss } from "./widgetBuilder";
 
 const content: ExperienceContent = { heading: "Welcome", body: "Try this feature", primaryAction: { label: "Continue", type: "track_event", eventName: "continued" }, secondaryAction: { label: "Later", type: "dismiss" } };
 const design: ExperienceDesign = { width: "md", theme: { background: "#ffffff", foreground: "#111827", primary: "#2563eb", borderRadius: "md" } };
@@ -20,9 +20,14 @@ describe("widget builder compatibility", () => {
     expect(result).not.toMatch(/script|iframe|onclick|Duplicate/i); expect(result).toContain('data-movecues-action-id="primary"');
   });
 
-  it("preserves Free Layout root and stable item marker classes", () => {
-    const result = sanitizeBuilderHtml('<section class="movecues-widget movecues-widget--free-layout"><p class="movecues-free-item movecues-free-item--stable-1">Free text</p></section>');
-    expect(result).toContain("movecues-widget--free-layout"); expect(result).toContain("movecues-free-item--stable-1"); expect(validateBuilderCss(".movecues-widget .movecues-free-item--stable-1{position:absolute;left:12px;top:20px}")).toContain("movecues-free-item--stable-1");
+  it("preserves Free Area and stable item marker classes", () => {
+    const result = sanitizeBuilderHtml('<section class="movecues-widget"><div class="movecues-free-area movecues-free-area--stable"><p class="movecues-free-item movecues-free-item--stable-1">Free text</p></div></section>');
+    expect(result).toContain("movecues-free-area--stable"); expect(result).toContain("movecues-free-item--stable-1"); expect(validateBuilderCss(".movecues-widget .movecues-free-item--stable-1{position:absolute;left:12px;top:20px}")).toContain("movecues-free-item--stable-1");
+  });
+
+  it("scopes GrapesJS-generated component selectors before export", () => {
+    const css = scopeEditorGeneratedCss(".movecues-free-area--abc{height:300px}#gjs-item{width:200px}");
+    expect(css).toBe(".movecues-widget .movecues-free-area--abc{height:300px}.movecues-widget #gjs-item{width:200px}"); expect(() => validateBuilderCss(css)).not.toThrow();
   });
 
   it("rejects executable or unscoped CSS", () => {
