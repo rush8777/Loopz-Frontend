@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { builderSignature, createWidgetStarter, isSafeBuilderProjectData, projectLegacyContent, sanitizeBuilderHtml, scopeEditorGeneratedCss, validateBuilderCss, type BuilderExport } from "./widgetBuilder";
+import { builderSignature, createWidgetStarter, isSafeBuilderProjectData, projectLegacyContent, sanitizeBuilderHtml, validateBuilderCss, type BuilderExport } from "./widgetBuilder";
 import { FREE_AREA_CLASS, installWidgetInteractions, type FreeItemBox, type WidgetInteractionController } from "./grapesWidgetInteractions";
 import { clampWidgetHeight, clampWidgetWidth, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS, widgetSizeCss } from "./widgetSizing";
 
@@ -30,6 +30,8 @@ const AUTHORING_CANVAS_HEIGHT = 900;
 const MIN_CANVAS_ZOOM = 25;
 const MAX_CANVAS_ZOOM = 200;
 const CANVAS_ZOOM_STEP = 10;
+const STYLE_CLASS_PREFIX = "movecues-style--";
+let styleClassSequence = 0;
 
 interface ViewportState { zoom: number; panX: number; panY: number }
 interface PanGesture { pointerId: number; startX: number; startY: number; panX: number; panY: number }
@@ -59,13 +61,19 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   useImperativeHandle(ref, () => ({ flush: () => flushExportRef.current() }), []);
 
   useEffect(() => {
-    let cancelled = false; let timer = 0; let fitFrame = 0; let refreshFrame = 0; let editor: Editor | null = null; let initialized = false; let resizeObserver: ResizeObserver | null = null; let canvasNavigationBound = false; let canvasViewportElement: HTMLDivElement | null = null;
+    let cancelled = false; let timer = 0; let fitFrame = 0; let refreshFrame = 0; let editor: Editor | null = null; let initialized = false; let migratingComponentStyle = false; let resizeObserver: ResizeObserver | null = null; let canvasNavigationBound = false; let canvasViewportElement: HTMLDivElement | null = null;
     setPositioned(false); handToolRef.current = false;
     viewportRef.current = { zoom: 100, panX: 0, panY: 0 }; setZoomLabel(100); setHandTool(false); setSpacePressed(false); setPanning(false); setFreeItemBox(null); spacePressedRef.current = false; panGestureRef.current = null; selectedFreeItemRef.current = null;
     lastSignature.current = value ? builderSignature(value) : "";
     const starter = createWidgetStarter(widgetType, contentRef.current, design);
     const storedProjectData = value && isSafeBuilderProjectData(value.projectData) && hasUsableProjectData(value.projectData) ? value.projectData : undefined;
-    const editorCss = () => validateBuilderCss(scopeEditorGeneratedCss(editor?.getCss({ avoidProtected: true }) ?? ""));
+    const editorCss = () => validateBuilderCss(editor?.getCss({ avoidProtected: true }) ?? "");
+    const replaceCanonicalVisualState = (html: string, css: string) => {
+      if (!editor) return;
+      editor.setComponents(html);
+      editor.Css.clear();
+      editor.setStyle(css);
+    };
     const emit = () => {
       if (!editor || cancelled) return;
       try {
@@ -101,6 +109,33 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       timer = window.setTimeout(emit, 400);
     };
     const scheduleCustomMutation = () => schedule(true);
+    const selectCanonicalStyleTarget = (component?: Component) => {
+      if (!editor || !component) return;
+      const selector = canonicalStyleSelector(component);
+      if (!selector) return;
+      const rule = editor.Css.getRule(selector);
+      if (rule) editor.StyleManager.select(rule, { component });
+    };
+    const persistComponentStyle = (target?: Component) => {
+      if (!editor || applyingCodeRef.current || migratingComponentStyle) return;
+      const component = target ?? editor.getSelected();
+      if (component) {
+        const componentStyle = component.getStyle();
+        if (Object.keys(componentStyle).length > 0) {
+          const selector = ensureCanonicalStyleSelector(component);
+          const existing = editor.Css.getRule(selector)?.getStyle() ?? {};
+          const componentId = component.getId?.();
+          migratingComponentStyle = true;
+          try {
+            component.setStyle({});
+            if (componentId) editor.Css.remove(`#${componentId}`);
+            const rule = editor.Css.setRule(selector, { ...existing, ...componentStyle });
+            if (editor.getSelected() === component) editor.StyleManager.select(rule, { component });
+          } finally { migratingComponentStyle = false; }
+        } else selectCanonicalStyleTarget(component);
+      }
+      schedule(true);
+    };
     const releaseSpace = () => {
       if (!spacePressedRef.current) return;
       spacePressedRef.current = false; setSpacePressed(false);
@@ -133,15 +168,14 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       if (!editor || cancelled) return;
       if (initialized) return;
       initialized = true; setReady(true);
-      if (!value && editor.getWrapper()?.components().length === 0) {
-        applyingCodeRef.current = true;
-        editor.setComponents(starter.html);
-        editor.setStyle(starter.css);
-        applyingCodeRef.current = false;
-      }
-      const html = sanitizeBuilderHtml(editor.getHtml()); const css = editorCss(); setCodeHtml(html); setCodeCss(css);
-      if (!value) { lastSignature.current = ""; emit(); } else editor.clearDirtyCount();
+      applyingCodeRef.current = true;
+      replaceCanonicalVisualState(value ? sanitizeBuilderHtml(value.html) : starter.html, value ? validateBuilderCss(value.css) : starter.css);
       interactionControllerRef.current?.syncFreeAreas();
+      editor.clearDirtyCount();
+      applyingCodeRef.current = false;
+      const html = sanitizeBuilderHtml(editor.getHtml()); const css = editorCss(); setCodeHtml(html); setCodeCss(css);
+      if (!value) lastSignature.current = "";
+      emit();
       if (!canvasNavigationBound) {
         canvasNavigationBound = true;
         canvasViewportElement = canvasViewportRef.current;
@@ -158,6 +192,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       const envelopeCss = builderSizeEnvelopeCss(widgetType, designRef.current);
       editor = grapesjs.init({
         container: canvasRef.current, height: "100%", width: "auto", storageManager: false, panels: { defaults: [] }, parser: { optionsHtml: { allowScripts: false, allowUnsafeAttr: false, allowUnsafeAttrValue: false } }, canvasCss: `html{width:100%;height:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;overflow:hidden;background:#f8fafc}body{box-sizing:border-box;width:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;margin:0;padding:96px 80px 160px;display:flex;justify-content:center;align-items:flex-start;background:#f8fafc}*{box-sizing:border-box}${envelopeCss}`,
+        selectorManager: { componentFirst: true },
         ...(storedProjectData ? { projectData: storedProjectData } : value ? { components: sanitizeBuilderHtml(value.html), style: validateBuilderCss(value.css) } : { components: starter.html, style: starter.css }),
         deviceManager: { devices: [{ id: "desktop", name: "Desktop", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px` }, { id: "tablet", name: "Tablet", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "768px" }, { id: "mobile", name: "Mobile", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "390px" }] },
         blockManager: { appendTo: blocksRef.current, blocks: blocks() },
@@ -202,10 +237,9 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         resizeObserver.observe(canvasRef.current);
       }
       applySizeEnvelopeRef.current(designRef.current);
-      if (!value) { applyingCodeRef.current = true; editor.setComponents(starter.html); editor.setStyle(starter.css); editor.clearDirtyCount(); applyingCodeRef.current = false; }
-      const selectAction = (component?: Component) => { const slot = component?.getAttributes()?.["data-movecues-action-id"]; setSelectedAction(slot === "primary" || slot === "secondary" ? slot : null); interactionControllerRef.current?.select(component); setSidebarTab("properties"); };
+      const selectAction = (component?: Component) => { const slot = component?.getAttributes()?.["data-movecues-action-id"]; setSelectedAction(slot === "primary" || slot === "secondary" ? slot : null); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setSidebarTab("properties"); };
       const keepOneActionPerSlot = (component: Component) => { const slot = component.getAttributes()?.["data-movecues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movecues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
-      editor.on("update", schedule); editor.on("component:selected", selectAction); editor.on("component:add", keepOneActionPerSlot); editor.on("load", finishInitialization); editor.onReady(finishInitialization);
+      editor.on("update", schedule); editor.on("component:styleUpdate", persistComponentStyle); editor.on("style:property:update", () => queueMicrotask(() => persistComponentStyle())); editor.on("component:selected", selectAction); editor.on("component:add", keepOneActionPerSlot); editor.on("load", finishInitialization); editor.onReady(finishInitialization);
     }).catch(() => setCodeError("GrapesJS could not be loaded."));
     return () => {
       cancelled = true; clearTimeout(timer); window.cancelAnimationFrame(fitFrame); window.cancelAnimationFrame(refreshFrame); resizeObserver?.disconnect();
@@ -232,8 +266,8 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const previewSize = (size: ExperienceSize) => {
     applySizeEnvelopeRef.current({ ...designRef.current, size });
   };
-  const toggleCode = () => { if (!codeMode && editorRef.current) { setCodeHtml(sanitizeBuilderHtml(editorRef.current.getHtml())); setCodeCss(validateBuilderCss(scopeEditorGeneratedCss(editorRef.current.getCss({ avoidProtected: true }) ?? ""))); } setCodeError(null); setCodeMode(value => !value); };
-  const applyCode = () => { const editor = editorRef.current; if (!editor) return; try { const html = sanitizeBuilderHtml(codeHtml); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; editor.setComponents(html); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html: sanitizeBuilderHtml(editor.getHtml()), css: validateBuilderCss(scopeEditorGeneratedCss(editor.getCss({ avoidProtected: true }) ?? "")) }; lastSignature.current = builderSignature(builder); setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { setCodeError(error instanceof Error ? error.message : "The code could not be applied."); } finally { applyingCodeRef.current = false; } };
+  const toggleCode = () => { if (!codeMode && editorRef.current) { setCodeHtml(sanitizeBuilderHtml(editorRef.current.getHtml())); setCodeCss(validateBuilderCss(editorRef.current.getCss({ avoidProtected: true }) ?? "")); } setCodeError(null); setCodeMode(value => !value); };
+  const applyCode = () => { const editor = editorRef.current; if (!editor) return; try { const html = sanitizeBuilderHtml(codeHtml); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html: sanitizeBuilderHtml(editor.getHtml()), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") }; lastSignature.current = builderSignature(builder); setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { setCodeError(error instanceof Error ? error.message : "The code could not be applied."); } finally { applyingCodeRef.current = false; } };
   const updateFreeItem = (property: keyof FreeItemBox, value: string) => {
     const component = selectedFreeItemRef.current; const numeric = Number(value);
     if (!component || !Number.isFinite(numeric)) return;
@@ -328,4 +362,19 @@ function hasUsableProjectData(projectData: Record<string, unknown>): boolean {
   const pages = projectData.pages;
   if (!Array.isArray(pages) || pages.length === 0) return false;
   return pages.some(page => { const component = page && typeof page === "object" ? (page as { component?: unknown }).component : null; if (!component || typeof component !== "object") return false; const children = (component as { components?: unknown }).components; return Array.isArray(children) ? children.length > 0 : Boolean(children); });
+}
+
+function canonicalStyleSelector(component: Component): string | null {
+  if (component.getClasses?.().includes("movecues-widget")) return ".movecues-widget";
+  const styleClass = component.getClasses?.().find(name => name.startsWith(STYLE_CLASS_PREFIX));
+  return styleClass ? `.movecues-widget .${styleClass}` : null;
+}
+
+function ensureCanonicalStyleSelector(component: Component): string {
+  const existing = canonicalStyleSelector(component);
+  if (existing) return existing;
+  styleClassSequence += 1;
+  const styleClass = `${STYLE_CLASS_PREFIX}${Date.now().toString(36)}-${styleClassSequence.toString(36)}`;
+  component.addClass(styleClass);
+  return `.movecues-widget .${styleClass}`;
 }
