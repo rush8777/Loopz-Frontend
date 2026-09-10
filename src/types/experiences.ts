@@ -4,7 +4,7 @@ export type WidgetType = "anchored_card" | "toast" | "cursor_follow" | "modal" |
 export type ExperienceStatus = "draft" | "published" | "paused" | "archived";
 export interface ExperienceAction { label: string; type: "dismiss" | "next_step" | "open_url" | "track_event"; url?: string; eventName?: string }
 export interface ExperienceContent { heading: string; body: string; primaryAction?: ExperienceAction; secondaryAction?: { label: string; type: "dismiss" } }
-export interface ExperienceTarget { primarySelector: string; fallbackSelectors: string[]; label?: string; role?: string; tagName?: string; reliability: "reliable" | "moderate" | "fragile" }
+export interface ExperienceTarget { primarySelector: string; fallbackSelectors: string[]; label?: string; role?: string; tagName?: string; reliability: "reliable" | "moderate" | "fragile"; targetContext?: { pagePath: string } }
 export type LegacyExperienceWidth = "sm" | "md" | "lg";
 export interface ExperienceSize { width: { mode: "auto" | "fixed" | "full"; value?: number }; height: { mode: "auto" | "fixed" | "viewport"; value?: number } }
 export interface ExperienceDesign { width: LegacyExperienceWidth; size?: ExperienceSize; theme: { background: string; foreground: string; primary: string; borderRadius: "sm" | "md" | "lg" } }
