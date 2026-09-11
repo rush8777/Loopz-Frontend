@@ -1,8 +1,8 @@
-import type { ExperienceContent, ExperienceDesign, WidgetBuilderState, WidgetType } from "../../types/experiences";
+import type { ExperienceContent, ExperienceDesign, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
 import { widgetSizeCss } from "./widgetSizing";
 
-const ALLOWED_TAGS = new Set(["DIV", "SECTION", "H1", "H2", "H3", "H4", "P", "SPAN", "BUTTON", "IMG", "HR"]);
-const ALLOWED_ATTRIBUTES = new Set(["class", "id", "title", "role", "aria-label", "alt", "src", "width", "height", "data-movecues-action-id", "data-movecues-content", "data-movecues-widget-type"]);
+const ALLOWED_TAGS = new Set(["DIV", "SECTION", "H1", "H2", "H3", "H4", "P", "SPAN", "BUTTON", "IMG", "HR", "LABEL"]);
+const ALLOWED_ATTRIBUTES = new Set(["class", "id", "title", "role", "aria-label", "aria-live", "aria-hidden", "aria-pressed", "alt", "src", "width", "height", "type", "placeholder", "maxlength", "data-movecues-action-id", "data-movecues-content", "data-movecues-widget-type", "data-movecues-question-id", "data-movecues-question-type", "data-movecues-question-input", "data-movecues-option-id", "data-movecues-survey-action", "data-movecues-survey-progress", "data-movecues-survey-progress-bar", "data-movecues-survey-step-id"]);
 const ROOT_CLASS = "movecues-widget";
 
 export interface BuilderExport {
@@ -22,6 +22,7 @@ export function createWidgetStarter(widgetType: WidgetType, content: ExperienceC
     slideout: `<div class="movecues-widget__icon" role="img" aria-label="Announcement">✦</div><span class="movecues-widget__eyebrow">What's new</span>${heading}${body}<div class="movecues-widget__spacer"></div>${actions}`,
     hotspot: `<span class="movecues-widget__eyebrow">Feature spotlight</span>${heading}${body}${actions}`,
     banner: `<div class="movecues-widget__icon" role="img" aria-label="Announcement">★</div><div class="movecues-widget__message">${heading}${body}</div>${actions}`,
+    survey: `<span class="movecues-widget__eyebrow">We'd love your feedback</span>${heading}${body}<div class="movecues-survey-validation" role="status" aria-live="polite"></div><div class="movecues-survey-footer"><div data-movecues-survey-progress><span data-movecues-survey-progress-bar></span></div><button type="button" class="movecues-widget__button" data-movecues-survey-action="submit">Submit</button></div>`,
   };
   const size = widgetSizeCss(widgetType, design);
   const radius = design.theme.borderRadius === "sm" ? "6px" : design.theme.borderRadius === "lg" ? "20px" : "12px";
@@ -34,14 +35,15 @@ export function createWidgetStarter(widgetType: WidgetType, content: ExperienceC
 .movecues-widget--slideout{min-height:460px;padding:30px}.movecues-widget--slideout .movecues-widget__icon{margin-bottom:28px}.movecues-widget--slideout .movecues-widget__heading{font-size:26px}
 .movecues-widget--hotspot{padding:18px}.movecues-widget--hotspot .movecues-widget__heading{font-size:17px}.movecues-widget--hotspot .movecues-widget__body{font-size:13px}
 .movecues-widget--banner{display:flex;align-items:center;gap:16px;padding:14px 22px;border-radius:0}.movecues-widget--banner .movecues-widget__icon{width:34px;height:34px}.movecues-widget--banner .movecues-widget__heading{margin-bottom:2px;font-size:15px}.movecues-widget--banner .movecues-widget__body{font-size:13px}.movecues-widget--banner .movecues-widget__actions{margin:0 0 0 auto}
+.movecues-widget--survey{padding:36px}.movecues-widget--survey .movecues-widget__heading{font-size:28px}.movecues-widget--survey .movecues-survey-footer{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:24px}
 @media(max-width:600px){.movecues-widget--modal{padding:26px}.movecues-widget--banner{align-items:flex-start}.movecues-widget--banner .movecues-widget__icon{display:none}}`;
   return { html, css };
 }
 
-export function sanitizeBuilderHtml(input: string): string {
+export function sanitizeBuilderHtml(input: string, allowSurveyInputs = false): string {
   const documentValue = new DOMParser().parseFromString(input, "text/html");
   for (const element of Array.from(documentValue.body.querySelectorAll("*"))) {
-    if (!ALLOWED_TAGS.has(element.tagName)) { element.replaceWith(...Array.from(element.childNodes)); continue; }
+    if (!ALLOWED_TAGS.has(element.tagName) && !(allowSurveyInputs && (element.tagName === "INPUT" || element.tagName === "TEXTAREA"))) { element.replaceWith(...Array.from(element.childNodes)); continue; }
     for (const attribute of Array.from(element.attributes)) {
       const name = attribute.name.toLowerCase();
       if (!ALLOWED_ATTRIBUTES.has(name) || name.startsWith("on") || /javascript\s*:/i.test(attribute.value)) element.removeAttribute(attribute.name);
@@ -50,6 +52,7 @@ export function sanitizeBuilderHtml(input: string): string {
       const source = element.getAttribute("src") ?? "";
       if (source && !/^(https?:|data:image\/(?:png|gif|jpeg|webp|svg\+xml);base64,|\/)/i.test(source)) element.removeAttribute("src");
     }
+    if (element.tagName === "INPUT" && !["text", "radio", "checkbox", "number"].includes((element.getAttribute("type") ?? "text").toLowerCase())) element.setAttribute("type", "text");
   }
   for (const slot of ["primary", "secondary"] as const) {
     const actions = Array.from(documentValue.body.querySelectorAll(`[data-movecues-action-id="${slot}"]`));
@@ -60,6 +63,16 @@ export function sanitizeBuilderHtml(input: string): string {
     const root = documentValue.createElement("section"); root.className = ROOT_CLASS; root.append(...Array.from(documentValue.body.childNodes)); documentValue.body.appendChild(root);
   }
   return documentValue.body.innerHTML;
+}
+
+export function surveyQuestionMarkup(question: SurveyQuestion): string {
+  const label = `<p class="movecues-survey-question__label">${escapeHtml(question.label)}${question.required ? " *" : ""}</p>`;
+  let control = "";
+  if (question.type === "single_choice" || question.type === "multiple_choice") control = `<div class="movecues-survey-options" role="group" aria-label="${escapeHtml(question.label)}">${question.options.map(option => `<button type="button" class="movecues-survey-option" data-movecues-option-id="${escapeHtml(option.id)}" aria-pressed="false">${escapeHtml(option.label)}</button>`).join("")}</div>`;
+  else if (question.type === "rating" || question.type === "nps") { const min = question.type === "rating" ? question.min : 0; const max = question.type === "rating" ? question.max : 10; control = `<div class="movecues-survey-options" role="group" aria-label="${escapeHtml(question.label)}">${Array.from({ length: max - min + 1 }, (_, index) => min + index).map(value => `<button type="button" class="movecues-survey-option" data-movecues-option-id="${value}" aria-pressed="false">${value}</button>`).join("")}</div>`; }
+  else if (question.type === "long_text") control = `<textarea class="movecues-survey-input" data-movecues-question-input placeholder="${escapeHtml(question.placeholder ?? "")}"${question.maxLength ? ` maxlength="${question.maxLength}"` : ""} aria-label="${escapeHtml(question.label)}"></textarea>`;
+  else control = `<input type="text" class="movecues-survey-input" data-movecues-question-input placeholder="${escapeHtml(question.placeholder ?? "")}"${question.maxLength ? ` maxlength="${question.maxLength}"` : ""} aria-label="${escapeHtml(question.label)}">`;
+  return `<div class="movecues-survey-question movecues-survey-question--${question.type}" data-movecues-question-id="${escapeHtml(question.id)}" data-movecues-question-type="${question.type}">${label}${control}</div>`;
 }
 
 export function validateBuilderCss(input: string): string {

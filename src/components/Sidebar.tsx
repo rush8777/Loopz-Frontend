@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, CheckSquare, ChevronDown, FileText, Flame, Gauge, Info, LayoutTemplate, MousePointerClick, Network, PanelLeftClose, PanelLeftOpen, Settings, Users, Waypoints, X } from "lucide-react";
+import { BarChart3, BookOpen, CheckSquare, ChevronDown, FileText, Flame, Gauge, Info, LayoutTemplate, ListChecks, MousePointerClick, Network, PanelLeftClose, PanelLeftOpen, Settings, Users, Waypoints, X } from "lucide-react";
 import type { ComponentType } from "react";
 import { NavLink } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
@@ -12,7 +12,7 @@ interface NavSection { label: string; items: NavItem[] }
 
 const SECTIONS: NavSection[] = [
   { label: "Workspace", items: [{ label: "Overview", disabled: true, icon: Gauge }] },
-  { label: "Experiences", items: [{ label: "Modals", path: "/experiences/modals", icon: LayoutTemplate }, { label: "Guides", path: "/experiences/guides", icon: BookOpen }, { label: "Tooltips", path: "/experiences/tooltips", icon: Info }, { label: "Banners", path: "/experiences/banners", icon: BarChart3 }, { label: "Checklists", path: "/experiences/checklists", icon: CheckSquare }] },
+  { label: "Experiences", items: [{ label: "Modals", path: "/experiences/modals", icon: LayoutTemplate }, { label: "Surveys", path: "/experiences/surveys", icon: ListChecks }, { label: "Guides", path: "/experiences/guides", icon: BookOpen }, { label: "Tooltips", path: "/experiences/tooltips", icon: Info }, { label: "Banners", path: "/experiences/banners", icon: BarChart3 }, { label: "Checklists", path: "/experiences/checklists", icon: CheckSquare }] },
   { label: "Observe", items: [{ label: "Pages", path: "/observe/pages", icon: FileText }, { label: "Sessions", path: "/observe/sessions", icon: MousePointerClick }, { label: "Events", path: "/observe/events", icon: Waypoints }, { label: "Funnels", path: "/observe/funnels", icon: Network }, { label: "Heatmaps", path: "/observe/heatmaps", icon: Flame }] },
   { label: "People", items: [{ label: "Users", path: "/users", icon: Users }, { label: "Segments", path: "/segments", icon: PanelLeftClose }] },
 ];

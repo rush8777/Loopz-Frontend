@@ -1,6 +1,6 @@
 import type { PageRule } from "./api";
 export type ExperienceKind = "guide" | "widget";
-export type WidgetType = "anchored_card" | "toast" | "cursor_follow" | "modal" | "slideout" | "hotspot" | "banner";
+export type WidgetType = "anchored_card" | "toast" | "cursor_follow" | "modal" | "slideout" | "hotspot" | "banner" | "survey";
 export type ExperienceStatus = "draft" | "published" | "paused" | "archived";
 export interface ExperienceAction { label: string; type: "dismiss" | "next_step" | "open_url" | "track_event"; url?: string; eventName?: string }
 export interface ExperienceContent { heading: string; body: string; primaryAction?: ExperienceAction; secondaryAction?: { label: string; type: "dismiss" } }
@@ -13,8 +13,18 @@ export interface ExperienceBehavior { dismissible: boolean; zIndex?: number; pla
 export interface ExperienceTargeting { pageRules: PageRule[]; audience: { type: "all" } | { type: "segment"; segmentId: string } | { type: "segment_rules"; logic: "all" | "any"; conditions: Array<{ id: string; segmentId: string; operator: "matches" | "not_matches" }> }; trigger: { type: "page_load" } | { type: "custom_event"; eventName: string }; frequency: { mode: "once" | "once_per_session" | "every_time"; cooldownHours?: number; maxImpressions?: number }; priority: number; interruptPolicy?: "queue" | "interrupt"; schedule?: { startsAt?: string; endsAt?: string }; allowedOrigins?: string[] }
 export type GuideAdvance = { type: "button" } | { type: "element_click" } | { type: "element_hover"; durationMs?: number } | { type: "custom_event"; eventName: string } | { type: "route"; pageRules: PageRule[] };
 export interface GuideStep { id: string; content: ExperienceContent; builder?: WidgetBuilderState; advance?: GuideAdvance; target?: ExperienceTarget; behavior: Pick<ExperienceBehavior, "placement" | "alignment" | "offset" | "dismissible"> }
+export interface SurveyOption { id: string; label: string }
+export type SurveyQuestion =
+  | { id: string; type: "single_choice"; label: string; required?: boolean; options: SurveyOption[] }
+  | { id: string; type: "multiple_choice"; label: string; required?: boolean; options: SurveyOption[] }
+  | { id: string; type: "short_text"; label: string; required?: boolean; placeholder?: string; maxLength?: number }
+  | { id: string; type: "long_text"; label: string; required?: boolean; placeholder?: string; maxLength?: number }
+  | { id: string; type: "rating"; label: string; required?: boolean; min: number; max: number }
+  | { id: string; type: "nps"; label: string; required?: boolean };
+export interface SurveyStep { id: string; content: { heading: string; body: string }; questions: SurveyQuestion[]; builder?: WidgetBuilderState; size?: ExperienceSize }
+export interface SurveyConfig { steps: SurveyStep[]; showProgress: boolean; allowBack: boolean; submitLabel: string }
 export type ExperienceDefinition =
-  | { content: ExperienceContent; design: ExperienceDesign; behavior: ExperienceBehavior; builder?: WidgetBuilderState; target?: ExperienceTarget; targeting: ExperienceTargeting }
+  | { content: ExperienceContent; design: ExperienceDesign; behavior: ExperienceBehavior; builder?: WidgetBuilderState; target?: ExperienceTarget; targeting: ExperienceTargeting; survey?: SurveyConfig }
   | { steps: GuideStep[]; design: ExperienceDesign; targeting: ExperienceTargeting };
 export interface ExperienceVersion { id: string; experienceId: string; versionNumber: number; state: "draft" | "published"; definition: ExperienceDefinition; createdBy: string; createdAt: string; publishedAt: string | null }
 export interface Experience { id: string; siteId: string; kind: ExperienceKind; widgetType: WidgetType | null; name: string; status: ExperienceStatus; buildPageId: string | null; buildUrl: string | null; publishedVersionId: string | null; createdBy: string; createdAt: string; updatedAt: string; draftVersion: ExperienceVersion | null; publishedVersion: ExperienceVersion | null }

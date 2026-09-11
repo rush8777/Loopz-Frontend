@@ -44,4 +44,12 @@ describe("Free Area interactions", () => {
   });
 
   it("normalizes geometry relative to the supplied area", () => { const area = document.createElement("div"); const item = document.createElement("div"); Object.defineProperties(area, { offsetWidth: { value: 600 }, offsetHeight: { value: 500 } }); area.getBoundingClientRect = () => ({ left: 300, top: 200, width: 360, height: 300, right: 660, bottom: 500, x: 300, y: 200, toJSON: () => ({}) }); item.getBoundingClientRect = () => ({ left: 420, top: 260, width: 180, height: 30, right: 600, bottom: 290, x: 420, y: 260, toJSON: () => ({}) }); expect(getElementBoxInWidgetSpace(item, area)).toEqual({ x: 200, y: 100, width: 300, height: 50 }); expect(clientPointToWidgetSpace(540, 380, area)).toEqual({ x: 400, y: 300 }); expect(rootResizeResult("modal", design, { w: 360, h: 300 }, { width: "600px", height: "500px" })?.size).toEqual({ width: { mode: "fixed", value: 600 }, height: { mode: "fixed", value: 500 } }); });
+
+  it("persists anchored-card vertical root resizing as a constrained fixed height", () => {
+    const root = fixture({ classes: ["movecues-widget"] });
+    expect(resizeOptionsForComponent(root.component, "anchored_card")).toMatchObject({ tl: true, bc: true, br: true });
+    expect(rootResizeResult("anchored_card", design, { w: 360, h: 260 }, { width: "360px", height: "260px" })?.size).toEqual({ width: { mode: "fixed", value: 360 }, height: { mode: "fixed", value: 260 } });
+    expect(rootResizeResult("anchored_card", design, { w: 320, h: 1 }, { height: "1px" })?.size.height).toEqual({ mode: "fixed", value: 120 });
+    expect(rootResizeResult("anchored_card", design, { w: 320, h: 900 }, { height: "900px" })?.size.height).toEqual({ mode: "fixed", value: 700 });
+  });
 });

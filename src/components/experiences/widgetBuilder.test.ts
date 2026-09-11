@@ -7,8 +7,8 @@ const design: ExperienceDesign = { width: "md", theme: { background: "#ffffff", 
 
 describe("widget builder compatibility", () => {
   it("creates safe, scoped starters for every widget type", () => {
-    const examples: Record<WidgetType, string> = { anchored_card: "Quick tip", toast: "Success", cursor_follow: "Tip", modal: "New feature", slideout: "What's new", hotspot: "Feature spotlight", banner: "Announcement" };
-    for (const type of ["anchored_card", "toast", "cursor_follow", "modal", "slideout", "hotspot", "banner"] satisfies WidgetType[]) {
+    const examples: Record<WidgetType, string> = { anchored_card: "Quick tip", toast: "Success", cursor_follow: "Tip", modal: "New feature", slideout: "What's new", hotspot: "Feature spotlight", banner: "Announcement", survey: "feedback" };
+    for (const type of ["anchored_card", "toast", "cursor_follow", "modal", "slideout", "hotspot", "banner", "survey"] satisfies WidgetType[]) {
       const starter = createWidgetStarter(type, content, design);
       expect(starter.html).toContain(`data-movecues-widget-type="${type}"`); expect(starter.html).toContain(examples[type]); expect(starter.html).toContain("movecues-widget"); expect(validateBuilderCss(starter.css)).toBe(starter.css);
     }
