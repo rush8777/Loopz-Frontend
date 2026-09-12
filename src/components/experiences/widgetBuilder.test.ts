@@ -13,6 +13,7 @@ describe("widget builder compatibility", () => {
       expect(starter.html).toContain(`data-movecues-widget-type="${type}"`); expect(starter.html).toContain(examples[type]); expect(starter.html).toContain("movecues-widget"); expect(validateBuilderCss(starter.css)).toBe(starter.css);
     }
     const modal = createWidgetStarter("modal", content, design), slideout = createWidgetStarter("slideout", content, design), banner = createWidgetStarter("banner", content, design); expect(modal.css).toContain("width:600px"); expect(slideout.css).toContain("width:400px"); expect(slideout.css).toContain("min-height:460px"); expect(banner.css).toContain("width:100%");
+    const survey = createWidgetStarter("survey", content, design); expect(survey.html).toContain('data-movecues-survey-controls="builder"'); expect(survey.html).toContain('data-movecues-survey-action="back"'); expect(survey.html).toContain('data-movecues-survey-action="next"'); expect(survey.html).toContain('data-movecues-survey-action="submit"');
   });
 
   it("removes executable markup and unsafe attributes while preserving movecues action ids", () => {

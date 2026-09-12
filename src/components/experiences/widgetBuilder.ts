@@ -2,7 +2,7 @@ import type { ExperienceContent, ExperienceDesign, SurveyQuestion, WidgetBuilder
 import { widgetSizeCss } from "./widgetSizing";
 
 const ALLOWED_TAGS = new Set(["DIV", "SECTION", "H1", "H2", "H3", "H4", "P", "SPAN", "BUTTON", "IMG", "HR", "LABEL"]);
-const ALLOWED_ATTRIBUTES = new Set(["class", "id", "title", "role", "aria-label", "aria-live", "aria-hidden", "aria-pressed", "alt", "src", "width", "height", "type", "placeholder", "maxlength", "data-movecues-action-id", "data-movecues-content", "data-movecues-widget-type", "data-movecues-question-id", "data-movecues-question-type", "data-movecues-question-input", "data-movecues-option-id", "data-movecues-survey-action", "data-movecues-survey-progress", "data-movecues-survey-progress-bar", "data-movecues-survey-step-id"]);
+const ALLOWED_ATTRIBUTES = new Set(["class", "id", "title", "role", "aria-label", "aria-live", "aria-hidden", "aria-pressed", "alt", "src", "width", "height", "type", "placeholder", "maxlength", "data-movecues-action-id", "data-movecues-content", "data-movecues-widget-type", "data-movecues-question-id", "data-movecues-question-type", "data-movecues-question-input", "data-movecues-option-id", "data-movecues-survey-action", "data-movecues-survey-controls", "data-movecues-survey-progress", "data-movecues-survey-progress-bar", "data-movecues-survey-step-id"]);
 const ROOT_CLASS = "movecues-widget";
 
 export interface BuilderExport {
@@ -22,7 +22,7 @@ export function createWidgetStarter(widgetType: WidgetType, content: ExperienceC
     slideout: `<div class="movecues-widget__icon" role="img" aria-label="Announcement">✦</div><span class="movecues-widget__eyebrow">What's new</span>${heading}${body}<div class="movecues-widget__spacer"></div>${actions}`,
     hotspot: `<span class="movecues-widget__eyebrow">Feature spotlight</span>${heading}${body}${actions}`,
     banner: `<div class="movecues-widget__icon" role="img" aria-label="Announcement">★</div><div class="movecues-widget__message">${heading}${body}</div>${actions}`,
-    survey: `<span class="movecues-widget__eyebrow">We'd love your feedback</span>${heading}${body}<div class="movecues-survey-validation" role="status" aria-live="polite"></div><div class="movecues-survey-footer"><div data-movecues-survey-progress><span data-movecues-survey-progress-bar></span></div><button type="button" class="movecues-widget__button" data-movecues-survey-action="submit">Submit</button></div>`,
+    survey: `<span class="movecues-widget__eyebrow">We'd love your feedback</span>${heading}${body}<div class="movecues-survey-validation" role="status" aria-live="polite"></div><div class="movecues-survey-footer" data-movecues-survey-controls="builder"><div data-movecues-survey-progress><span data-movecues-survey-progress-bar></span></div><button type="button" class="movecues-widget__button movecues-widget__button--secondary" data-movecues-survey-action="back">Back</button><button type="button" class="movecues-widget__button" data-movecues-survey-action="next">Next</button><button type="button" class="movecues-widget__button" data-movecues-survey-action="submit">Submit</button></div>`,
   };
   const size = widgetSizeCss(widgetType, design);
   const radius = design.theme.borderRadius === "sm" ? "6px" : design.theme.borderRadius === "lg" ? "20px" : "12px";
@@ -99,7 +99,12 @@ export function projectLegacyContent(html: string, previous: ExperienceContent):
   };
 }
 
-export function builderSignature(builder: WidgetBuilderState): string { return JSON.stringify(builder); }
+// The SDK renders HTML/CSS, so those two fields are the persistence identity.
+// GrapesJS regenerates internal component/page IDs when parsing HTML; including
+// projectData here would make an unchanged reload look like a user edit.
+export function builderSignature(builder: WidgetBuilderState): string {
+  return JSON.stringify({ version: builder.version, html: builder.html, css: builder.css });
+}
 
 export function isSafeBuilderProjectData(projectData: Record<string, unknown>): boolean {
   return projectValueIsSafe(projectData);

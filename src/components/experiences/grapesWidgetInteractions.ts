@@ -187,7 +187,8 @@ export function installWidgetInteractions(editor: Editor, options: InteractionOp
     component.setDragMode("absolute");
     component.set("resizable", resizeOptionsForComponent(component, options.widgetType));
     const selector = freeItemSelector(component);
-    if (initialize || !editor.Css.getRule(selector)) {
+    const persistedStyle = (editor.Css.getRule(selector)?.getStyle() ?? {}) as ComponentStyle;
+    if (initialize || !hasPersistedFreeItemBox(persistedStyle)) {
       const measured = box ?? measureBox(component, area);
       if (measured) writeFreeItemBox(component, interactionKind(component) === "text" ? { x: measured.x, y: measured.y, width: measured.width } : measured, false);
     }
@@ -438,6 +439,13 @@ function restoreBoxStyles(style: ComponentStyle, previous: ComponentStyle = {}):
 function numericStyle(value: ComponentStyle[string] | undefined, fallback: number): number {
   const numeric = Number.parseFloat(typeof value === "string" || typeof value === "number" ? String(value) : "");
   return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function hasPersistedFreeItemBox(style: ComponentStyle): boolean {
+  return [style.left, style.top, style.width].every(value => {
+    const numeric = Number.parseFloat(typeof value === "string" || typeof value === "number" ? String(value) : "");
+    return Number.isFinite(numeric);
+  });
 }
 
 function renderedScale(renderedSize: number, logicalSize: number, fallback = 1): number {

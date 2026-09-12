@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { builderSignature, createWidgetStarter, isSafeBuilderProjectData, projectLegacyContent, sanitizeBuilderHtml, surveyQuestionMarkup, validateBuilderCss, type BuilderExport } from "./widgetBuilder";
+import { builderSignature, createWidgetStarter, projectLegacyContent, sanitizeBuilderHtml, surveyQuestionMarkup, validateBuilderCss, type BuilderExport } from "./widgetBuilder";
 import { FREE_AREA_CLASS, installWidgetInteractions, type FreeItemBox, type WidgetInteractionController } from "./grapesWidgetInteractions";
 import { clampWidgetHeight, clampWidgetWidth, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS, widgetSizeCss } from "./widgetSizing";
+import { builderDebug, summarizeBuilder } from "./builderDebug";
 
 interface Props {
   experienceKey: string;
@@ -32,6 +33,9 @@ const MIN_CANVAS_ZOOM = 25;
 const MAX_CANVAS_ZOOM = 200;
 const CANVAS_ZOOM_STEP = 10;
 const STYLE_CLASS_PREFIX = "movecues-style--";
+// Keep the GrapesJS iframe on the same runtime baseline as the SDK Shadow DOM.
+// Builder CSS is injected afterwards and remains free to override these defaults.
+const SDK_BUTTON_BASELINE_CSS = "button{border:0;border-radius:7px;padding:8px 12px;font:600 13px ui-sans-serif,system-ui,sans-serif;cursor:pointer}";
 let styleClassSequence = 0;
 
 interface ViewportState { zoom: number; panX: number; panY: number }
@@ -55,6 +59,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const selectedFreeItemRef = useRef<Component | null>(null);
   const surveyProjectionSignatureRef = useRef("");
   const editorExperienceKeyRef = useRef<string | null>(null);
+  const lastPersistedCssRef = useRef(value?.css ?? "");
   const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
   const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedAction, setSelectedAction] = useState<"primary" | "secondary" | null>(null); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">("blocks"); const [zoomLabel, setZoomLabel] = useState(100); const [handTool, setHandTool] = useState(false); const [spacePressed, setSpacePressed] = useState(false); const [panning, setPanning] = useState(false); const [freeItemBox, setFreeItemBox] = useState<FreeItemBox | null>(null);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { contentRef.current = content; }, [content]);
@@ -62,31 +67,56 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   useEffect(() => { codeModeRef.current = codeMode; }, [codeMode]);
   useEffect(() => { handToolRef.current = handTool; }, [handTool]);
   useImperativeHandle(ref, () => ({ flush: () => flushExportRef.current() }), []);
-  useEffect(() => { if (widgetType !== "survey" || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !surveyQuestions) return; const signature = `${experienceKey}:${JSON.stringify(surveyQuestions)}`; if (signature === surveyProjectionSignatureRef.current) return; surveyProjectionSignatureRef.current = signature; syncSurveyComponents(editorRef.current, surveyQuestions); flushExportRef.current(); }, [experienceKey, ready, surveyQuestions, widgetType]);
+  useEffect(() => { if (widgetType !== "survey" || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !surveyQuestions) return; const signature = `${experienceKey}:${JSON.stringify(surveyQuestions)}`; if (signature === surveyProjectionSignatureRef.current) return; builderDebug(experienceKey, "survey:projection:start", { questionCount: surveyQuestions.length, signature }); surveyProjectionSignatureRef.current = signature; syncSurveyComponents(editorRef.current, surveyQuestions); flushExportRef.current(); builderDebug(experienceKey, "survey:projection:complete"); }, [experienceKey, ready, surveyQuestions, widgetType]);
 
   useEffect(() => {
-    let cancelled = false; let timer = 0; let fitFrame = 0; let refreshFrame = 0; let editor: Editor | null = null; let initialized = false; let migratingComponentStyle = false; let resizeObserver: ResizeObserver | null = null; let canvasNavigationBound = false; let canvasViewportElement: HTMLDivElement | null = null;
+    let cancelled = false; let timer = 0; let initializationTimer = 0; let fitFrame = 0; let refreshFrame = 0; let editor: Editor | null = null; let initialized = false; let migratingComponentStyle = false; let resizeObserver: ResizeObserver | null = null; let canvasNavigationBound = false; let canvasViewportElement: HTMLDivElement | null = null;
     editorExperienceKeyRef.current = experienceKey; setReady(false); setPositioned(false); handToolRef.current = false;
     viewportRef.current = { zoom: 100, panX: 0, panY: 0 }; setZoomLabel(100); setHandTool(false); setSpacePressed(false); setPanning(false); setFreeItemBox(null); spacePressedRef.current = false; panGestureRef.current = null; selectedFreeItemRef.current = null;
     lastSignature.current = value ? builderSignature(value) : "";
     const starter = createWidgetStarter(widgetType, contentRef.current, design);
-    const storedProjectData = value && isSafeBuilderProjectData(value.projectData) && hasUsableProjectData(value.projectData) ? value.projectData : undefined;
-    const editorCss = () => validateBuilderCss(editor?.getCss({ avoidProtected: true }) ?? "");
-    const replaceCanonicalVisualState = (html: string, css: string) => {
-      if (!editor) return;
-      editor.setComponents(html);
-      editor.Css.clear();
-      editor.setStyle(css);
-    };
+    lastPersistedCssRef.current = value?.css ?? starter.css;
+    // HTML and CSS are the runtime contract shared with the SDK. GrapesJS
+    // projectData is still exported for diagnostics/future migrations, but it
+    // must not be the reload source: its PageManager can transiently build an
+    // unattached component tree (pages: []) and never finish `onReady`.
+    const initialHtml = value ? sanitizeBuilderHtml(value.html, widgetType === "survey") : starter.html;
+    const initialCss = value ? validateBuilderCss(value.css) : starter.css;
+    builderDebug(experienceKey, "lifecycle:init", { widgetType, input: summarizeBuilder(value), loadSource: "canonical-html-css", ignoredProjectData: Boolean(value?.projectData), starter: { htmlLength: starter.html.length, cssLength: starter.css.length } }, "info");
+    const rawEditorCss = () => editor?.getCss({ avoidProtected: true }) ?? "";
+    const editorCss = () => validateBuilderCss(rawEditorCss());
     const emit = () => {
       if (!editor || cancelled) return;
+      if (!initialized) { builderDebug(experienceKey, "export:blocked-during-hydration", { current: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); return; }
       try {
         const html = sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"); const css = editorCss();
         const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html, css }; const signature = builderSignature(builder);
-        if (signature === lastSignature.current) return;
+        builderDebug(experienceKey, "export:captured", { snapshot: summarizeBuilder(builder), signature, previousSignature: lastSignature.current, dirtyCount: editor.getDirtyCount() });
+        if (signature === lastSignature.current) { builderDebug(experienceKey, "export:skipped-unchanged"); return; }
+        // A normal canvas mutation must never replace an already styled document
+        // with an empty stylesheet. `applyCode` is the deliberate escape hatch for
+        // users who actually want to clear all CSS. GrapesJS can briefly report an
+        // empty composer while a project is being rehydrated, so repair it instead
+        // of showing an alert and leaving the editor in that bad state.
+        if (lastPersistedCssRef.current.trim() && !css.trim()) {
+          builderDebug(experienceKey, "css:unexpected-empty", { snapshot: summarizeBuilder(builder), html, previousCss: lastPersistedCssRef.current }, "error");
+          applyingCodeRef.current = true;
+          try {
+            editor.setStyle(lastPersistedCssRef.current);
+            editor.clearDirtyCount();
+          } finally { applyingCodeRef.current = false; }
+          const restoredCss = editorCss();
+          const restoredBuilder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html, css: restoredCss };
+          lastSignature.current = builderSignature(restoredBuilder); setCodeHtml(html); setCodeCss(restoredCss); setCodeError(null);
+          builderDebug(experienceKey, "css:self-healed", { snapshot: summarizeBuilder(restoredBuilder), restoredCss }, "warn");
+          onChangeRef.current({ builder: restoredBuilder, content: projectLegacyContent(html, contentRef.current) });
+          return;
+        }
         lastSignature.current = signature; if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); setCodeHtml(html); setCodeCss(css); setCodeError(null);
+        lastPersistedCssRef.current = css;
+        builderDebug(experienceKey, "export:dispatch", { snapshot: summarizeBuilder(builder), html, css }, "info");
         onChangeRef.current({ builder, content: projectLegacyContent(html, contentRef.current) });
-      } catch (error) { setCodeError(error instanceof Error ? error.message : "Builder content could not be exported."); }
+      } catch (error) { const message = error instanceof Error ? error.message : "Builder content could not be exported."; builderDebug(experienceKey, "export:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); }
     };
     const scheduleCanvasFit = () => {
       window.cancelAnimationFrame(fitFrame);
@@ -106,13 +136,16 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       });
     };
     scheduleCanvasRefreshRef.current = scheduleCanvasRefresh;
-    const schedule = (force = false) => {
+    const schedule = (force = false, reason = "editor:update") => {
       if (!editor || applyingCodeRef.current) return;
-      if (!force && editor.getDirtyCount() === 0) return;
+      if (!initialized) { builderDebug(experienceKey, "export:schedule-blocked-during-hydration", { reason, force, current: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); return; }
+      const dirtyCount = editor.getDirtyCount();
+      if (!force && dirtyCount === 0) { builderDebug(experienceKey, "export:schedule-skipped-clean", { reason }); return; }
       clearTimeout(timer);
+      builderDebug(experienceKey, "export:scheduled", { reason, force, dirtyCount, delayMs: 400 });
       timer = window.setTimeout(emit, 400);
     };
-    const scheduleCustomMutation = () => schedule(true);
+    const scheduleCustomMutation = () => schedule(true, "interaction:mutation");
     const selectCanonicalStyleTarget = (component?: Component) => {
       if (!editor || !component) return;
       const selector = canonicalStyleSelector(component);
@@ -123,6 +156,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     const persistComponentStyle = (target?: Component) => {
       if (!editor || applyingCodeRef.current || migratingComponentStyle) return;
       const component = target ?? editor.getSelected();
+      builderDebug(experienceKey, "style:persist:start", { component: debugComponent(component), cssBefore: debugCss(rawEditorCss()) });
       if (component) {
         const componentStyle = component.getStyle();
         if (Object.keys(componentStyle).length > 0) {
@@ -134,11 +168,12 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
             component.setStyle({});
             if (componentId) editor.Css.remove(`#${componentId}`);
             const rule = editor.Css.setRule(selector, { ...existing, ...componentStyle });
+            builderDebug(experienceKey, "style:persist:migrated", { component: debugComponent(component), componentId, selector, componentStyle, existing, cssAfter: debugCss(rawEditorCss()) });
             if (editor.getSelected() === component) editor.StyleManager.select(rule, { component });
           } finally { migratingComponentStyle = false; }
         } else selectCanonicalStyleTarget(component);
       }
-      schedule(true);
+      schedule(true, "style:persist");
     };
     const releaseSpace = () => {
       if (!spacePressedRef.current) return;
@@ -167,17 +202,26 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     const onOuterWheel = (event: WheelEvent) => zoomFromWheel(event, false);
     const onFrameWheel = (event: WheelEvent) => zoomFromWheel(event, true);
     window.addEventListener("keydown", onKeyDown); window.addEventListener("keyup", onKeyUp); window.addEventListener("blur", onWindowBlur);
-    flushExportRef.current = () => { clearTimeout(timer); emit(); };
-    const finishInitialization = () => {
+    flushExportRef.current = () => { builderDebug(experienceKey, "export:flush", { pendingTimer: Boolean(timer), initialized }, "info"); clearTimeout(timer); emit(); };
+    const finishInitialization = (source: string) => {
       if (!editor || cancelled) return;
       if (initialized) return;
+      const currentProjectData = editor.getProjectData() as Record<string, unknown>;
+      const currentRoot = editor.getWrapper()?.find(".movecues-widget")[0];
+      if (!currentRoot) {
+        builderDebug(experienceKey, "lifecycle:ready-deferred-missing-root", { source, current: currentEditorDebugSnapshot(editor, widgetType) }, "warn");
+        return;
+      }
+      builderDebug(experienceKey, "lifecycle:ready:start", { source, before: summarizeBuilder({ version: 1, projectData: currentProjectData, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: editorCss() }) }, "info");
       initialized = true; setReady(true);
       applyingCodeRef.current = true;
-      replaceCanonicalVisualState(value ? sanitizeBuilderHtml(value.html, widgetType === "survey") : starter.html, value ? validateBuilderCss(value.css) : starter.css);
+      const widgetRoot = editor.getWrapper()?.find(".movecues-widget")[0];
+      if (widgetRoot) { widgetRoot.set("removable", false); widgetRoot.set("copyable", false); }
       interactionControllerRef.current?.syncFreeAreas();
       editor.clearDirtyCount();
       applyingCodeRef.current = false;
       const html = sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"); const css = editorCss(); setCodeHtml(html); setCodeCss(css);
+      builderDebug(experienceKey, "lifecycle:ready:complete", { snapshot: summarizeBuilder({ version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html, css }), html, css }, "info");
       if (!value) lastSignature.current = "";
       emit();
       if (!canvasNavigationBound) {
@@ -195,14 +239,21 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       const grapesjs = module.default;
       const envelopeCss = builderSizeEnvelopeCss(widgetType, designRef.current);
       editor = grapesjs.init({
-        container: canvasRef.current, height: "100%", width: "auto", storageManager: false, panels: { defaults: [] }, parser: { optionsHtml: { allowScripts: false, allowUnsafeAttr: false, allowUnsafeAttrValue: false } }, canvasCss: `html{width:100%;height:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;overflow:hidden;background:#f8fafc}body{box-sizing:border-box;width:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;margin:0;padding:96px 80px 160px;display:flex;justify-content:center;align-items:flex-start;background:#f8fafc}*{box-sizing:border-box}${envelopeCss}`,
+        container: canvasRef.current, height: "100%", width: "auto", storageManager: false, panels: { defaults: [] }, parser: { optionsHtml: { allowScripts: false, allowUnsafeAttr: false, allowUnsafeAttrValue: false } }, canvasCss: `html{width:100%;height:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;overflow:hidden;background:#f8fafc}body{box-sizing:border-box;width:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;margin:0;padding:96px 80px 160px;display:flex;justify-content:center;align-items:flex-start;background:#f8fafc}*{box-sizing:border-box}${SDK_BUTTON_BASELINE_CSS}${envelopeCss}`,
         selectorManager: { componentFirst: true },
-        ...(storedProjectData ? { projectData: storedProjectData } : value ? { components: sanitizeBuilderHtml(value.html, widgetType === "survey"), style: validateBuilderCss(value.css) } : { components: starter.html, style: starter.css }),
+        components: initialHtml,
+        style: initialCss,
         deviceManager: { devices: [{ id: "desktop", name: "Desktop", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px` }, { id: "tablet", name: "Tablet", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "768px" }, { id: "mobile", name: "Mobile", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "390px" }] },
         blockManager: { appendTo: blocksRef.current, blocks: blocks() },
         traitManager: { appendTo: traitsRef.current },
         styleManager: { appendTo: stylesRef.current, sectors: styleSectors() },
-        plugins: [instance => { instance.DomComponents.addType("movecues-survey-question", { isComponent: element => element.hasAttribute?.("data-movecues-question-id") ? { type: "movecues-survey-question" } : false, model: { defaults: { droppable: true, editable: false, removable: false, copyable: false, traits: [] } } }); instance.DomComponents.addType("movecues-button", { isComponent: element => element.tagName === "BUTTON" && element.hasAttribute?.("data-movecues-action-id") ? { type: "movecues-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, traits: [] } } }); instance.DomComponents.addType("movecues-free-area", { isComponent: element => element.classList?.contains(FREE_AREA_CLASS) ? { type: "movecues-free-area" } : false, model: { defaults: { tagName: "div", classes: [FREE_AREA_CLASS], droppable: true } } }); }, instance => { interactionControllerRef.current = installWidgetInteractions(instance, { widgetType, design: () => designRef.current, onRootResize: (size, commit) => { const next = { ...designRef.current, size }; applySizeEnvelopeRef.current(next); if (commit) { designRef.current = next; onSizeChangeRef.current(size); } }, onFreeItemChange: (component, box) => { selectedFreeItemRef.current = component; setFreeItemBox(box); }, onMutation: scheduleCustomMutation, canStartFreeDrag: target => !handToolRef.current && !spacePressedRef.current && !codeModeRef.current && !isEditableTarget(target) }); }],
+        plugins: [instance => {
+          instance.DomComponents.addType("movecues-widget-root", { isComponent: element => element.classList?.contains("movecues-widget") ? { type: "movecues-widget-root" } : false, model: { defaults: { tagName: "section", removable: false, copyable: false } } });
+          instance.DomComponents.addType("movecues-survey-controls", { isComponent: element => element.hasAttribute?.("data-movecues-survey-controls") ? { type: "movecues-survey-controls" } : false, model: { defaults: { tagName: "div", removable: false, copyable: false } } });
+          instance.DomComponents.addType("movecues-survey-question", { isComponent: element => element.hasAttribute?.("data-movecues-question-id") ? { type: "movecues-survey-question" } : false, model: { defaults: { droppable: true, editable: false, removable: false, copyable: false, traits: [] } } });
+          instance.DomComponents.addType("movecues-button", { isComponent: element => element.tagName === "BUTTON" && (element.hasAttribute?.("data-movecues-action-id") || element.hasAttribute?.("data-movecues-survey-action")) ? { type: "movecues-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, removable: true, copyable: false, traits: [] } } });
+          instance.DomComponents.addType("movecues-free-area", { isComponent: element => element.classList?.contains(FREE_AREA_CLASS) ? { type: "movecues-free-area" } : false, model: { defaults: { tagName: "div", classes: [FREE_AREA_CLASS], droppable: true } } });
+        }, instance => { interactionControllerRef.current = installWidgetInteractions(instance, { widgetType, design: () => designRef.current, onRootResize: (size, commit) => { const next = { ...designRef.current, size }; applySizeEnvelopeRef.current(next); if (commit) { designRef.current = next; onSizeChangeRef.current(size); } }, onFreeItemChange: (component, box) => { selectedFreeItemRef.current = component; setFreeItemBox(box); }, onMutation: scheduleCustomMutation, canStartFreeDrag: target => !handToolRef.current && !spacePressedRef.current && !codeModeRef.current && !isEditableTarget(target) }); }],
       });
       if (cancelled) { editor.destroy(); return; }
       editorRef.current = editor;
@@ -226,10 +277,10 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       fitCanvasRef.current = () => {
         if (!editor || cancelled || !canvasRef.current) return;
         const widget = editor.getWrapper()?.find(".movecues-widget")[0]?.getEl();
-        if (!widget) return;
+        if (!widget) { setPositioned(true); return; }
         const availableWidth = canvasRef.current.clientWidth - 80;
         const availableHeight = canvasRef.current.clientHeight - 96;
-        if (availableWidth <= 0 || availableHeight <= 0) return;
+        if (availableWidth <= 0 || availableHeight <= 0) { setPositioned(true); return; }
         const widgetWidth = Math.max(1, widget.offsetWidth);
         const widgetHeight = Math.max(1, widget.offsetHeight);
         const zoom = Math.min(1, Math.max(MIN_CANVAS_ZOOM / 100, availableWidth / widgetWidth), Math.max(MIN_CANVAS_ZOOM / 100, availableHeight / widgetHeight));
@@ -243,10 +294,22 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       applySizeEnvelopeRef.current(designRef.current);
       const selectAction = (component?: Component) => { const slot = component?.getAttributes()?.["data-movecues-action-id"]; setSelectedAction(slot === "primary" || slot === "secondary" ? slot : null); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setSidebarTab("properties"); };
       const keepOneActionPerSlot = (component: Component) => { const slot = component.getAttributes()?.["data-movecues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movecues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
-      editor.on("update", schedule); editor.on("component:styleUpdate", persistComponentStyle); editor.on("style:property:update", () => queueMicrotask(() => persistComponentStyle())); editor.on("component:selected", selectAction); editor.on("component:add", keepOneActionPerSlot); editor.on("load", finishInitialization); editor.onReady(finishInitialization);
-    }).catch(() => setCodeError("GrapesJS could not be loaded."));
+      editor.on("update", () => { builderDebug(experienceKey, "grapes:update", { dirtyCount: editor?.getDirtyCount() }); schedule(false, "grapes:update"); });
+      editor.on("component:styleUpdate", (component: Component) => { builderDebug(experienceKey, "grapes:component-style-update", { component: debugComponent(component), css: debugCss(rawEditorCss()) }); persistComponentStyle(component); });
+      editor.on("style:property:update", () => { builderDebug(experienceKey, "grapes:style-property-update", { selected: debugComponent(editor?.getSelected()), css: debugCss(rawEditorCss()) }); queueMicrotask(() => persistComponentStyle()); });
+      editor.on("component:selected", (component: Component) => { builderDebug(experienceKey, "grapes:component-selected", { component: debugComponent(component) }); selectAction(component); });
+      editor.on("component:add", (component: Component) => { builderDebug(experienceKey, "grapes:component-add", { component: debugComponent(component), snapshot: currentEditorDebugSnapshot(editor, widgetType) }, "info"); keepOneActionPerSlot(component); });
+      editor.on("component:remove", (component: Component) => { builderDebug(experienceKey, "grapes:component-remove", { component: debugComponent(component), snapshot: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); });
+      editor.on("load", () => { builderDebug(experienceKey, "grapes:load"); finishInitialization("grapes:load"); }); editor.onReady(() => { builderDebug(experienceKey, "grapes:on-ready"); finishInitialization("grapes:on-ready"); });
+      initializationTimer = window.setTimeout(() => {
+        if (initialized || cancelled) return;
+        builderDebug(experienceKey, "lifecycle:hydration-timeout", { current: currentEditorDebugSnapshot(editor, widgetType), input: summarizeBuilder(value) }, "error");
+        setReady(true); setPositioned(true); setCodeError("GrapesJS did not finish restoring this design. Autosave is disabled to protect the saved HTML and CSS.");
+      }, 5000);
+    }).catch(error => { builderDebug(experienceKey, "lifecycle:init-error", { message: error instanceof Error ? error.message : String(error), stack: error instanceof Error ? error.stack : undefined }, "error"); setReady(true); setPositioned(true); setCodeError("GrapesJS could not be loaded."); });
     return () => {
-      cancelled = true; clearTimeout(timer); window.cancelAnimationFrame(fitFrame); window.cancelAnimationFrame(refreshFrame); resizeObserver?.disconnect();
+      builderDebug(experienceKey, "lifecycle:destroy", { initialized, current: currentEditorDebugSnapshot(editor, widgetType) }, "info");
+      cancelled = true; clearTimeout(timer); clearTimeout(initializationTimer); window.cancelAnimationFrame(fitFrame); window.cancelAnimationFrame(refreshFrame); resizeObserver?.disconnect();
       window.removeEventListener("keydown", onKeyDown); window.removeEventListener("keyup", onKeyUp); window.removeEventListener("blur", onWindowBlur);
       canvasViewportElement?.removeEventListener("wheel", onOuterWheel);
       editor?.Canvas.getDocument()?.removeEventListener("wheel", onFrameWheel);
@@ -270,8 +333,8 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const previewSize = (size: ExperienceSize) => {
     applySizeEnvelopeRef.current({ ...designRef.current, size });
   };
-  const toggleCode = () => { if (!codeMode && editorRef.current) { setCodeHtml(sanitizeBuilderHtml(editorRef.current.getHtml(), widgetType === "survey")); setCodeCss(validateBuilderCss(editorRef.current.getCss({ avoidProtected: true }) ?? "")); } setCodeError(null); setCodeMode(value => !value); };
-  const applyCode = () => { const editor = editorRef.current; if (!editor) return; try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") }; lastSignature.current = builderSignature(builder); setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { setCodeError(error instanceof Error ? error.message : "The code could not be applied."); } finally { applyingCodeRef.current = false; } };
+  const toggleCode = () => { builderDebug(experienceKey, "code:toggle", { opening: !codeMode, current: currentEditorDebugSnapshot(editorRef.current, widgetType) }, "info"); if (!codeMode && editorRef.current) { setCodeHtml(sanitizeBuilderHtml(editorRef.current.getHtml(), widgetType === "survey")); setCodeCss(validateBuilderCss(editorRef.current.getCss({ avoidProtected: true }) ?? "")); } setCodeError(null); setCodeMode(value => !value); };
+  const applyCode = () => { const editor = editorRef.current; if (!editor) return; builderDebug(experienceKey, "code:apply:start", { htmlLength: codeHtml.length, cssLength: codeCss.length, html: codeHtml, css: codeCss }, "info"); try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; builderDebug(experienceKey, "code:css-clear", { before: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") }; lastSignature.current = builderSignature(builder); lastPersistedCssRef.current = builder.css; setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); builderDebug(experienceKey, "code:apply:dispatch", { snapshot: summarizeBuilder(builder), html: builder.html, css: builder.css }, "info"); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { const message = error instanceof Error ? error.message : "The code could not be applied."; builderDebug(experienceKey, "code:apply:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); } finally { applyingCodeRef.current = false; } };
   const updateFreeItem = (property: keyof FreeItemBox, value: string) => {
     const component = selectedFreeItemRef.current; const numeric = Number(value);
     if (!component || !Number.isFinite(numeric)) return;
@@ -364,6 +427,7 @@ function widgetLabel(widgetType: WidgetType): string { return widgetType.split("
 
 function syncSurveyComponents(editor: Editor, questions: SurveyQuestion[]): void {
   const wrapper = editor.getWrapper(); const root = wrapper?.find(".movecues-widget")[0]; if (!root) return;
+  ensureSurveyNavigation(root);
   const wanted = new Map(questions.map(question => [question.id, question]));
   const existing = root.find("[data-movecues-question-id]");
   const seen = new Set<string>();
@@ -384,10 +448,46 @@ function syncSurveyComponents(editor: Editor, questions: SurveyQuestion[]): void
   questions.forEach((question, offset) => { if (!seen.has(question.id)) root.append(surveyQuestionMarkup(question), insertionIndex === undefined ? undefined : { at: insertionIndex + offset }); });
 }
 
-function hasUsableProjectData(projectData: Record<string, unknown>): boolean {
-  const pages = projectData.pages;
-  if (!Array.isArray(pages) || pages.length === 0) return false;
-  return pages.some(page => { const component = page && typeof page === "object" ? (page as { component?: unknown }).component : null; if (!component || typeof component !== "object") return false; const children = (component as { components?: unknown }).components; return Array.isArray(children) ? children.length > 0 : Boolean(children); });
+function ensureSurveyNavigation(root: Component): void {
+  root.set("removable", false); root.set("copyable", false);
+  const configureControls = () => {
+    const controls = root.find("[data-movecues-survey-controls]")[0];
+    if (controls) { controls.set("removable", false); controls.set("copyable", false); }
+    for (const button of root.find("[data-movecues-survey-action]")) {
+      button.set("droppable", false); button.set("editable", true); button.set("removable", true); button.set("copyable", false);
+    }
+  };
+  if (root.find("[data-movecues-survey-controls]")[0]) { configureControls(); return; }
+  const action = root.find("[data-movecues-survey-action]")[0]; const footer = action?.parent();
+  if (footer && footer.parent() === root) {
+    footer.addAttributes({ "data-movecues-survey-controls": "builder" });
+    if (!root.find('[data-movecues-survey-action="back"]')[0]) footer.append('<button type="button" class="movecues-widget__button movecues-widget__button--secondary" data-movecues-survey-action="back">Back</button>', { at: 1 });
+    if (!root.find('[data-movecues-survey-action="next"]')[0]) footer.append('<button type="button" class="movecues-widget__button" data-movecues-survey-action="next">Next</button>');
+    if (!root.find('[data-movecues-survey-action="submit"]')[0]) footer.append('<button type="button" class="movecues-widget__button" data-movecues-survey-action="submit">Submit</button>');
+    configureControls();
+    return;
+  }
+  root.append('<div class="movecues-survey-footer" data-movecues-survey-controls="builder"><button type="button" class="movecues-widget__button movecues-widget__button--secondary" data-movecues-survey-action="back">Back</button><button type="button" class="movecues-widget__button" data-movecues-survey-action="next">Next</button><button type="button" class="movecues-widget__button" data-movecues-survey-action="submit">Submit</button></div>');
+  configureControls();
+}
+
+function currentEditorDebugSnapshot(editor: Editor | null | undefined, widgetType: WidgetType): Record<string, unknown> | null {
+  if (!editor) return null;
+  try {
+    const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") };
+    return summarizeBuilder(builder);
+  } catch (error) { return { error: error instanceof Error ? error.message : String(error) }; }
+}
+
+function debugComponent(component?: Component | null): Record<string, unknown> | null {
+  if (!component) return null;
+  try {
+    return { id: component.getId?.(), type: component.get?.("type"), tagName: component.get?.("tagName"), classes: component.getClasses?.(), attributes: component.getAttributes?.(), style: component.getStyle?.(), removable: component.get?.("removable"), parentId: component.parent?.()?.getId?.() };
+  } catch (error) { return { error: error instanceof Error ? error.message : String(error) }; }
+}
+
+function debugCss(css: string): Record<string, number> {
+  return { length: css.length, rules: (css.match(/\{/g) ?? []).length };
 }
 
 function canonicalStyleSelector(component: Component): string | null {
