@@ -26,6 +26,11 @@ describe("widget builder compatibility", () => {
     expect(result).toContain("movecues-free-area--stable"); expect(result).toContain("movecues-free-item--stable-1"); expect(validateBuilderCss(".movecues-widget .movecues-free-item--stable-1{position:absolute;left:12px;top:20px}")).toContain("movecues-free-item--stable-1");
   });
 
+  it("preserves safe line breaks created by rich-text editing", () => {
+    const result = sanitizeBuilderHtml('<section class="movecues-widget"><p>First line<br>Second line<br/>Third line</p></section>');
+    expect(result).toContain("First line<br>Second line<br>Third line");
+  });
+
   it("rejects executable or unscoped CSS", () => {
     expect(() => validateBuilderCss("button{color:red}")).toThrow(/scoped/i); expect(() => validateBuilderCss("@import url('https://evil.test/x.css')")).toThrow(/not allowed/i); expect(validateBuilderCss(".movecues-widget .button{color:red}")).toContain(".movecues-widget");
   });
