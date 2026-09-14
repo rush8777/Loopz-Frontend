@@ -9,6 +9,7 @@ import * as pagesApi from "../../api/pages";
 import type { SessionSummary } from "../../types/api";
 import { formatDuration, formatRelativeTime, formatTimestamp } from "../../lib/format";
 import { Button } from "@/components/ui/button";
+import { BrowserIcon } from "../../components/BrowserIcon";
 import { AnalyticsFilterBar, type AppliedFilters, type FilterDefinition } from "@/components/filters/AnalyticsFilterBar";
 import { readFilters, writeFilters } from "@/components/filters/filterUrlState";
 import { resolveDateRange, type DateRangePreset } from "@/lib/dateRange";
@@ -19,11 +20,12 @@ const plural = (count: number, word: string) => `${count} ${word}${count === 1 ?
 
 function SessionRow({ session, onOpen }: { session: SessionSummary; onOpen: () => void }) {
   const visitor = session.visitor; const label = visitor?.label ?? "Unresolved visitor";
-  const device = [session.browserName, session.osName, session.deviceType].filter(Boolean).join(" · ") || "Not recorded";
+  const browser = session.browserName || "Not recorded";
+  const device = [session.osName, session.deviceType].filter(Boolean).join(" · ");
   const initial = label.charAt(0).toUpperCase() || "?";
   return <div className="grid cursor-pointer gap-3 border-b px-4 py-4 transition-colors hover:bg-muted/40 md:grid-cols-[minmax(180px,1.3fr)_100px_minmax(190px,1fr)_minmax(125px,.8fr)_90px_auto] md:items-center" role="button" tabIndex={0} onClick={onOpen} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") onOpen(); }}>
     <div className="flex min-w-0 items-center gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-foreground">{initial}</span><span className="min-w-0"><span className="block truncate text-sm font-medium">{label}</span><span className="block text-xs text-muted-foreground">{visitor ? `${visitor.type} visitor` : "Visitor unavailable"}{session.hasReplay ? " · Replay available" : ""}</span></span></div>
-    <span className="mono text-sm">{formatDuration(session.durationMs)}</span><span className="text-sm text-muted-foreground">{plural(session.pageVisitCount ?? 0, "page")} · {plural(session.clickCount ?? 0, "click")} · {plural(session.customEventCount ?? 0, "event")}</span><span className="text-sm text-muted-foreground">{device}</span><time className="text-sm text-muted-foreground" title={formatTimestamp(session.lastSeen)}>{formatRelativeTime(session.lastSeen)}</time><Button variant="ghost" size="sm" onClick={(event) => { event.stopPropagation(); onOpen(); }}>View session →</Button>
+    <span className="mono text-sm">{formatDuration(session.durationMs)}</span><span className="text-sm text-muted-foreground">{plural(session.pageVisitCount ?? 0, "page")} · {plural(session.clickCount ?? 0, "click")} · {plural(session.customEventCount ?? 0, "event")}</span><span className="min-w-0 text-sm text-muted-foreground"><span className="flex min-w-0 items-center gap-2"><BrowserIcon name={session.browserName} /><span className="truncate">{browser}</span></span>{device && <span className="mt-0.5 block truncate text-xs">{device}</span>}</span><time className="text-sm text-muted-foreground" title={formatTimestamp(session.lastSeen)}>{formatRelativeTime(session.lastSeen)}</time><Button variant="ghost" size="sm" onClick={(event) => { event.stopPropagation(); onOpen(); }}>View session →</Button>
   </div>;
 }
 

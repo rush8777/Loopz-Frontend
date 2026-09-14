@@ -6,6 +6,7 @@ export function listExperiences(orgId: string, siteId: string, kind?: Experience
 export function createExperience(orgId: string, siteId: string, input: CreateExperienceInput) { return apiRequest<Experience>(base(orgId, siteId), { method: "POST", body: input }); }
 export function getExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`); }
 export function updateExperience(orgId: string, siteId: string, id: string, input: { name?: string; definition?: ExperienceDefinition }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`, { method: "PATCH", body: input }); }
+export function deleteExperience(orgId: string, siteId: string, id: string) { return apiRequest<void>(`${base(orgId, siteId)}/${id}`, { method: "DELETE" }); }
 export function publishExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/publish`, { method: "POST" }); }
 export function pauseExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/pause`, { method: "POST" }); }
 export function createEditorSession(orgId: string, siteId: string, id: string) { return apiRequest<{ sessionId: string; launchUrl: string; expiresAt: string }>(`${base(orgId, siteId)}/${id}/editor-sessions`, { method: "POST" }); }
