@@ -748,3 +748,37 @@ export interface PageHeatmapResult {
 export interface PageElement extends CatalogElement {
   matchedPaths: string[];
 }
+
+export type DashboardGranularity = "day" | "week" | "month";
+export interface DashboardFilters { since: string; until: string; granularity: DashboardGranularity; segmentId?: string; excludedEventNames: string[] }
+export type DashboardCardWidth = "small" | "medium" | "full";
+export type DashboardMetricId = "users.unique" | "users.conversion_rate" | "users.stickiness" | "sessions.count" | "sessions.conversion_rate" | "sessions.observed_duration" | "events.occurrences" | "events.per_user" | "events.per_session";
+export type DashboardBreakdown =
+  | { dimension: "page" | "page_area" | "page_type" | "event" | "identity" | "device" | "browser" | "os" | "language" | "referrer" }
+  | { dimension: "segment"; segmentIds: string[] }
+  | { dimension: "user_property"; propertyName: string };
+export interface MetricCardConfiguration {
+  schemaVersion: 1; kind: "metric"; metricId: DashboardMetricId;
+  events?: { eventNames: string[]; match: "each" | "any" | "all" };
+  conversion?: { numeratorEvent: string; denominatorEvent?: string };
+  mode: "trend" | "breakdown" | "single"; breakdown?: DashboardBreakdown;
+  visualization: "line" | "bars" | "stacked_bars" | "horizontal_bars" | "table" | "total" | "recent" | "previous_period";
+  target?: { value: number; direction: "at_least" | "at_most"; intent: "achieve" | "maintain" };
+}
+export interface FunnelCardConfiguration { schemaVersion: 1; kind: "funnel"; funnelId: string }
+export type RetentionEventReference = { type: "any_meaningful" } | { type: "event"; eventName: string };
+export interface RetentionCardConfiguration { schemaVersion: 1; kind: "retention"; startEvent: RetentionEventReference; returnEvent: RetentionEventReference; cohort: { type: "start_date" } | { type: "segments"; segmentIds: string[] }; visualization: "grid" | "trend" }
+export type DashboardCardConfiguration = MetricCardConfiguration | FunnelCardConfiguration | RetentionCardConfiguration;
+export interface DashboardCard { id?: string; title: string; cardType: DashboardCardConfiguration["kind"]; position?: number; width: DashboardCardWidth; configuration: DashboardCardConfiguration; createdAt?: string; updatedAt?: string }
+export interface DashboardSummary { id: string; siteId: string; name: string; description: string | null; createdBy: string; cardCount: number; createdAt: string; updatedAt: string }
+export interface Dashboard extends Omit<DashboardSummary, "cardCount"> { cards: DashboardCard[] }
+export interface AnalyticsMetadata { metricId: string; definition: string; resolvedDateRange: { since: string; until: string }; granularity: DashboardGranularity; appliedFilters: DashboardFilters; breakdown: DashboardBreakdown | null; dataFreshness: string; resultShape: string; timezone: "UTC"; drilldown: string[] }
+export type AnalyticsResult =
+  | { kind: "timeseries"; series: { key: string; label: string }[]; buckets: { key: string; label: string; incomplete: boolean; values: Record<string, number> }[] }
+  | { kind: "breakdown"; rows: { key: string; label: string; value: number }[] }
+  | { kind: "scalar"; values: { seriesKey: string; value: number; recentValue: number; previousValue: number | null; deltaPercent: number | null }[] }
+  | ({ kind: "funnel" } & FunnelAnalysis)
+  | { kind: "retention"; rows: { key: string; label: string; size: number; smallCohort: boolean; currentSegmentComparison: boolean; cells: { offset: number; label: string; retainedUsers: number; percentage: number; incomplete: boolean }[] }[]; trend: { offset: number; label: string; values: Record<string, number> }[] };
+export interface AnalyticsResponse { metadata: AnalyticsMetadata; result: AnalyticsResult }
+export interface AnalyticsCatalogMetric { id: DashboardMetricId; group: string; label: string; definition: string; matches: ("each" | "any" | "all")[]; breakdowns: string[]; drilldown: string[] }
+export interface AnalyticsCatalog { schemaVersion: 1; timezone: "UTC"; metrics: AnalyticsCatalogMetric[]; granularities: DashboardGranularity[]; limits: Record<string, number> }

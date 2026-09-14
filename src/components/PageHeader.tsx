@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
-type Section = "Observe" | "Analysis" | "Feedback" | "Users" | "Experiences";
+type Section = "Workspace" | "Observe" | "Analysis" | "Feedback" | "Users" | "Experiences";
 
 type BaseProps = {
   section: Section;
-  title: string;
-  description?: string;
+  title: ReactNode;
+  description?: ReactNode;
   actions?: ReactNode;
 };
 
@@ -36,4 +36,3 @@ export function PageHeader({ section, title, description, actions }: BaseProps) 
     </header>
   );
 }
-

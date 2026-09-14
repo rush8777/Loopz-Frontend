@@ -31,6 +31,8 @@ import { FunnelBuilderPage } from "./pages/funnels/FunnelBuilderPage";
 import { FunnelDetailPage } from "./pages/funnels/FunnelDetailPage";
 import { ExperienceListPage } from "./pages/experiences/ExperienceListPage";
 import { ExperienceEditorPage } from "./pages/experiences/ExperienceEditorPage";
+import { DashboardListPage } from "./pages/dashboard/DashboardListPage";
+import { DashboardWorkspacePage } from "./pages/dashboard/DashboardWorkspacePage";
 
 function Workspace({ children }: { children: ReactNode }) {
   return <WorkspaceProvider>{children}</WorkspaceProvider>;
@@ -52,7 +54,11 @@ export default function App() {
                 </Workspace>
               }
             >
-              <Route index element={<Navigate to="/observe/sessions" replace />} />
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<DashboardListPage />} />
+              <Route path="dashboard/new" element={<DashboardWorkspacePage mode="new" />} />
+              <Route path="dashboard/:dashboardId" element={<DashboardWorkspacePage mode="view" />} />
+              <Route path="dashboard/:dashboardId/edit" element={<DashboardWorkspacePage mode="edit" />} />
               <Route path="observe/sessions" element={<SessionsPage />} />
               <Route path="observe/sessions/:sessionId" element={<SessionDetailPage />} />
               <Route path="observe/pages" element={<PagesPage />} />
