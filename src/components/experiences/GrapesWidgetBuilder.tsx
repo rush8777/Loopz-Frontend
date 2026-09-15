@@ -59,6 +59,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const selectedFreeItemRef = useRef<Component | null>(null);
   const surveyProjectionSignatureRef = useRef("");
   const editorExperienceKeyRef = useRef<string | null>(null);
+  const projectDataRef = useRef<Record<string, unknown>>(value?.projectData ?? {});
   const lastPersistedCssRef = useRef(value?.css ?? "");
   const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
   const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedAction, setSelectedAction] = useState<"primary" | "secondary" | null>(null); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">("blocks"); const [zoomLabel, setZoomLabel] = useState(100); const [handTool, setHandTool] = useState(false); const [spacePressed, setSpacePressed] = useState(false); const [panning, setPanning] = useState(false); const [freeItemBox, setFreeItemBox] = useState<FreeItemBox | null>(null);
@@ -74,12 +75,14 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     editorExperienceKeyRef.current = experienceKey; setReady(false); setPositioned(false); handToolRef.current = false;
     viewportRef.current = { zoom: 100, panX: 0, panY: 0 }; setZoomLabel(100); setHandTool(false); setSpacePressed(false); setPanning(false); setFreeItemBox(null); spacePressedRef.current = false; panGestureRef.current = null; selectedFreeItemRef.current = null;
     lastSignature.current = value ? builderSignature(value) : "";
+    projectDataRef.current = value?.projectData ?? {};
     const starter = createWidgetStarter(widgetType, contentRef.current, design);
     lastPersistedCssRef.current = value?.css ?? starter.css;
     // HTML and CSS are the runtime contract shared with the SDK. GrapesJS
-    // projectData is still exported for diagnostics/future migrations, but it
-    // must not be the reload source: its PageManager can transiently build an
-    // unattached component tree (pages: []) and never finish `onReady`.
+    // projectData is retained as compatibility metadata, but it is neither the
+    // reload source nor regenerated during editing. Calling getProjectData while
+    // the RTE is active makes GrapesJS synchronize text by removing and adding
+    // components, which feeds back into our mutation listeners.
     const initialHtml = value ? sanitizeBuilderHtml(value.html, widgetType === "survey") : starter.html;
     const initialCss = value ? validateBuilderCss(value.css) : starter.css;
     builderDebug(experienceKey, "lifecycle:init", { widgetType, input: summarizeBuilder(value), loadSource: "canonical-html-css", ignoredProjectData: Boolean(value?.projectData), starter: { htmlLength: starter.html.length, cssLength: starter.css.length } }, "info");
@@ -90,7 +93,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       if (!initialized) { builderDebug(experienceKey, "export:blocked-during-hydration", { current: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); return; }
       try {
         const html = sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"); const css = editorCss();
-        const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html, css }; const signature = builderSignature(builder);
+        const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css }; const signature = builderSignature(builder);
         builderDebug(experienceKey, "export:captured", { snapshot: summarizeBuilder(builder), signature, previousSignature: lastSignature.current, dirtyCount: editor.getDirtyCount() });
         if (signature === lastSignature.current) { builderDebug(experienceKey, "export:skipped-unchanged"); return; }
         // A normal canvas mutation must never replace an already styled document
@@ -106,7 +109,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
             editor.clearDirtyCount();
           } finally { applyingCodeRef.current = false; }
           const restoredCss = editorCss();
-          const restoredBuilder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html, css: restoredCss };
+          const restoredBuilder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css: restoredCss };
           lastSignature.current = builderSignature(restoredBuilder); setCodeHtml(html); setCodeCss(restoredCss); setCodeError(null);
           builderDebug(experienceKey, "css:self-healed", { snapshot: summarizeBuilder(restoredBuilder), restoredCss }, "warn");
           onChangeRef.current({ builder: restoredBuilder, content: projectLegacyContent(html, contentRef.current) });
@@ -206,13 +209,12 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     const finishInitialization = (source: string) => {
       if (!editor || cancelled) return;
       if (initialized) return;
-      const currentProjectData = editor.getProjectData() as Record<string, unknown>;
       const currentRoot = editor.getWrapper()?.find(".movecues-widget")[0];
       if (!currentRoot) {
         builderDebug(experienceKey, "lifecycle:ready-deferred-missing-root", { source, current: currentEditorDebugSnapshot(editor, widgetType) }, "warn");
         return;
       }
-      builderDebug(experienceKey, "lifecycle:ready:start", { source, before: summarizeBuilder({ version: 1, projectData: currentProjectData, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: editorCss() }) }, "info");
+      builderDebug(experienceKey, "lifecycle:ready:start", { source, before: summarizeBuilder({ version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: editorCss() }) }, "info");
       initialized = true; setReady(true);
       applyingCodeRef.current = true;
       const widgetRoot = editor.getWrapper()?.find(".movecues-widget")[0];
@@ -221,7 +223,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       editor.clearDirtyCount();
       applyingCodeRef.current = false;
       const html = sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"); const css = editorCss(); setCodeHtml(html); setCodeCss(css);
-      builderDebug(experienceKey, "lifecycle:ready:complete", { snapshot: summarizeBuilder({ version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html, css }), html, css }, "info");
+      builderDebug(experienceKey, "lifecycle:ready:complete", { snapshot: summarizeBuilder({ version: 1, projectData: projectDataRef.current, html, css }), html, css }, "info");
       if (!value) lastSignature.current = "";
       emit();
       if (!canvasNavigationBound) {
@@ -334,7 +336,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     applySizeEnvelopeRef.current({ ...designRef.current, size });
   };
   const toggleCode = () => { builderDebug(experienceKey, "code:toggle", { opening: !codeMode, current: currentEditorDebugSnapshot(editorRef.current, widgetType) }, "info"); if (!codeMode && editorRef.current) { setCodeHtml(sanitizeBuilderHtml(editorRef.current.getHtml(), widgetType === "survey")); setCodeCss(validateBuilderCss(editorRef.current.getCss({ avoidProtected: true }) ?? "")); } setCodeError(null); setCodeMode(value => !value); };
-  const applyCode = () => { const editor = editorRef.current; if (!editor) return; builderDebug(experienceKey, "code:apply:start", { htmlLength: codeHtml.length, cssLength: codeCss.length, html: codeHtml, css: codeCss }, "info"); try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; builderDebug(experienceKey, "code:css-clear", { before: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") }; lastSignature.current = builderSignature(builder); lastPersistedCssRef.current = builder.css; setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); builderDebug(experienceKey, "code:apply:dispatch", { snapshot: summarizeBuilder(builder), html: builder.html, css: builder.css }, "info"); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { const message = error instanceof Error ? error.message : "The code could not be applied."; builderDebug(experienceKey, "code:apply:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); } finally { applyingCodeRef.current = false; } };
+  const applyCode = () => { const editor = editorRef.current; if (!editor) return; builderDebug(experienceKey, "code:apply:start", { htmlLength: codeHtml.length, cssLength: codeCss.length, html: codeHtml, css: codeCss }, "info"); try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; builderDebug(experienceKey, "code:css-clear", { before: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") }; lastSignature.current = builderSignature(builder); lastPersistedCssRef.current = builder.css; setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); builderDebug(experienceKey, "code:apply:dispatch", { snapshot: summarizeBuilder(builder), html: builder.html, css: builder.css }, "info"); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { const message = error instanceof Error ? error.message : "The code could not be applied."; builderDebug(experienceKey, "code:apply:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); } finally { applyingCodeRef.current = false; } };
   const updateFreeItem = (property: keyof FreeItemBox, value: string) => {
     const component = selectedFreeItemRef.current; const numeric = Number(value);
     if (!component || !Number.isFinite(numeric)) return;
@@ -474,8 +476,8 @@ function ensureSurveyNavigation(root: Component): void {
 function currentEditorDebugSnapshot(editor: Editor | null | undefined, widgetType: WidgetType): Record<string, unknown> | null {
   if (!editor) return null;
   try {
-    const builder: WidgetBuilderState = { version: 1, projectData: editor.getProjectData() as Record<string, unknown>, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") };
-    return summarizeBuilder(builder);
+    const selected = editor.getSelected();
+    return { widgetType, dirtyCount: editor.getDirtyCount(), selected: selected ? { id: selected.getId?.(), type: selected.get?.("type"), tagName: selected.get?.("tagName") } : null };
   } catch (error) { return { error: error instanceof Error ? error.message : String(error) }; }
 }
 
