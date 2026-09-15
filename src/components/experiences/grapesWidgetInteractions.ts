@@ -212,7 +212,7 @@ export function installWidgetInteractions(editor: Editor, options: InteractionOp
   const configureFreeArea = (area: Component) => {
     if (findAncestorFreeArea(area)) { area.remove(); options.onMutation?.(); return; }
     const uniqueClass = ensureFreeAreaClasses(area); const selector = `.movecues-widget .${uniqueClass}`;
-    if (!editor.Css.getRule(selector)) editor.Css.setRule(selector, { position: "relative", width: "100%", "min-height": "240px" });
+    if (!editor.Css.getRule(selector)) editor.Css.setRule(selector, { position: "relative", width: "100%", "min-height": "120px" });
     area.setDragMode(); area.set("resizable", { ...ALL_HANDLES, minDim: 120, step: GRID_SIZE });
     for (const child of directChildren(area)) configureFreeItem(child);
   };

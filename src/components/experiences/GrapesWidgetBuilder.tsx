@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject, type UIEvent } from "react";
 import type { Component, Editor } from "grapesjs";
 import { Code2, Hand, Minus, Monitor, MousePointer2, Plus, Redo2, Smartphone, Tablet, Undo2, X } from "lucide-react";
 import "grapesjs/dist/css/grapes.min.css";
@@ -16,6 +16,7 @@ import { builderDebug, summarizeBuilder } from "./builderDebug";
 interface Props {
   experienceKey: string;
   widgetType: WidgetType;
+  interactionContext?: "guide" | "widget" | "survey";
   value?: WidgetBuilderState;
   content: ExperienceContent;
   design: ExperienceDesign;
@@ -40,9 +41,24 @@ let styleClassSequence = 0;
 
 interface ViewportState { zoom: number; panX: number; panY: number }
 interface PanGesture { pointerId: number; startX: number; startY: number; panX: number; panY: number }
+type SelectedInteraction =
+  | { kind: "primary" }
+  | { kind: "secondary" }
+  | { kind: "survey"; action: "back" | "next" | "submit" }
+  | null;
 
-export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(function GrapesWidgetBuilder({ experienceKey, widgetType, value, content, design, onChange, onPrimaryActionChange, onSizeChange, surveyQuestions }, ref) {
+function interactionForComponent(component?: Component): SelectedInteraction {
+  const attributes = component?.getAttributes?.() ?? {};
+  const slot = attributes["data-movecues-action-id"];
+  if (slot === "primary" || slot === "secondary") return { kind: slot };
+  const surveyAction = attributes["data-movecues-survey-action"];
+  if (surveyAction === "back" || surveyAction === "next" || surveyAction === "submit") return { kind: "survey", action: surveyAction };
+  return null;
+}
+
+export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(function GrapesWidgetBuilder({ experienceKey, widgetType, interactionContext = widgetType === "survey" ? "survey" : "widget", value, content, design, onChange, onPrimaryActionChange, onSizeChange, surveyQuestions }, ref) {
   const canvasViewportRef = useRef<HTMLDivElement>(null); const canvasRef = useRef<HTMLDivElement>(null); const blocksRef = useRef<HTMLDivElement>(null); const stylesRef = useRef<HTMLDivElement>(null); const traitsRef = useRef<HTMLDivElement>(null); const editorRef = useRef<Editor | null>(null);
+  const htmlHighlightRef = useRef<HTMLPreElement>(null); const cssHighlightRef = useRef<HTMLPreElement>(null);
   const applyingCodeRef = useRef(false);
   const flushExportRef = useRef<() => void>(() => void 0);
   const fitCanvasRef = useRef<() => void>(() => void 0);
@@ -62,7 +78,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const projectDataRef = useRef<Record<string, unknown>>(value?.projectData ?? {});
   const lastPersistedCssRef = useRef(value?.css ?? "");
   const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
-  const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedAction, setSelectedAction] = useState<"primary" | "secondary" | null>(null); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">("blocks"); const [zoomLabel, setZoomLabel] = useState(100); const [handTool, setHandTool] = useState(false); const [spacePressed, setSpacePressed] = useState(false); const [panning, setPanning] = useState(false); const [freeItemBox, setFreeItemBox] = useState<FreeItemBox | null>(null);
+  const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedInteraction, setSelectedInteraction] = useState<SelectedInteraction>(null); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">("blocks"); const [zoomLabel, setZoomLabel] = useState(100); const [handTool, setHandTool] = useState(false); const [spacePressed, setSpacePressed] = useState(false); const [panning, setPanning] = useState(false); const [freeItemBox, setFreeItemBox] = useState<FreeItemBox | null>(null);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { contentRef.current = content; }, [content]);
   useEffect(() => { designRef.current = design; applySizeEnvelopeRef.current(design); }, [design]);
   useEffect(() => { codeModeRef.current = codeMode; }, [codeMode]);
@@ -294,7 +310,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         resizeObserver.observe(canvasRef.current);
       }
       applySizeEnvelopeRef.current(designRef.current);
-      const selectAction = (component?: Component) => { const slot = component?.getAttributes()?.["data-movecues-action-id"]; setSelectedAction(slot === "primary" || slot === "secondary" ? slot : null); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setSidebarTab("properties"); };
+      const selectAction = (component?: Component) => { setSelectedInteraction(interactionForComponent(component)); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setSidebarTab("properties"); };
       const keepOneActionPerSlot = (component: Component) => { const slot = component.getAttributes()?.["data-movecues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movecues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
       editor.on("update", () => { builderDebug(experienceKey, "grapes:update", { dirtyCount: editor?.getDirtyCount() }); schedule(false, "grapes:update"); });
       editor.on("component:styleUpdate", (component: Component) => { builderDebug(experienceKey, "grapes:component-style-update", { component: debugComponent(component), css: debugCss(rawEditorCss()) }); persistComponentStyle(component); });
@@ -336,6 +352,8 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     applySizeEnvelopeRef.current({ ...designRef.current, size });
   };
   const toggleCode = () => { builderDebug(experienceKey, "code:toggle", { opening: !codeMode, current: currentEditorDebugSnapshot(editorRef.current, widgetType) }, "info"); if (!codeMode && editorRef.current) { setCodeHtml(sanitizeBuilderHtml(editorRef.current.getHtml(), widgetType === "survey")); setCodeCss(validateBuilderCss(editorRef.current.getCss({ avoidProtected: true }) ?? "")); } setCodeError(null); setCodeMode(value => !value); };
+  const formatCode = () => { setCodeHtml(formatHtml(codeHtml)); setCodeCss(formatCss(codeCss)); setCodeError(null); };
+  const syncCodeScroll = (event: UIEvent<HTMLTextAreaElement>, highlight: RefObject<HTMLPreElement | null>) => { if (highlight.current) { highlight.current.scrollTop = event.currentTarget.scrollTop; highlight.current.scrollLeft = event.currentTarget.scrollLeft; } };
   const applyCode = () => { const editor = editorRef.current; if (!editor) return; builderDebug(experienceKey, "code:apply:start", { htmlLength: codeHtml.length, cssLength: codeCss.length, html: codeHtml, css: codeCss }, "info"); try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; builderDebug(experienceKey, "code:css-clear", { before: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") }; lastSignature.current = builderSignature(builder); lastPersistedCssRef.current = builder.css; setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); builderDebug(experienceKey, "code:apply:dispatch", { snapshot: summarizeBuilder(builder), html: builder.html, css: builder.css }, "info"); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { const message = error instanceof Error ? error.message : "The code could not be applied."; builderDebug(experienceKey, "code:apply:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); } finally { applyingCodeRef.current = false; } };
   const updateFreeItem = (property: keyof FreeItemBox, value: string) => {
     const component = selectedFreeItemRef.current; const numeric = Number(value);
@@ -367,15 +385,66 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     panGestureRef.current = null; event.currentTarget.releasePointerCapture?.(event.pointerId); setPanning(false);
   };
   const currentAction = content.primaryAction;
-  const updateActionType = (type: ExperienceAction["type"]) => { const label = currentAction?.label ?? "Continue"; onPrimaryActionChange(type === "open_url" ? { label, type, url: currentAction?.url ?? "https://example.com" } : type === "track_event" ? { label, type, eventName: currentAction?.eventName ?? "experience_action" } : { label, type: "dismiss" }); };
+  const displayedActionType: ExperienceAction["type"] = interactionContext === "guide" ? "next_step" : currentAction?.type === "open_url" || currentAction?.type === "track_event" ? currentAction.type : "dismiss";
+  const updateActionType = (type: ExperienceAction["type"]) => { const label = currentAction?.label ?? "Continue"; onPrimaryActionChange(type === "open_url" ? { label, type, url: currentAction?.url ?? "https://example.com" } : type === "track_event" ? { label, type, eventName: currentAction?.eventName ?? "experience_action" } : type === "next_step" ? { label, type } : { label, type: "dismiss" }); };
+  const surveyActionLabel = selectedInteraction?.kind === "survey" ? { back: "Previous step", next: "Next step", submit: "Submit survey" }[selectedInteraction.action] : null;
+  const interactionInspector = selectedInteraction && <div className="movecues-action-inspector"><h3>Interaction</h3>{selectedInteraction.kind === "primary" ? <Label>On click<select value={displayedActionType} onChange={event => updateActionType(event.target.value as ExperienceAction["type"])}>{interactionContext === "guide" ? <option value="next_step">Next step</option> : <><option value="dismiss">Dismiss experience</option><option value="open_url">Open URL</option><option value="track_event">Track event</option></>}</select></Label> : selectedInteraction.kind === "secondary" ? <><p className="movecues-action-inspector__label">On click</p><p>Dismiss experience</p></> : <><p className="movecues-action-inspector__label">Survey action</p><p>{surveyActionLabel}</p></>}{selectedInteraction.kind === "primary" && displayedActionType === "open_url" && <Label>URL<Input type="url" value={currentAction?.type === "open_url" ? currentAction.url ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "open_url", url: event.target.value })} /></Label>}{selectedInteraction.kind === "primary" && displayedActionType === "track_event" && <Label>Event name<Input value={currentAction?.type === "track_event" ? currentAction.eventName ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "track_event", eventName: event.target.value })} /></Label>}</div>;
 
   return <div className="movecues-builder-shell">
     <div className="movecues-builder-toolbar"><div className="movecues-builder-toolbar__group">{[["Desktop", Monitor], ["Tablet", Tablet], ["Mobile", Smartphone]].map(([name, Icon]) => <Button key={String(name)} type="button" size="sm" variant={device === name ? "default" : "outline"} onClick={() => chooseDevice(String(name))}><Icon className="size-4" />{String(name)}</Button>)}</div><div className="movecues-builder-toolbar__group"><Button type="button" size="icon" variant={!handTool ? "default" : "outline"} aria-label="Select tool" onClick={() => setHandTool(false)}><MousePointer2 /></Button><Button type="button" size="icon" variant={handTool ? "default" : "outline"} aria-label="Hand tool" aria-pressed={handTool} onClick={() => setHandTool(true)}><Hand /></Button><Button type="button" size="icon" variant="outline" aria-label="Zoom out" disabled={zoomLabel <= MIN_CANVAS_ZOOM} onClick={() => zoomBy(-CANVAS_ZOOM_STEP)}><Minus /></Button><output className="movecues-builder-zoom" aria-label="Zoom percentage">{zoomLabel}%</output><Button type="button" size="icon" variant="outline" aria-label="Zoom in" disabled={zoomLabel >= MAX_CANVAS_ZOOM} onClick={() => zoomBy(CANVAS_ZOOM_STEP)}><Plus /></Button><Button type="button" size="sm" variant="outline" onClick={() => scheduleCanvasFitRef.current()}>Fit</Button><Button type="button" size="icon" variant="outline" aria-label="Undo" onClick={() => editorRef.current?.UndoManager.undo()}><Undo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Redo" onClick={() => editorRef.current?.UndoManager.redo()}><Redo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Clear selection" onClick={() => editorRef.current?.select()}><X /></Button><Button type="button" size="icon" variant={codeMode ? "default" : "outline"} aria-label="Toggle HTML and CSS editor" onClick={toggleCode}><Code2 /></Button></div></div>
-    <div className={`movecues-builder-code${codeMode ? "" : " movecues-builder-view--hidden"}`} aria-hidden={!codeMode}><Label>HTML<Textarea aria-label="Builder HTML" value={codeHtml} onChange={event => setCodeHtml(event.target.value)} /></Label><Label>CSS<Textarea aria-label="Builder CSS" value={codeCss} onChange={event => setCodeCss(event.target.value)} /></Label><div className="col-span-full flex items-center gap-3"><Button type="button" onClick={applyCode}>Apply HTML and CSS</Button>{codeError && <p className="m-0 text-sm text-destructive">{codeError}</p>}</div></div>
+    <div className={`movecues-builder-code${codeMode ? "" : " movecues-builder-view--hidden"}`} aria-hidden={!codeMode}><Label>HTML<div className="movecues-builder-code__editor"><pre ref={htmlHighlightRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: highlightHtml(codeHtml) }} /><Textarea className="movecues-builder-code__input" aria-label="Builder HTML" spellCheck={false} value={codeHtml} onChange={event => setCodeHtml(event.target.value)} onScroll={event => syncCodeScroll(event, htmlHighlightRef)} /></div></Label><Label>CSS<div className="movecues-builder-code__editor"><pre ref={cssHighlightRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: highlightCss(codeCss) }} /><Textarea className="movecues-builder-code__input" aria-label="Builder CSS" spellCheck={false} value={codeCss} onChange={event => setCodeCss(event.target.value)} onScroll={event => syncCodeScroll(event, cssHighlightRef)} /></div></Label><div className="col-span-full flex items-center gap-3"><Button type="button" variant="outline" onClick={formatCode}>Format HTML and CSS</Button><Button type="button" onClick={applyCode}>Apply HTML and CSS</Button>{codeError && <p className="m-0 text-sm text-destructive">{codeError}</p>}</div></div>
     {!codeMode && codeError && <div className="movecues-builder-error" role="alert">Builder changes could not be saved: {codeError}</div>}
-    <div className={`movecues-builder-workspace${codeMode ? " movecues-builder-view--hidden" : ""}`} aria-hidden={codeMode}><aside className="movecues-builder-panel"><div className="movecues-builder-tabs" role="tablist" aria-label="Builder sidebar"><button type="button" role="tab" id="movecues-builder-blocks-tab" aria-selected={sidebarTab === "blocks"} aria-controls="movecues-builder-blocks-panel" onClick={() => setSidebarTab("blocks")}>Blocks</button><button type="button" role="tab" id="movecues-builder-properties-tab" aria-selected={sidebarTab === "properties"} aria-controls="movecues-builder-properties-panel" onClick={() => setSidebarTab("properties")}>Properties</button></div><div className={`movecues-builder-tab-panel${sidebarTab === "blocks" ? "" : " movecues-builder-tab-panel--hidden"}`} role="tabpanel" id="movecues-builder-blocks-panel" aria-labelledby="movecues-builder-blocks-tab"><p className="movecues-builder-hint">Drag blocks into the canvas, then select an element to customize it.</p><div ref={blocksRef} /></div><div className={`movecues-builder-tab-panel${sidebarTab === "properties" ? "" : " movecues-builder-tab-panel--hidden"}`} role="tabpanel" id="movecues-builder-properties-panel" aria-labelledby="movecues-builder-properties-tab"><WidgetSizeEditor widgetType={widgetType} design={design} onPreview={previewSize} onChange={onSizeChange} />{freeItemBox && <div className="movecues-position-inspector"><h3>Position</h3><div className="movecues-position-grid">{([['x', 'X'], ['y', 'Y'], ['width', 'W'], ['height', 'H']] as const).map(([property, label]) => <Label key={property}>{label}<Input aria-label={`Position ${label}`} type="number" value={Math.round(freeItemBox[property])} onChange={event => updateFreeItem(property, event.target.value)} /></Label>)}</div><div className="movecues-position-actions"><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "forward")}>Bring forward</Button><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "backward")}>Send backward</Button></div></div>}<div ref={traitsRef} /><div ref={stylesRef} />{selectedAction === "primary" && <div className="movecues-action-inspector"><h3>movecues action</h3><Label>Action<select value={currentAction?.type ?? "dismiss"} onChange={event => updateActionType(event.target.value as ExperienceAction["type"])}><option value="dismiss">Dismiss</option><option value="open_url">Open URL</option><option value="track_event">Track event</option></select></Label>{currentAction?.type === "open_url" && <Label>URL<Input type="url" value={currentAction.url ?? ""} onChange={event => onPrimaryActionChange({ ...currentAction, url: event.target.value })} /></Label>}{currentAction?.type === "track_event" && <Label>Event name<Input value={currentAction.eventName ?? ""} onChange={event => onPrimaryActionChange({ ...currentAction, eventName: event.target.value })} /></Label>}</div>}{selectedAction === "secondary" && <div className="movecues-action-inspector"><h3>movecues action</h3><p>Secondary buttons use the existing dismiss action.</p></div>}</div></aside><div ref={canvasViewportRef} className={`movecues-builder-canvas${handTool || spacePressed ? " movecues-builder-canvas--pan-ready" : ""}${panning ? " movecues-builder-canvas--panning" : ""}`}><div ref={canvasRef} className="movecues-builder-editor" /><div className={`movecues-builder-pan-layer${handTool || spacePressed || panning ? " movecues-builder-pan-layer--active" : ""}`} aria-hidden="true" onPointerDown={beginPan} onPointerMove={movePan} onPointerUp={endPan} onPointerCancel={endPan} />{(!ready || !positioned) && <div className="movecues-builder-loading">Loading builder…</div>}</div></div>
+    <div className={`movecues-builder-workspace${codeMode ? " movecues-builder-view--hidden" : ""}`} aria-hidden={codeMode}><aside className="movecues-builder-panel"><div className="movecues-builder-tabs" role="tablist" aria-label="Builder sidebar"><button type="button" role="tab" id="movecues-builder-blocks-tab" aria-selected={sidebarTab === "blocks"} aria-controls="movecues-builder-blocks-panel" onClick={() => setSidebarTab("blocks")}>Blocks</button><button type="button" role="tab" id="movecues-builder-properties-tab" aria-selected={sidebarTab === "properties"} aria-controls="movecues-builder-properties-panel" onClick={() => setSidebarTab("properties")}>Properties</button></div><div className={`movecues-builder-tab-panel${sidebarTab === "blocks" ? "" : " movecues-builder-tab-panel--hidden"}`} role="tabpanel" id="movecues-builder-blocks-panel" aria-labelledby="movecues-builder-blocks-tab"><p className="movecues-builder-hint">Drag blocks into the canvas, then select an element to customize it.</p><div ref={blocksRef} /></div><div className={`movecues-builder-tab-panel${sidebarTab === "properties" ? "" : " movecues-builder-tab-panel--hidden"}`} role="tabpanel" id="movecues-builder-properties-panel" aria-labelledby="movecues-builder-properties-tab"><WidgetSizeEditor widgetType={widgetType} design={design} onPreview={previewSize} onChange={onSizeChange} />{freeItemBox && <div className="movecues-position-inspector"><h3>Position</h3><div className="movecues-position-grid">{([['x', 'X'], ['y', 'Y'], ['width', 'W'], ['height', 'H']] as const).map(([property, label]) => <Label key={property}>{label}<Input aria-label={`Position ${label}`} type="number" value={Math.round(freeItemBox[property])} onChange={event => updateFreeItem(property, event.target.value)} /></Label>)}</div><div className="movecues-position-actions"><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "forward")}>Bring forward</Button><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "backward")}>Send backward</Button></div></div>}<div ref={traitsRef} />{interactionInspector}<div ref={stylesRef} /></div></aside><div ref={canvasViewportRef} className={`movecues-builder-canvas${handTool || spacePressed ? " movecues-builder-canvas--pan-ready" : ""}${panning ? " movecues-builder-canvas--panning" : ""}`}><div ref={canvasRef} className="movecues-builder-editor" /><div className={`movecues-builder-pan-layer${handTool || spacePressed || panning ? " movecues-builder-pan-layer--active" : ""}`} aria-hidden="true" onPointerDown={beginPan} onPointerMove={movePan} onPointerUp={endPan} onPointerCancel={endPan} />{(!ready || !positioned) && <div className="movecues-builder-loading">Loading builder…</div>}</div></div>
   </div>;
 });
+
+function formatHtml(source: string): string {
+  const lines = source.trim().replace(/>\s*</g, ">\n<").split("\n");
+  let indent = 0;
+  return lines.map(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return "";
+    if (/^<\//.test(trimmed)) indent = Math.max(0, indent - 1);
+    const formatted = `${"  ".repeat(indent)}${trimmed}`;
+    if (/^<(?![!/])[^>]*[^/]>$/.test(trimmed) && !/<\/[^>]+>$/.test(trimmed) && !/^<(area|base|br|col|embed|hr|img|input|link|meta|source|track|wbr)\b/i.test(trimmed)) indent += 1;
+    return formatted;
+  }).filter(Boolean).join("\n");
+}
+
+function formatCss(source: string): string {
+  const lines: string[] = [];
+  let buffer = ""; let indent = 0; let quote = ""; let escaped = false; let inComment = false;
+  const write = (value: string) => { const trimmed = value.trim(); if (trimmed) lines.push(`${"  ".repeat(indent)}${trimmed}`); };
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index]; const next = source[index + 1];
+    if (inComment) { buffer += character; if (character === "*" && next === "/") { buffer += next; index += 1; write(buffer); buffer = ""; inComment = false; } continue; }
+    if (quote) { buffer += character; if (!escaped && character === quote) quote = ""; escaped = !escaped && character === "\\"; continue; }
+    if (character === "'" || character === '"') { quote = character; buffer += character; continue; }
+    if (character === "/" && next === "*") { write(buffer); buffer = "/*"; index += 1; inComment = true; continue; }
+    if (character === "{") { write(`${buffer.trim()} {`); buffer = ""; indent += 1; continue; }
+    if (character === ";") { write(`${buffer.trim()};`); buffer = ""; continue; }
+    if (character === "}") { write(buffer); buffer = ""; indent = Math.max(0, indent - 1); write("}"); continue; }
+    buffer += character;
+  }
+  write(buffer);
+  return lines.join("\n");
+}
+
+function escapeCode(source: string): string {
+  return source.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function highlightHtml(source: string): string {
+  return escapeCode(source).replace(/(&lt;!--[\s\S]*?--&gt;)|(&lt;\/?)([A-Za-z][\w:-]*)([^]*?)(\/?&gt;)/g, (_match, comment: string, opening: string, tag: string, attributes: string, closing: string) => {
+    if (comment) return `<span class="token-comment">${comment}</span>`;
+    const highlightedAttributes = attributes.replace(/(\s)([\w:-]+)(=)("[^"]*"|'[^']*'|[^\s]+)/g, (_attribute: string, space: string, name: string, equals: string, value: string) => `${space}<span class="token-attribute">${name}</span>${equals}<span class="token-string">${value}</span>`);
+    return `<span class="token-punctuation">${opening}</span><span class="token-tag">${tag}</span>${highlightedAttributes}<span class="token-punctuation">${closing}</span>`;
+  });
+}
+
+function highlightCss(source: string): string {
+  return escapeCode(source).replace(/(\/\*[\s\S]*?\*\/)|("(?:\\.|[^"])*"|'(?:\\.|[^'])*')|([^{};]+)(?=\s*\{)|([\w-]+)(?=\s*:)/g, (_match, comment: string, string: string, selector: string, property: string) => comment ? `<span class="token-comment">${comment}</span>` : string ? `<span class="token-string">${string}</span>` : selector ? `<span class="token-selector">${selector}</span>` : `<span class="token-property">${property}</span>`);
+}
 
 function clampCanvasZoom(value: number): number {
   return Math.min(MAX_CANVAS_ZOOM, Math.max(MIN_CANVAS_ZOOM, Number.isFinite(value) ? value : 100));

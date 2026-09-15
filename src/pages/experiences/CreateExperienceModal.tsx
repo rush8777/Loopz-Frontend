@@ -22,13 +22,12 @@ export function CreateExperienceModal({ kind, widgetType: fixedWidgetType, singu
     if (!name.trim()) return setError("Enter a name.");
     if (kind === "widget" && !fixedWidgetType) return setError("Choose an experience collection before creating a widget.");
     if (source === "manual") { try { const url = new URL(manualUrl); const domain = currentSite.domain ? new URL(/^https?:\/\//.test(currentSite.domain) ? currentSite.domain : `https://${currentSite.domain}`) : null; if (!domain || url.origin !== domain.origin) return setError("Enter a URL on this site's configured domain."); } catch { return setError("Enter a valid absolute URL."); } }
-    setSaving(true); const popup = window.open("about:blank", "_blank");
+    setSaving(true);
     try {
       const experience = await experiencesApi.createExperience(currentOrg.orgId, currentSite.id, { kind, widgetType: kind === "widget" ? fixedWidgetType : null, name: name.trim(), buildPageId: source === "manual" ? null : source, buildUrl: source === "manual" ? manualUrl : null, template: "blank", useBuildPageAsTarget: targetPage });
-      const session = await experiencesApi.createEditorSession(currentOrg.orgId, currentSite.id, experience.id);
-      if (popup) popup.location.href = session.launchUrl; else navigate(`/experiences/${experience.id}/edit`);
+      navigate(`/experiences/${experience.id}/edit`);
       onOpenChange(false); onCreated?.();
-    } catch (caught) { popup?.close(); setError(caught instanceof Error ? caught.message : "Couldn't create the draft."); } finally { setSaving(false); }
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Couldn't create the draft."); } finally { setSaving(false); }
   }
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-w-md"><div className="p-6"><DialogHeader><DialogTitle>Create {singularLabel}</DialogTitle><DialogDescription>{kind === "widget" ? "Design it live inside your product." : "Create a multi-step guide on top of your product."}</DialogDescription></DialogHeader><div className="mt-5 grid gap-4">
     <Label className="grid gap-1.5">Name<Input value={name} onChange={(e)=>setName(e.target.value)} /></Label>
@@ -37,5 +36,5 @@ export function CreateExperienceModal({ kind, widgetType: fixedWidgetType, singu
     <Label className="grid gap-1.5">Template<select className="h-9 rounded-md border bg-input px-3 text-sm"><option>Start blank</option></select></Label>
     <label className="flex items-start gap-2 text-sm"><Checkbox checked={targetPage} onCheckedChange={(value)=>setTargetPage(value === true)} /><span>Use this page as the initial page-targeting rule</span></label>
     {error && <p className="m-0 text-sm text-destructive">{error}</p>}
-  </div><DialogFooter className="mt-6"><Button variant="outline" onClick={()=>onOpenChange(false)}>Cancel</Button><Button disabled={saving} onClick={submit}>{saving ? "Opening…" : "Open visual editor"}</Button></DialogFooter></div></DialogContent></Dialog>;
+  </div><DialogFooter className="mt-6"><Button variant="outline" onClick={()=>onOpenChange(false)}>Cancel</Button><Button disabled={saving} onClick={submit}>{saving ? "Opening…" : "Open Editor"}</Button></DialogFooter></div></DialogContent></Dialog>;
 }
