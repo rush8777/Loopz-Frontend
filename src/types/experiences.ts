@@ -32,4 +32,13 @@ export type ExperienceDefinition =
   | { steps: GuideStep[]; design: ExperienceDesign; targeting: ExperienceTargeting };
 export interface ExperienceVersion { id: string; experienceId: string; versionNumber: number; state: "draft" | "published"; definition: ExperienceDefinition; createdBy: string; createdAt: string; publishedAt: string | null }
 export interface Experience { id: string; siteId: string; kind: ExperienceKind; widgetType: WidgetType | null; name: string; status: ExperienceStatus; buildPageId: string | null; buildUrl: string | null; publishedVersionId: string | null; createdBy: string; createdAt: string; updatedAt: string; draftVersion: ExperienceVersion | null; publishedVersion: ExperienceVersion | null }
+export interface ExperienceAnalytics {
+  experience: { id: string; name: string; kind: ExperienceKind; widgetType: WidgetType | null };
+  summary: { usersSeen: number; usersStarted: number; completed: number; dismissed: number; completionRate: number };
+  guide: null | { steps: { stepId: string; stepIndex: number; usersReached: number; usersAdvanced: number; dropOff: number; dropOffRate: number; averageDurationMs: number }[] };
+  survey: null | { usersSeen: number; started: number; submitted: number; abandoned: number; responseRate: number; questions: Array<{ questionId: string; label: string; type: SurveyQuestion["type"]; responseCount: number; distribution?: { value: string; count: number; percent: number }[]; textResponses?: string[] }> };
+  trend: { date: string; usersSeen: number; completed: number; dismissed: number; submitted: number }[];
+}
+export interface SurveyResponseRecord { responseId: string; impressionId: string; anonymousId: string; trackedUserId: string | null; sessionId: string; answers: SurveyAnswers; startedAt: string; submittedAt: string | null; abandonedAt: string | null }
+export type SurveyAnswers = Record<string, string | string[] | number>;
 export function isGuideDefinition(definition: ExperienceDefinition): definition is Extract<ExperienceDefinition, { steps: GuideStep[] }> { return "steps" in definition; }

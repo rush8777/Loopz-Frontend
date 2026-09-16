@@ -33,6 +33,7 @@ import { ExperienceListPage } from "./pages/experiences/ExperienceListPage";
 import { ExperienceEditorPage } from "./pages/experiences/ExperienceEditorPage";
 import { DashboardListPage } from "./pages/dashboard/DashboardListPage";
 import { DashboardWorkspacePage } from "./pages/dashboard/DashboardWorkspacePage";
+import { ExperienceAnalyticsPage } from "./pages/analytics/ExperienceAnalyticsPage";
 
 function Workspace({ children }: { children: ReactNode }) {
   return <WorkspaceProvider>{children}</WorkspaceProvider>;
@@ -59,6 +60,7 @@ export default function App() {
               <Route path="dashboard/new" element={<DashboardWorkspacePage mode="new" />} />
               <Route path="dashboard/:dashboardId" element={<DashboardWorkspacePage mode="view" />} />
               <Route path="dashboard/:dashboardId/edit" element={<DashboardWorkspacePage mode="edit" />} />
+              <Route path="analytics" element={<ExperienceAnalyticsPage />} />
               <Route path="observe/sessions" element={<SessionsPage />} />
               <Route path="observe/sessions/:sessionId" element={<SessionDetailPage />} />
               <Route path="observe/pages" element={<PagesPage />} />
@@ -89,7 +91,6 @@ export default function App() {
               <Route path="experiences/guides" element={<ExperienceListPage kind="guide" />} />
               <Route path="experiences/modals" element={<ExperienceListPage kind="widget" widgetType="modal" singularLabel="modal" pluralLabel="Modals" description="Create focused modal experiences inside your product." />} />
               <Route path="experiences/surveys" element={<ExperienceListPage kind="widget" widgetType="survey" singularLabel="survey" pluralLabel="Surveys" description="Collect contextual, multi-step feedback from active users." />} />
-              <Route path="experiences/tooltips" element={<ExperienceListPage kind="widget" widgetType="anchored_card" singularLabel="tooltip" pluralLabel="Tooltips" description="Create anchored tooltip experiences on your product." />} />
               <Route path="experiences/banners" element={<ExperienceListPage kind="widget" widgetType="banner" singularLabel="banner" pluralLabel="Banners" description="Create full-width banner experiences inside your product." />} />
               <Route path="experiences/checklists" element={<ExperienceListPage kind="widget" singularLabel="checklist" pluralLabel="Checklists" unsupported />} />
               <Route path="experiences/:experienceId/edit" element={<ExperienceEditorPage />} />

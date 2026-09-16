@@ -768,7 +768,8 @@ export interface MetricCardConfiguration {
 export interface FunnelCardConfiguration { schemaVersion: 1; kind: "funnel"; funnelId: string }
 export type RetentionEventReference = { type: "any_meaningful" } | { type: "event"; eventName: string };
 export interface RetentionCardConfiguration { schemaVersion: 1; kind: "retention"; startEvent: RetentionEventReference; returnEvent: RetentionEventReference; cohort: { type: "start_date" } | { type: "segments"; segmentIds: string[] }; visualization: "grid" | "trend" }
-export type DashboardCardConfiguration = MetricCardConfiguration | FunnelCardConfiguration | RetentionCardConfiguration;
+export interface ExperienceCardConfiguration { schemaVersion: 1; kind: "experience"; experienceType: "guide" | "survey" | "widget"; experienceId: string; metric: "users_seen" | "completions" | "completion_rate" | "dismissals" | "step_reach" | "step_drop_off" | "responses" | "response_rate" | "abandonment_rate" | "impressions" | "interactions" | "interaction_rate"; visualization: "total" | "bars" | "horizontal_bars" | "table" }
+export type DashboardCardConfiguration = MetricCardConfiguration | FunnelCardConfiguration | RetentionCardConfiguration | ExperienceCardConfiguration;
 export interface DashboardCard { id?: string; title: string; cardType: DashboardCardConfiguration["kind"]; position?: number; width: DashboardCardWidth; configuration: DashboardCardConfiguration; createdAt?: string; updatedAt?: string }
 export interface DashboardSummary { id: string; siteId: string; name: string; description: string | null; createdBy: string; cardCount: number; createdAt: string; updatedAt: string }
 export interface Dashboard extends Omit<DashboardSummary, "cardCount"> { cards: DashboardCard[] }

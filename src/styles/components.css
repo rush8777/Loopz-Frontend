@@ -8,9 +8,9 @@
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: var(--surface-raised);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--button-border);
+  background: #fff;
   color: var(--text-primary);
   font-weight: 500;
   font-size: 13.5px;
@@ -19,8 +19,8 @@
     box-shadow 0.15s var(--ease), transform 0.1s var(--ease), color 0.15s var(--ease);
 }
 .btn:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-hover);
+  background: var(--button-hover);
+  border-color: var(--button-border-hover);
 }
 .btn:active {
   transform: translateY(0.5px);
@@ -36,15 +36,16 @@
 }
 
 .btn-primary {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  border-color: var(--primary);
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border-color: var(--button-primary-border);
   font-weight: 600;
   box-shadow: rgba(255, 255, 255, 0.2) 0 0.75px 0 inset, rgba(0, 0, 0, 0.4) 0 1px 2px;
 }
 .btn-primary:hover {
-  background: var(--primary-hover);
-  box-shadow: rgba(255, 255, 255, 0.2) 0 0.75px 0 inset, rgba(0, 0, 0, 0.4) 0 1px 2px;
+  background: var(--button-primary-hover);
+  border-color: var(--button-primary-border);
+  box-shadow: rgba(255, 255, 255, 0.2) 0 0.75px 0 inset, rgba(0, 0, 0, 0.12) 0 1px 2px;
 }
 
 .btn-ghost {
@@ -61,7 +62,7 @@
   height: 28px;
   padding: 0 10px;
   font-size: 12.5px;
-  border-radius: 7px;
+  border-radius: var(--radius-lg);
 }
 .btn-block {
   width: 100%;
