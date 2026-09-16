@@ -22,7 +22,10 @@ export function createWidgetStarter(widgetType: WidgetType, content: ExperienceC
     slideout: `<div class="movecues-widget__icon" role="img" aria-label="Announcement">✦</div><span class="movecues-widget__eyebrow">What's new</span>${heading}${body}<div class="movecues-widget__spacer"></div>${actions}`,
     hotspot: `<span class="movecues-widget__eyebrow">Feature spotlight</span>${heading}${body}${actions}`,
     banner: `<div class="movecues-widget__icon" role="img" aria-label="Announcement">★</div><div class="movecues-widget__message">${heading}${body}</div>${actions}`,
-    survey: `<span class="movecues-widget__eyebrow">We'd love your feedback</span>${heading}${body}<div class="movecues-survey-validation" role="status" aria-live="polite"></div><div class="movecues-survey-footer" data-movecues-survey-controls="builder"><div data-movecues-survey-progress><span data-movecues-survey-progress-bar></span></div><button type="button" class="movecues-widget__button movecues-widget__button--secondary" data-movecues-survey-action="back">Back</button><button type="button" class="movecues-widget__button" data-movecues-survey-action="next">Next</button><button type="button" class="movecues-widget__button" data-movecues-survey-action="submit">Submit</button></div>`,
+    // Survey navigation is authored with the regular Button blocks.  In
+    // particular, do not add a footer here: saved HTML is the contract the
+    // runtime receives and it must never imply controls the author did not add.
+    survey: `<span class="movecues-widget__eyebrow">We'd love your feedback</span>${heading}${body}<div class="movecues-survey-validation" role="status" aria-live="polite"></div>`,
   };
   const size = widgetSizeCss(widgetType, design);
   const radius = design.theme.borderRadius === "sm" ? "6px" : design.theme.borderRadius === "lg" ? "20px" : "12px";

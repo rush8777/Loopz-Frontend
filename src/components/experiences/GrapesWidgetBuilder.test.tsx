@@ -191,16 +191,24 @@ describe("GrapesWidgetBuilder", () => {
     view.rerender(<GrapesWidgetBuilder {...props} content={{ ...props.content, primaryAction: { label: "Launch", type: "track_event", eventName: "launched" } }} />); expect(screen.getByLabelText("Event name")).toHaveValue("launched"); expect(harness.init).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps guide, secondary, and survey interactions constrained to their runtime meaning", async () => {
+  it("keeps guide actions constrained and exposes survey actions through normal button Interaction", async () => {
     vi.useFakeTimers(); fakeEditor(); const onPrimaryActionChange = vi.fn(); const view = render(<GrapesWidgetBuilder experienceKey="exp:constrained-interactions" widgetType="anchored_card" interactionContext="guide" content={{ heading: "Guide", body: "Step", primaryAction: { label: "Continue", type: "next_step" } }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={vi.fn()} onPrimaryActionChange={onPrimaryActionChange} onSizeChange={vi.fn()} />);
     await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); }); const selected = (attributes: Record<string, string>) => ({ getAttributes: () => attributes, getClasses: () => [] });
     act(() => harness.handlers.get("component:selected")?.(selected({ "data-movecues-action-id": "primary" }))); const guideSelect = screen.getByLabelText("On click"); expect(guideSelect).toHaveValue("next_step"); expect(guideSelect.querySelectorAll("option")).toHaveLength(1);
     act(() => harness.handlers.get("component:selected")?.(selected({ "data-movecues-action-id": "secondary" }))); expect(screen.getByText("Dismiss experience")).toBeInTheDocument(); expect(screen.queryByLabelText("On click")).not.toBeInTheDocument();
-    act(() => harness.handlers.get("component:selected")?.(selected({ "data-movecues-survey-action": "back" }))); expect(screen.getByText("Previous step")).toBeInTheDocument(); expect(screen.getByText("Survey action")).toBeInTheDocument();
-    act(() => harness.handlers.get("component:selected")?.(selected({ "data-movecues-survey-action": "next" }))); expect(screen.getByText("Next step")).toBeInTheDocument();
-    act(() => harness.handlers.get("component:selected")?.(selected({ "data-movecues-survey-action": "submit" }))); expect(screen.getByText("Submit survey")).toBeInTheDocument(); expect(onPrimaryActionChange).not.toHaveBeenCalled();
+    view.rerender(<GrapesWidgetBuilder experienceKey="exp:constrained-interactions" widgetType="survey" interactionContext="survey" content={{ heading: "Survey", body: "Step" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={vi.fn()} onPrimaryActionChange={onPrimaryActionChange} onSizeChange={vi.fn()} />);
+    act(() => harness.handlers.get("component:selected")?.(selected({ "data-movecues-survey-action": "back" }))); const surveySelect = screen.getByLabelText("On click"); expect(surveySelect).toHaveValue("back"); expect(surveySelect).toHaveTextContent("Survey: Back"); expect(surveySelect).toHaveTextContent("Survey: Next"); expect(surveySelect).toHaveTextContent("Survey: Submit");
+    act(() => harness.handlers.get("component:selected")?.(selected({ "data-movecues-survey-action": "next" }))); expect(screen.getByLabelText("On click")).toHaveValue("next");
+    act(() => harness.handlers.get("component:selected")?.(selected({ "data-movecues-survey-action": "submit" }))); expect(screen.getByLabelText("On click")).toHaveValue("submit"); expect(onPrimaryActionChange).not.toHaveBeenCalled();
     act(() => harness.handlers.get("component:selected")?.(selected({}))); expect(screen.queryByRole("heading", { name: "Interaction" })).not.toBeInTheDocument();
     const nestedChild = { ...selected({ role: "img" }), parent: () => selected({ "data-movecues-action-id": "primary" }) }; act(() => harness.handlers.get("component:selected")?.(nestedChild)); expect(screen.queryByRole("heading", { name: "Interaction" })).not.toBeInTheDocument(); expect(harness.init).toHaveBeenCalledTimes(1); view.unmount();
+  });
+
+  it("persists a normal survey Button's configured action in canonical component attributes", async () => {
+    vi.useFakeTimers(); const editor = fakeEditor(); render(<GrapesWidgetBuilder experienceKey="exp:survey-button-action" widgetType="survey" interactionContext="survey" content={{ heading: "Survey", body: "Step" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={vi.fn()} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />); await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
+    let attributes: Record<string, string> = { "data-movecues-action-id": "primary" }; const button = { getAttributes: () => attributes, getClasses: () => ["movecues-widget__button"], setAttributes: vi.fn((next: Record<string, string>) => { attributes = next; }) }; editor.getSelected.mockReturnValue(button);
+    act(() => harness.handlers.get("component:selected")?.(button)); expect(screen.getByLabelText("On click")).toHaveValue("dismiss"); fireEvent.change(screen.getByLabelText("On click"), { target: { value: "next" } });
+    expect(button.setAttributes).toHaveBeenCalledWith({ "data-movecues-survey-action": "next" }); expect(attributes).toEqual({ "data-movecues-survey-action": "next" }); expect(harness.init).toHaveBeenCalledTimes(1);
   });
 
   it("clamps visual root resizing through the existing size callback without recreating the editor", async () => {

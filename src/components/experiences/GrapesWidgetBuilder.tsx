@@ -45,14 +45,17 @@ type SelectedInteraction =
   | { kind: "primary" }
   | { kind: "secondary" }
   | { kind: "survey"; action: "back" | "next" | "submit" }
+  | { kind: "button" }
   | null;
 
 function interactionForComponent(component?: Component): SelectedInteraction {
   const attributes = component?.getAttributes?.() ?? {};
+  if (attributes["data-movecues-option-id"]) return null;
   const slot = attributes["data-movecues-action-id"];
   if (slot === "primary" || slot === "secondary") return { kind: slot };
   const surveyAction = attributes["data-movecues-survey-action"];
   if (surveyAction === "back" || surveyAction === "next" || surveyAction === "submit") return { kind: "survey", action: surveyAction };
+  if (component?.get?.("tagName") === "button" || component?.getClasses?.().includes("movecues-widget__button")) return { kind: "button" };
   return null;
 }
 
@@ -311,7 +314,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       }
       applySizeEnvelopeRef.current(designRef.current);
       const selectAction = (component?: Component) => { setSelectedInteraction(interactionForComponent(component)); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setSidebarTab("properties"); };
-      const keepOneActionPerSlot = (component: Component) => { const slot = component.getAttributes()?.["data-movecues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movecues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
+      const keepOneActionPerSlot = (component: Component) => { if (widgetType === "survey") return; const slot = component.getAttributes()?.["data-movecues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movecues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
       editor.on("update", () => { builderDebug(experienceKey, "grapes:update", { dirtyCount: editor?.getDirtyCount() }); schedule(false, "grapes:update"); });
       editor.on("component:styleUpdate", (component: Component) => { builderDebug(experienceKey, "grapes:component-style-update", { component: debugComponent(component), css: debugCss(rawEditorCss()) }); persistComponentStyle(component); });
       editor.on("style:property:update", () => { builderDebug(experienceKey, "grapes:style-property-update", { selected: debugComponent(editor?.getSelected()), css: debugCss(rawEditorCss()) }); queueMicrotask(() => persistComponentStyle()); });
@@ -387,8 +390,19 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const currentAction = content.primaryAction;
   const displayedActionType: ExperienceAction["type"] = interactionContext === "guide" ? "next_step" : currentAction?.type === "open_url" || currentAction?.type === "track_event" ? currentAction.type : "dismiss";
   const updateActionType = (type: ExperienceAction["type"]) => { const label = currentAction?.label ?? "Continue"; onPrimaryActionChange(type === "open_url" ? { label, type, url: currentAction?.url ?? "https://example.com" } : type === "track_event" ? { label, type, eventName: currentAction?.eventName ?? "experience_action" } : type === "next_step" ? { label, type } : { label, type: "dismiss" }); };
-  const surveyActionLabel = selectedInteraction?.kind === "survey" ? { back: "Previous step", next: "Next step", submit: "Submit survey" }[selectedInteraction.action] : null;
-  const interactionInspector = selectedInteraction && <div className="movecues-action-inspector"><h3>Interaction</h3>{selectedInteraction.kind === "primary" ? <Label>On click<select value={displayedActionType} onChange={event => updateActionType(event.target.value as ExperienceAction["type"])}>{interactionContext === "guide" ? <option value="next_step">Next step</option> : <><option value="dismiss">Dismiss experience</option><option value="open_url">Open URL</option><option value="track_event">Track event</option></>}</select></Label> : selectedInteraction.kind === "secondary" ? <><p className="movecues-action-inspector__label">On click</p><p>Dismiss experience</p></> : <><p className="movecues-action-inspector__label">Survey action</p><p>{surveyActionLabel}</p></>}{selectedInteraction.kind === "primary" && displayedActionType === "open_url" && <Label>URL<Input type="url" value={currentAction?.type === "open_url" ? currentAction.url ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "open_url", url: event.target.value })} /></Label>}{selectedInteraction.kind === "primary" && displayedActionType === "track_event" && <Label>Event name<Input value={currentAction?.type === "track_event" ? currentAction.eventName ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "track_event", eventName: event.target.value })} /></Label>}</div>;
+  const selectedSurveyAction = selectedInteraction?.kind === "survey" ? selectedInteraction.action : selectedInteraction?.kind === "primary" || selectedInteraction?.kind === "secondary" ? "dismiss" : "";
+  const updateSurveyAction = (value: "" | "dismiss" | "back" | "next" | "submit") => {
+    const component = editorRef.current?.getSelected();
+    if (!component) return;
+    const attributes = { ...component.getAttributes() };
+    delete attributes["data-movecues-action-id"];
+    delete attributes["data-movecues-survey-action"];
+    if (value === "dismiss") attributes["data-movecues-action-id"] = component.getClasses?.().includes("movecues-widget__button--secondary") ? "secondary" : "primary";
+    if (value === "back" || value === "next" || value === "submit") attributes["data-movecues-survey-action"] = value;
+    component.setAttributes(attributes);
+    setSelectedInteraction(interactionForComponent(component));
+  };
+  const interactionInspector = selectedInteraction && <div className="movecues-action-inspector"><h3>Interaction</h3>{interactionContext === "survey" ? <Label>On click<select value={selectedSurveyAction} onChange={event => updateSurveyAction(event.target.value as "" | "dismiss" | "back" | "next" | "submit")}><option value="">No action</option><optgroup label="General"><option value="dismiss">Dismiss experience</option></optgroup><optgroup label="Survey"><option value="back">Survey: Back</option><option value="next">Survey: Next</option><option value="submit">Survey: Submit</option></optgroup></select></Label> : selectedInteraction.kind === "primary" ? <Label>On click<select value={displayedActionType} onChange={event => updateActionType(event.target.value as ExperienceAction["type"])}>{interactionContext === "guide" ? <option value="next_step">Next step</option> : <><option value="dismiss">Dismiss experience</option><option value="open_url">Open URL</option><option value="track_event">Track event</option></>}</select></Label> : selectedInteraction.kind === "secondary" ? <><p className="movecues-action-inspector__label">On click</p><p>Dismiss experience</p></> : null}{interactionContext !== "survey" && selectedInteraction.kind === "primary" && displayedActionType === "open_url" && <Label>URL<Input type="url" value={currentAction?.type === "open_url" ? currentAction.url ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "open_url", url: event.target.value })} /></Label>}{interactionContext !== "survey" && selectedInteraction.kind === "primary" && displayedActionType === "track_event" && <Label>Event name<Input value={currentAction?.type === "track_event" ? currentAction.eventName ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "track_event", eventName: event.target.value })} /></Label>}</div>;
 
   return <div className="movecues-builder-shell">
     <div className="movecues-builder-toolbar"><div className="movecues-builder-toolbar__group">{[["Desktop", Monitor], ["Tablet", Tablet], ["Mobile", Smartphone]].map(([name, Icon]) => <Button key={String(name)} type="button" size="sm" variant={device === name ? "default" : "outline"} onClick={() => chooseDevice(String(name))}><Icon className="size-4" />{String(name)}</Button>)}</div><div className="movecues-builder-toolbar__group"><Button type="button" size="icon" variant={!handTool ? "default" : "outline"} aria-label="Select tool" onClick={() => setHandTool(false)}><MousePointer2 /></Button><Button type="button" size="icon" variant={handTool ? "default" : "outline"} aria-label="Hand tool" aria-pressed={handTool} onClick={() => setHandTool(true)}><Hand /></Button><Button type="button" size="icon" variant="outline" aria-label="Zoom out" disabled={zoomLabel <= MIN_CANVAS_ZOOM} onClick={() => zoomBy(-CANVAS_ZOOM_STEP)}><Minus /></Button><output className="movecues-builder-zoom" aria-label="Zoom percentage">{zoomLabel}%</output><Button type="button" size="icon" variant="outline" aria-label="Zoom in" disabled={zoomLabel >= MAX_CANVAS_ZOOM} onClick={() => zoomBy(CANVAS_ZOOM_STEP)}><Plus /></Button><Button type="button" size="sm" variant="outline" onClick={() => scheduleCanvasFitRef.current()}>Fit</Button><Button type="button" size="icon" variant="outline" aria-label="Undo" onClick={() => editorRef.current?.UndoManager.undo()}><Undo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Redo" onClick={() => editorRef.current?.UndoManager.redo()}><Redo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Clear selection" onClick={() => editorRef.current?.select()}><X /></Button><Button type="button" size="icon" variant={codeMode ? "default" : "outline"} aria-label="Toggle HTML and CSS editor" onClick={toggleCode}><Code2 /></Button></div></div>
@@ -521,25 +535,13 @@ function syncSurveyComponents(editor: Editor, questions: SurveyQuestion[]): void
 
 function ensureSurveyNavigation(root: Component): void {
   root.set("removable", false); root.set("copyable", false);
-  const configureControls = () => {
-    const controls = root.find("[data-movecues-survey-controls]")[0];
-    if (controls) { controls.set("removable", false); controls.set("copyable", false); }
-    for (const button of root.find("[data-movecues-survey-action]")) {
-      button.set("droppable", false); button.set("editable", true); button.set("removable", true); button.set("copyable", false);
-    }
-  };
-  if (root.find("[data-movecues-survey-controls]")[0]) { configureControls(); return; }
-  const action = root.find("[data-movecues-survey-action]")[0]; const footer = action?.parent();
-  if (footer && footer.parent() === root) {
-    footer.addAttributes({ "data-movecues-survey-controls": "builder" });
-    if (!root.find('[data-movecues-survey-action="back"]')[0]) footer.append('<button type="button" class="movecues-widget__button movecues-widget__button--secondary" data-movecues-survey-action="back">Back</button>', { at: 1 });
-    if (!root.find('[data-movecues-survey-action="next"]')[0]) footer.append('<button type="button" class="movecues-widget__button" data-movecues-survey-action="next">Next</button>');
-    if (!root.find('[data-movecues-survey-action="submit"]')[0]) footer.append('<button type="button" class="movecues-widget__button" data-movecues-survey-action="submit">Submit</button>');
-    configureControls();
-    return;
+  // Legacy designs retain their protected footer. New designs own each normal
+  // button independently and must never gain a wrapper or missing controls.
+  const controls = root.find("[data-movecues-survey-controls]")[0];
+  if (controls) { controls.set("removable", false); controls.set("copyable", false); }
+  for (const button of root.find("[data-movecues-survey-action]")) {
+    button.set("droppable", false); button.set("editable", true); button.set("removable", true); button.set("copyable", false);
   }
-  root.append('<div class="movecues-survey-footer" data-movecues-survey-controls="builder"><button type="button" class="movecues-widget__button movecues-widget__button--secondary" data-movecues-survey-action="back">Back</button><button type="button" class="movecues-widget__button" data-movecues-survey-action="next">Next</button><button type="button" class="movecues-widget__button" data-movecues-survey-action="submit">Submit</button></div>');
-  configureControls();
 }
 
 function currentEditorDebugSnapshot(editor: Editor | null | undefined, widgetType: WidgetType): Record<string, unknown> | null {

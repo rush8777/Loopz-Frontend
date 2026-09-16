@@ -13,12 +13,17 @@ describe("widget builder compatibility", () => {
       expect(starter.html).toContain(`data-movecues-widget-type="${type}"`); expect(starter.html).toContain(examples[type]); expect(starter.html).toContain("movecues-widget"); expect(validateBuilderCss(starter.css)).toBe(starter.css);
     }
     const modal = createWidgetStarter("modal", content, design), slideout = createWidgetStarter("slideout", content, design), banner = createWidgetStarter("banner", content, design); expect(modal.css).toContain("width:600px"); expect(slideout.css).toContain("width:400px"); expect(slideout.css).toContain("min-height:460px"); expect(banner.css).toContain("width:100%");
-    const survey = createWidgetStarter("survey", content, design); expect(survey.html).toContain('data-movecues-survey-controls="builder"'); expect(survey.html).toContain('data-movecues-survey-action="back"'); expect(survey.html).toContain('data-movecues-survey-action="next"'); expect(survey.html).toContain('data-movecues-survey-action="submit"');
+    const survey = createWidgetStarter("survey", content, design); expect(survey.html).toContain("movecues-survey-validation"); expect(survey.html).not.toContain("data-movecues-survey-controls"); expect(survey.html).not.toContain("data-movecues-survey-action"); expect(survey.html).not.toMatch(/>Back<|>Next<|>Submit</);
   });
 
   it("removes executable markup and unsafe attributes while preserving movecues action ids", () => {
     const result = sanitizeBuilderHtml('<section class="movecues-widget"><script>alert(1)</script><button data-movecues-action-id="primary" onclick="alert(1)">Go</button><button data-movecues-action-id="primary">Duplicate</button><iframe src="https://evil.test"></iframe></section>');
     expect(result).not.toMatch(/script|iframe|onclick|Duplicate/i); expect(result).toContain('data-movecues-action-id="primary"');
+  });
+
+  it("preserves independently authored and duplicated survey button actions", () => {
+    const result = sanitizeBuilderHtml('<section class="movecues-widget"><button class="movecues-widget__button" data-movecues-survey-action="next">Continue</button><button class="movecues-widget__button--secondary" data-movecues-survey-action="next">Alternate</button><button data-movecues-survey-action="back">Previous</button></section>', true);
+    expect(result.match(/data-movecues-survey-action="next"/g)).toHaveLength(2); expect(result).toContain('data-movecues-survey-action="back"');
   });
 
   it("preserves Free Area and stable item marker classes", () => {
