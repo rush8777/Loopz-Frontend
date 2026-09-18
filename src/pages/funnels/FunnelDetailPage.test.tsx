@@ -85,12 +85,12 @@ describe("FunnelDetailPage", () => {
     renderDetail();
 
     expect(await screen.findByText("Signup Activation")).toBeInTheDocument();
-    expect(screen.getByText("75%")).toBeInTheDocument();
-    expect(screen.getByText("10,000 users")).toBeInTheDocument();
-    expect(screen.getByText("7,500 users")).toBeInTheDocument();
-    expect(screen.getByText(/1\. Signup Started/)).toBeInTheDocument();
-    expect(screen.getByText(/2\. Signup Completed/)).toBeInTheDocument();
-    expect(screen.getByText(/2,500 dropped off/)).toBeInTheDocument();
+    expect(screen.getAllByText("75%").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("10,000").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("7,500").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Signup Started").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Signup Completed").length).toBeGreaterThan(0);
+    expect(screen.getByText(/2,500 dropped/)).toBeInTheDocument();
   });
 
   it("re-requests analysis with an updated range when the date range changes", async () => {
@@ -101,7 +101,7 @@ describe("FunnelDetailPage", () => {
     await screen.findByText("Signup Activation");
     await waitFor(() => expect(mockedFunnelsApi.analyzeFunnel).toHaveBeenCalled());
 
-    fireEvent.click(screen.getByText("7 days"));
+    fireEvent.click(screen.getByRole("button", { name: "7 days" }));
 
     await waitFor(() => {
       const lastCall = mockedFunnelsApi.analyzeFunnel.mock.calls.at(-1)!;
@@ -128,7 +128,7 @@ describe("FunnelDetailPage", () => {
     fireEvent.change(screen.getByDisplayValue("All users"), { target: { value: "seg_1" } });
 
     await waitFor(() =>
-      expect(mockedFunnelsApi.analyzeFunnel).toHaveBeenLastCalledWith("org_1", "site_1", "fun_1", expect.anything(), { segmentId: "seg_1" })
+      expect(mockedFunnelsApi.analyzeFunnel).toHaveBeenLastCalledWith("org_1", "site_1", "fun_1", expect.anything(), expect.objectContaining({ segmentId: "seg_1" }))
     );
   });
 
@@ -145,7 +145,7 @@ describe("FunnelDetailPage", () => {
     renderDetail();
     await screen.findByText("Signup Activation");
 
-    fireEvent.click(screen.getByText(/10,000 users · 100%/));
+    fireEvent.click(screen.getAllByText("10,000")[1]);
     const row = await screen.findByText("user_42");
     fireEvent.click(row.closest("tr")!);
 
@@ -165,7 +165,7 @@ describe("FunnelDetailPage", () => {
     renderDetail();
     await screen.findByText("Signup Activation");
 
-    fireEvent.click(screen.getByText(/10,000 users · 100%/));
+    fireEvent.click(screen.getAllByText("10,000")[1]);
     const row = await screen.findByText("anon_99");
     fireEvent.click(row.closest("tr")!);
 

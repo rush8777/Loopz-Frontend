@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
+import { AnalyticsMetricCard } from "@/components/analytics/AnalyticsMetricCard";
 import { EmptyState } from "../../components/EmptyState";
 import { ElementsTable, mergeElementMetadata } from "../../components/elements/ElementsTable";
 import * as pagesApi from "../../api/pages";
@@ -10,7 +11,7 @@ import { formatRelativeTime, formatTimestamp } from "../../lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DataTableFrame, ErrorNotice, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
+import { DataTableFrame, ErrorNotice, dataTableClass } from "@/components/PageSurface";
 
 const OPERATOR_LABEL: Record<PageRuleOperator, string> = {
   equals: "is exactly",
@@ -19,10 +20,6 @@ const OPERATOR_LABEL: Record<PageRuleOperator, string> = {
   contains: "contains",
   matches_pattern: "matches pattern",
 };
-
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return <Metric label={label} value={value} />;
-}
 
 function Overview({ page }: { page: PageDetail }) {
   return (
@@ -112,9 +109,12 @@ export function PageDetailPage() {
     <>
       <PageHeader section="Observe" title={page.name} description={page.description ?? page.rules.map((rule) => rule.value).join(", ")}
         actions={<div className="flex gap-2"><Button variant="outline" onClick={() => navigate(`/observe/pages/${page.id}/edit`)}>Edit</Button><Button variant="destructive" onClick={() => void handleDelete()} disabled={deleting}>{deleting ? "Deleting…" : "Delete"}</Button></div>} />
-      <MetricGrid className="mb-5">
-        <MetricCard label="Views" value={page.views.toLocaleString()} /><MetricCard label="Unique visitors" value={page.uniqueVisitors.toLocaleString()} /><MetricCard label="Sessions" value={page.uniqueSessions.toLocaleString()} /><MetricCard label="Last seen" value={page.lastSeenAt ? formatRelativeTime(page.lastSeenAt) : "—"} />
-      </MetricGrid>
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <AnalyticsMetricCard label="Views" value={page.views.toLocaleString()} description="Total matching page views" />
+        <AnalyticsMetricCard label="Unique visitors" value={page.uniqueVisitors.toLocaleString()} description="Distinct visitors who matched these rules" />
+        <AnalyticsMetricCard label="Sessions" value={page.uniqueSessions.toLocaleString()} description="Sessions containing a matching page view" />
+        <AnalyticsMetricCard label="Last seen" value={page.lastSeenAt ? formatRelativeTime(page.lastSeenAt) : "—"} description="Most recent matching page view" />
+      </div>
       <section className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4" aria-label="Heatmap status">
         <div><h2 className="text-sm font-semibold">Heatmap</h2><div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground"><span>{page.heatmapEnabled ? "Active" : "Disabled"}</span><span>{(heatmap?.interactions ?? 0).toLocaleString()} interactions</span><span>{heatmap?.referenceCapturedAt ? `Reference updated ${formatRelativeTime(heatmap.referenceCapturedAt)}` : "Reference capture pending"}</span></div></div>
         <Button onClick={() => navigate(`/observe/heatmaps/${page.id}`)}>Open heatmap</Button>

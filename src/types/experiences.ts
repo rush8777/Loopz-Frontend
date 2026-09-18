@@ -38,7 +38,7 @@ export interface ExperienceAnalytics {
   summary: { usersSeen: number; usersStarted: number; completed: number; dismissed: number; completionRate: number };
   guide: null | { steps: { stepId: string; stepIndex: number; usersReached: number; usersAdvanced: number; dropOff: number; dropOffRate: number; averageDurationMs: number }[] };
   survey: null | { usersSeen: number; started: number; submitted: number; abandoned: number; responseRate: number; questions: Array<{ questionId: string; label: string; type: SurveyQuestion["type"]; responseCount: number; distribution?: { value: string; count: number; percent: number }[]; textResponses?: string[] }> };
-  trend: { date: string; usersSeen: number; completed: number; dismissed: number; submitted: number }[];
+  trend: { date: string; usersSeen: number; interacted: number; completed: number; dismissed: number; submitted: number }[];
 }
 export interface SurveyResponseRecord { responseId: string; impressionId: string; anonymousId: string; trackedUserId: string | null; sessionId: string; answers: SurveyAnswers; startedAt: string; submittedAt: string | null; abandonedAt: string | null }
 export type SurveyAnswers = Record<string, string | string[] | number>;

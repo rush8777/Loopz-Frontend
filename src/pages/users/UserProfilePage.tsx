@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
+import { AnalyticsMetricCard } from "@/components/analytics/AnalyticsMetricCard";
 import { EmptyState } from "../../components/EmptyState";
 import * as trackedUsersApi from "../../api/trackedUsers";
 import type { TrackedUserDetail, UserActivityItem, SessionSummary, EnvironmentContext } from "../../types/api";
@@ -174,20 +175,20 @@ export function UserProfilePage() {
 
           {tab === "overview" && (
             <div className="space-y-5 rounded-lg border bg-card p-5">
-              <MetricGrid className="lg:grid-cols-3">
-                <StatBlock label="First seen" value={user.stats.firstSeenAt ? formatRelativeTime(user.stats.firstSeenAt) : "—"} />
-                <StatBlock label="Last seen" value={user.stats.lastSeenAt ? formatRelativeTime(user.stats.lastSeenAt) : "—"} />
-                <StatBlock label="Sessions" value={String(user.stats.sessionCount)} />
-                <StatBlock label="Page views" value={String(user.stats.pageViewCount)} />
-                <StatBlock label="Events" value={String(user.stats.eventCount)} />
-                <StatBlock label="Active time" value={formatDuration(user.stats.totalActiveTimeMs)} />
-              </MetricGrid>
-              <MetricGrid>
-                <StatBlock label="First page" value={user.stats.firstPage ?? "—"} />
-                <StatBlock label="Last page" value={user.stats.lastPage ?? "—"} />
-                <StatBlock label="Identified" value={formatRelativeTime(user.firstIdentifiedAt)} />
-                <StatBlock label="Anonymous IDs merged" value={String(user.anonymousIds.length)} />
-              </MetricGrid>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                <AnalyticsMetricCard label="First seen" value={user.stats.firstSeenAt ? formatRelativeTime(user.stats.firstSeenAt) : "—"} description="First observed activity" />
+                <AnalyticsMetricCard label="Last seen" value={user.stats.lastSeenAt ? formatRelativeTime(user.stats.lastSeenAt) : "—"} description="Most recent observed activity" />
+                <AnalyticsMetricCard label="Sessions" value={user.stats.sessionCount.toLocaleString()} description="Recorded sessions" />
+                <AnalyticsMetricCard label="Page views" value={user.stats.pageViewCount.toLocaleString()} description="Recorded page views" />
+                <AnalyticsMetricCard label="Events" value={user.stats.eventCount.toLocaleString()} description="Recorded events" />
+                <AnalyticsMetricCard label="Active time" value={formatDuration(user.stats.totalActiveTimeMs)} description="Total observed active time" />
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <AnalyticsMetricCard label="First page" value={user.stats.firstPage ?? "—"} description="First recorded page" />
+                <AnalyticsMetricCard label="Last page" value={user.stats.lastPage ?? "—"} description="Most recent recorded page" />
+                <AnalyticsMetricCard label="Identified" value={formatRelativeTime(user.firstIdentifiedAt)} description="When this user was identified" />
+                <AnalyticsMetricCard label="Anonymous IDs merged" value={user.anonymousIds.length.toLocaleString()} description="Anonymous identities linked to this user" />
+              </div>
               <div className="border-t pt-5">
                 <div className="mb-3.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
                   Environment (most recent session)

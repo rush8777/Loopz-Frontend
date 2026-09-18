@@ -71,7 +71,7 @@ describe("SegmentDetailPage", () => {
     renderDetail();
 
     expect(await screen.findByText("High-intent trial users")).toBeInTheDocument();
-    expect(screen.getByText("1,284 users")).toBeInTheDocument();
+    expect(screen.getByText("1,284")).toBeInTheDocument();
     expect(screen.getByText(/checkout_started performed/)).toBeInTheDocument();
     expect(screen.getByText(/checkout_completed not performed/)).toBeInTheDocument();
   });

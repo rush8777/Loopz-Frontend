@@ -42,10 +42,10 @@ export function analyzeFunnel(
   siteId: string,
   funnelId: string,
   range: { since: string; until: string },
-  opts: { segmentId?: string } = {}
+  opts: { segmentId?: string; conversionWindowMinutes?: number } = {}
 ) {
   return apiRequest<FunnelAnalysis>(`/orgs/${orgId}/sites/${siteId}/funnels/${funnelId}/analyze`, {
-    query: { since: range.since, until: range.until, segmentId: opts.segmentId },
+    query: { since: range.since, until: range.until, segmentId: opts.segmentId, conversionWindowMinutes: opts.conversionWindowMinutes },
   });
 }
 
@@ -55,10 +55,10 @@ export function getFunnelStepUsers(
   funnelId: string,
   stepIndex: number,
   range: { since: string; until: string },
-  opts: { segmentId?: string; limit?: number; offset?: number } = {}
+  opts: { segmentId?: string; conversionWindowMinutes?: number; limit?: number; offset?: number } = {}
 ) {
   return apiRequest<{ users: FunnelStepUser[]; total: number; limit: number; offset: number }>(
     `/orgs/${orgId}/sites/${siteId}/funnels/${funnelId}/steps/${stepIndex}/users`,
-    { query: { since: range.since, until: range.until, segmentId: opts.segmentId, limit: opts.limit, offset: opts.offset } }
+    { query: { since: range.since, until: range.until, segmentId: opts.segmentId, conversionWindowMinutes: opts.conversionWindowMinutes, limit: opts.limit, offset: opts.offset } }
   );
 }

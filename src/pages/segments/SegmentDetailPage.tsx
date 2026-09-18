@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
+import { AnalyticsMetricCard } from "@/components/analytics/AnalyticsMetricCard";
 import { EmptyState } from "../../components/EmptyState";
 import * as segmentsApi from "../../api/segments";
 import type { Segment, SegmentCondition, SegmentGroup, SegmentMember, SegmentNode } from "../../types/api";
@@ -10,7 +11,7 @@ import { formatRelativeTime, formatTimestamp } from "../../lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DataTableFrame, ErrorNotice, LoadingRows, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
+import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
 
 const PAGE_SIZE = 25;
 
@@ -148,7 +149,7 @@ export function SegmentDetailPage() {
         }
       />
 
-      <MetricGrid className="mb-5 sm:grid-cols-2 lg:grid-cols-2"><Metric label="Audience" value={`${segment.audienceCount.toLocaleString()} users`} /><Metric label="Last updated" value={<span title={formatTimestamp(segment.updatedAt)}>{formatRelativeTime(segment.updatedAt)}</span>} /></MetricGrid>
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2"><AnalyticsMetricCard label="Audience" value={segment.audienceCount.toLocaleString()} description="Users currently matching this segment" /><AnalyticsMetricCard label="Last updated" value={<span title={formatTimestamp(segment.updatedAt)}>{formatRelativeTime(segment.updatedAt)}</span>} description="Most recent definition change" /></div>
 
       <section className="mb-5 rounded-lg border bg-card p-4">
         <h2 className="mb-3 text-sm font-semibold">Definition</h2>

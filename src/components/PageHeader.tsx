@@ -7,6 +7,7 @@ type BaseProps = {
   title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
+  className?: string;
 };
 
 
@@ -15,9 +16,9 @@ type BaseProps = {
  * 2. Whitespace — no rule at all. Separation comes from generous vertical
  *    space rather than a border. Section shown as a small solid dot + label.
  */
-export function PageHeader({ section, title, description, actions }: BaseProps) {
+export function PageHeader({ section, title, description, actions, className }: BaseProps) {
   return (
-    <header className="mb-10 pt-1">
+    <header className={`mb-10 pt-1 ${className ?? ""}`}>
       <div className="mb-3 flex items-center gap-1.5">
         <span className="h-1.5 w-1.5 rounded-full bg-[#141414]" />
         <span className="text-[13px] text-[#474747]">{section}</span>

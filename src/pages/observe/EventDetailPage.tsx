@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
+import { AnalyticsMetricCard } from "@/components/analytics/AnalyticsMetricCard";
 import { EmptyState } from "../../components/EmptyState";
 import { DateRangePicker } from "../../components/DateRangePicker";
 import { SparkBarChart } from "../../components/SparkBarChart";
@@ -20,7 +21,7 @@ import type {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DataTableFrame, ErrorNotice, LoadingRows, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
+import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
 import { cn } from "@/lib/utils";
 
 type Tab = "properties" | "occurrences" | "users" | "sessions" | "pages";
@@ -160,10 +161,6 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return <Metric label={label} value={value} />;
-}
-
 function OverviewSection({
   summary,
   range,
@@ -187,19 +184,19 @@ function OverviewSection({
 
   if (!summary) {
     return (
-      <MetricGrid>{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16" />)}</MetricGrid>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-28" />)}</div>
     );
   }
 
   return (
     <>
-      <MetricGrid className="mb-4 sm:grid-cols-2 lg:grid-cols-5">
-        <MetricCard label="Occurrences" value={summary.occurrences.toLocaleString()} />
-        <MetricCard label="Unique users" value={summary.uniqueUsers.toLocaleString()} />
-        <MetricCard label="Sessions" value={summary.sessions.toLocaleString()} />
-        <MetricCard label="First seen" value={summary.firstSeenAt ? formatTimestamp(summary.firstSeenAt) : "—"} />
-        <MetricCard label="Last seen" value={summary.lastSeenAt ? formatTimestamp(summary.lastSeenAt) : "—"} />
-      </MetricGrid>
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <AnalyticsMetricCard label="Occurrences" value={summary.occurrences.toLocaleString()} description="Times this event was recorded" />
+        <AnalyticsMetricCard label="Unique users" value={summary.uniqueUsers.toLocaleString()} description="Users who triggered this event" />
+        <AnalyticsMetricCard label="Sessions" value={summary.sessions.toLocaleString()} description="Sessions containing this event" />
+        <AnalyticsMetricCard label="First seen" value={summary.firstSeenAt ? formatTimestamp(summary.firstSeenAt) : "—"} description="Earliest occurrence in this range" />
+        <AnalyticsMetricCard label="Last seen" value={summary.lastSeenAt ? formatTimestamp(summary.lastSeenAt) : "—"} description="Most recent occurrence in this range" />
+      </div>
 
       <div className="mb-2 rounded-lg border bg-card p-4">
         <div className="mb-3 text-[13.5px] font-semibold">Occurrences over time</div>
