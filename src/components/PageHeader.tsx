@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type Section = "Workspace" | "Observe" | "Analysis" | "Analytics" | "Feedback" | "Users" | "Experiences";
+type Section = "Overview" | "Observe" | "Dashboards" | "Analytics" | "Feedback" | "Users" | "Experiences" | "Workspace";
 
 type BaseProps = {
   section: Section;
