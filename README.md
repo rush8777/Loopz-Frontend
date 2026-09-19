@@ -1,33 +1,69 @@
-# React + TypeScript + Vite
+# Movecues frontend workspace
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This repository is an npm workspace containing the Movecues dashboard and its shared design-system packages.
 
-Currently, two official plugins are available:
+## Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```text
+apps/
+  dashboard/       Existing Vite dashboard application
+packages/
+  tokens/          Shared brand CSS variables, fonts, radii, and shadows
+  ui/              Shared React UI primitives
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
-"# movecues-Frontend" 
+Dashboard-only features—including analytics views, authentication, navigation, GrapesJS, experience builders, SDK configuration, and live preview—remain in `apps/dashboard`.
+
+## Commands
+
+Install all workspace dependencies from this directory:
+
+```bash
+npm install
+```
+
+Run the dashboard:
+
+```bash
+npm run dev:dashboard
+```
+
+Build, test, and lint the dashboard:
+
+```bash
+npm run build:dashboard
+npm run test:dashboard
+npm run lint:dashboard
+```
+
+Type-check every workspace package that defines a type-check script:
+
+```bash
+npm run typecheck
+```
+
+The equivalent npm workspace commands also work, for example:
+
+```bash
+npm run build --workspace=apps/dashboard
+```
+
+## Shared packages
+
+Use shared primitives through their public entrypoint:
+
+```tsx
+import { Button, Dialog, Input } from "@movecues/ui";
+```
+
+Applications load the shared brand tokens once at their entrypoint:
+
+```ts
+import "@movecues/tokens/styles.css";
+```
+
+Both packages are private workspace dependencies and are not published to npm.
+
+## Deployment layout
+
+For a Cloudflare project, use the repository root as the build context, `npm run build:dashboard` as the build command, and `apps/dashboard/dist` as the dashboard output directory. A future `apps/website` project can use the same root workspace and consume `@movecues/ui` and `@movecues/tokens` independently.
