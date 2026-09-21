@@ -12,7 +12,7 @@ describe("widget builder compatibility", () => {
       const starter = createWidgetStarter(type, content, design);
       expect(starter.html).toContain(`data-movecues-widget-type="${type}"`); expect(starter.html).toContain(examples[type]); expect(starter.html).toContain("movecues-widget"); expect(validateBuilderCss(starter.css)).toBe(starter.css);
     }
-    const modal = createWidgetStarter("modal", content, design), slideout = createWidgetStarter("slideout", content, design), banner = createWidgetStarter("banner", content, design); expect(modal.css).toContain("width:600px"); expect(slideout.css).toContain("width:400px"); expect(slideout.css).toContain("min-height:460px"); expect(banner.css).toContain("width:100%");
+    const modal = createWidgetStarter("modal", content, design), slideout = createWidgetStarter("slideout", content, design), banner = createWidgetStarter("banner", content, design); expect(modal.css).toContain("display:flex;flex-direction:column"); expect(modal.css).toContain("width:600px"); expect(slideout.css).toContain("width:400px"); expect(slideout.css).toContain("min-height:460px"); expect(banner.css).toContain("display:flex;flex-direction:row"); expect(banner.css).toContain("width:100%");
     const survey = createWidgetStarter("survey", content, design); expect(survey.html).toContain("movecues-survey-validation"); expect(survey.html).not.toContain("data-movecues-survey-controls"); expect(survey.html).not.toContain("data-movecues-survey-action"); expect(survey.html).not.toMatch(/>Back<|>Next<|>Submit</);
   });
 
