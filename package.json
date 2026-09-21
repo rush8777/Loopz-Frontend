@@ -13,7 +13,10 @@
     "lint": "npm run lint:dashboard",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "dev:dashboard": "npm run dev --workspace=@movecues/dashboard",
+    "dev:website": "npm run dev --workspace=@movecues/website",
     "build:dashboard": "npm run build --workspace=@movecues/dashboard",
+    "build:website": "npm run build --workspace=@movecues/website",
+    "check:website": "npm run check --workspace=@movecues/website",
     "test:dashboard": "npm run test --workspace=@movecues/dashboard",
     "lint:dashboard": "npm run lint --workspace=@movecues/dashboard"
   }

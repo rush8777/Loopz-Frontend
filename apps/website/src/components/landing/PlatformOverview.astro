@@ -1,0 +1,27 @@
+---
+import { PLATFORM_GROUPS } from "../../config/site";
+---
+
+<section class="platform-section" id="platform">
+  <div class="platform-shell" data-reveal>
+    <div class="platform-heading">
+      <div>
+        <p class="platform-kicker">
+          <span>The platform</span>
+          <span aria-hidden="true">→</span>
+        </p>
+        <h2>Everything in the same<br /><em>product loop.</em></h2>
+      </div>
+      <p>Observe behavior, define the audience, deliver the experience, and learn from the result—without stitching together separate tools.</p>
+    </div>
+    <div class="platform-groups">
+      {PLATFORM_GROUPS.map((group, index) => (
+        <div class="platform-group">
+          <div class="group-number">0{index + 1}</div>
+          <h3>{group.label}</h3>
+          <ul>{group.items.map((item) => <li>{item}</li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

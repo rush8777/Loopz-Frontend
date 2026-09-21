@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LandingNavbar from "../components/layout/LandingNavbar.astro";
+import Hero from "../components/landing/Hero.astro";
+import Adoption from "../components/landing/Adoption.astro";
+import ProductStory from "../components/landing/ProductStory.astro";
+import PlatformOverview from "../components/landing/PlatformOverview.astro";
+import FinalCta from "../components/landing/FinalCta.astro";
+import SiteFooter from "../components/layout/SiteFooter.astro";
+---
+
+<BaseLayout>
+  <LandingNavbar />
+  <main id="main-content">
+    <Hero />
+    <Adoption />
+    <ProductStory />
+    <PlatformOverview />
+    <FinalCta />
+  </main>
+  <SiteFooter />
+</BaseLayout>

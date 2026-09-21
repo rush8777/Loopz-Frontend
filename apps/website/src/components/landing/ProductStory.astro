@@ -1,0 +1,55 @@
+---
+import { PRODUCT_CHAPTERS } from "../../config/site";
+---
+
+<section class="product-story" id="journey" aria-labelledby="product-story-title">
+  <div class="story-layout section-shell">
+    <div class="story-introduction" data-reveal>
+  <p class="story-kicker">
+    <span>How it works</span>
+    <span aria-hidden="true">→</span>
+  </p>
+
+  <h2 id="product-story-title">
+    Understand users.<br />
+    Then move them <em>forward.</em>
+  </h2>
+
+  <div class="story-introduction-bottom">
+    <p>
+      Movcues connects product behavior, live audiences, in-app experiences,
+      and measurement—so you can see what users need, reach the right people,
+      and improve what happens next.
+    </p>
+
+    <a href="#platform" class="story-link">
+      Explore the platform
+      <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+</div>
+
+    <div class="story-steps" aria-label="The four steps in the Movcues workflow">
+      {PRODUCT_CHAPTERS.map((chapter, index) => (
+        <article
+          class:list={["story-step", index === 0 && "is-primary"]}
+          id={chapter.id}
+          data-reveal
+        >
+          <div class="story-step-top">
+            <span class="story-step-number" aria-hidden="true">{chapter.number}</span>
+            <span class="story-step-label">{chapter.label}</span>
+          </div>
+          <div class="story-step-copy">
+            <h3>{chapter.title}</h3>
+            <p>{chapter.description}</p>
+            <div class="story-step-detail">
+              <span aria-hidden="true"></span>
+              {chapter.detail}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

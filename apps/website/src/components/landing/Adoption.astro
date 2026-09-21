@@ -1,0 +1,377 @@
+---
+import { DASHBOARD_URLS } from "../../config/site";
+import {
+  Activity,
+  ChartNoAxesCombined,
+  ChartNoAxesColumnIncreasing,
+  Compass,
+  Crosshair,
+  Funnel,
+  GitCompare,
+  Goal,
+  Lightbulb,
+  Megaphone,
+  Rocket,
+  Sparkles,
+  TrendingUp,
+  UsersRound,
+} from "lucide-astro";
+
+const topics = [
+  {
+    kicker: "Adopt",
+    title: "Turn new users into <br />power users.",
+    description:
+      "Build in-app onboarding around real user behavior, then guide every person toward the features that make your product indispensable.",
+
+    primaryAction: {
+      label: "Explore adoption",
+      href: DASHBOARD_URLS.signup,
+    },
+
+    secondaryAction: {
+      label: "See the product",
+      href: "#product",
+    },
+
+    benefits: [
+      {
+        label: "Contextual onboarding",
+        icon: Compass,
+      },
+      {
+        label: "Feature announcements",
+        icon: Megaphone,
+      },
+      {
+        label: "Behavioral targeting",
+        icon: Crosshair,
+      },
+      {
+        label: "New-user activation",
+        icon: Rocket,
+      },
+      {
+        label: "Personalized guidance",
+        icon: Sparkles,
+      },
+      {
+        label: "Real-time segments",
+        icon: UsersRound,
+      },
+    ],
+
+    visual: {
+      src: "/images/hero-card-img.png",
+      alt: "Movcues in-app onboarding and feature adoption experience",
+    },
+  },
+
+  {
+    kicker: "Analyze",
+    title: "See where users <br />struggle and succeed.",
+    description:
+      "Understand how users move through your product, uncover friction, and identify the behaviors that drive meaningful engagement and retention.",
+
+    primaryAction: {
+      label: "Explore analytics",
+      href: DASHBOARD_URLS.signup,
+    },
+
+    secondaryAction: {
+      label: "See the product",
+      href: "#product",
+    },
+
+    benefits: [
+      {
+        label: "Behavioral insights",
+        icon: ChartNoAxesCombined,
+      },
+      {
+        label: "Funnel analysis",
+        icon: Funnel,
+      },
+      
+      
+      {
+        label: "Audience segments",
+        icon: UsersRound,
+      },
+      {
+        label: "Engagement trends",
+        icon: TrendingUp,
+      },
+      {
+        label: "",
+        icon: null,
+      },
+    ],
+
+    visual: {
+      src: "/images/hero-card-img.png",
+      alt: "Movcues behavioral analytics and product insights",
+    },
+  },
+
+  {
+    kicker: "Act",
+    title: "Turn insight into <br />better product decisions.",
+    description:
+      "Use behavioral data and feedback to prioritize improvements, validate changes, and focus your team on the highest-value opportunities first.",
+
+    primaryAction: {
+      label: "Explore insights",
+      href: DASHBOARD_URLS.signup,
+    },
+
+    secondaryAction: {
+      label: "See the product",
+      href: "#product",
+    },
+
+    benefits: [
+      {
+        label: "Prioritize friction",
+        icon: Crosshair,
+      },
+      {
+        label: "Validate improvements",
+        icon: Goal,
+      },
+      {
+        label: "Measure outcomes",
+        icon: ChartNoAxesColumnIncreasing,
+      },
+      {
+        label: "Spot opportunities",
+        icon: Lightbulb,
+      },
+      {
+        label: "Compare segments",
+        icon: GitCompare,
+      },
+      {
+        label: "Track impact",
+        icon: Activity,
+      },
+    ],
+
+    visual: {
+      src: "/images/hero-card-img.png",
+      alt: "Movcues product insights used to guide product decisions",
+    },
+  },
+];
+
+const initialTopic = topics[0];
+const topicData = topics.map((topic) => ({
+  ...topic,
+  benefits: topic.benefits.map(({ label }) => ({ label })),
+}));
+---
+
+<section
+  class="adoption-section"
+  aria-labelledby="adoption-title"
+>
+  <div
+    class="adoption-copy"
+    data-reveal
+    data-adoption-copy
+    data-topics={JSON.stringify(topicData)}
+  >
+    <p class="adoption-kicker">
+      <span data-topic-kicker>{initialTopic.kicker}</span>
+      <span aria-hidden="true">→</span>
+    </p>
+
+    <h2
+      id="adoption-title"
+      data-topic-title
+      set:html={initialTopic.title}
+    />
+
+    <p class="adoption-description">
+      <span data-topic-description>
+        {initialTopic.description}
+      </span>
+    </p>
+
+    <div class="adoption-actions">
+      <a
+        href={initialTopic.primaryAction.href}
+        class="hero-primary adoption-primary-action"
+        data-primary-action
+      >
+        {initialTopic.primaryAction.label}
+      </a>
+
+      <a
+        href={initialTopic.secondaryAction.href}
+        class="hero-secondary adoption-secondary-action"
+        data-secondary-action
+      >
+        {initialTopic.secondaryAction.label}
+      </a>
+    </div>
+
+    {
+      topics.map((topic, topicIndex) => (
+        <ul
+          class="adoption-benefits"
+          aria-label={`${topic.kicker} capabilities`}
+          data-topic-benefits={topicIndex}
+          hidden={topicIndex !== 0}
+        >
+          {
+            topic.benefits.map((benefit) => {
+              const BenefitIcon = benefit.icon;
+
+              return (
+                <li
+                  class:list={{ "is-spacer": !benefit.label }}
+                  aria-hidden={!benefit.label || undefined}
+                >
+                  {BenefitIcon && (
+                    <BenefitIcon
+                      size={25}
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
+                  )}
+                  {benefit.label && <span>{benefit.label}</span>}
+                </li>
+              );
+            })
+          }
+        </ul>
+      ))
+    }
+  </div>
+
+  <div
+    class="adoption-visual"
+    data-reveal
+  >
+    <img
+      src={initialTopic.visual.src}
+      alt={initialTopic.visual.alt}
+      loading="lazy"
+      decoding="async"
+      data-topic-visual
+    />
+  </div>
+</section>
+
+<script>
+  type Benefit = {
+    label: string;
+  };
+
+  type Topic = {
+    kicker: string;
+    title: string;
+    description: string;
+
+    primaryAction: {
+      label: string;
+      href: string;
+    };
+
+    secondaryAction: {
+      label: string;
+      href: string;
+    };
+
+    benefits: Benefit[];
+
+    visual: {
+      src: string;
+      alt: string;
+    };
+  };
+
+  const copy =
+    document.querySelector<HTMLElement>("[data-adoption-copy]");
+
+  if (copy) {
+    const topics = JSON.parse(
+      copy.dataset.topics ?? "[]"
+    ) as Topic[];
+
+    const kicker =
+      copy.querySelector<HTMLElement>("[data-topic-kicker]");
+
+    const title =
+      copy.querySelector<HTMLElement>("[data-topic-title]");
+
+    const description =
+      copy.querySelector<HTMLElement>("[data-topic-description]");
+
+    const benefitLists = Array.from(
+      copy.querySelectorAll<HTMLUListElement>("[data-topic-benefits]")
+    );
+
+    const primaryAction =
+      copy.querySelector<HTMLAnchorElement>("[data-primary-action]");
+
+    const secondaryAction =
+      copy.querySelector<HTMLAnchorElement>("[data-secondary-action]");
+
+    const visual =
+      document.querySelector<HTMLImageElement>("[data-topic-visual]");
+
+    let topicIndex = 0;
+
+    const renderTopic = (topic: Topic) => {
+      if (kicker) {
+        kicker.textContent = topic.kicker;
+      }
+
+      if (title) {
+        title.innerHTML = topic.title;
+      }
+
+      if (description) {
+        description.textContent = topic.description;
+      }
+
+      if (primaryAction) {
+        primaryAction.textContent = topic.primaryAction.label;
+        primaryAction.href = topic.primaryAction.href;
+      }
+
+      if (secondaryAction) {
+        secondaryAction.textContent = topic.secondaryAction.label;
+        secondaryAction.href = topic.secondaryAction.href;
+      }
+
+      benefitLists.forEach((list, listIndex) => {
+        const isActive = listIndex === topicIndex;
+
+        list.hidden = !isActive;
+
+        if (isActive) {
+          list.setAttribute(
+            "aria-label",
+            `${topic.kicker} capabilities`
+          );
+        }
+      });
+
+      if (visual) {
+        visual.src = topic.visual.src;
+        visual.alt = topic.visual.alt;
+      }
+    };
+
+    if (topics.length > 1) {
+      window.setInterval(() => {
+        topicIndex = (topicIndex + 1) % topics.length;
+
+        renderTopic(topics[topicIndex]);
+      }, 6500);
+    }
+  }
+</script>

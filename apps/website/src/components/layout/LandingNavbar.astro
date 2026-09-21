@@ -1,0 +1,59 @@
+---
+import logo from "../../../../dashboard/public/movecues_logo.png";
+import { DASHBOARD_URLS, NAV_ITEMS } from "../../config/site";
+import { LinkButton } from "../react/LinkButton";
+---
+
+<header class="site-header" data-site-header>
+  <div class="nav-shell">
+    <a class="brand-link" href="#top" aria-label="Movcues home">
+      <img src={logo.src} width="152" height="28" alt="Movcues" />
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      {NAV_ITEMS.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+
+    <div class="nav-actions">
+      <a class="login-link" href={DASHBOARD_URLS.login}>Log in</a>
+      <LinkButton href={DASHBOARD_URLS.signup} label="Get started" className="nav-cta" />
+      <button
+        class="mobile-menu-button"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobile-navigation"
+        aria-label="Open navigation"
+        data-menu-button
+      >
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-navigation" aria-label="Mobile navigation" data-mobile-nav hidden>
+    {NAV_ITEMS.map((item) => <a href={item.href}>{item.label}</a>)}
+    <a href={DASHBOARD_URLS.login}>Log in</a>
+    <a class="mobile-primary-link" href={DASHBOARD_URLS.signup}>Get started</a>
+  </nav>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-site-header]");
+  const button = header?.querySelector<HTMLButtonElement>("[data-menu-button]");
+  const menu = header?.querySelector<HTMLElement>("[data-mobile-nav]");
+
+  const setOpen = (open: boolean) => {
+    if (!button || !menu) return;
+    button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+    menu.hidden = !open;
+    header?.classList.toggle("menu-open", open);
+  };
+
+  button?.addEventListener("click", () => setOpen(button.getAttribute("aria-expanded") !== "true"));
+  menu?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => setOpen(false)));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+
+</script>

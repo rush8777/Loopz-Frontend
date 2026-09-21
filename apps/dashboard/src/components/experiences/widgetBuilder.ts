@@ -1,8 +1,8 @@
 import type { ExperienceContent, ExperienceDesign, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
 import { widgetSizeCss } from "./widgetSizing";
 
-const ALLOWED_TAGS = new Set(["DIV", "SECTION", "H1", "H2", "H3", "H4", "P", "SPAN", "BR", "BUTTON", "IMG", "HR", "LABEL"]);
-const ALLOWED_ATTRIBUTES = new Set(["class", "id", "title", "role", "aria-label", "aria-live", "aria-hidden", "aria-pressed", "alt", "src", "width", "height", "type", "placeholder", "maxlength", "data-movecues-action-id", "data-movecues-content", "data-movecues-widget-type", "data-movecues-question-id", "data-movecues-question-type", "data-movecues-question-input", "data-movecues-option-id", "data-movecues-survey-action", "data-movecues-survey-controls", "data-movecues-survey-progress", "data-movecues-survey-progress-bar", "data-movecues-survey-step-id"]);
+const ALLOWED_TAGS = new Set(["DIV", "SECTION", "H1", "H2", "H3", "H4", "P", "SPAN", "BR", "BUTTON", "IMG", "HR", "LABEL", "VIDEO", "SOURCE", "IFRAME", "UL", "LI"]);
+const ALLOWED_ATTRIBUTES = new Set(["class", "id", "title", "role", "aria-label", "aria-live", "aria-hidden", "aria-pressed", "alt", "src", "width", "height", "type", "placeholder", "maxlength", "autoplay", "muted", "loop", "controls", "playsinline", "loading", "data-movecues-action-id", "data-movecues-content", "data-movecues-widget-type", "data-movecues-question-id", "data-movecues-question-type", "data-movecues-question-input", "data-movecues-option-id", "data-movecues-survey-action", "data-movecues-survey-controls", "data-movecues-survey-progress", "data-movecues-survey-progress-bar", "data-movecues-survey-step-id"]);
 const ROOT_CLASS = "movecues-widget";
 
 export interface BuilderExport {
@@ -54,6 +54,15 @@ export function sanitizeBuilderHtml(input: string, allowSurveyInputs = false): s
     if (element.tagName === "IMG") {
       const source = element.getAttribute("src") ?? "";
       if (source && !/^(https?:|data:image\/(?:png|gif|jpeg|webp|svg\+xml);base64,|\/)/i.test(source)) element.removeAttribute("src");
+    }
+    if (element.tagName === "VIDEO" || element.tagName === "SOURCE") {
+      const source = element.getAttribute("src") ?? "";
+      if (source && !/^(https?:|\/)/i.test(source)) element.removeAttribute("src");
+    }
+    if (element.tagName === "IFRAME") {
+      const source = element.getAttribute("src") ?? "";
+      if (source && !/^(https?:|\/)/i.test(source)) element.removeAttribute("src");
+      if (!element.getAttribute("title")?.trim()) element.setAttribute("title", "Embedded content");
     }
     if (element.tagName === "INPUT" && !["text", "radio", "checkbox", "number"].includes((element.getAttribute("type") ?? "text").toLowerCase())) element.setAttribute("type", "text");
   }

@@ -1,0 +1,17 @@
+---
+import { DASHBOARD_URLS } from "../../config/site";
+import { LinkButton } from "../react/LinkButton";
+---
+
+<section class="final-cta" data-reveal>
+  <div class="cta-atmosphere"><span></span><i></i></div>
+  <div class="cta-content">
+    <p class="final-kicker">
+      <span>Start with behavior</span>
+      <span aria-hidden="true">→</span>
+    </p>
+    <h2>Turn insight into better<br /><em>product experiences.</em></h2>
+    <p>See what users do, respond in context, and keep learning from every experience you ship.</p>
+    <LinkButton href={DASHBOARD_URLS.signup} label="Get started" size="lg" className="cta-button" />
+  </div>
+</section>

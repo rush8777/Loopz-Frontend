@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject, type UIEvent } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import type { Component, Editor } from "grapesjs";
-import { Code2, Hand, Minus, Monitor, MousePointer2, Plus, Redo2, ScanLine, Smartphone, Tablet, Undo2 } from "lucide-react";
+import { Badge as BadgeIcon, Box, CircleDot, CircleUserRound, Code2, Columns3, Hand, Heading2, Image as ImageIcon, List, Maximize2, Minus, Monitor, MousePointer2, MousePointerClick, MoveVertical, Plus, Redo2, Rows3, ScanLine, SquareMousePointer, Star, Smartphone, Tablet, Type, Undo2, Video, X, type LucideIcon } from "lucide-react";
 import "grapesjs/dist/css/grapes.min.css";
 import "./GrapesWidgetBuilder.css";
 import type { ExperienceAction, ExperienceContent, ExperienceDesign, ExperienceSize, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
@@ -274,6 +275,9 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
           instance.DomComponents.addType("movecues-survey-question", { isComponent: element => element.hasAttribute?.("data-movecues-question-id") ? { type: "movecues-survey-question" } : false, model: { defaults: { droppable: true, editable: false, removable: false, copyable: false, traits: [] } } });
           instance.DomComponents.addType("movecues-button", { isComponent: element => element.tagName === "BUTTON" && (element.hasAttribute?.("data-movecues-action-id") || element.hasAttribute?.("data-movecues-survey-action")) ? { type: "movecues-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, removable: true, copyable: false, traits: [] } } });
           instance.DomComponents.addType("movecues-free-area", { isComponent: element => element.classList?.contains(FREE_AREA_CLASS) ? { type: "movecues-free-area" } : false, model: { defaults: { tagName: "div", classes: [FREE_AREA_CLASS], droppable: true } } });
+          instance.DomComponents.addType("movecues-video", { isComponent: element => element.tagName === "VIDEO" ? { type: "movecues-video" } : false, model: { defaults: { tagName: "video", droppable: false, traits: [{ type: "text", name: "src", label: "Source URL" }, { type: "checkbox", name: "autoplay", label: "Autoplay" }, { type: "checkbox", name: "muted", label: "Muted" }, { type: "checkbox", name: "loop", label: "Loop" }, { type: "checkbox", name: "controls", label: "Controls" }] } } });
+          instance.DomComponents.addType("movecues-avatar-image", { isComponent: element => element.tagName === "IMG" && element.classList?.contains("movecues-widget__avatar-image") ? { type: "movecues-avatar-image" } : false, model: { defaults: { tagName: "img", droppable: false, traits: [{ type: "text", name: "src", label: "Image URL" }, { type: "text", name: "alt", label: "Alt text" }] } } });
+          instance.DomComponents.addType("movecues-embed-frame", { isComponent: element => element.tagName === "IFRAME" && element.classList?.contains("movecues-widget__embed-frame") ? { type: "movecues-embed-frame" } : false, model: { defaults: { tagName: "iframe", droppable: false, traits: [{ type: "text", name: "src", label: "URL" }, { type: "text", name: "title", label: "Title" }] } } });
         }, instance => { interactionControllerRef.current = installWidgetInteractions(instance, { widgetType, design: () => designRef.current, onRootResize: (size, commit) => { const next = { ...designRef.current, size }; applySizeEnvelopeRef.current(next); if (commit) { designRef.current = next; onSizeChangeRef.current(size); } }, onFreeItemChange: (component, box) => { selectedFreeItemRef.current = component; setFreeItemBox(box); }, onMutation: scheduleCustomMutation, canStartFreeDrag: target => !handToolRef.current && !spacePressedRef.current && !codeModeRef.current && !isEditableTarget(target) }); }],
       });
       if (cancelled) { editor.destroy(); return; }
@@ -319,7 +323,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       editor.on("component:styleUpdate", (component: Component) => { builderDebug(experienceKey, "grapes:component-style-update", { component: debugComponent(component), css: debugCss(rawEditorCss()) }); persistComponentStyle(component); });
       editor.on("style:property:update", () => { builderDebug(experienceKey, "grapes:style-property-update", { selected: debugComponent(editor?.getSelected()), css: debugCss(rawEditorCss()) }); queueMicrotask(() => persistComponentStyle()); });
       editor.on("component:selected", (component: Component) => { builderDebug(experienceKey, "grapes:component-selected", { component: debugComponent(component) }); selectAction(component); });
-      editor.on("component:add", (component: Component) => { builderDebug(experienceKey, "grapes:component-add", { component: debugComponent(component), snapshot: currentEditorDebugSnapshot(editor, widgetType) }, "info"); keepOneActionPerSlot(component); });
+      editor.on("component:add", (component: Component) => { builderDebug(experienceKey, "grapes:component-add", { component: debugComponent(component), snapshot: currentEditorDebugSnapshot(editor, widgetType) }, "info"); keepOneActionPerSlot(component); if (!applyingCodeRef.current) installNewBlockStyles(editor!, component); });
       editor.on("component:remove", (component: Component) => { builderDebug(experienceKey, "grapes:component-remove", { component: debugComponent(component), snapshot: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); });
       editor.on("load", () => { builderDebug(experienceKey, "grapes:load"); finishInitialization("grapes:load"); }); editor.onReady(() => { builderDebug(experienceKey, "grapes:on-ready"); finishInitialization("grapes:on-ready"); });
       initializationTimer = window.setTimeout(() => {
@@ -471,19 +475,59 @@ function isEditableTarget(target: EventTarget | null): boolean {
 }
 
 function blocks() { return [
-  { id: "free-area", label: "Free Area", category: "Layout", content: { type: "movecues-free-area", tagName: "div", classes: [FREE_AREA_CLASS] } },
-  { id: "container", label: "Container", category: "Layout", content: { type: "default", tagName: "div", classes: ["movecues-widget__container"], components: "Container" } },
-  { id: "row", label: "Row", category: "Layout", content: '<div class="movecues-widget__row"><div class="movecues-widget__column">Column</div><div class="movecues-widget__column">Column</div></div>' },
-  { id: "columns", label: "Columns", category: "Layout", content: '<div class="movecues-widget__columns"><div class="movecues-widget__column">Left</div><div class="movecues-widget__column">Right</div></div>' },
-  { id: "heading", label: "Heading", category: "Content", content: '<h2 class="movecues-widget__heading">Heading</h2>' },
-  { id: "text", label: "Text", category: "Content", content: '<p class="movecues-widget__body">Add your message.</p>' },
-  { id: "image", label: "Image", category: "Content", content: { type: "image", tagName: "img", attributes: { class: "movecues-widget__image", alt: "" } }, activate: true },
-  { id: "icon", label: "Icon", category: "Content", content: '<span class="movecues-widget__icon" role="img" aria-label="Icon">★</span>' },
-  { id: "divider", label: "Divider", category: "Content", content: '<hr class="movecues-widget__divider">' },
-  { id: "spacer", label: "Spacer", category: "Layout", content: '<div class="movecues-widget__spacer">&nbsp;</div>' },
-  { id: "button", label: "Button", category: "Actions", content: '<button class="movecues-widget__button" data-movecues-action-id="primary">Continue</button>' },
-  { id: "secondary-button", label: "Secondary button", category: "Actions", content: '<button class="movecues-widget__button movecues-widget__button--secondary" data-movecues-action-id="secondary">Dismiss</button>' },
+  { id: "free-area", label: "Free Area", media: blockIcon(Maximize2), category: "Layout", content: { type: "movecues-free-area", tagName: "div", classes: [FREE_AREA_CLASS] } },
+  { id: "container", label: "Container", media: blockIcon(Box), category: "Layout", content: { type: "default", tagName: "div", classes: ["movecues-widget__container"], components: "Container" } },
+  { id: "row", label: "Row", media: blockIcon(Rows3), category: "Layout", content: '<div class="movecues-widget__row"><div class="movecues-widget__column">Column</div><div class="movecues-widget__column">Column</div></div>' },
+  { id: "columns", label: "Columns", media: blockIcon(Columns3), category: "Layout", content: '<div class="movecues-widget__columns"><div class="movecues-widget__column">Left</div><div class="movecues-widget__column">Right</div></div>' },
+  { id: "heading", label: "Heading", media: blockIcon(Heading2), category: "Content", content: '<h2 class="movecues-widget__heading">Heading</h2>' },
+  { id: "text", label: "Text", media: blockIcon(Type), category: "Content", content: '<p class="movecues-widget__body">Add your message.</p>' },
+  { id: "image", label: "Image", media: blockIcon(ImageIcon), category: "Content", content: { type: "image", tagName: "img", attributes: { class: "movecues-widget__image", alt: "" } }, activate: true },
+  { id: "icon", label: "Icon", media: blockIcon(Star), category: "Content", content: '<span class="movecues-widget__icon" role="img" aria-label="Icon">★</span>' },
+  { id: "divider", label: "Divider", media: blockIcon(Minus), category: "Content", content: '<hr class="movecues-widget__divider">' },
+  { id: "video", label: "Video", media: blockIcon(Video), category: "Content", content: { type: "default", tagName: "div", classes: ["movecues-widget__video"], components: [{ type: "movecues-video", tagName: "video", attributes: { controls: "", playsinline: "", muted: "" }, components: [{ tagName: "source", attributes: { src: "" } }] }] } },
+  { id: "badge", label: "Badge", media: blockIcon(BadgeIcon), category: "Content", content: '<span class="movecues-widget__badge">New</span>' },
+  { id: "avatar", label: "Avatar", media: blockIcon(CircleUserRound), category: "Content", content: { type: "default", tagName: "div", classes: ["movecues-widget__avatar"], components: [{ type: "movecues-avatar-image", tagName: "img", classes: ["movecues-widget__avatar-image"], attributes: { src: "", alt: "" } }] } },
+  { id: "list", label: "List", media: blockIcon(List), category: "Content", content: '<ul class="movecues-widget__list"><li>First item</li><li>Second item</li><li>Third item</li></ul>' },
+  { id: "spacer", label: "Spacer", media: blockIcon(MoveVertical), category: "Layout", content: '<div class="movecues-widget__spacer">&nbsp;</div>' },
+  { id: "button", label: "Button", media: blockIcon(MousePointerClick), category: "Actions", content: '<button class="movecues-widget__button" data-movecues-action-id="primary">Continue</button>' },
+  { id: "secondary-button", label: "Secondary button", media: blockIcon(SquareMousePointer), category: "Actions", content: '<button class="movecues-widget__button movecues-widget__button--secondary" data-movecues-action-id="secondary">Dismiss</button>' },
+  { id: "embed", label: "Embed", media: blockIcon(Code2), category: "Embed", content: { type: "default", tagName: "div", classes: ["movecues-widget__embed"], components: [{ type: "movecues-embed-frame", tagName: "iframe", classes: ["movecues-widget__embed-frame"], attributes: { src: "", title: "Embedded content", loading: "lazy" } }] } },
+  { id: "progress", label: "Progress", media: blockIcon(CircleDot), category: "Guide", content: '<div class="movecues-widget__progress" aria-label="Progress"><span class="movecues-widget__progress-dot movecues-widget__progress-dot--active"></span><span class="movecues-widget__progress-dot"></span><span class="movecues-widget__progress-dot"></span></div>' },
+  { id: "close", label: "Close", media: blockIcon(X), category: "Guide", content: '<button class="movecues-widget__close" type="button" aria-label="Close">&times;</button>' },
 ]; }
+
+function blockIcon(Icon: LucideIcon): string {
+  return renderToStaticMarkup(<Icon aria-hidden="true" focusable="false" strokeWidth={1.8} />);
+}
+
+const NEW_BLOCK_STYLES: Record<string, Array<[string, Record<string, string>]>> = {
+  "movecues-widget__video": [
+    [".movecues-widget .movecues-widget__video", { width: "100%", overflow: "hidden", "border-radius": "8px", background: "rgba(15,23,42,.08)" }],
+    [".movecues-widget .movecues-widget__video video", { display: "block", width: "100%", "aspect-ratio": "16 / 9", background: "rgba(15,23,42,.08)" }],
+  ],
+  "movecues-widget__badge": [[".movecues-widget .movecues-widget__badge", { display: "inline-flex", "align-items": "center", padding: "2px 8px", "border-radius": "999px", background: "rgba(15,23,42,.08)", color: "inherit", "font-size": "12px", "line-height": "1.5" }]],
+  "movecues-widget__avatar": [
+    [".movecues-widget .movecues-widget__avatar", { width: "40px", height: "40px", overflow: "hidden", "border-radius": "50%", background: "rgba(15,23,42,.08)" }],
+    [".movecues-widget .movecues-widget__avatar img", { display: "block", width: "100%", height: "100%", "object-fit": "cover" }],
+  ],
+  "movecues-widget__list": [[".movecues-widget .movecues-widget__list", { margin: "0", "padding-left": "20px", "line-height": "1.5" }]],
+  "movecues-widget__embed": [
+    [".movecues-widget .movecues-widget__embed", { width: "100%", overflow: "hidden", "border-radius": "8px", background: "rgba(15,23,42,.08)" }],
+    [".movecues-widget .movecues-widget__embed iframe", { display: "block", width: "100%", "min-height": "240px", border: "0" }],
+  ],
+  "movecues-widget__progress": [
+    [".movecues-widget .movecues-widget__progress", { display: "flex", "align-items": "center", gap: "6px", color: "inherit" }],
+    [".movecues-widget .movecues-widget__progress-dot", { display: "block", width: "8px", height: "8px", "border-radius": "50%", background: "currentColor", opacity: ".3" }],
+    [".movecues-widget .movecues-widget__progress-dot--active", { opacity: "1" }],
+  ],
+  "movecues-widget__close": [[".movecues-widget .movecues-widget__close", { display: "inline-grid", width: "32px", height: "32px", "place-items": "center", padding: "0", border: "0", "border-radius": "50%", background: "transparent", color: "inherit", "font-size": "20px", "line-height": "1", cursor: "pointer" }]],
+};
+
+function installNewBlockStyles(editor: Editor, component: Component): void {
+  for (const className of component.getClasses?.() ?? []) {
+    for (const [selector, style] of NEW_BLOCK_STYLES[className] ?? []) if (!editor.Css.getRule(selector)) editor.Css.setRule(selector, style);
+  }
+}
 
 function styleSectors() { return [
   { id: "layout", name: "Layout", open: true, properties: ["display", "flex-direction", "justify-content", "align-items", "gap", "width", "height", "min-width", "max-width", "min-height", "max-height", "padding", "margin"] },

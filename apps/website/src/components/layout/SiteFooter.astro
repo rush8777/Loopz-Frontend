@@ -1,0 +1,17 @@
+---
+import logo from "../../../../dashboard/public/movecues_logo.png";
+import { DASHBOARD_URLS } from "../../config/site";
+---
+
+<footer class="site-footer">
+  <div class="section-shell footer-grid">
+    <div class="footer-brand">
+      <a href="#top" aria-label="Movcues home"><img src={logo.src} width="140" height="26" alt="Movcues" /></a>
+      <p>Turn user behavior into action.</p>
+    </div>
+    <div class="footer-column"><h2>Product</h2><a href="#understand">Understand</a><a href="#target">Target</a><a href="#engage">Engage</a><a href="#measure">Measure</a></div>
+    <div class="footer-column"><h2>Platform</h2><a href="#journey">How it works</a><a href="#platform">Capabilities</a></div>
+    <div class="footer-column"><h2>Account</h2><a href={DASHBOARD_URLS.login}>Log in</a><a href={DASHBOARD_URLS.signup}>Get started</a></div>
+  </div>
+  <div class="section-shell footer-bottom"><span>© {new Date().getFullYear()} Movcues</span><span>Built for product teams who listen.</span></div>
+</footer>

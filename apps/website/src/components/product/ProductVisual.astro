@@ -1,0 +1,119 @@
+---
+interface Props {
+  kind: "understand" | "target" | "trigger" | "engage" | "measure";
+}
+
+const { kind } = Astro.props;
+---
+
+{kind === "understand" && (
+  <div class="visual-shell analytics-visual" role="img" aria-label="Illustrative Movcues funnel analysis">
+    <div class="visual-toolbar">
+      <div><span class="ui-eyebrow">Funnel</span><strong>Activation path</strong></div>
+      <span class="date-control">Last 30 days⌄</span>
+    </div>
+    <div class="funnel-summary">
+      <div><span>Entered funnel</span><strong>1,284</strong></div>
+      <div><span>Completed</span><strong>542</strong></div>
+      <div><span>Conversion</span><strong>42.2%</strong></div>
+    </div>
+    <div class="funnel-chart">
+      <div class="funnel-step"><div class="funnel-bar" style="--bar: 100%"><span></span></div><b>Viewed workspace</b><small>1,284 users</small></div>
+      <div class="funnel-arrow">↓ <span>24% drop-off</span></div>
+      <div class="funnel-step"><div class="funnel-bar" style="--bar: 76%"><span></span></div><b>Created first project</b><small>976 users</small></div>
+      <div class="funnel-arrow">↓ <span>44% drop-off</span></div>
+      <div class="funnel-step"><div class="funnel-bar" style="--bar: 42%"><span></span></div><b>Invited a teammate</b><small>542 users</small></div>
+    </div>
+    <p class="sample-note">Illustrative workspace data</p>
+  </div>
+)}
+
+{kind === "target" && (
+  <div class="visual-shell segment-visual" role="img" aria-label="Illustrative Movcues segment builder">
+    <div class="visual-toolbar">
+      <div><span class="ui-eyebrow">Segment builder</span><strong>High-intent trial users</strong></div>
+      <span class="status-pill">Live audience</span>
+    </div>
+    <div class="condition-group">
+      <div class="condition-label"><span>ALL</span> of these conditions</div>
+      <div class="condition-row"><span class="condition-type">Event</span><b>completed_onboarding</b><span class="operator">has occurred</span><span class="condition-remove">×</span></div>
+      <div class="condition-join">AND</div>
+      <div class="condition-row"><span class="condition-type page">Page</span><b>Billing</b><span class="operator">was viewed</span><span class="condition-remove">×</span></div>
+      <div class="condition-join">AND</div>
+      <div class="condition-row"><span class="condition-type property">Property</span><b>plan</b><span class="operator">equals trial</span><span class="condition-remove">×</span></div>
+      <span class="condition-add">＋ Add condition</span>
+    </div>
+    <div class="audience-preview"><span><i></i>Estimated audience</span><strong>386 users</strong></div>
+    <p class="sample-note">Illustrative workspace data</p>
+  </div>
+)}
+
+{kind === "trigger" && (
+  <div class="visual-shell trigger-visual" role="img" aria-label="Illustrative Movcues targeting pipeline">
+    <div class="visual-toolbar">
+      <div><span class="ui-eyebrow">Delivery rules</span><strong>Onboarding guidance</strong></div>
+      <span class="status-pill">Ready</span>
+    </div>
+    <div class="trigger-pipeline">
+      <div class="pipeline-node action-node"><span class="node-icon">↗</span><div><small>Trigger</small><strong>Project created</strong><p>Custom event</p></div></div>
+      <span class="pipeline-connector"></span>
+      <div class="pipeline-node"><span class="node-icon">⌁</span><div><small>Page match</small><strong>Workspace</strong><p>/projects/*</p></div></div>
+      <span class="pipeline-connector"></span>
+      <div class="pipeline-node"><span class="node-icon">◎</span><div><small>Audience</small><strong>New users</strong><p>Live segment</p></div></div>
+      <span class="pipeline-connector"></span>
+      <div class="pipeline-node result-node"><span class="node-icon">✦</span><div><small>Experience</small><strong>First project guide</strong><p>Once per user</p></div></div>
+    </div>
+    <div class="rule-strip"><span><b>Frequency</b> Once</span><span><b>Priority</b> Normal</span><span><b>Schedule</b> Always active</span></div>
+  </div>
+)}
+
+{kind === "engage" && (
+  <div class="visual-shell builder-visual" role="img" aria-label="Illustrative Movcues experience builder">
+    <div class="builder-toolbar"><span>← Experiences</span><strong>First project guide</strong><span class="builder-actions"><i>Saved</i><b>Publish</b></span></div>
+    <div class="builder-body">
+      <div class="builder-canvas">
+        <div class="demo-app">
+          <div class="demo-app-nav"><span class="demo-logo">A</span><span></span><span></span><i></i></div>
+          <div class="demo-app-content"><span class="demo-line wide"></span><span class="demo-line"></span><div class="demo-cards"><i></i><i></i><i></i></div></div>
+        </div>
+        <div class="guide-card">
+          <span class="guide-step">STEP 1 OF 3</span>
+          <h3>Create your first project</h3>
+          <p>Bring your team’s work into one place and start learning from real behavior.</p>
+          <div><span class="guide-secondary">Not now</span><b>Show me</b></div>
+          <i class="guide-pointer"></i>
+        </div>
+      </div>
+      <aside class="builder-panel">
+        <span class="ui-eyebrow">Experience</span><strong>Content</strong>
+        <label>Heading<span>Create your first project</span></label>
+        <label>Body<span>Bring your team’s work into one place...</span></label>
+        <label>Button label<span>Show me</span></label>
+        <div class="experience-types"><span class="is-active">Guide</span><span>Survey</span><span>Banner</span></div>
+      </aside>
+    </div>
+  </div>
+)}
+
+{kind === "measure" && (
+  <div class="visual-shell measure-visual" role="img" aria-label="Illustrative Movcues experience analytics">
+    <div class="visual-toolbar">
+      <div><span class="ui-eyebrow">Experience overview</span><strong>Performance</strong></div>
+      <span class="date-control">Last 30 days⌄</span>
+    </div>
+    <div class="measure-metrics">
+      <div class="is-selected"><span>Viewers</span><strong>3,846</strong><small>Unique users reached</small></div>
+      <div><span>Engagement</span><strong>57.4%</strong><small>Viewers who interacted</small></div>
+      <div><span>Completion</span><strong>44.8%</strong><small>Guides and surveys</small></div>
+    </div>
+    <div class="measure-chart">
+      <div class="panel-heading"><div><strong>Viewers over time</strong><span>Daily experience performance</span></div><span class="legend"><i></i>Viewers</span></div>
+      <svg viewBox="0 0 680 190" role="img" aria-label="Illustrative viewers trend chart">
+        <g class="grid-lines"><path d="M0 24H680M0 70H680M0 116H680M0 162H680" /></g>
+        <path class="chart-path" d="M0 147 C44 136 62 126 96 131 S158 87 198 102 S270 94 306 65 S366 91 411 69 S489 29 530 48 S604 31 680 20" />
+        <g class="axis-labels"><text x="0" y="184">Aug 1</text><text x="318" y="184">Aug 15</text><text x="628" y="184">Aug 30</text></g>
+      </svg>
+    </div>
+    <p class="sample-note">Illustrative workspace data</p>
+  </div>
+)}

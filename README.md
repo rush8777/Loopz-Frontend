@@ -7,6 +7,7 @@ This repository is an npm workspace containing the Movecues dashboard and its sh
 ```text
 apps/
   dashboard/       Existing Vite dashboard application
+  website/         Static Astro marketing website
 packages/
   tokens/          Shared brand CSS variables, fonts, radii, and shadows
   ui/              Shared React UI primitives
@@ -26,6 +27,14 @@ Run the dashboard:
 
 ```bash
 npm run dev:dashboard
+```
+
+Run and build the marketing website independently:
+
+```bash
+npm run dev:website
+npm run check:website
+npm run build:website
 ```
 
 Build, test, and lint the dashboard:
@@ -66,4 +75,6 @@ Both packages are private workspace dependencies and are not published to npm.
 
 ## Deployment layout
 
-For a Cloudflare project, use the repository root as the build context, `npm run build:dashboard` as the build command, and `apps/dashboard/dist` as the dashboard output directory. A future `apps/website` project can use the same root workspace and consume `@movecues/ui` and `@movecues/tokens` independently.
+For the dashboard Cloudflare project, use the repository root as the build context, `npm run build:dashboard` as the build command, and `apps/dashboard/dist` as the output directory.
+
+For the public website Cloudflare project, use the same repository root, `npm run build:website`, and `apps/website/dist`. The website is a static Astro build and is deployed separately from the dashboard.
