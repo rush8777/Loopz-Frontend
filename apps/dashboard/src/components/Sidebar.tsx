@@ -44,7 +44,7 @@ function useScrollState() {
    text/content so it stays usable, not decorative-heavy.
    ──────────────────────────────────────────────────────────────────────── */
 export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, mobileOpen = false, onMobileClose }: SidebarProps) {
-  const { currentOrg } = useWorkspace();
+  const { currentSite } = useWorkspace();
   const { isScrolling, handleScroll } = useScrollState();
 
   const content = (compact: boolean, mobile: boolean) => (
@@ -55,7 +55,7 @@ export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, 
       <div className="absolute inset-0 bg-white/35 backdrop-blur-2xl backdrop-saturate-150" />
 
       <div className={cn("relative flex h-11 items-center", compact ? "justify-center px-1" : "px-2")}>
-        {!compact && <button type="button" onClick={() => onOpenSettings("sites")} aria-label="Select workspace and site" className="flex min-w-0 items-center gap-1.5 text-left text-sm font-medium text-[#141414] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20"><span className="truncate">{currentOrg?.name ?? "Workspace"}</span><ChevronDown className="size-3.5 shrink-0 text-[#474747]" /></button>}
+        {!compact && <button type="button" onClick={() => onOpenSettings("sites")} aria-label="Select site" className="flex min-w-0 items-center gap-1.5 text-left text-sm font-medium text-[#141414] transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20"><span className="truncate">{currentSite?.name ?? "Select site"}</span><ChevronDown className="size-3.5 shrink-0 text-[#474747]" /></button>}
         {mobile ? <Button variant="ghost" size="icon" className="ml-auto lg:hidden" onClick={onMobileClose} aria-label="Close navigation"><X /></Button> : <Button variant="ghost" size="icon" className={cn("hidden text-[#474747] hover:bg-white/50 lg:inline-flex", compact ? "size-6" : "ml-auto size-8")} onClick={() => onCollapsedChange?.(!collapsed)} aria-label={compact ? "Expand navigation" : "Collapse navigation"}>{compact ? <PanelLeftOpen /> : <PanelLeftClose />}</Button>}
       </div>
       <nav onScroll={handleScroll} className={cn("sidebar-scrollbar relative mt-5 flex-1 overflow-y-auto", compact ? "space-y-4" : "space-y-5", isScrolling && "is-scrolling")} aria-label="Main navigation">

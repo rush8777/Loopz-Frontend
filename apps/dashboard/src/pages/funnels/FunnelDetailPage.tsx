@@ -23,7 +23,7 @@ const STEP_USERS_PAGE_SIZE = 25;
 const WINDOWS = [{ value: 60, label: "1 hour" }, { value: 24 * 60, label: "24 hours" }, { value: 3 * 24 * 60, label: "3 days" }, { value: 7 * 24 * 60, label: "7 days" }, { value: 14 * 24 * 60, label: "14 days" }, { value: 30 * 24 * 60, label: "30 days" }, { value: 90 * 24 * 60, label: "90 days" }];
 type PerformanceTab = "conversion" | "trend";
 
-const humanize = (value: string) => value.replace(/[_-]+/g, " ").replace(/w/g, char => char.toUpperCase());
+export const humanize = (value: string) => value.replace(/[_-]+/g, " ").replace(/\b\w/g, char => char.toUpperCase());
 const dropRate = (step: FunnelStepResult) => Math.max(0, 100 - step.conversionFromPrevious);
 
 export function FunnelDetailPage() {

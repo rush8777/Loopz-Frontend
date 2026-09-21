@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findLargestDrop } from "./FunnelDetailPage";
+import { findLargestDrop, humanize } from "./FunnelDetailPage";
 import type { FunnelStepResult } from "../../types/api";
 
 const step = (index: number, users: number, conversionFromPrevious: number, droppedBeforeNext: number): FunnelStepResult => ({ index, type: "event", label: `Step ${index + 1}`, users, conversionFromStart: index === 0 ? 100 : 0, conversionFromPrevious, droppedBeforeNext });
@@ -12,5 +12,11 @@ describe("findLargestDrop", () => {
 
   it("returns no insight when nobody dropped", () => {
     expect(findLargestDrop([step(0, 2, 100, 0), step(1, 2, 100, 0)])).toBeNull();
+  });
+});
+
+describe("humanize", () => {
+  it("formats underscored funnel labels as title case", () => {
+    expect(humanize("pricing_viewed")).toBe("Pricing Viewed");
   });
 });
