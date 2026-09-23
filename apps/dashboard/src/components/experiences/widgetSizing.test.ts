@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ExperienceDesign, WidgetType } from "../../types/experiences";
-import { normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS, widgetSizeCss } from "./widgetSizing";
+import { builderPreviewSizeEnvelopeCss, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS, widgetSizeCss } from "./widgetSizing";
 
 const design = (width: "sm" | "md" | "lg" = "md", size?: ExperienceDesign["size"]): ExperienceDesign => ({ width, size, theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } });
 
@@ -38,5 +38,14 @@ describe("widget sizing", () => {
     const css = widgetSizeCss("toast", design());
     expect(css.maxWidth).toBe("min(520px,calc(100vw - 24px))");
     expect(css.maxHeight).toBe("calc(100vh - 24px)");
+  });
+
+  it("uses a preview-only outer envelope and makes the authored root fill canonical fixed and viewport heights", () => {
+    const fixed = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "fixed", value: 480 } }));
+    expect(fixed).toContain("body{width:720px!important"); expect(fixed).toContain("height:480px!important"); expect(fixed).toContain("body>.movecues-widget"); expect(fixed).toContain("width:100%!important"); expect(fixed).toContain("height:100%!important");
+    const viewport = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "viewport" } }));
+    expect(viewport).toContain("height:calc(100vh - 24px)!important"); expect(viewport).toContain("height:100%!important");
+    const automatic = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "auto" } }));
+    expect(automatic).toContain("height:auto!important"); expect(automatic).toContain("max-height:none!important");
   });
 });

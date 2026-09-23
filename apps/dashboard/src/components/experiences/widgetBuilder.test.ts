@@ -18,20 +18,28 @@ describe("widget builder compatibility", () => {
 
   it("removes executable markup and unsafe attributes while preserving movecues action ids", () => {
     const result = sanitizeBuilderHtml('<section class="movecues-widget"><script>alert(1)</script><button data-movecues-action-id="primary" onclick="alert(1)">Go</button><button data-movecues-action-id="primary">Duplicate</button><iframe src="javascript:alert(1)"></iframe></section>');
-    expect(result).not.toMatch(/script|onclick|Duplicate|javascript:/i); expect(result).toContain('data-movecues-action-id="primary"'); expect(result).toContain('<iframe title="Embedded content"></iframe>');
+    expect(result).not.toMatch(/script|onclick|Duplicate|javascript:|iframe/i); expect(result).toContain('data-movecues-action-id="primary"');
   });
 
-  it("preserves safe media, embed, list, progress, and close markup while filtering unsafe URLs", () => {
+  it("preserves supported image and structural markup while removing unsupported media", () => {
     const html = '<section class="movecues-widget"><div class="movecues-widget__video"><video controls playsinline muted loop src="https://cdn.test/demo.mp4"><source src="/fallback.mp4"></video></div><div class="movecues-widget__avatar"><img src="https://cdn.test/avatar.png" alt="Profile"></div><ul class="movecues-widget__list"><li>Edited item</li></ul><iframe src="https://example.test/embed" title="Example" loading="lazy"></iframe><div class="movecues-widget__progress" aria-label="Progress"><span></span></div><button class="movecues-widget__close" type="button" aria-label="Close">×</button></section>';
     const result = sanitizeBuilderHtml(html);
-    expect(result).toContain('<video controls="" playsinline="" muted="" loop="" src="https://cdn.test/demo.mp4">'); expect(result).toContain('<source src="/fallback.mp4">'); expect(result).toContain("Edited item"); expect(result).toContain('loading="lazy"'); expect(result).toContain('title="Example"'); expect(result).toContain('aria-label="Close"');
-    const unsafe = sanitizeBuilderHtml('<section class="movecues-widget"><video src="data:text/html,unsafe"></video><iframe src="javascript:alert(1)" title=""></iframe></section>');
-    expect(unsafe).not.toContain("data:text/html"); expect(unsafe).not.toContain("javascript:"); expect(unsafe).toContain('title="Embedded content"');
+    expect(result).not.toMatch(/<(?:video|iframe)\b/i); expect(result).toContain('<ul class="movecues-widget__list"><li>Edited item</li></ul>'); expect(result).toContain('src="https://cdn.test/avatar.png"'); expect(result).toContain('aria-label="Close"');
+    const unsafe = sanitizeBuilderHtml('<section class="movecues-widget"><img src="data:image/svg+xml;base64,unsafe"><img src="data:image/png;base64,safe"></section>');
+    expect(unsafe).not.toContain("svg+xml"); expect(unsafe).toContain("data:image/png;base64,safe");
   });
 
   it("preserves independently authored and duplicated survey button actions", () => {
     const result = sanitizeBuilderHtml('<section class="movecues-widget"><button class="movecues-widget__button" data-movecues-survey-action="next">Continue</button><button class="movecues-widget__button--secondary" data-movecues-survey-action="next">Alternate</button><button data-movecues-survey-action="back">Previous</button></section>', true);
     expect(result.match(/data-movecues-survey-action="next"/g)).toHaveLength(2); expect(result).toContain('data-movecues-survey-action="back"');
+  });
+
+  it("round-trips custom survey HTML and CSS through save and reload sanitization", () => {
+    const html = '<section class="movecues-widget custom-survey"><div class="movecues-survey-question custom-question movecues-style--saved" data-movecues-question-id="question_1" data-movecues-question-type="short_text"><div class="custom-wrapper"><p class="movecues-survey-question__label">Name</p><input type="text" class="custom-input" data-movecues-question-input placeholder="Your name"></div></div></section>';
+    const css = ".movecues-widget.custom-survey{background:#fff}.movecues-widget .movecues-style--saved{padding:12px}";
+    const savedHtml = sanitizeBuilderHtml(html, true); const savedCss = validateBuilderCss(css);
+    expect(sanitizeBuilderHtml(savedHtml, true)).toBe(savedHtml); expect(validateBuilderCss(savedCss)).toBe(savedCss);
+    expect(savedHtml).toContain("custom-wrapper"); expect(savedHtml).toContain("movecues-style--saved"); expect(savedHtml).toContain("custom-input");
   });
 
   it("preserves Free Area and stable item marker classes", () => {

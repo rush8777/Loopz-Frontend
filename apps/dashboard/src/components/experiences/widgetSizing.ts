@@ -61,6 +61,13 @@ export function widgetSizeCss(widgetType: WidgetType, design: Pick<ExperienceDes
   };
 }
 
+/** Preview-only envelope rules. The body is GrapesJS infrastructure and is not returned by editor.getHtml(). */
+export function builderPreviewSizeEnvelopeCss(widgetType: WidgetType, design: Pick<ExperienceDesign, "width" | "size">): string {
+  const size = widgetSizeCss(widgetType, design); const normalized = normalizeWidgetSize(widgetType, design); const fillsHeight = normalized.height.mode !== "auto";
+  const width = normalized.width.mode === "full" ? "calc(100% - 160px)" : size.width;
+  return `body{width:${width}!important;${size.minWidth ? `min-width:${size.minWidth}!important;` : "min-width:0!important;"}${size.maxWidth ? `max-width:${size.maxWidth}!important;` : "max-width:none!important;"}height:${size.height}!important;max-height:${size.maxHeight}!important;overflow:visible!important}body>.movecues-widget{box-sizing:border-box;width:100%!important;min-width:0!important;max-width:none!important;height:${fillsHeight ? "100%" : "auto"}!important;max-height:${fillsHeight ? "100%" : "none"}!important}`;
+}
+
 function legacyWidth(widgetType: WidgetType, width: LegacyExperienceWidth): number {
   const constraint = WIDGET_SIZE_CONSTRAINTS[widgetType].width;
   if (typeof constraint.default !== "number") return 0;

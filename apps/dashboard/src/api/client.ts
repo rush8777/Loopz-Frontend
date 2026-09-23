@@ -5,19 +5,35 @@ export class ApiError extends Error {
   body: unknown;
   constructor(status: number, body: unknown) {
     const response = typeof body === "object" && body ? body as { error?: unknown; message?: unknown; details?: unknown } : null;
-    const details = response?.details && typeof response.details === "object"
-      ? JSON.stringify(response.details)
-      : null;
+    const details = formatApiDetails(response?.details);
+    const code = typeof response?.error === "string" ? response.error : null;
     super(
       typeof response?.message === "string" && response.message
         ? response.message
-        : typeof response?.error === "string" && response.error
-          ? response.error
-          : details ?? `HTTP ${status}`,
+        : code && details ? `${code}: ${details}`
+          : code ?? details ?? `HTTP ${status}`,
     );
     this.status = status;
     this.body = body;
   }
+}
+
+function formatApiDetails(details: unknown): string | null {
+  if (!details || typeof details !== "object") return null;
+  const flattened = details as { formErrors?: unknown; fieldErrors?: unknown; issues?: unknown };
+  const messages: string[] = [];
+  if (Array.isArray(flattened.issues)) for (const issue of flattened.issues) {
+    if (!issue || typeof issue !== "object") continue;
+    const value = issue as { path?: unknown; message?: unknown };
+    if (typeof value.message !== "string") continue;
+    const path = Array.isArray(value.path) ? value.path.map(String).join(".") : "";
+    messages.push(path ? `${path}: ${value.message}` : value.message);
+  }
+  if (Array.isArray(flattened.formErrors)) messages.push(...flattened.formErrors.filter((value): value is string => typeof value === "string"));
+  if (flattened.fieldErrors && typeof flattened.fieldErrors === "object") {
+    for (const [field, errors] of Object.entries(flattened.fieldErrors)) if (Array.isArray(errors)) for (const error of errors) if (typeof error === "string") messages.push(`${field}: ${error}`);
+  }
+  return messages.length ? [...new Set(messages)].join("; ") : JSON.stringify(details);
 }
 
 let accessToken: string | null = null;

@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject, type UIEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Component, Editor } from "grapesjs";
-import { Badge as BadgeIcon, Box, CircleDot, CircleUserRound, Code2, Columns3, Hand, Heading2, Image as ImageIcon, List, Maximize2, Minus, Monitor, MousePointer2, MousePointerClick, MoveVertical, Plus, Redo2, Rows3, ScanLine, SquareMousePointer, Star, Smartphone, Tablet, Type, Undo2, Video, X, type LucideIcon } from "lucide-react";
+import { Badge as BadgeIcon, Box, CircleDot, CircleUserRound, Code2, Columns3, Hand, Heading2, Image as ImageIcon, List, Maximize2, Minus, Monitor, MousePointer2, MousePointerClick, MoveVertical, Plus, Redo2, Rows3, ScanLine, SquareMousePointer, Star, Smartphone, Tablet, Type, Undo2, X, type LucideIcon } from "lucide-react";
 import "grapesjs/dist/css/grapes.min.css";
 import "./GrapesWidgetBuilder.css";
 import type { ExperienceAction, ExperienceContent, ExperienceDesign, ExperienceSize, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
@@ -9,11 +9,12 @@ import { Button } from "@movecues/ui";
 import { Input } from "@movecues/ui";
 import { Label } from "@movecues/ui";
 import { Textarea } from "@movecues/ui";
-import { builderSignature, createWidgetStarter, projectLegacyContent, sanitizeBuilderHtml, surveyQuestionMarkup, validateBuilderCss, type BuilderExport } from "./widgetBuilder";
+import { builderSignature, createWidgetStarter, projectLegacyContent, sanitizeBuilderHtml, validateBuilderCss, type BuilderExport } from "./widgetBuilder";
 import { FREE_AREA_CLASS, installWidgetInteractions, type FreeItemBox, type WidgetInteractionController } from "./grapesWidgetInteractions";
 import { GrapesWidgetInspector, type InspectorStylePatch, type InspectorStyleSnapshot } from "./GrapesWidgetInspector";
-import { clampWidgetHeight, clampWidgetWidth, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS, widgetSizeCss } from "./widgetSizing";
+import { builderPreviewSizeEnvelopeCss, clampWidgetHeight, clampWidgetWidth, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS } from "./widgetSizing";
 import { builderDebug, summarizeBuilder } from "./builderDebug";
+import { syncSurveyComponents } from "./surveyComponentSync";
 
 interface Props {
   experienceKey: string;
@@ -275,9 +276,9 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     void import("grapesjs").then(module => {
       if (cancelled || !canvasRef.current || !blocksRef.current || !stylesRef.current || !traitsRef.current) return;
       const grapesjs = module.default;
-      const envelopeCss = builderSizeEnvelopeCss(widgetType, designRef.current);
+      const envelopeCss = builderPreviewSizeEnvelopeCss(widgetType, designRef.current);
       editor = grapesjs.init({
-        container: canvasRef.current, height: "100%", width: "auto", storageManager: false, panels: { defaults: [] }, parser: { optionsHtml: { allowScripts: false, allowUnsafeAttr: false, allowUnsafeAttrValue: false } }, canvasCss: `html{width:100%;height:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;overflow:hidden;background:#f8fafc}body{box-sizing:border-box;width:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;margin:0;padding:96px 80px 160px;display:flex;justify-content:center;align-items:flex-start;background:#f8fafc}*{box-sizing:border-box}${SDK_BUTTON_BASELINE_CSS}${envelopeCss}`,
+        container: canvasRef.current, height: "100%", width: "auto", storageManager: false, panels: { defaults: [] }, parser: { optionsHtml: { allowScripts: false, allowUnsafeAttr: false, allowUnsafeAttrValue: false } }, canvasCss: `html{box-sizing:border-box;width:100%;height:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;overflow:hidden;padding:1px 80px;background:#f8fafc}body{box-sizing:border-box;min-width:0;min-height:0;margin:95px auto 160px;padding:0;background:#f8fafc}*{box-sizing:border-box}${SDK_BUTTON_BASELINE_CSS}${envelopeCss}`,
         selectorManager: { componentFirst: true },
         components: initialHtml,
         style: initialCss,
@@ -291,9 +292,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
           instance.DomComponents.addType("movecues-survey-question", { isComponent: element => element.hasAttribute?.("data-movecues-question-id") ? { type: "movecues-survey-question" } : false, model: { defaults: { droppable: true, editable: false, removable: false, copyable: false, traits: [] } } });
           instance.DomComponents.addType("movecues-button", { isComponent: element => element.tagName === "BUTTON" && (element.hasAttribute?.("data-movecues-action-id") || element.hasAttribute?.("data-movecues-survey-action")) ? { type: "movecues-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, removable: true, copyable: false, traits: [] } } });
           instance.DomComponents.addType("movecues-free-area", { isComponent: element => element.classList?.contains(FREE_AREA_CLASS) ? { type: "movecues-free-area" } : false, model: { defaults: { tagName: "div", classes: [FREE_AREA_CLASS], droppable: true } } });
-          instance.DomComponents.addType("movecues-video", { isComponent: element => element.tagName === "VIDEO" ? { type: "movecues-video" } : false, model: { defaults: { tagName: "video", droppable: false, traits: [{ type: "text", name: "src", label: "Source URL" }, { type: "checkbox", name: "autoplay", label: "Autoplay" }, { type: "checkbox", name: "muted", label: "Muted" }, { type: "checkbox", name: "loop", label: "Loop" }, { type: "checkbox", name: "controls", label: "Controls" }] } } });
           instance.DomComponents.addType("movecues-avatar-image", { isComponent: element => element.tagName === "IMG" && element.classList?.contains("movecues-widget__avatar-image") ? { type: "movecues-avatar-image" } : false, model: { defaults: { tagName: "img", droppable: false, traits: [{ type: "text", name: "src", label: "Image URL" }, { type: "text", name: "alt", label: "Alt text" }] } } });
-          instance.DomComponents.addType("movecues-embed-frame", { isComponent: element => element.tagName === "IFRAME" && element.classList?.contains("movecues-widget__embed-frame") ? { type: "movecues-embed-frame" } : false, model: { defaults: { tagName: "iframe", droppable: false, traits: [{ type: "text", name: "src", label: "URL" }, { type: "text", name: "title", label: "Title" }] } } });
         }, instance => { interactionControllerRef.current = installWidgetInteractions(instance, { widgetType, design: () => designRef.current, onRootResize: (size, commit) => { const next = { ...designRef.current, size }; applySizeEnvelopeRef.current(next); if (commit) { designRef.current = next; onSizeChangeRef.current(size); } }, onFreeItemChange: (component, box) => { selectedFreeItemRef.current = component; setFreeItemBox(box); }, onMutation: scheduleCustomMutation, canStartFreeDrag: target => !handToolRef.current && !spacePressedRef.current && !codeModeRef.current && !isEditableTarget(target) }); }],
       });
       if (cancelled) { editor.destroy(); return; }
@@ -313,7 +312,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         if (!documentValue) return;
         let style = documentValue.head.querySelector<HTMLStyleElement>("style[data-movecues-size-envelope]");
         if (!style) { style = documentValue.createElement("style"); style.dataset.movecuesSizeEnvelope = ""; documentValue.head.appendChild(style); }
-        style.textContent = builderSizeEnvelopeCss(widgetType, next);
+        style.textContent = builderPreviewSizeEnvelopeCss(widgetType, next);
       };
       fitCanvasRef.current = () => {
         if (!editor || cancelled || !canvasRef.current) return;
@@ -516,14 +515,12 @@ function blocks() { return [
   { id: "image", label: "Image", media: blockIcon(ImageIcon), category: "Content", content: { type: "image", tagName: "img", attributes: { class: "movecues-widget__image", alt: "" } }, activate: true },
   { id: "icon", label: "Icon", media: blockIcon(Star), category: "Content", content: '<span class="movecues-widget__icon" role="img" aria-label="Icon">★</span>' },
   { id: "divider", label: "Divider", media: blockIcon(Minus), category: "Content", content: '<hr class="movecues-widget__divider">' },
-  { id: "video", label: "Video", media: blockIcon(Video), category: "Content", content: { type: "default", tagName: "div", classes: ["movecues-widget__video"], components: [{ type: "movecues-video", tagName: "video", attributes: { controls: "", playsinline: "", muted: "" }, components: [{ tagName: "source", attributes: { src: "" } }] }] } },
   { id: "badge", label: "Badge", media: blockIcon(BadgeIcon), category: "Content", content: '<span class="movecues-widget__badge">New</span>' },
   { id: "avatar", label: "Avatar", media: blockIcon(CircleUserRound), category: "Content", content: { type: "default", tagName: "div", classes: ["movecues-widget__avatar"], components: [{ type: "movecues-avatar-image", tagName: "img", classes: ["movecues-widget__avatar-image"], attributes: { src: "", alt: "" } }] } },
   { id: "list", label: "List", media: blockIcon(List), category: "Content", content: '<ul class="movecues-widget__list"><li>First item</li><li>Second item</li><li>Third item</li></ul>' },
   { id: "spacer", label: "Spacer", media: blockIcon(MoveVertical), category: "Layout", content: '<div class="movecues-widget__spacer">&nbsp;</div>' },
   { id: "button", label: "Button", media: blockIcon(MousePointerClick), category: "Actions", content: '<button class="movecues-widget__button" data-movecues-action-id="primary">Continue</button>' },
   { id: "secondary-button", label: "Secondary button", media: blockIcon(SquareMousePointer), category: "Actions", content: '<button class="movecues-widget__button movecues-widget__button--secondary" data-movecues-action-id="secondary">Dismiss</button>' },
-  { id: "embed", label: "Embed", media: blockIcon(Code2), category: "Embed", content: { type: "default", tagName: "div", classes: ["movecues-widget__embed"], components: [{ type: "movecues-embed-frame", tagName: "iframe", classes: ["movecues-widget__embed-frame"], attributes: { src: "", title: "Embedded content", loading: "lazy" } }] } },
   { id: "progress", label: "Progress", media: blockIcon(CircleDot), category: "Guide", content: '<div class="movecues-widget__progress" aria-label="Progress"><span class="movecues-widget__progress-dot movecues-widget__progress-dot--active"></span><span class="movecues-widget__progress-dot"></span><span class="movecues-widget__progress-dot"></span></div>' },
   { id: "close", label: "Close", media: blockIcon(X), category: "Guide", content: '<button class="movecues-widget__close" type="button" aria-label="Close">&times;</button>' },
 ]; }
@@ -537,20 +534,12 @@ const NEW_BLOCK_STYLES: Record<string, Array<[string, Record<string, string>]>> 
   "movecues-widget__row": [[".movecues-widget .movecues-widget__row", { display: "flex", "flex-direction": "row" }]],
   "movecues-widget__columns": [[".movecues-widget .movecues-widget__columns", { display: "flex", "flex-direction": "row" }]],
   "movecues-widget__column": [[".movecues-widget .movecues-widget__column", { display: "flex", "flex-direction": "column" }]],
-  "movecues-widget__video": [
-    [".movecues-widget .movecues-widget__video", { width: "100%", overflow: "hidden", "border-radius": "8px", background: "rgba(15,23,42,.08)" }],
-    [".movecues-widget .movecues-widget__video video", { display: "block", width: "100%", "aspect-ratio": "16 / 9", background: "rgba(15,23,42,.08)" }],
-  ],
   "movecues-widget__badge": [[".movecues-widget .movecues-widget__badge", { display: "inline-flex", "align-items": "center", padding: "2px 8px", "border-radius": "999px", background: "rgba(15,23,42,.08)", color: "inherit", "font-size": "12px", "line-height": "1.5" }]],
   "movecues-widget__avatar": [
     [".movecues-widget .movecues-widget__avatar", { width: "40px", height: "40px", overflow: "hidden", "border-radius": "50%", background: "rgba(15,23,42,.08)" }],
     [".movecues-widget .movecues-widget__avatar img", { display: "block", width: "100%", height: "100%", "object-fit": "cover" }],
   ],
   "movecues-widget__list": [[".movecues-widget .movecues-widget__list", { margin: "0", "padding-left": "20px", "line-height": "1.5" }]],
-  "movecues-widget__embed": [
-    [".movecues-widget .movecues-widget__embed", { width: "100%", overflow: "hidden", "border-radius": "8px", background: "rgba(15,23,42,.08)" }],
-    [".movecues-widget .movecues-widget__embed iframe", { display: "block", width: "100%", "min-height": "240px", border: "0" }],
-  ],
   "movecues-widget__progress": [
     [".movecues-widget .movecues-widget__progress", { display: "flex", "align-items": "center", gap: "6px", color: "inherit" }],
     [".movecues-widget .movecues-widget__progress-dot", { display: "block", width: "8px", height: "8px", "border-radius": "50%", background: "currentColor", opacity: ".3" }],
@@ -584,46 +573,7 @@ function WidgetSizeEditor({ widgetType, design, onPreview, onChange }: { widgetT
   return <div className="movecues-builder-size"><h3>Widget size</h3>{widgetType === "banner" ? <><Label>Width<Input value="Full width" disabled /></Label><p>Banner width is locked to its container.</p></> : <><Label>Width mode<select value={size.width.mode} onChange={event => { const mode = event.target.value as "fixed" | "full"; const next = mode === "full" ? { width: { mode: "full" as const }, height: { mode: "viewport" as const } } : { ...size, width: { mode: "fixed" as const, value: typeof constraint.width.default === "number" ? constraint.width.default : constraint.width.min } }; setNotice(""); persist(next); }}><option value="fixed">Fixed</option>{constraint.width.allowFull && <option value="full">Fullscreen</option>}</select></Label>{size.width.mode === "fixed" && <Label>Width<div className="movecues-size-input"><Input aria-label="Widget width" type="number" min={constraint.width.min} max={constraint.width.max} value={width} onChange={event => { setWidth(event.target.value); previewWidth(event.target.value); }} onBlur={commitWidth} /><span>px</span></div></Label>}</>}{constraint.height.allowFixed && <><Label>Height<select value={size.height.mode} onChange={event => { const mode = event.target.value as ExperienceSize["height"]["mode"]; const next = { ...size, height: mode === "fixed" ? { mode, value: constraint.height.min } : { mode } }; setNotice(""); persist(next); }}><option value="auto">Auto</option><option value="fixed">Fixed</option>{constraint.height.allowViewport && <option value="viewport">Viewport safe</option>}</select></Label>{size.height.mode === "fixed" && <Label>Height<div className="movecues-size-input"><Input aria-label="Widget height" type="number" min={constraint.height.min} max={constraint.height.max} value={height} onChange={event => { setHeight(event.target.value); previewHeight(event.target.value); }} onBlur={commitHeight} /><span>px</span></div></Label>}</>}{!constraint.height.allowFixed && widgetType !== "banner" && <Label>Height<Input value="Auto" disabled /></Label>}<p>{notice || (constraint.width.max ? `Allowed width: ${constraint.width.min}–${constraint.width.max}px.` : "")}</p></div>;
 }
 
-function builderSizeEnvelopeCss(widgetType: WidgetType, design: ExperienceDesign): string {
-  const size = widgetSizeCss(widgetType, design);
-  return `body>.movecues-widget{width:${size.width}!important;${size.minWidth ? `min-width:${size.minWidth}!important;` : ""}${size.maxWidth ? `max-width:${size.maxWidth}!important;` : ""}height:${size.height}!important;max-height:${size.maxHeight}!important;overflow:auto!important}`;
-}
-
 function widgetLabel(widgetType: WidgetType): string { return widgetType.split("_").map(value => value[0].toUpperCase() + value.slice(1)).join(" "); }
-
-function syncSurveyComponents(editor: Editor, questions: SurveyQuestion[]): void {
-  const wrapper = editor.getWrapper(); const root = wrapper?.find(".movecues-widget")[0]; if (!root) return;
-  ensureSurveyNavigation(root);
-  const wanted = new Map(questions.map(question => [question.id, question]));
-  const existing = root.find("[data-movecues-question-id]");
-  const seen = new Set<string>();
-  for (const component of existing) {
-    const id = String(component.getAttributes()["data-movecues-question-id"] ?? "");
-    const question = wanted.get(id);
-    if (!question || seen.has(id)) { component.remove(); continue; }
-    seen.add(id);
-    const parsed = new DOMParser().parseFromString(surveyQuestionMarkup(question), "text/html").body.firstElementChild;
-    if (!parsed) continue;
-    component.set({ removable: false, copyable: false, editable: false });
-    component.addClass(["movecues-survey-question", `movecues-survey-question--${question.type}`]);
-    component.addAttributes({ "data-movecues-question-id": question.id, "data-movecues-question-type": question.type });
-    component.components(parsed.innerHTML);
-  }
-  const action = root.find("[data-movecues-survey-action]")[0]; const actionContainer = action?.parent();
-  const insertionIndex = actionContainer?.parent() === root ? root.components().indexOf(actionContainer) : undefined;
-  questions.forEach((question, offset) => { if (!seen.has(question.id)) root.append(surveyQuestionMarkup(question), insertionIndex === undefined ? undefined : { at: insertionIndex + offset }); });
-}
-
-function ensureSurveyNavigation(root: Component): void {
-  root.set("removable", false); root.set("copyable", false);
-  // Legacy designs retain their protected footer. New designs own each normal
-  // button independently and must never gain a wrapper or missing controls.
-  const controls = root.find("[data-movecues-survey-controls]")[0];
-  if (controls) { controls.set("removable", false); controls.set("copyable", false); }
-  for (const button of root.find("[data-movecues-survey-action]")) {
-    button.set("droppable", false); button.set("editable", true); button.set("removable", true); button.set("copyable", false);
-  }
-}
 
 function currentEditorDebugSnapshot(editor: Editor | null | undefined, widgetType: WidgetType): Record<string, unknown> | null {
   if (!editor) return null;

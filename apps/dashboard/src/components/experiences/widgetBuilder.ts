@@ -1,8 +1,7 @@
 import type { ExperienceContent, ExperienceDesign, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
 import { widgetSizeCss } from "./widgetSizing";
+import { BUILDER_ALLOWED_ATTRIBUTES, BUILDER_ALLOWED_TAGS, BUILDER_BLOCKED_TAGS, BUILDER_SURVEY_INPUT_TAGS, builderImageUrlIsSafe, builderInputTypeIsSafe, validateScopedBuilderCss } from "./builderContentContract";
 
-const ALLOWED_TAGS = new Set(["DIV", "SECTION", "H1", "H2", "H3", "H4", "P", "SPAN", "BR", "BUTTON", "IMG", "HR", "LABEL", "VIDEO", "SOURCE", "IFRAME", "UL", "LI"]);
-const ALLOWED_ATTRIBUTES = new Set(["class", "id", "title", "role", "aria-label", "aria-live", "aria-hidden", "aria-pressed", "alt", "src", "width", "height", "type", "placeholder", "maxlength", "autoplay", "muted", "loop", "controls", "playsinline", "loading", "data-movecues-action-id", "data-movecues-content", "data-movecues-widget-type", "data-movecues-question-id", "data-movecues-question-type", "data-movecues-question-input", "data-movecues-option-id", "data-movecues-survey-action", "data-movecues-survey-controls", "data-movecues-survey-progress", "data-movecues-survey-progress-bar", "data-movecues-survey-step-id"]);
 const ROOT_CLASS = "movecues-widget";
 
 export interface BuilderExport {
@@ -47,25 +46,21 @@ export function createWidgetStarter(widgetType: WidgetType, content: ExperienceC
 export function sanitizeBuilderHtml(input: string, allowSurveyInputs = false): string {
   const documentValue = new DOMParser().parseFromString(input, "text/html");
   for (const element of Array.from(documentValue.body.querySelectorAll("*"))) {
-    if (!ALLOWED_TAGS.has(element.tagName) && !(allowSurveyInputs && (element.tagName === "INPUT" || element.tagName === "TEXTAREA"))) { element.replaceWith(...Array.from(element.childNodes)); continue; }
+    if (!BUILDER_ALLOWED_TAGS.has(element.tagName) && !(allowSurveyInputs && BUILDER_SURVEY_INPUT_TAGS.has(element.tagName))) { if (BUILDER_BLOCKED_TAGS.test(element.tagName)) element.remove(); else element.replaceWith(...Array.from(element.childNodes)); continue; }
     for (const attribute of Array.from(element.attributes)) {
       const name = attribute.name.toLowerCase();
-      if (!ALLOWED_ATTRIBUTES.has(name) || name.startsWith("on") || /javascript\s*:/i.test(attribute.value)) element.removeAttribute(attribute.name);
+      if (!BUILDER_ALLOWED_ATTRIBUTES.has(name) || name.startsWith("on") || /javascript\s*:/i.test(attribute.value)) element.removeAttribute(attribute.name);
     }
     if (element.tagName === "IMG") {
       const source = element.getAttribute("src") ?? "";
-      if (source && !/^(https?:|data:image\/(?:png|gif|jpeg|webp|svg\+xml);base64,|\/)/i.test(source)) element.removeAttribute("src");
+      if (!builderImageUrlIsSafe(source)) element.removeAttribute("src");
     }
-    if (element.tagName === "VIDEO" || element.tagName === "SOURCE") {
-      const source = element.getAttribute("src") ?? "";
-      if (source && !/^(https?:|\/)/i.test(source)) element.removeAttribute("src");
-    }
-    if (element.tagName === "IFRAME") {
-      const source = element.getAttribute("src") ?? "";
-      if (source && !/^(https?:|\/)/i.test(source)) element.removeAttribute("src");
-      if (!element.getAttribute("title")?.trim()) element.setAttribute("title", "Embedded content");
-    }
-    if (element.tagName === "INPUT" && !["text", "radio", "checkbox", "number"].includes((element.getAttribute("type") ?? "text").toLowerCase())) element.setAttribute("type", "text");
+    if (element.hasAttribute("src") && element.tagName !== "IMG") element.removeAttribute("src");
+    const action = element.getAttribute("data-movecues-action-id");
+    if (action && action !== "primary" && action !== "secondary") element.removeAttribute("data-movecues-action-id");
+    const surveyAction = element.getAttribute("data-movecues-survey-action");
+    if (surveyAction && surveyAction !== "back" && surveyAction !== "next" && surveyAction !== "submit") element.removeAttribute("data-movecues-survey-action");
+    if (element.tagName === "INPUT" && !builderInputTypeIsSafe(element.getAttribute("type") ?? "text")) element.setAttribute("type", "text");
   }
   for (const slot of ["primary", "secondary"] as const) {
     const actions = Array.from(documentValue.body.querySelectorAll(`[data-movecues-action-id="${slot}"]`));
@@ -79,7 +74,7 @@ export function sanitizeBuilderHtml(input: string, allowSurveyInputs = false): s
 }
 
 export function surveyQuestionMarkup(question: SurveyQuestion): string {
-  const label = `<p class="movecues-survey-question__label">${escapeHtml(question.label)}${question.required ? " *" : ""}</p>`;
+  const label = `<p class="movecues-survey-question__label">${escapeHtml(question.label)}${question.required ? '<span class="movecues-survey-question__required" aria-hidden="true"> *</span>' : ""}</p>`;
   let control = "";
   if (question.type === "single_choice" || question.type === "multiple_choice") control = `<div class="movecues-survey-options" role="group" aria-label="${escapeHtml(question.label)}">${question.options.map(option => `<button type="button" class="movecues-survey-option" data-movecues-option-id="${escapeHtml(option.id)}" aria-pressed="false">${escapeHtml(option.label)}</button>`).join("")}</div>`;
   else if (question.type === "rating" || question.type === "nps") { const min = question.type === "rating" ? question.min : 0; const max = question.type === "rating" ? question.max : 10; control = `<div class="movecues-survey-options" role="group" aria-label="${escapeHtml(question.label)}">${Array.from({ length: max - min + 1 }, (_, index) => min + index).map(value => `<button type="button" class="movecues-survey-option" data-movecues-option-id="${value}" aria-pressed="false">${value}</button>`).join("")}</div>`; }
@@ -89,14 +84,7 @@ export function surveyQuestionMarkup(question: SurveyQuestion): string {
 }
 
 export function validateBuilderCss(input: string): string {
-  const css = input.replace(/\/\*[\s\S]*?\*\//g, "").trim();
-  if (/@import|expression\s*\(|javascript\s*:|behavior\s*:|-moz-binding/i.test(css)) throw new Error("CSS imports and executable CSS are not allowed.");
-  for (const match of css.matchAll(/([^{}]+)\{/g)) {
-    const prelude = match[1].trim();
-    if (!prelude || prelude.startsWith("@")) continue;
-    for (const selector of prelude.split(",")) if (!selector.trim().includes(`.${ROOT_CLASS}`)) throw new Error("Every CSS selector must be scoped under .movecues-widget.");
-  }
-  return css;
+  return validateScopedBuilderCss(input);
 }
 
 export function projectLegacyContent(html: string, previous: ExperienceContent): ExperienceContent {

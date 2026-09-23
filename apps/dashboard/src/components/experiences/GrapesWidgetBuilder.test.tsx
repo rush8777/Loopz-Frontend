@@ -32,29 +32,27 @@ describe("GrapesWidgetBuilder", () => {
     view.rerender(<GrapesWidgetBuilder {...props} content={{ heading: "Changed externally", body: "World" }} />); expect(harness.init).toHaveBeenCalledTimes(1); view.unmount(); expect(harness.destroy).toHaveBeenCalledTimes(1);
   });
 
-  it("registers the additive content, embed, and guide blocks without changing existing block ids", async () => {
+  it("registers only builder-contract-supported content and guide blocks", async () => {
     vi.useFakeTimers(); const editor = fakeEditor(); render(<GrapesWidgetBuilder experienceKey="exp:new-blocks" widgetType="modal" content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={vi.fn()} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
     await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); });
     const config = harness.init.mock.calls[0][0]; const blocks = config.blockManager.blocks as Array<{ id: string; label: string; media: string; category: string; content: unknown }>; const ids = blocks.map(block => block.id);
-    expect(ids).toEqual(["free-area", "container", "row", "columns", "heading", "text", "image", "icon", "divider", "video", "badge", "avatar", "list", "spacer", "button", "secondary-button", "embed", "progress", "close"]);
+    expect(ids).toEqual(["free-area", "container", "row", "columns", "heading", "text", "image", "icon", "divider", "badge", "avatar", "list", "spacer", "button", "secondary-button", "progress", "close"]);
     expect(blocks.every(block => block.media.includes("<svg") && block.media.includes('aria-hidden="true"'))).toBe(true);
-    expect(blocks.filter(block => ["video", "badge", "avatar", "list"].includes(block.id)).every(block => block.category === "Content")).toBe(true);
-    expect(blocks.find(block => block.id === "embed")).toMatchObject({ label: "Embed", category: "Embed" });
+    expect(blocks.filter(block => ["badge", "avatar", "list"].includes(block.id)).every(block => block.category === "Content")).toBe(true);
     expect(blocks.filter(block => ["progress", "close"].includes(block.id)).every(block => block.category === "Guide")).toBe(true);
     expect(config.parser.optionsHtml).toEqual({ allowScripts: false, allowUnsafeAttr: false, allowUnsafeAttrValue: false });
     const definitions = new Map<string, any>(editor.DomComponents.addType.mock.calls.map((call: unknown[]) => [String(call[0]), call[1]]));
-    expect([...definitions.keys()]).toEqual(expect.arrayContaining(["movecues-video", "movecues-avatar-image", "movecues-embed-frame"]));
-    expect(definitions.get("movecues-video").model.defaults.traits.map((trait: { name: string }) => trait.name)).toEqual(["src", "autoplay", "muted", "loop", "controls"]);
+    expect([...definitions.keys()]).toEqual(expect.arrayContaining(["movecues-avatar-image"]));
+    expect([...definitions.keys()]).not.toEqual(expect.arrayContaining(["movecues-video", "movecues-embed-frame"]));
     expect(definitions.get("movecues-avatar-image").model.defaults.traits.map((trait: { name: string }) => trait.name)).toEqual(["src", "alt"]);
-    expect(definitions.get("movecues-embed-frame").model.defaults.traits.map((trait: { name: string }) => trait.name)).toEqual(["src", "title"]);
   });
 
   it("exports inserted blocks with scoped baseline CSS while preserving existing CSS", async () => {
     vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn(); const css = ".movecues-widget{background:#123456}"; render(<GrapesWidgetBuilder experienceKey="exp:insert-blocks" widgetType="modal" value={{ version: 1, projectData: {}, html: '<section class="movecues-widget"></section>', css }} content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={onChange} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
     await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); }); onChange.mockClear();
-    const blockClasses = ["movecues-widget__video", "movecues-widget__badge", "movecues-widget__avatar", "movecues-widget__list", "movecues-widget__embed", "movecues-widget__progress", "movecues-widget__close"];
+    const blockClasses = ["movecues-widget__badge", "movecues-widget__avatar", "movecues-widget__list", "movecues-widget__progress", "movecues-widget__close"];
     act(() => { for (const className of blockClasses) harness.handlers.get("component:add")?.({ ...editor.__child, getAttributes: () => ({}), getClasses: () => [className] }); });
-    editor.setComponents('<section class="movecues-widget"><div class="movecues-widget__video"><video controls playsinline muted src="https://cdn.test/demo.mp4"><source src=""></video></div><span class="movecues-widget__badge">Updated</span><div class="movecues-widget__avatar"><img class="movecues-widget__avatar-image" src="https://cdn.test/avatar.png" alt="Profile"></div><ul class="movecues-widget__list"><li>First item</li></ul><div class="movecues-widget__embed"><iframe class="movecues-widget__embed-frame" src="https://example.test" title="Embedded content" loading="lazy"></iframe></div><div class="movecues-widget__progress" aria-label="Progress"><span class="movecues-widget__progress-dot movecues-widget__progress-dot--active"></span></div><button class="movecues-widget__close" type="button" aria-label="Close">&times;</button></section>');
+    editor.setComponents('<section class="movecues-widget"><span class="movecues-widget__badge">Updated</span><div class="movecues-widget__avatar"><img class="movecues-widget__avatar-image" src="https://cdn.test/avatar.png" alt="Profile"></div><ul class="movecues-widget__list"><li>First item</li></ul><div class="movecues-widget__progress" aria-label="Progress"><span class="movecues-widget__progress-dot movecues-widget__progress-dot--active"></span></div><button class="movecues-widget__close" type="button" aria-label="Close">&times;</button></section>');
     harness.dirty = 1; act(() => { harness.handlers.get("update")?.(); vi.advanceTimersByTime(400); });
     expect(onChange).toHaveBeenCalledTimes(1); const exported = onChange.mock.calls[0][0].builder;
     for (const className of blockClasses) expect(exported.html).toContain(className);
@@ -64,10 +62,10 @@ describe("GrapesWidgetBuilder", () => {
   });
 
   it("reloads saved new block HTML and CSS from the canonical fields", async () => {
-    vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn(); const html = '<section class="movecues-widget"><video class="movecues-widget__video" src="https://cdn.test/demo.mp4" controls="" muted=""></video><iframe class="movecues-widget__embed-frame" src="https://example.test" title="Example" loading="lazy"></iframe><ul class="movecues-widget__list"><li>Saved item</li></ul></section>'; const css = ".movecues-widget{color:#111}.movecues-widget .movecues-widget__video{width:100%}";
+    vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn(); const html = '<section class="movecues-widget"><span class="movecues-widget__badge">Saved item</span><img class="movecues-widget__avatar-image" src="https://cdn.test/avatar.png" alt="Profile"></section>'; const css = ".movecues-widget{color:#111}.movecues-widget .movecues-widget__badge{font-size:12px}";
     render(<GrapesWidgetBuilder experienceKey="exp:reload-new-blocks" widgetType="modal" value={{ version: 1, projectData: { stale: true }, html, css }} content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={onChange} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
     await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); }); const config = harness.init.mock.calls[0][0];
-    expect(config.components).toContain('<video class="movecues-widget__video" src="https://cdn.test/demo.mp4" controls="" muted="">'); expect(config.components).toContain("Saved item"); expect(config.style).toBe(css); expect(editor.getHtml()).toContain("Saved item"); expect(editor.getCss({ avoidProtected: true })).toBe(css); expect(onChange).not.toHaveBeenCalled();
+    expect(config.components).toContain('src="https://cdn.test/avatar.png"'); expect(config.components).toContain("Saved item"); expect(config.style).toBe(css); expect(editor.getHtml()).toContain("Saved item"); expect(editor.getCss({ avoidProtected: true })).toBe(css); expect(onChange).not.toHaveBeenCalled();
   });
 
   it("lets GrapesJS test survey component types against text nodes safely", async () => {
