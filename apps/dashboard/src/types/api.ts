@@ -579,7 +579,21 @@ export interface SegmentPageCondition {
   timeWindow?: SegmentTimeWindow;
 }
 
-export type SegmentCondition = SegmentEventCondition | SegmentUserPropertyCondition | SegmentPageCondition;
+export type SegmentFunnelCohortDateRange =
+  | { type: "relative"; days: number }
+  | { type: "today" }
+  | { type: "absolute"; since: string; until: string };
+
+export interface SegmentFunnelCohortCondition {
+  type: "funnel_cohort";
+  funnelId: string;
+  stepIndex: number;
+  cohort: "reached" | "dropped_after";
+  conversionWindowMinutes: number;
+  dateRange: SegmentFunnelCohortDateRange;
+}
+
+export type SegmentCondition = SegmentEventCondition | SegmentUserPropertyCondition | SegmentPageCondition | SegmentFunnelCohortCondition;
 
 export type SegmentLogic = "and" | "or";
 

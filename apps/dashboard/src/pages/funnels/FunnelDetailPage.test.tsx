@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { FunnelDetailPage } from "./FunnelDetailPage";
 import * as funnelsApi from "../../api/funnels";
@@ -170,6 +170,60 @@ describe("FunnelDetailPage", () => {
     fireEvent.click(row.closest("tr")!);
 
     expect(mockNavigate).toHaveBeenCalledWith("/users/anonymous/anon_99");
+  });
+
+  it("creates a dynamic drop-off segment from a step and navigates to it", async () => {
+    mockedFunnelsApi.getFunnel.mockResolvedValue(sampleFunnel);
+    mockedFunnelsApi.analyzeFunnel.mockResolvedValue(sampleAnalysis);
+    mockedSegmentsApi.createSegment.mockResolvedValue({ id: "seg_drop", siteId: "site_1", name: "Signup Activation — Signup Started drop-offs", description: null, definition: { logic: "and", conditions: [] }, audienceCount: 0, createdAt: "", updatedAt: "" });
+
+    renderDetail();
+    await screen.findByText("Signup Activation");
+    expect(screen.getByText("Action")).toBeInTheDocument();
+    fireEvent.click(screen.getAllByText("Create segment")[0]);
+    fireEvent.click(screen.getByRole("button", { name: /Dropped after this step/ }));
+
+    const name = await screen.findByLabelText("Segment name");
+    expect(name).toHaveValue("Signup Activation — Signup Started drop-offs");
+    fireEvent.click(screen.getByRole("button", { name: "Create segment" }));
+
+    await waitFor(() => expect(mockedSegmentsApi.createSegment).toHaveBeenCalledWith("org_1", "site_1", expect.objectContaining({
+      name: "Signup Activation — Signup Started drop-offs",
+      definition: { logic: "and", conditions: [expect.objectContaining({ type: "funnel_cohort", funnelId: "fun_1", stepIndex: 0, cohort: "dropped_after", conversionWindowMinutes: 1440, dateRange: { type: "relative", days: 30 } })] },
+    })));
+    expect(mockNavigate).toHaveBeenCalledWith("/segments/seg_drop");
+  });
+
+  it("ANDs the selected analysis segment definition into a new cohort", async () => {
+    const selectedDefinition = { logic: "and" as const, conditions: [{ type: "event" as const, eventName: "trial_started", operator: "performed" as const }] };
+    mockedFunnelsApi.getFunnel.mockResolvedValue(sampleFunnel);
+    mockedFunnelsApi.analyzeFunnel.mockResolvedValue(sampleAnalysis);
+    mockedSegmentsApi.listSegments.mockResolvedValue({ segments: [{ id: "seg_free", siteId: "site_1", name: "Free users", description: null, definition: selectedDefinition, audienceCount: 1, createdAt: "", updatedAt: "" }], total: 1, limit: 100, offset: 0 });
+    mockedSegmentsApi.createSegment.mockResolvedValue({ id: "seg_reached", siteId: "site_1", name: "Reached", description: null, definition: { logic: "and", conditions: [] }, audienceCount: 0, createdAt: "", updatedAt: "" });
+
+    renderDetail();
+    await screen.findByText("Free users");
+    fireEvent.change(screen.getByDisplayValue("All users"), { target: { value: "seg_free" } });
+    await waitFor(() => expect(mockedFunnelsApi.analyzeFunnel).toHaveBeenLastCalledWith("org_1", "site_1", "fun_1", expect.anything(), expect.objectContaining({ segmentId: "seg_free" })));
+    await screen.findByText("Action");
+    fireEvent.click(screen.getAllByText("Create segment")[0]);
+    fireEvent.click(screen.getByRole("button", { name: /Reached this step/ }));
+    fireEvent.click(await screen.findByRole("button", { name: "Create segment" }));
+
+    await waitFor(() => expect(mockedSegmentsApi.createSegment).toHaveBeenCalledWith("org_1", "site_1", expect.objectContaining({
+      definition: { logic: "and", conditions: [selectedDefinition, expect.objectContaining({ type: "funnel_cohort", cohort: "reached" })] },
+    })));
+  });
+
+  it("offers the final step as the completed funnel cohort", async () => {
+    mockedFunnelsApi.getFunnel.mockResolvedValue(sampleFunnel);
+    mockedFunnelsApi.analyzeFunnel.mockResolvedValue(sampleAnalysis);
+    renderDetail();
+    await screen.findByText("Signup Activation");
+    fireEvent.click(screen.getAllByText("Create segment")[1]);
+    const finalStepActions = screen.getAllByText("Create segment")[1].closest("details")!;
+    expect(within(finalStepActions).getByRole("button", { name: /Completed funnel/ })).toBeInTheDocument();
+    expect(within(finalStepActions).queryByRole("button", { name: /Dropped after this step/ })).not.toBeInTheDocument();
   });
 
   it("asks for confirmation before deleting, and navigates away once deleted", async () => {

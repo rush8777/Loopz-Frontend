@@ -140,13 +140,16 @@ function ConditionEditor({
   eventNames: string[];
   pages: PageDefinition[];
 }) {
+  if (condition.type === "funnel_cohort") {
+    return <div className="card card-padded" style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}><span>Funnel cohort: {condition.cohort === "reached" ? "reached" : "dropped after"} step {condition.stepIndex + 1}</span><button className="btn btn-ghost btn-sm" style={{ marginLeft: "auto" }} onClick={onRemove}>Remove</button></div>;
+  }
   return (
     <div className="card card-padded" style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
       <select
         className="input"
         style={{ width: 130 }}
         value={condition.type}
-        onChange={(e) => onChange(defaultConditionForType(e.target.value as SegmentCondition["type"]))}
+        onChange={(e) => onChange(defaultConditionForType(e.target.value as "event" | "user_property" | "page"))}
       >
         <option value="event">Event</option>
         <option value="user_property">User property</option>

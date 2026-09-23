@@ -20,6 +20,10 @@ export function defaultConditionForType(type: SegmentCondition["type"]): Segment
       return newPropertyCondition();
     case "page":
       return newPageCondition();
+    case "funnel_cohort":
+      // Funnel cohorts are created from the Funnel UI, never as a
+      // half-configured generic builder condition.
+      throw new Error("Funnel cohort conditions must be created from a funnel step");
   }
 }
 
@@ -43,5 +47,7 @@ export function isDefinitionComplete(node: SegmentNode): boolean {
     }
     case "page":
       return node.pageId.trim().length > 0;
+    case "funnel_cohort":
+      return node.funnelId.trim().length > 0 && node.stepIndex >= 0;
   }
 }

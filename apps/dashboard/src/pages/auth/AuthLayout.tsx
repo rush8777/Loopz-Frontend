@@ -1,20 +1,11 @@
 import type { ReactNode } from "react";
 
-export function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
-  return (
-    <div className="flex min-h-dvh items-center justify-center bg-background px-5 py-10">
-      <div className="w-full max-w-[380px]">
-        <div className="mb-8 flex items-center justify-center gap-2">
-          <div className="grid size-7 place-items-center rounded-md bg-foreground text-xs font-bold text-background">L</div>
-          <span className="text-[15px] font-semibold">movecues</span>
-        </div>
+type AuthLayoutProps = { title: string; subtitle: string; children: ReactNode; footer: ReactNode; mode: "login" | "signup" };
 
-        <div className="rounded-lg border bg-card p-6 shadow-[oklab(0_0_0/.07)_0_0_0_1px,rgba(0,0,0,.05)_0_1px_2px]">
-          <h1 className="m-0 text-lg font-semibold">{title}</h1>
-          <p className="mt-1 mb-6 text-[13px] text-muted-foreground">{subtitle}</p>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
+export function AuthLayout({ title, subtitle, children, footer, mode }: AuthLayoutProps) {
+  const isSignup = mode === "signup";
+  return <main className="min-h-dvh bg-background"><section className="grid min-h-dvh overflow-hidden bg-background lg:grid-cols-[1.04fr_.96fr]">
+    <div className="relative hidden overflow-hidden bg-primary p-10 text-primary-foreground lg:flex lg:flex-col xl:p-14"><div className="absolute inset-0 opacity-40 [background-image:radial-gradient(circle_at_15%_80%,var(--primary-dim)_0,transparent_28%),radial-gradient(circle_at_87%_14%,#fff_0,transparent_30%)]" /><div className="relative flex items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em]"><span className="grid size-8 place-items-center rounded-full bg-primary-foreground text-[13px] font-extrabold text-primary">m</span>movecues</div><div className="relative my-auto max-w-[480px]"><p className="mb-5 text-xs font-semibold tracking-[0.18em] text-primary-foreground/80 uppercase">{isSignup ? "Build better journeys" : "Customer intelligence"}</p><h2 className="m-0 text-5xl leading-[1.04] font-semibold tracking-[-0.055em] xl:text-6xl">{isSignup ? "Turn every interaction into momentum." : "See the moments that move people."}</h2><p className="mt-6 max-w-md text-[15px] leading-7 text-primary-foreground/80">{isSignup ? "Create thoughtful product experiences and understand what helps your customers succeed." : "A calmer way to understand your customers and build experiences they actually enjoy."}</p></div><div className="relative mt-auto rounded-2xl border border-primary-foreground/20 bg-primary-foreground/10 p-5 backdrop-blur-sm"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-primary-foreground text-lg text-primary">✦</div><div><p className="m-0 text-sm font-medium">Visual placeholder</p><p className="mt-0.5 mb-0 text-xs text-primary-foreground/80">Your brand image or customer story goes here.</p></div></div></div></div>
+    <div className="flex min-h-full flex-col px-6 py-7 sm:px-12 sm:py-10 lg:px-[clamp(3rem,7vw,8.5rem)] lg:py-12"><div className="flex items-center justify-between lg:hidden"><div className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.02em]"><span className="grid size-7 place-items-center rounded-full bg-primary text-[12px] font-extrabold text-primary-foreground">m</span>movecues</div><span className="text-xs font-medium text-muted-foreground">{isSignup ? "GET STARTED" : "WELCOME BACK"}</span></div><div className="my-auto w-full max-w-[400px] py-12 lg:py-6"><p className="mb-4 hidden text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase lg:block">{isSignup ? "Create account" : "Sign in to Movecues"}</p><h1 className="m-0 text-[36px] leading-[1.1] font-semibold tracking-[-0.05em] text-foreground sm:text-[42px]">{title}</h1><p className="mt-3 mb-8 text-[15px] leading-6 text-muted-foreground">{subtitle}</p>{children}{footer}</div><p className="m-0 text-xs leading-5 text-muted-foreground">© {new Date().getFullYear()} Movecues. Made for meaningful moments.</p></div>
+  </section></main>;
 }

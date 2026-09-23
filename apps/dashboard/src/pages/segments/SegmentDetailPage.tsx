@@ -40,6 +40,8 @@ function describeCondition(c: SegmentCondition): string {
       const window = c.timeWindow ? ` (within last ${c.timeWindow.value} ${c.timeWindow.unit})` : "";
       return `Page: ${c.operator === "visited" ? "visited" : "not visited"}${window}`;
     }
+    case "funnel_cohort":
+      return `Funnel: ${c.cohort === "reached" ? "reached" : "dropped after"} step ${c.stepIndex + 1}`;
   }
 }
 
