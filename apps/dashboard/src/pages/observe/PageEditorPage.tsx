@@ -43,7 +43,6 @@ export function PageEditorPage() {
   const [description, setDescription] = useState("");
   const [area, setArea] = useState("");
   const [pageType, setPageType] = useState<PageType | "">("");
-  const [heatmapEnabled, setHeatmapEnabled] = useState(false);
   const [rules, setRules] = useState<PageRule[]>(() => {
     const prefillPath = searchParams.get("path");
     return prefillPath ? [newRule({ operator: "equals", value: prefillPath })] : [newRule()];
@@ -63,7 +62,6 @@ export function PageEditorPage() {
       setDescription(page.description ?? "");
       setArea(page.area ?? "");
       setPageType(page.pageType ?? "");
-      setHeatmapEnabled(page.heatmapEnabled);
       setRules(page.rules.length > 0 ? page.rules : [newRule()]);
       setLoaded(true);
     });
@@ -115,7 +113,6 @@ export function PageEditorPage() {
       area: area.trim() || undefined,
       pageType: pageType || undefined,
       rules: validRules,
-      heatmapEnabled,
     };
     try {
       const saved = isEditing
@@ -181,10 +178,6 @@ export function PageEditorPage() {
             </select>
           </div>
         </div>
-        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-          <input type="checkbox" checked={heatmapEnabled} onChange={(event) => setHeatmapEnabled(event.target.checked)} />
-          Heatmaps enabled for this Page
-        </label>
       </div>
 
       <div className="card card-padded" style={{ marginBottom: 16 }}>

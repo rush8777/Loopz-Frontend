@@ -1,32 +1,23 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HeatmapsPage } from "./HeatmapsPage";
 import * as pagesApi from "../../api/pages";
-import * as workspace from "../../auth/WorkspaceContext";
 
 vi.mock("../../api/pages");
-vi.mock("../../auth/WorkspaceContext");
 
-describe("HeatmapsPage", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(workspace.useWorkspace).mockReturnValue({ currentOrg: { orgId: "org_1" }, currentSite: { id: "site_1", name: "Site" } } as never);
-    vi.mocked(pagesApi.listHeatmaps).mockResolvedValue({ heatmaps: [
-      { id: "page_active", name: "Dashboard", heatmapEnabled: true, interactions: 42, clicks: 30, lastActivityAt: "2026-08-31T00:00:00.000Z", referenceStatus: "ready", referenceCapturedAt: "2026-08-31T00:00:00.000Z" },
-      { id: "page_disabled", name: "Settings", heatmapEnabled: false, interactions: 0, clicks: 0, lastActivityAt: null, referenceStatus: "needed", referenceCapturedAt: null },
-    ] });
-  });
+describe("Heatmaps Coming Soon", () => {
+  beforeEach(() => vi.clearAllMocks());
 
-  it("lists Page heatmaps and routes analysis into the dedicated Heatmap workspace", async () => {
-    render(<MemoryRouter initialEntries={["/observe/heatmaps"]}><Routes>
+  it.each(["/observe/heatmaps", "/observe/heatmaps/page_1"])("renders a static Coming Soon screen at %s without loading heatmap data", (path) => {
+    render(<MemoryRouter initialEntries={[path]}><Routes>
       <Route path="/observe/heatmaps" element={<HeatmapsPage />} />
-      <Route path="/observe/heatmaps/:pageId" element={<div>Page heatmap detail</div>} />
+      <Route path="/observe/heatmaps/:pageId" element={<HeatmapsPage />} />
     </Routes></MemoryRouter>);
-    expect(await screen.findByText("Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
-    expect(screen.getByText("Disabled")).toBeInTheDocument();
-    fireEvent.click(screen.getByText("Dashboard"));
-    await waitFor(() => expect(screen.getByText("Page heatmap detail")).toBeInTheDocument());
+    expect(screen.getByRole("heading", { name: "Heatmaps" })).toBeInTheDocument();
+    expect(screen.getByText("See where users click, scroll, hover, and focus across your product. Heatmaps are coming soon.")).toBeInTheDocument();
+    expect(screen.getByText("Coming soon")).toBeInTheDocument();
+    expect(vi.mocked(pagesApi.listHeatmaps)).not.toHaveBeenCalled();
+    expect(vi.mocked(pagesApi.getPageHeatmap)).not.toHaveBeenCalled();
   });
 });

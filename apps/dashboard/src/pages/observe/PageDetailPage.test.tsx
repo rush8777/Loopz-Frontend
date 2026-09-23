@@ -29,8 +29,8 @@ const element: PageElement = {
   matchedPaths: ["/account/settings/profile", "/account/settings/security"],
 };
 
-function renderPage() {
-  return render(<MemoryRouter initialEntries={["/observe/pages/page_1"]}><Routes><Route path="/observe/pages/:pageId" element={<PageDetailPage />} /></Routes></MemoryRouter>);
+function renderPage(path = "/observe/pages/page_1") {
+  return render(<MemoryRouter initialEntries={[path]}><Routes><Route path="/observe/pages/:pageId" element={<PageDetailPage />} /></Routes></MemoryRouter>);
 }
 
 describe("PageDetailPage elements", () => {
@@ -42,13 +42,25 @@ describe("PageDetailPage elements", () => {
     mockedPages.listHeatmaps.mockResolvedValue({ heatmaps: [{ id: page.id, name: page.name, heatmapEnabled: true, interactions: 18422, clicks: 12000, lastActivityAt: page.lastSeenAt, referenceStatus: "ready", referenceCapturedAt: "2026-08-31T00:00:00.000Z" }] });
   });
 
-  it("shows only Overview and Elements and opens the dedicated Heatmap route", async () => {
-    render(<MemoryRouter initialEntries={["/observe/pages/page_1"]}><Routes><Route path="/observe/pages/:pageId" element={<PageDetailPage />} /><Route path="/observe/heatmaps/:pageId" element={<div>Dedicated heatmap</div>} /></Routes></MemoryRouter>);
+  it("shows a non-interactive Heatmaps preview without requesting heatmap data", async () => {
+    renderPage();
     await screen.findByRole("heading", { name: "Settings" });
     expect(screen.queryByRole("tab", { name: "heatmap" })).not.toBeInTheDocument();
-    expect(screen.getByText("18,422 interactions")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Open heatmap" }));
-    expect(await screen.findByText("Dedicated heatmap")).toBeInTheDocument();
+    expect(screen.getByText("Coming soon")).toBeInTheDocument();
+    expect(screen.queryByText(/interactions$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Reference capture/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Active")).not.toBeInTheDocument();
+    expect(screen.queryByText("Disabled")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Open heatmap" })).not.toBeInTheDocument();
+    expect(mockedPages.listHeatmaps).not.toHaveBeenCalled();
+  });
+
+  it("ignores the legacy heatmap tab and stays on the Page overview", async () => {
+    renderPage("/observe/pages/page_1?tab=heatmap");
+    await screen.findByRole("heading", { name: "Settings" });
+    expect(screen.getByRole("tab", { name: "overview" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText("Rules")).toBeInTheDocument();
+    expect(mockedPages.listHeatmaps).not.toHaveBeenCalled();
   });
 
   it("keeps the logical Page header and shows aggregated elements in its Elements tab", async () => {

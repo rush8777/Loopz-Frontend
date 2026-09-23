@@ -5,8 +5,7 @@ import { PageHeader } from "../../components/PageHeader";
 import { EmptyState } from "../../components/EmptyState";
 import * as sessionsApi from "../../api/sessions";
 import type { SessionActivity } from "../../types/api";
-import { Button } from "@movecues/ui";
-import { Checkbox } from "@movecues/ui";
+import { Button, Checkbox } from "@movecues/ui";
 import { DataTableFrame, ErrorNotice, LoadingRows } from "@/components/PageSurface";
 import { SessionEpisodeCard } from "./session-detail/SessionEpisodeCard";
 import { SessionNavigator } from "./session-detail/SessionNavigator";
@@ -31,18 +30,32 @@ export function SessionDetailPage() {
   useEffect(() => {
     if (!currentOrg || !currentSite || !sessionId) return;
     const controller = new AbortController();
-    setSession(null); setNotFound(false); setError(null);
+    setSession(null);
+    setNotFound(false);
+    setError(null);
     sessionsApi.getSessionActivity(currentOrg.orgId, currentSite.id, sessionId, controller.signal).then(setSession).catch((err) => {
       if (controller.signal.aborted || err?.name === "AbortError") return;
-      if (err?.status === 404) setNotFound(true); else setError("Couldn't load this session.");
+      if (err?.status === 404) setNotFound(true);
+      else setError("Couldn't load this session.");
     });
     return () => controller.abort();
   }, [currentOrg, currentSite, sessionId, reloadKey]);
 
   const episodes = useMemo(() => session ? createEpisodes(session, filters) : [], [session, filters]);
   const density = useMemo(() => session ? activityDensity(session, filters) : [], [session, filters]);
-  useEffect(() => { if (episodes.length && !episodes.some((episode) => episode.id === activeEpisodeId)) { setActiveEpisodeId(episodes[0].id); setExpandedIds((current) => current.size ? current : new Set([episodes[0].id])); } }, [episodes, activeEpisodeId]);
-  const selectEpisode = (id: string, scroll = true) => { setActiveEpisodeId(id); setExpandedIds((current) => new Set(current).add(id)); if (scroll) episodeRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" }); };
+
+  useEffect(() => {
+    if (episodes.length && !episodes.some((episode) => episode.id === activeEpisodeId)) {
+      setActiveEpisodeId(episodes[0].id);
+      setExpandedIds((current) => current.size ? current : new Set([episodes[0].id]));
+    }
+  }, [episodes, activeEpisodeId]);
+
+  const selectEpisode = (id: string, scroll = true) => {
+    setActiveEpisodeId(id);
+    setExpandedIds((current) => new Set(current).add(id));
+    if (scroll) episodeRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const visitorPath = session?.visitor?.type === "identified" ? `/users/${session.visitor.id}` : session?.visitor ? `/users/anonymous/${session.visitor.id}` : null;
 
   return <>
@@ -54,7 +67,7 @@ export function SessionDetailPage() {
     {session && <>
       <SessionSummary session={session} visitorPath={visitorPath} onViewHeatmap={() => navigate(`/observe/heatmaps?session=${session.sessionId}`)} />
       <div className="mb-4 rounded-lg border bg-card px-4 py-3"><div className="flex flex-wrap items-center gap-4"><strong className="text-[13px]">Show</strong>{FILTERS.map(([kind, label]) => <label key={kind} className="inline-flex cursor-pointer items-center gap-2 text-[13px]"><Checkbox checked={filters[kind]} onCheckedChange={(checked) => setFilters((value) => ({ ...value, [kind]: checked === true }))} />{label}</label>)}</div></div>
-      {episodes.length === 0 ? <div className="card"><EmptyState title="No page activity" description="No behavioral episodes could be built for this session." /></div> : <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]"><div className="space-y-3">{episodes.map((episode, index) => <div key={episode.id} ref={(node) => { episodeRefs.current[episode.id] = node; }}>{(index === 0 || episodes[index - 1].page.id !== episode.page.id) && <div className="mb-2 mt-5"><div className="text-sm font-semibold">{episode.page.pageName ?? episode.page.path ?? "Unknown page"}</div>{episode.page.pageName && episode.page.path && <div className="mono text-xs text-muted-foreground">{episode.page.path}</div>}</div>}{episode.idleGapBeforeMs != null && <div className="flex items-center gap-3 py-1 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" /><span>Activity resumed after {Math.floor(episode.idleGapBeforeMs / 60_000)}m {String(Math.floor(episode.idleGapBeforeMs / 1000) % 60).padStart(2, "0")}s</span><span className="h-px flex-1 bg-border" /></div>}<SessionEpisodeCard episode={episode} firstObserved={session.firstObserved} active={episode.id === activeEpisodeId} expanded={expandedIds.has(episode.id)} onToggle={() => { setActiveEpisodeId(episode.id); setExpandedIds((current) => { const next = new Set(current); if (next.has(episode.id)) next.delete(episode.id); else next.add(episode.id); return next; }); }} /></div>)}<div className="rounded-lg border bg-card p-4 text-[12.5px] leading-relaxed text-muted-foreground"><strong className="text-foreground">Evidence notes.</strong> {session.limitations.observedDuration} {session.limitations.hover} {session.limitations.pointer} The compact response covers all {session.coverage.rawEventCount} stored events and summarizes {session.coverage.cursorSampleCount} cursor samples without returning individual coordinates.</div></div><SessionNavigator episodes={episodes} density={density} durationMs={session.observedDurationMs} activeEpisodeId={activeEpisodeId} onSelect={selectEpisode} /></div>}
+      {episodes.length === 0 ? <div className="card"><EmptyState title="No page activity" description="No behavioral episodes could be built for this session." /></div> : <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]"><div className="mx-auto w-full max-w-3xl space-y-3">{episodes.map((episode) => <div key={episode.id} ref={(node) => { episodeRefs.current[episode.id] = node; }}><SessionEpisodeCard episode={episode} firstObserved={session.firstObserved} active={episode.id === activeEpisodeId} expanded={expandedIds.has(episode.id)} onToggle={() => { setActiveEpisodeId(episode.id); setExpandedIds((current) => { const next = new Set(current); if (next.has(episode.id)) next.delete(episode.id); else next.add(episode.id); return next; }); }} /></div>)}</div><SessionNavigator episodes={episodes} density={density} durationMs={session.observedDurationMs} activeEpisodeId={activeEpisodeId} onSelect={selectEpisode} /></div>}
     </>}
   </>;
 }

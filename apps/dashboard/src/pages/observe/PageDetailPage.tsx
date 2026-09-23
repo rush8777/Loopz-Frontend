@@ -6,7 +6,7 @@ import { AnalyticsMetricCard } from "@/components/analytics/AnalyticsMetricCard"
 import { EmptyState } from "../../components/EmptyState";
 import { ElementsTable, mergeElementMetadata } from "../../components/elements/ElementsTable";
 import * as pagesApi from "../../api/pages";
-import type { CatalogElement, HeatmapIndexRow, PageDetail, PageElement, PageRuleOperator } from "../../types/api";
+import type { CatalogElement, PageDetail, PageElement, PageRuleOperator } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
 import { Badge } from "@movecues/ui";
 import { Button } from "@movecues/ui";
@@ -58,7 +58,6 @@ export function PageDetailPage() {
   const [elements, setElements] = useState<PageElement[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [elementsError, setElementsError] = useState<string | null>(null);
-  const [heatmap, setHeatmap] = useState<HeatmapIndexRow | null>(null);
   const requestedTab = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState<"overview" | "elements">(requestedTab === "elements" ? "elements" : "overview");
   const [deleting, setDeleting] = useState(false);
@@ -69,15 +68,6 @@ export function PageDetailPage() {
     setError(null);
     pagesApi.getPage(currentOrg.orgId, currentSite.id, pageId).then(setPage).catch(() => setError("Couldn't load this page."));
   }, [currentOrg, currentSite, pageId]);
-
-  useEffect(() => {
-    if (!currentOrg || !currentSite || !pageId) return;
-    pagesApi.listHeatmaps(currentOrg.orgId, currentSite.id).then(({ heatmaps }) => setHeatmap(heatmaps.find((item) => item.id === pageId) ?? null)).catch(() => setHeatmap(null));
-  }, [currentOrg, currentSite, pageId]);
-
-  useEffect(() => {
-    if (requestedTab === "heatmap" && pageId) navigate(`/observe/heatmaps/${pageId}`, { replace: true });
-  }, [requestedTab, pageId, navigate]);
 
   useEffect(() => {
     if (!currentOrg || !currentSite || !pageId) return;
@@ -116,8 +106,8 @@ export function PageDetailPage() {
         <AnalyticsMetricCard label="Last seen" value={page.lastSeenAt ? formatRelativeTime(page.lastSeenAt) : "—"} description="Most recent matching page view" />
       </div>
       <section className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4" aria-label="Heatmap status">
-        <div><h2 className="text-sm font-semibold">Heatmap</h2><div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground"><span>{page.heatmapEnabled ? "Active" : "Disabled"}</span><span>{(heatmap?.interactions ?? 0).toLocaleString()} interactions</span><span>{heatmap?.referenceCapturedAt ? `Reference updated ${formatRelativeTime(heatmap.referenceCapturedAt)}` : "Reference capture pending"}</span></div></div>
-        <Button onClick={() => navigate(`/observe/heatmaps/${page.id}`)}>Open heatmap</Button>
+        <div><h2 className="text-sm font-semibold">Heatmaps</h2><p className="mt-1 text-xs text-muted-foreground">Visualize clicks, scroll depth, and interaction patterns on this Page.</p></div>
+        <Badge variant="secondary">Coming soon</Badge>
       </section>
       <div role="tablist" aria-label="Page detail" className="mb-4 flex gap-1 overflow-x-auto border-b">
         {(["overview", "elements"] as const).map((tab) => <Button key={tab} role="tab" aria-selected={activeTab === tab} variant="ghost" className={`rounded-b-none border-b-2 capitalize ${activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground"}`} onClick={() => { setActiveTab(tab); setSearchParams(tab === "overview" ? {} : { tab }, { replace: true }); }}>{tab}</Button>)}

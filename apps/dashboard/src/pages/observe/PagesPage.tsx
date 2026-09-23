@@ -64,7 +64,7 @@ export function PagesPage() {
       <PageHeader
         section="Observe"
         title="Pages"
-        description="Group the URLs your app generates into logical pages, so patterns, heatmaps, and replay can target them by name instead of raw paths."
+        description="Group the URLs your app generates into logical Pages for analytics, targeting, funnels, segments, and in-app experiences."
         actions={
           <Button onClick={() => navigate("/observe/pages/new")}><Plus />Create Page</Button>
         }

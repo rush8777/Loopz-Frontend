@@ -67,10 +67,9 @@ describe("SessionDetailPage", () => {
     mockedApi.getSessionActivity.mockResolvedValue(activity);
   });
 
-  it("renders page evidence, distinct application events, scroll depth and long hover", async () => {
+  it("renders a minimal activity timeline with application events and long hovers", async () => {
     renderPage();
     expect((await screen.findAllByText("Pricing")).length).toBeGreaterThan(0);
-    expect(screen.getByText("Deepest recorded scroll: 78%", { exact: false })).toBeInTheDocument();
     expect(screen.getByText("checkout_started")).toBeInTheDocument();
     expect(screen.getByText("Long hover on Plan comparison — 23s")).toBeInTheDocument();
     expect(screen.queryByText("Back-and-forth pointer movement near an interaction position")).not.toBeInTheDocument();
