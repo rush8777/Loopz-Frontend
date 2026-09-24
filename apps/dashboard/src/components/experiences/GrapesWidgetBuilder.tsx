@@ -4,7 +4,7 @@ import type { Component, Editor } from "grapesjs";
 import { Badge as BadgeIcon, Box, CircleDot, CircleUserRound, Code2, Columns3, Hand, Heading2, Image as ImageIcon, List, Maximize2, Minus, Monitor, MousePointer2, MousePointerClick, MoveVertical, Plus, Redo2, Rows3, ScanLine, SquareMousePointer, Star, Smartphone, Tablet, Type, Undo2, X, type LucideIcon } from "lucide-react";
 import "grapesjs/dist/css/grapes.min.css";
 import "./GrapesWidgetBuilder.css";
-import type { ExperienceAction, ExperienceContent, ExperienceDesign, ExperienceSize, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
+import type { BuilderCanvasViewport, ExperienceAction, ExperienceContent, ExperienceDesign, ExperienceSize, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
 import { Button } from "@movecues/ui";
 import { Input } from "@movecues/ui";
 import { Label } from "@movecues/ui";
@@ -42,8 +42,13 @@ const STYLE_CLASS_PREFIX = "movecues-style--";
 const SDK_BUTTON_BASELINE_CSS = "button{border:0;border-radius:7px;padding:8px 12px;font:600 13px ui-sans-serif,system-ui,sans-serif;cursor:pointer}";
 let styleClassSequence = 0;
 
-interface ViewportState { zoom: number; panX: number; panY: number }
+interface ViewportState extends BuilderCanvasViewport {}
 interface PanGesture { pointerId: number; startX: number; startY: number; panX: number; panY: number }
+
+function savedViewport(value?: BuilderCanvasViewport): ViewportState | null {
+  if (!value || ![value.zoom, value.panX, value.panY].every(Number.isFinite)) return null;
+  return { zoom: clampCanvasZoom(value.zoom), panX: value.panX, panY: value.panY };
+}
 type SelectedInteraction =
   | { kind: "primary" }
   | { kind: "secondary" }
@@ -67,13 +72,14 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const htmlHighlightRef = useRef<HTMLPreElement>(null); const cssHighlightRef = useRef<HTMLPreElement>(null);
   const applyingCodeRef = useRef(false);
   const flushExportRef = useRef<() => void>(() => void 0);
-  const fitCanvasRef = useRef<() => void>(() => void 0);
+  const fitCanvasRef = useRef<(persist?: boolean) => void>(() => void 0);
   const scheduleCanvasFitRef = useRef<() => void>(() => void 0);
   const scheduleCanvasRefreshRef = useRef<() => void>(() => void 0);
-  const applyViewportRef = useRef<(next?: Partial<ViewportState>, updateLabel?: boolean) => void>(() => void 0);
+  const applyViewportRef = useRef<(next?: Partial<ViewportState>, updateLabel?: boolean, persist?: boolean) => void>(() => void 0);
   const applySizeEnvelopeRef = useRef<(next: ExperienceDesign) => void>(() => void 0);
   const applyInspectorStyleRef = useRef<(component: Component, patch: InspectorStylePatch) => void>(() => void 0);
   const viewportRef = useRef<ViewportState>({ zoom: 100, panX: 0, panY: 0 });
+  const viewportPersistedRef = useRef(Boolean(value?.canvas));
   const panGestureRef = useRef<PanGesture | null>(null);
   const spacePressedRef = useRef(false);
   const handToolRef = useRef(false);
@@ -96,7 +102,9 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   useEffect(() => {
     let cancelled = false; let timer = 0; let initializationTimer = 0; let fitFrame = 0; let refreshFrame = 0; let editor: Editor | null = null; let initialized = false; let migratingComponentStyle = false; let resizeObserver: ResizeObserver | null = null; let canvasNavigationBound = false; let canvasViewportElement: HTMLDivElement | null = null;
     editorExperienceKeyRef.current = experienceKey; setReady(false); setPositioned(false); handToolRef.current = false;
-    viewportRef.current = { zoom: 100, panX: 0, panY: 0 }; setZoomLabel(100); setHandTool(false); setSpacePressed(false); setPanning(false); setSelectedComponent(null); setSelectedInteraction(null); setStyleRevision(0); setFreeItemBox(null); spacePressedRef.current = false; panGestureRef.current = null; selectedFreeItemRef.current = null;
+    const restoredViewport = savedViewport(value?.canvas);
+    viewportPersistedRef.current = Boolean(restoredViewport);
+    viewportRef.current = restoredViewport ?? { zoom: 100, panX: 0, panY: 0 }; setZoomLabel(viewportRef.current.zoom); setHandTool(false); setSpacePressed(false); setPanning(false); setSelectedComponent(null); setSelectedInteraction(null); setStyleRevision(0); setFreeItemBox(null); spacePressedRef.current = false; panGestureRef.current = null; selectedFreeItemRef.current = null;
     lastSignature.current = value ? builderSignature(value) : "";
     projectDataRef.current = value?.projectData ?? {};
     const starter = createWidgetStarter(widgetType, contentRef.current, design);
@@ -116,7 +124,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       if (!initialized) { builderDebug(experienceKey, "export:blocked-during-hydration", { current: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); return; }
       try {
         const html = sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"); const css = editorCss();
-        const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css }; const signature = builderSignature(builder);
+        const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css, ...(viewportPersistedRef.current ? { canvas: { ...viewportRef.current } } : {}) }; const signature = builderSignature(builder);
         builderDebug(experienceKey, "export:captured", { snapshot: summarizeBuilder(builder), signature, previousSignature: lastSignature.current, dirtyCount: editor.getDirtyCount() });
         if (signature === lastSignature.current) { builderDebug(experienceKey, "export:skipped-unchanged"); return; }
         // A normal canvas mutation must never replace an already styled document
@@ -132,7 +140,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
             editor.clearDirtyCount();
           } finally { applyingCodeRef.current = false; }
           const restoredCss = editorCss();
-          const restoredBuilder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css: restoredCss };
+          const restoredBuilder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css: restoredCss, ...(viewportPersistedRef.current ? { canvas: { ...viewportRef.current } } : {}) };
           lastSignature.current = builderSignature(restoredBuilder); setCodeHtml(html); setCodeCss(restoredCss); setCodeError(null);
           builderDebug(experienceKey, "css:self-healed", { snapshot: summarizeBuilder(restoredBuilder), restoredCss }, "warn");
           onChangeRef.current({ builder: restoredBuilder, content: projectLegacyContent(html, contentRef.current) });
@@ -149,7 +157,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       fitFrame = window.requestAnimationFrame(() => {
         if (!editor || cancelled) return;
         editor.refresh();
-        fitFrame = window.requestAnimationFrame(() => fitCanvasRef.current());
+        fitFrame = window.requestAnimationFrame(() => fitCanvasRef.current(false));
       });
     };
     scheduleCanvasFitRef.current = scheduleCanvasFit;
@@ -251,7 +259,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         builderDebug(experienceKey, "lifecycle:ready-deferred-missing-root", { source, current: currentEditorDebugSnapshot(editor, widgetType) }, "warn");
         return;
       }
-      builderDebug(experienceKey, "lifecycle:ready:start", { source, before: summarizeBuilder({ version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: editorCss() }) }, "info");
+      builderDebug(experienceKey, "lifecycle:ready:start", { source, before: summarizeBuilder({ version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: editorCss(), canvas: { ...viewportRef.current } }) }, "info");
       initialized = true; setReady(true);
       applyingCodeRef.current = true;
       const widgetRoot = editor.getWrapper()?.find(".movecues-widget")[0];
@@ -260,7 +268,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       editor.clearDirtyCount();
       applyingCodeRef.current = false;
       const html = sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"); const css = editorCss(); setCodeHtml(html); setCodeCss(css);
-      builderDebug(experienceKey, "lifecycle:ready:complete", { snapshot: summarizeBuilder({ version: 1, projectData: projectDataRef.current, html, css }), html, css }, "info");
+      builderDebug(experienceKey, "lifecycle:ready:complete", { snapshot: summarizeBuilder({ version: 1, projectData: projectDataRef.current, html, css, canvas: { ...viewportRef.current } }), html, css }, "info");
       if (!value) lastSignature.current = "";
       emit();
       if (!canvasNavigationBound) {
@@ -271,7 +279,8 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         editor.Canvas.getDocument()?.addEventListener("keydown", onKeyDown);
         editor.Canvas.getDocument()?.addEventListener("keyup", onKeyUp);
       }
-      scheduleCanvasFit();
+      if (restoredViewport) { applyViewportRef.current(restoredViewport, true, false); setPositioned(true); }
+      else scheduleCanvasFit();
     };
     void import("grapesjs").then(module => {
       if (cancelled || !canvasRef.current || !blocksRef.current || !stylesRef.current || !traitsRef.current) return;
@@ -297,7 +306,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       });
       if (cancelled) { editor.destroy(); return; }
       editorRef.current = editor;
-      applyViewportRef.current = (next = {}, updateLabel = true) => {
+      applyViewportRef.current = (next = {}, updateLabel = true, persist = false) => {
         if (!editor || cancelled) return;
         const previous = viewportRef.current;
         const viewport = { zoom: clampCanvasZoom(next.zoom ?? previous.zoom), panX: next.panX ?? previous.panX, panY: next.panY ?? previous.panY };
@@ -305,6 +314,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         editor.Canvas.setZoom(viewport.zoom);
         editor.Canvas.setCoords(viewport.panX, viewport.panY);
         if (updateLabel) setZoomLabel(Math.round(viewport.zoom));
+        if (persist) { viewportPersistedRef.current = true; schedule(true, "canvas:viewport"); }
       };
       applySizeEnvelopeRef.current = next => {
         if (!editor || cancelled) return;
@@ -314,7 +324,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         if (!style) { style = documentValue.createElement("style"); style.dataset.movecuesSizeEnvelope = ""; documentValue.head.appendChild(style); }
         style.textContent = builderPreviewSizeEnvelopeCss(widgetType, next);
       };
-      fitCanvasRef.current = () => {
+      fitCanvasRef.current = (persist = true) => {
         if (!editor || cancelled || !canvasRef.current) return;
         const widget = editor.getWrapper()?.find(".movecues-widget")[0]?.getEl();
         if (!widget) { setPositioned(true); return; }
@@ -324,7 +334,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         const widgetWidth = Math.max(1, widget.offsetWidth);
         const widgetHeight = Math.max(1, widget.offsetHeight);
         const zoom = Math.min(1, Math.max(MIN_CANVAS_ZOOM / 100, availableWidth / widgetWidth), Math.max(MIN_CANVAS_ZOOM / 100, availableHeight / widgetHeight));
-        applyViewportRef.current({ zoom: zoom * 100, panX: (canvasRef.current.clientWidth - AUTHORING_CANVAS_WIDTH * zoom) / 2, panY: 0 });
+        applyViewportRef.current({ zoom: zoom * 100, panX: (canvasRef.current.clientWidth - AUTHORING_CANVAS_WIDTH * zoom) / 2, panY: 0 }, true, persist);
         setPositioned(true);
       };
       if (typeof ResizeObserver !== "undefined" && canvasRef.current) {
@@ -378,7 +388,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const toggleCode = () => { builderDebug(experienceKey, "code:toggle", { opening: !codeMode, current: currentEditorDebugSnapshot(editorRef.current, widgetType) }, "info"); if (!codeMode && editorRef.current) { setCodeHtml(sanitizeBuilderHtml(editorRef.current.getHtml(), widgetType === "survey")); setCodeCss(validateBuilderCss(editorRef.current.getCss({ avoidProtected: true }) ?? "")); } setCodeError(null); setCodeMode(value => !value); };
   const formatCode = () => { setCodeHtml(formatHtml(codeHtml)); setCodeCss(formatCss(codeCss)); setCodeError(null); };
   const syncCodeScroll = (event: UIEvent<HTMLTextAreaElement>, highlight: RefObject<HTMLPreElement | null>) => { if (highlight.current) { highlight.current.scrollTop = event.currentTarget.scrollTop; highlight.current.scrollLeft = event.currentTarget.scrollLeft; } };
-  const applyCode = () => { const editor = editorRef.current; if (!editor) return; builderDebug(experienceKey, "code:apply:start", { htmlLength: codeHtml.length, cssLength: codeCss.length, html: codeHtml, css: codeCss }, "info"); try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; builderDebug(experienceKey, "code:css-clear", { before: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? "") }; lastSignature.current = builderSignature(builder); lastPersistedCssRef.current = builder.css; setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); builderDebug(experienceKey, "code:apply:dispatch", { snapshot: summarizeBuilder(builder), html: builder.html, css: builder.css }, "info"); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { const message = error instanceof Error ? error.message : "The code could not be applied."; builderDebug(experienceKey, "code:apply:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); } finally { applyingCodeRef.current = false; } };
+  const applyCode = () => { const editor = editorRef.current; if (!editor) return; builderDebug(experienceKey, "code:apply:start", { htmlLength: codeHtml.length, cssLength: codeCss.length, html: codeHtml, css: codeCss }, "info"); try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); applyingCodeRef.current = true; builderDebug(experienceKey, "code:css-clear", { before: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? ""), ...(viewportPersistedRef.current ? { canvas: { ...viewportRef.current } } : {}) }; lastSignature.current = builderSignature(builder); lastPersistedCssRef.current = builder.css; setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); builderDebug(experienceKey, "code:apply:dispatch", { snapshot: summarizeBuilder(builder), html: builder.html, css: builder.css }, "info"); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { const message = error instanceof Error ? error.message : "The code could not be applied."; builderDebug(experienceKey, "code:apply:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); } finally { applyingCodeRef.current = false; } };
   const updateFreeItem = (property: keyof FreeItemBox, value: string) => {
     const component = selectedFreeItemRef.current; const numeric = Number(value);
     if (!component || !Number.isFinite(numeric)) return;
@@ -389,7 +399,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     const current = viewportRef.current; const nextZoom = clampCanvasZoom(current.zoom + delta);
     if (nextZoom === current.zoom) return;
     const pointerX = canvasRef.current.clientWidth / 2; const pointerY = canvasRef.current.clientHeight / 2; const ratio = nextZoom / current.zoom;
-    applyViewportRef.current({ zoom: nextZoom, panX: pointerX - (pointerX - current.panX) * ratio, panY: pointerY - (pointerY - current.panY) * ratio });
+    applyViewportRef.current({ zoom: nextZoom, panX: pointerX - (pointerX - current.panX) * ratio, panY: pointerY - (pointerY - current.panY) * ratio }, true, true);
   };
   const beginPan = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || (!handTool && !spacePressedRef.current)) return;
@@ -402,11 +412,11 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     const gesture = panGestureRef.current;
     if (!gesture || gesture.pointerId !== event.pointerId) return;
     event.preventDefault();
-    applyViewportRef.current({ panX: gesture.panX + event.clientX - gesture.startX, panY: gesture.panY + event.clientY - gesture.startY }, false);
+    applyViewportRef.current({ panX: gesture.panX + event.clientX - gesture.startX, panY: gesture.panY + event.clientY - gesture.startY }, false, true);
   };
   const endPan = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (panGestureRef.current?.pointerId !== event.pointerId) return;
-    panGestureRef.current = null; event.currentTarget.releasePointerCapture?.(event.pointerId); setPanning(false);
+    panGestureRef.current = null; event.currentTarget.releasePointerCapture?.(event.pointerId); setPanning(false); flushExportRef.current();
   };
   const currentAction = content.primaryAction;
   const displayedActionType: ExperienceAction["type"] = interactionContext === "guide" ? "next_step" : currentAction?.type === "open_url" || currentAction?.type === "track_event" ? currentAction.type : "dismiss";

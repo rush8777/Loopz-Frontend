@@ -104,7 +104,7 @@ export function projectLegacyContent(html: string, previous: ExperienceContent):
 // GrapesJS regenerates internal component/page IDs when parsing HTML; including
 // projectData here would make an unchanged reload look like a user edit.
 export function builderSignature(builder: WidgetBuilderState): string {
-  return JSON.stringify({ version: builder.version, html: builder.html, css: builder.css });
+  return JSON.stringify({ version: builder.version, html: builder.html, css: builder.css, canvas: builder.canvas });
 }
 
 export function isSafeBuilderProjectData(projectData: Record<string, unknown>): boolean {

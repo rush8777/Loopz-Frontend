@@ -169,9 +169,17 @@ describe("GrapesWidgetBuilder", () => {
     fireEvent.click(screen.getByRole("button", { name: "Hand tool" })); const panLayer = document.querySelector<HTMLElement>(".movecues-builder-pan-layer")!; expect(panLayer).toHaveClass("movecues-builder-pan-layer--active");
     fireEvent.pointerDown(panLayer, { button: 0, pointerId: 7, clientX: 100, clientY: 100 }); fireEvent.pointerMove(panLayer, { pointerId: 7, clientX: 140, clientY: 160 }); fireEvent.pointerUp(panLayer, { pointerId: 7 });
     expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(-260, 32);
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ builder: expect.objectContaining({ canvas: { zoom: 110, panX: -260, panY: 32 } }) }));
     editor.Canvas.setZoom.mockClear(); editor.Canvas.setCoords.mockClear(); harness.dirty = 1; act(() => harness.handlers.get("update")?.());
     expect(editor.Canvas.setZoom).not.toHaveBeenCalled(); expect(editor.Canvas.setCoords).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Fit" })); act(() => vi.runAllTimers()); expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(100); expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(-240, 0); expect(screen.getByLabelText("Zoom percentage")).toHaveTextContent("100%");
+  });
+
+  it("restores a saved canvas viewport without changing the canonical HTML or CSS", async () => {
+    vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn(); const html = '<section class="movecues-widget"><p class="movecues-widget__body">Saved</p></section>'; const css = ".movecues-widget{color:#111}";
+    render(<GrapesWidgetBuilder experienceKey="exp:restored-viewport" widgetType="modal" value={{ version: 1, projectData: {}, html, css, canvas: { zoom: 135, panX: -310, panY: 74 } }} content={{ heading: "Hello", body: "Saved" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={onChange} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
+    await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
+    expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(135); expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(-310, 74); expect(screen.getByLabelText("Zoom percentage")).toHaveTextContent("135%"); expect(onChange).not.toHaveBeenCalled(); expect(editor.getHtml()).toContain("Saved"); expect(editor.getCss({ avoidProtected: true })).toBe(css);
   });
 
   it("zooms toward the cursor, ignores normal wheel events, and clamps toolbar zoom", async () => {
