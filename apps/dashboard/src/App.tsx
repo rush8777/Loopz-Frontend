@@ -90,7 +90,7 @@ export default function App() {
               <Route path="experiences/guides" element={<ExperienceListPage kind="guide" />} />
               <Route path="experiences/surveys" element={<ExperienceListPage kind="widget" widgetType="survey" singularLabel="survey" pluralLabel="Surveys" description="Collect contextual, multi-step feedback from active users." />} />
               <Route path="experiences/banners" element={<ExperienceListPage kind="widget" widgetType="banner" singularLabel="banner" pluralLabel="Banners" description="Create full-width banner experiences inside your product." />} />
-              <Route path="experiences/checklists" element={<ExperienceListPage kind="widget" singularLabel="checklist" pluralLabel="Checklists" unsupported />} />
+              <Route path="experiences/checklists" element={<ExperienceListPage kind="checklist" singularLabel="checklist" pluralLabel="Checklists" description="Guide users through persistent onboarding tasks." />} />
               <Route path="experiences/:experienceId/edit" element={<ExperienceEditorPage />} />
             </Route>
           </Route>

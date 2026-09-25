@@ -33,9 +33,9 @@ interface InspectorProps {
   onSelect: (component: Component) => void;
   traitsRef: RefObject<HTMLDivElement | null>;
   stylesRef: RefObject<HTMLDivElement | null>;
-  widgetSize: ReactNode;
-  freePosition: ReactNode;
-  interaction: ReactNode;
+  widgetSize?: ReactNode;
+  freePosition?: ReactNode;
+  interaction?: ReactNode;
 }
 
 const FONT_PRESETS = {

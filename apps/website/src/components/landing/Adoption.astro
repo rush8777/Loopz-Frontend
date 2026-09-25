@@ -20,7 +20,7 @@ import {
 const topics = [
   {
     kicker: "Adopt",
-    title: "Turn new users into <br />power users.",
+    title: "Guide users <br /> through complex <br />setups",
     description:
       "Build in-app onboarding around real user behavior, then guide every person toward the features that make your product indispensable.",
 
@@ -62,7 +62,7 @@ const topics = [
     ],
 
     visual: {
-      src: "/images/hero-card-img.png",
+      src: "",
       alt: "Movcues in-app onboarding and feature adoption experience",
     },
   },
@@ -71,7 +71,7 @@ const topics = [
     kicker: "Analyze",
     title: "See where users <br />struggle and succeed.",
     description:
-      "Understand how users move through your product, uncover friction, and identify the behaviors that drive meaningful engagement and retention.",
+      "All-in-one intelligence from Funnels to Dashboards. Inspect where users drop and Understand why they left with experiences ",
 
     primaryAction: {
       label: "Explore analytics",
@@ -109,16 +109,16 @@ const topics = [
     ],
 
     visual: {
-      src: "/images/hero-card-img.png",
+      src: "",
       alt: "Movcues behavioral analytics and product insights",
     },
   },
 
   {
     kicker: "Act",
-    title: "Turn insight into <br />better product decisions.",
+    title: "Segment affected users and  <br /> Deploy ",
     description:
-      "Use behavioral data and feedback to prioritize improvements, validate changes, and focus your team on the highest-value opportunities first.",
+      "Create and deploy interactive experiences to capture valuable user behaviors which makes product decisions much easier and accurate",
 
     primaryAction: {
       label: "Explore insights",
@@ -144,7 +144,7 @@ const topics = [
         icon: ChartNoAxesColumnIncreasing,
       },
       {
-        label: "Spot opportunities",
+        label: "Self Serve",
         icon: Lightbulb,
       },
       {
@@ -371,7 +371,7 @@ const topicData = topics.map((topic) => ({
         topicIndex = (topicIndex + 1) % topics.length;
 
         renderTopic(topics[topicIndex]);
-      }, 6500);
+      }, 6000);
     }
   }
 </script>

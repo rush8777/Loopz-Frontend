@@ -19,8 +19,8 @@ const DAY = 86_400_000;
 const metricLabels: Record<TrendMetric, string> = { viewers: "Viewers", engagement: "Engagement", completion: "Completion", goal: "Goal conversion" };
 const percent = (numerator: number, denominator: number) => denominator ? Math.round(numerator / denominator * 1000) / 10 : 0;
 const displayRate = (value: number | null) => value === null ? "—" : `${value}%`;
-function labelFor(item: ExperienceAnalytics) { return item.experience.widgetType === "survey" ? "Survey" : item.experience.kind === "guide" ? "Guide" : (item.experience.widgetType ?? "Widget").replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase()); }
-function completionFor(item: ExperienceAnalytics) { return item.survey ? item.survey.responseRate : item.experience.kind === "guide" ? item.summary.completionRate : null; }
+function labelFor(item: ExperienceAnalytics) { return item.experience.kind === "checklist" ? "Checklist" : item.experience.widgetType === "survey" ? "Survey" : item.experience.kind === "guide" ? "Guide" : (item.experience.widgetType ?? "Widget").replaceAll("_", " ").replace(/\b\w/g, char => char.toUpperCase()); }
+function completionFor(item: ExperienceAnalytics) { return item.checklist ? item.checklist.completionRate : item.survey ? item.survey.responseRate : item.experience.kind === "guide" ? item.summary.completionRate : null; }
 function engagementFor(item: ExperienceAnalytics) { return percent(item.summary.usersStarted, item.summary.usersSeen); }
 
 export function ExperienceAnalyticsPage() {

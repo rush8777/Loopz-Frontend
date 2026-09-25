@@ -304,4 +304,37 @@ describe("GrapesWidgetBuilder", () => {
     fireEvent.click(within(screen.getByRole("group", { name: "Alignment" })).getByRole("button", { name: "Center" })); const styleClass = editor.__child.getClasses().find((name: string) => name.startsWith("movecues-style--")); editor.Css.setRule(`.movecues-widget .${styleClass}`, { "text-align": "right" });
     act(() => harness.handlers.get("style:property:update")?.()); await act(async () => { await Promise.resolve(); }); expect(within(screen.getByRole("group", { name: "Alignment" })).getByRole("button", { name: "Right" })).toHaveAttribute("aria-pressed", "true");
   });
+
+  it("keeps Checklist preview controls canvas-only and removes structural block insertion", async () => {
+    vi.useFakeTimers();
+    fakeEditor();
+    const onChange = vi.fn();
+    const html = '<section class="movecues-widget" data-movecues-checklist-role="root"><div data-movecues-checklist-view="expanded"><div data-movecues-checklist-role="items"><button data-movecues-checklist-item-id="task-1"><span data-movecues-checklist-item-role="title">Create a project</span><span data-movecues-checklist-item-role="description"></span></button></div></div><button data-movecues-checklist-view="launcher"></button><div data-movecues-checklist-view="completion"></div></section>';
+    render(
+      <GrapesWidgetBuilder
+        experienceKey="checklist:preview"
+        widgetType="modal"
+        interactionContext="checklist"
+        value={{ version: 1, projectData: {}, html, css: ".movecues-widget{color:#111}" }}
+        content={{ heading: "Getting started", body: "Complete the tasks" }}
+        design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }}
+        checklistItems={[{ id: "task-1", title: "Create a project", action: { type: "none" }, completion: { type: "item_clicked" } }]}
+        checklistCopy={{ title: "Getting started", description: "Complete the tasks", completionMessage: { title: "Done", acknowledgeLabel: "Close" } }}
+        checklistInspector={<p>Structured settings</p>}
+        onChange={onChange}
+        onPrimaryActionChange={vi.fn()}
+        onSizeChange={vi.fn()}
+      />,
+    );
+    await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
+    onChange.mockClear();
+
+    expect(harness.init.mock.calls[0][0].blockManager.blocks).toEqual([]);
+    expect(screen.getByText("Structured settings")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Toggle HTML and CSS editor" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Preview progress"), { target: { value: "complete" } });
+    fireEvent.change(screen.getByLabelText("Preview view"), { target: { value: "completion" } });
+    act(() => vi.runAllTimers());
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });

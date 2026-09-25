@@ -1,10 +1,10 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject, type UIEvent } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject, type UIEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Component, Editor } from "grapesjs";
 import { Badge as BadgeIcon, Box, CircleDot, CircleUserRound, Code2, Columns3, Hand, Heading2, Image as ImageIcon, List, Maximize2, Minus, Monitor, MousePointer2, MousePointerClick, MoveVertical, Plus, Redo2, Rows3, ScanLine, SquareMousePointer, Star, Smartphone, Tablet, Type, Undo2, X, type LucideIcon } from "lucide-react";
 import "grapesjs/dist/css/grapes.min.css";
 import "./GrapesWidgetBuilder.css";
-import type { BuilderCanvasViewport, ExperienceAction, ExperienceContent, ExperienceDesign, ExperienceSize, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
+import type { BuilderCanvasViewport, ChecklistItem, ExperienceAction, ExperienceContent, ExperienceDesign, ExperienceSize, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
 import { Button } from "@movecues/ui";
 import { Input } from "@movecues/ui";
 import { Label } from "@movecues/ui";
@@ -15,11 +15,12 @@ import { GrapesWidgetInspector, type InspectorStylePatch, type InspectorStyleSna
 import { builderPreviewSizeEnvelopeCss, clampWidgetHeight, clampWidgetWidth, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS } from "./widgetSizing";
 import { builderDebug, summarizeBuilder } from "./builderDebug";
 import { syncSurveyComponents } from "./surveyComponentSync";
+import { syncChecklistComponents, type ChecklistPresentationCopy } from "./checklistComponentSync";
 
 interface Props {
   experienceKey: string;
   widgetType: WidgetType;
-  interactionContext?: "guide" | "widget" | "survey";
+  interactionContext?: "guide" | "widget" | "survey" | "checklist";
   value?: WidgetBuilderState;
   content: ExperienceContent;
   design: ExperienceDesign;
@@ -27,9 +28,14 @@ interface Props {
   onPrimaryActionChange: (action: ExperienceAction | undefined) => void;
   onSizeChange: (size: ExperienceSize) => void;
   surveyQuestions?: SurveyQuestion[];
+  checklistItems?: ChecklistItem[];
+  checklistCopy?: ChecklistPresentationCopy;
+  checklistOrder?: "any" | "sequential";
+  checklistInspector?: ReactNode;
+  onChecklistSelectionChange?: (selection: { type: "root" } | { type: "task"; itemId: string }) => void;
 }
 
-export interface GrapesWidgetBuilderHandle { flush: () => void }
+export interface GrapesWidgetBuilderHandle { flush: () => void; selectChecklistItem: (itemId: string) => void; selectChecklistRoot: () => void }
 
 const AUTHORING_CANVAS_WIDTH = 1200;
 const AUTHORING_CANVAS_HEIGHT = 900;
@@ -67,7 +73,35 @@ function interactionForComponent(component?: Component): SelectedInteraction {
   return null;
 }
 
-export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(function GrapesWidgetBuilder({ experienceKey, widgetType, interactionContext = widgetType === "survey" ? "survey" : "widget", value, content, design, onChange, onPrimaryActionChange, onSizeChange, surveyQuestions }, ref) {
+function checklistSelection(component: Component): { type: "root" } | { type: "task"; itemId: string } | null {
+  let current: Component | undefined = component;
+  while (current) {
+    const attributes = current.getAttributes?.() ?? {};
+    const itemId = attributes["data-movecues-checklist-item-id"];
+    if (typeof itemId === "string" && itemId) return { type: "task", itemId };
+    if (attributes["data-movecues-checklist-role"] === "root") return { type: "root" };
+    current = current.parent?.() ?? undefined;
+  }
+  return null;
+}
+
+function applyChecklistPreview(editor: Editor, items: ChecklistItem[], order: "any" | "sequential", progress: "empty" | "progress" | "complete", view: "expanded" | "launcher" | "completion") {
+  const documentValue = editor.Canvas.getDocument?.();
+  if (!documentValue) return;
+  const completeCount = progress === "complete" ? items.length : progress === "progress" ? Math.max(1, Math.floor(items.length / 2)) : 0;
+  documentValue.querySelectorAll<HTMLElement>("[data-movecues-checklist-view]").forEach(element => element.classList.toggle("is-active", element.dataset.movecuesChecklistView === view));
+  items.forEach((item, index) => {
+    const element = Array.from(documentValue.querySelectorAll<HTMLElement>("[data-movecues-checklist-item-id]")).find(candidate => candidate.dataset.movecuesChecklistItemId === item.id);
+    if (element) element.dataset.state = index < completeCount ? "completed" : order === "sequential" && index > completeCount ? "locked" : "available";
+  });
+  const progressElement = documentValue.querySelector<HTMLElement>('[data-movecues-checklist-role="progress"]');
+  if (progressElement) progressElement.textContent = `${completeCount} of ${items.length} complete`;
+  const remaining = documentValue.querySelector<HTMLElement>('[data-movecues-checklist-role="remaining-count"]');
+  if (remaining) remaining.textContent = String(Math.max(0, items.length - completeCount));
+}
+
+export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(function GrapesWidgetBuilder({ experienceKey, widgetType, interactionContext = widgetType === "survey" ? "survey" : "widget", value, content, design, onChange, onPrimaryActionChange, onSizeChange, surveyQuestions, checklistItems, checklistCopy, checklistOrder = "any", checklistInspector, onChecklistSelectionChange }, ref) {
+  const checklistMode = interactionContext === "checklist";
   const canvasViewportRef = useRef<HTMLDivElement>(null); const canvasRef = useRef<HTMLDivElement>(null); const blocksRef = useRef<HTMLDivElement>(null); const stylesRef = useRef<HTMLDivElement>(null); const traitsRef = useRef<HTMLDivElement>(null); const editorRef = useRef<Editor | null>(null);
   const htmlHighlightRef = useRef<HTMLPreElement>(null); const cssHighlightRef = useRef<HTMLPreElement>(null);
   const applyingCodeRef = useRef(false);
@@ -87,17 +121,19 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const interactionControllerRef = useRef<WidgetInteractionController | null>(null);
   const selectedFreeItemRef = useRef<Component | null>(null);
   const surveyProjectionSignatureRef = useRef("");
+  const checklistProjectionSignatureRef = useRef("");
   const editorExperienceKeyRef = useRef<string | null>(null);
   const projectDataRef = useRef<Record<string, unknown>>(value?.projectData ?? {});
   const lastPersistedCssRef = useRef(value?.css ?? "");
-  const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
-  const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedComponent, setSelectedComponent] = useState<Component | null>(null); const [selectedInteraction, setSelectedInteraction] = useState<SelectedInteraction>(null); const [styleRevision, setStyleRevision] = useState(0); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">("blocks"); const [zoomLabel, setZoomLabel] = useState(100); const [handTool, setHandTool] = useState(false); const [spacePressed, setSpacePressed] = useState(false); const [panning, setPanning] = useState(false); const [freeItemBox, setFreeItemBox] = useState<FreeItemBox | null>(null);
-  useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { contentRef.current = content; }, [content]);
+  const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const checklistSelectionRef = useRef(onChecklistSelectionChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
+  const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedComponent, setSelectedComponent] = useState<Component | null>(null); const [selectedInteraction, setSelectedInteraction] = useState<SelectedInteraction>(null); const [styleRevision, setStyleRevision] = useState(0); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">(checklistMode ? "properties" : "blocks"); const [zoomLabel, setZoomLabel] = useState(100); const [handTool, setHandTool] = useState(false); const [spacePressed, setSpacePressed] = useState(false); const [panning, setPanning] = useState(false); const [freeItemBox, setFreeItemBox] = useState<FreeItemBox | null>(null); const [checklistPreviewProgress, setChecklistPreviewProgress] = useState<"empty" | "progress" | "complete">("empty"); const [checklistPreviewView, setChecklistPreviewView] = useState<"expanded" | "launcher" | "completion">("expanded");
+  useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { checklistSelectionRef.current = onChecklistSelectionChange; }, [onChecklistSelectionChange]); useEffect(() => { contentRef.current = content; }, [content]);
   useEffect(() => { designRef.current = design; applySizeEnvelopeRef.current(design); }, [design]);
   useEffect(() => { codeModeRef.current = codeMode; }, [codeMode]);
   useEffect(() => { handToolRef.current = handTool; }, [handTool]);
-  useImperativeHandle(ref, () => ({ flush: () => flushExportRef.current() }), []);
+  useImperativeHandle(ref, () => ({ flush: () => flushExportRef.current(), selectChecklistItem: itemId => { const component = editorRef.current?.getWrapper()?.find(`[data-movecues-checklist-item-id="${itemId.replace(/["\\]/g, "\\$&")}"]`)[0]; if (component) editorRef.current?.select(component); }, selectChecklistRoot: () => { const component = editorRef.current?.getWrapper()?.find('[data-movecues-checklist-role="root"]')[0]; if (component) editorRef.current?.select(component); } }), []);
   useEffect(() => { if (widgetType !== "survey" || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !surveyQuestions) return; const signature = `${experienceKey}:${JSON.stringify(surveyQuestions)}`; if (signature === surveyProjectionSignatureRef.current) return; builderDebug(experienceKey, "survey:projection:start", { questionCount: surveyQuestions.length, signature }); surveyProjectionSignatureRef.current = signature; syncSurveyComponents(editorRef.current, surveyQuestions); flushExportRef.current(); builderDebug(experienceKey, "survey:projection:complete"); }, [experienceKey, ready, surveyQuestions, widgetType]);
+  useEffect(() => { if (!checklistMode || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !checklistItems) return; const signature = `${experienceKey}:${JSON.stringify({ items: checklistItems, copy: checklistCopy })}`; if (signature !== checklistProjectionSignatureRef.current) { checklistProjectionSignatureRef.current = signature; syncChecklistComponents(editorRef.current, checklistItems, checklistCopy); flushExportRef.current(); } applyChecklistPreview(editorRef.current, checklistItems, checklistOrder, checklistPreviewProgress, checklistPreviewView); }, [checklistCopy, checklistItems, checklistMode, checklistOrder, checklistPreviewProgress, checklistPreviewView, experienceKey, ready]);
 
   useEffect(() => {
     let cancelled = false; let timer = 0; let initializationTimer = 0; let fitFrame = 0; let refreshFrame = 0; let editor: Editor | null = null; let initialized = false; let migratingComponentStyle = false; let resizeObserver: ResizeObserver | null = null; let canvasNavigationBound = false; let canvasViewportElement: HTMLDivElement | null = null;
@@ -292,17 +328,20 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         components: initialHtml,
         style: initialCss,
         deviceManager: { devices: [{ id: "desktop", name: "Desktop", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px` }, { id: "tablet", name: "Tablet", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "768px" }, { id: "mobile", name: "Mobile", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "390px" }] },
-        blockManager: { appendTo: blocksRef.current, blocks: blocks() },
+        blockManager: { appendTo: blocksRef.current, blocks: checklistMode ? [] : blocks() },
         traitManager: { appendTo: traitsRef.current },
         styleManager: { appendTo: stylesRef.current, sectors: styleSectors() },
         plugins: [instance => {
+          instance.DomComponents.addType("movecues-checklist-root", { isComponent: element => element.getAttribute?.("data-movecues-checklist-role") === "root" ? { type: "movecues-checklist-root" } : false, model: { defaults: { tagName: "section", removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
+          instance.DomComponents.addType("movecues-checklist-item", { isComponent: element => element.hasAttribute?.("data-movecues-checklist-item-id") ? { type: "movecues-checklist-item" } : false, model: { defaults: { removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
+          instance.DomComponents.addType("movecues-checklist-structure", { isComponent: element => checklistMode && (element.hasAttribute?.("data-movecues-checklist-role") || element.hasAttribute?.("data-movecues-checklist-view") || element.hasAttribute?.("data-movecues-checklist-item-role")) ? { type: "movecues-checklist-structure" } : false, model: { defaults: { removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
           instance.DomComponents.addType("movecues-widget-root", { isComponent: element => element.classList?.contains("movecues-widget") ? { type: "movecues-widget-root" } : false, model: { defaults: { tagName: "section", removable: false, copyable: false } } });
           instance.DomComponents.addType("movecues-survey-controls", { isComponent: element => element.hasAttribute?.("data-movecues-survey-controls") ? { type: "movecues-survey-controls" } : false, model: { defaults: { tagName: "div", removable: false, copyable: false } } });
           instance.DomComponents.addType("movecues-survey-question", { isComponent: element => element.hasAttribute?.("data-movecues-question-id") ? { type: "movecues-survey-question" } : false, model: { defaults: { droppable: true, editable: false, removable: false, copyable: false, traits: [] } } });
           instance.DomComponents.addType("movecues-button", { isComponent: element => element.tagName === "BUTTON" && (element.hasAttribute?.("data-movecues-action-id") || element.hasAttribute?.("data-movecues-survey-action")) ? { type: "movecues-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, removable: true, copyable: false, traits: [] } } });
           instance.DomComponents.addType("movecues-free-area", { isComponent: element => element.classList?.contains(FREE_AREA_CLASS) ? { type: "movecues-free-area" } : false, model: { defaults: { tagName: "div", classes: [FREE_AREA_CLASS], droppable: true } } });
           instance.DomComponents.addType("movecues-avatar-image", { isComponent: element => element.tagName === "IMG" && element.classList?.contains("movecues-widget__avatar-image") ? { type: "movecues-avatar-image" } : false, model: { defaults: { tagName: "img", droppable: false, traits: [{ type: "text", name: "src", label: "Image URL" }, { type: "text", name: "alt", label: "Alt text" }] } } });
-        }, instance => { interactionControllerRef.current = installWidgetInteractions(instance, { widgetType, design: () => designRef.current, onRootResize: (size, commit) => { const next = { ...designRef.current, size }; applySizeEnvelopeRef.current(next); if (commit) { designRef.current = next; onSizeChangeRef.current(size); } }, onFreeItemChange: (component, box) => { selectedFreeItemRef.current = component; setFreeItemBox(box); }, onMutation: scheduleCustomMutation, canStartFreeDrag: target => !handToolRef.current && !spacePressedRef.current && !codeModeRef.current && !isEditableTarget(target) }); }],
+        }, instance => { if (!checklistMode) interactionControllerRef.current = installWidgetInteractions(instance, { widgetType, design: () => designRef.current, onRootResize: (size, commit) => { const next = { ...designRef.current, size }; applySizeEnvelopeRef.current(next); if (commit) { designRef.current = next; onSizeChangeRef.current(size); } }, onFreeItemChange: (component, box) => { selectedFreeItemRef.current = component; setFreeItemBox(box); }, onMutation: scheduleCustomMutation, canStartFreeDrag: target => !handToolRef.current && !spacePressedRef.current && !codeModeRef.current && !isEditableTarget(target) }); }],
       });
       if (cancelled) { editor.destroy(); return; }
       editorRef.current = editor;
@@ -342,7 +381,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         resizeObserver.observe(canvasRef.current);
       }
       applySizeEnvelopeRef.current(designRef.current);
-      const selectAction = (component?: Component) => { setSelectedComponent(component ?? null); setSelectedInteraction(interactionForComponent(component)); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setStyleRevision(value => value + 1); setSidebarTab("properties"); };
+      const selectAction = (component?: Component) => { setSelectedComponent(component ?? null); setSelectedInteraction(interactionForComponent(component)); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setStyleRevision(value => value + 1); setSidebarTab("properties"); if (checklistMode && component) { const selection = checklistSelection(component); if (selection) checklistSelectionRef.current?.(selection); } };
       const keepOneActionPerSlot = (component: Component) => { if (widgetType === "survey") return; const slot = component.getAttributes()?.["data-movecues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movecues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
       editor.on("update", () => { builderDebug(experienceKey, "grapes:update", { dirtyCount: editor?.getDirtyCount() }); schedule(false, "grapes:update"); });
       editor.on("component:styleUpdate", (component: Component) => { builderDebug(experienceKey, "grapes:component-style-update", { component: debugComponent(component), css: debugCss(rawEditorCss()) }); persistComponentStyle(component); setStyleRevision(value => value + 1); });
@@ -447,10 +486,11 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     return { authored, effective };
   };
   const freePositionInspector = freeItemBox && <div className="movecues-position-inspector"><h3>Position</h3><div className="movecues-position-grid">{([['x', 'X'], ['y', 'Y'], ['width', 'W'], ['height', 'H']] as const).map(([property, label]) => <Label key={property}>{label}<Input aria-label={`Position ${label}`} type="number" value={Math.round(freeItemBox[property])} onChange={event => updateFreeItem(property, event.target.value)} /></Label>)}</div><div className="movecues-position-actions"><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "forward")}>Bring forward</Button><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "backward")}>Send backward</Button></div></div>;
-  const widgetSizeInspector = <WidgetSizeEditor widgetType={widgetType} design={design} onPreview={previewSize} onChange={onSizeChange} />;
+  const widgetSizeInspector = checklistMode ? undefined : <WidgetSizeEditor widgetType={widgetType} design={design} onPreview={previewSize} onChange={onSizeChange} />;
 
-  return <div className="movecues-builder-shell">
-    <div className="movecues-builder-toolbar"><div className="movecues-builder-toolbar__group movecues-builder-toolbar__devices movecues-builder-device-switcher" role="group" aria-label="Preview device">{[["Desktop", Monitor], ["Tablet", Tablet], ["Mobile", Smartphone]].map(([name, Icon]) => <Button key={String(name)} type="button" size="icon" variant="ghost" className={device === name ? "movecues-builder-device-switcher__button movecues-builder-device-switcher__button--active" : "movecues-builder-device-switcher__button"} aria-label={String(name)} aria-pressed={device === name} onClick={() => chooseDevice(String(name))}><Icon className="size-4" /></Button>)}</div><div className="movecues-builder-toolbar__group movecues-builder-toolbar__controls">{!codeMode && <div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant="outline" aria-label="Undo" onClick={() => editorRef.current?.UndoManager.undo()}><Undo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Redo" onClick={() => editorRef.current?.UndoManager.redo()}><Redo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Fit" onClick={() => fitCanvasRef.current()}><ScanLine /></Button></div>}<div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant={!handTool ? "default" : "outline"} aria-label="Select tool" onClick={() => setHandTool(false)}><MousePointer2 /></Button><Button type="button" size="icon" variant={handTool ? "default" : "outline"} aria-label="Hand tool" aria-pressed={handTool} onClick={() => setHandTool(true)}><Hand /></Button></div><div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant={codeMode ? "default" : "outline"} aria-label="Toggle HTML and CSS editor" onClick={toggleCode}><Code2 /></Button></div></div></div>
+  return <div className={`movecues-builder-shell${checklistMode ? " movecues-builder-shell--checklist" : ""}`}>
+    {checklistMode && <><div className="movecues-builder-preview-controls"><Label>Progress<select aria-label="Preview progress" value={checklistPreviewProgress} onChange={event => setChecklistPreviewProgress(event.target.value as typeof checklistPreviewProgress)}><option value="empty">Empty</option><option value="progress">In progress</option><option value="complete">Complete</option></select></Label><Label>View<select aria-label="Preview view" value={checklistPreviewView} onChange={event => setChecklistPreviewView(event.target.value as typeof checklistPreviewView)}><option value="expanded">Expanded</option><option value="launcher">Collapsed</option><option value="completion">Completion</option></select></Label></div><aside className="movecues-checklist-external-inspector"><div className="movecues-checklist-structured-inspector">{checklistInspector}</div></aside></>}
+    <div className="movecues-builder-toolbar"><div className="movecues-builder-toolbar__group movecues-builder-toolbar__devices movecues-builder-device-switcher" role="group" aria-label="Preview device">{[["Desktop", Monitor], ["Tablet", Tablet], ["Mobile", Smartphone]].map(([name, Icon]) => <Button key={String(name)} type="button" size="icon" variant="ghost" className={device === name ? "movecues-builder-device-switcher__button movecues-builder-device-switcher__button--active" : "movecues-builder-device-switcher__button"} aria-label={String(name)} aria-pressed={device === name} onClick={() => chooseDevice(String(name))}><Icon className="size-4" /></Button>)}</div><div className="movecues-builder-toolbar__group movecues-builder-toolbar__controls">{!codeMode && <div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant="outline" aria-label="Undo" onClick={() => editorRef.current?.UndoManager.undo()}><Undo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Redo" onClick={() => editorRef.current?.UndoManager.redo()}><Redo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Fit" onClick={() => fitCanvasRef.current()}><ScanLine /></Button></div>}<div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant={!handTool ? "default" : "outline"} aria-label="Select tool" onClick={() => setHandTool(false)}><MousePointer2 /></Button><Button type="button" size="icon" variant={handTool ? "default" : "outline"} aria-label="Hand tool" aria-pressed={handTool} onClick={() => setHandTool(true)}><Hand /></Button></div>{!checklistMode && <div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant={codeMode ? "default" : "outline"} aria-label="Toggle HTML and CSS editor" onClick={toggleCode}><Code2 /></Button></div>}</div></div>
     <div className={`movecues-builder-code${codeMode ? "" : " movecues-builder-view--hidden"}`} aria-hidden={!codeMode}><Label>HTML<div className="movecues-builder-code__editor"><pre ref={htmlHighlightRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: highlightHtml(codeHtml) }} /><Textarea className="movecues-builder-code__input" aria-label="Builder HTML" spellCheck={false} value={codeHtml} onChange={event => setCodeHtml(event.target.value)} onScroll={event => syncCodeScroll(event, htmlHighlightRef)} /></div></Label><Label>CSS<div className="movecues-builder-code__editor"><pre ref={cssHighlightRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: highlightCss(codeCss) }} /><Textarea className="movecues-builder-code__input" aria-label="Builder CSS" spellCheck={false} value={codeCss} onChange={event => setCodeCss(event.target.value)} onScroll={event => syncCodeScroll(event, cssHighlightRef)} /></div></Label><div className="col-span-full flex items-center gap-3"><Button type="button" variant="outline" onClick={formatCode}>Format HTML and CSS</Button><Button type="button" onClick={applyCode}>Apply HTML and CSS</Button>{codeError && <p className="m-0 text-sm text-destructive">{codeError}</p>}</div></div>
     {!codeMode && codeError && <div className="movecues-builder-error" role="alert">Builder changes could not be saved: {codeError}</div>}
     <div className={`movecues-builder-workspace${codeMode ? " movecues-builder-view--hidden" : ""}`} aria-hidden={codeMode}><aside className="movecues-builder-panel"><div className="movecues-builder-tabs" role="tablist" aria-label="Builder sidebar"><button type="button" role="tab" id="movecues-builder-blocks-tab" aria-selected={sidebarTab === "blocks"} aria-controls="movecues-builder-blocks-panel" onClick={() => setSidebarTab("blocks")}>Blocks</button><button type="button" role="tab" id="movecues-builder-properties-tab" aria-selected={sidebarTab === "properties"} aria-controls="movecues-builder-properties-panel" onClick={() => setSidebarTab("properties")}>Properties</button></div><div className={`movecues-builder-tab-panel${sidebarTab === "blocks" ? "" : " movecues-builder-tab-panel--hidden"}`} role="tabpanel" id="movecues-builder-blocks-panel" aria-labelledby="movecues-builder-blocks-tab"><p className="movecues-builder-hint">Drag blocks into the canvas, then select an element to customize it.</p><div ref={blocksRef} /></div><div className={`movecues-builder-tab-panel${sidebarTab === "properties" ? "" : " movecues-builder-tab-panel--hidden"}`} role="tabpanel" id="movecues-builder-properties-panel" aria-labelledby="movecues-builder-properties-tab"><GrapesWidgetInspector editor={editorRef.current} component={selectedComponent} isFreeItem={Boolean(selectedComponent && selectedFreeItemRef.current === selectedComponent)} styleRevision={styleRevision} readStyle={readInspectorStyle} onStyleChange={(component, patch) => applyInspectorStyleRef.current(component, patch)} onSelect={component => editorRef.current?.select(component)} traitsRef={traitsRef} stylesRef={stylesRef} widgetSize={widgetSizeInspector} freePosition={freePositionInspector} interaction={interactionInspector} /></div></aside><div ref={canvasViewportRef} className={`movecues-builder-canvas${handTool || spacePressed ? " movecues-builder-canvas--pan-ready" : ""}${panning ? " movecues-builder-canvas--panning" : ""}`}><div ref={canvasRef} className="movecues-builder-editor" /><div className={`movecues-builder-pan-layer${handTool || spacePressed || panning ? " movecues-builder-pan-layer--active" : ""}`} aria-hidden="true" onPointerDown={beginPan} onPointerMove={movePan} onPointerUp={endPan} onPointerCancel={endPan} />{(!ready || !positioned) && <div className="movecues-builder-loading">Loading builder…</div>}</div></div>

@@ -1,6 +1,6 @@
 import { apiRequest } from "./client";
 import type { Experience, ExperienceAnalytics, ExperienceDefinition, ExperienceKind, SurveyResponseRecord, WidgetType } from "../types/experiences";
-export interface CreateExperienceInput { kind: ExperienceKind; widgetType?: WidgetType | null; name: string; buildPageId?: string | null; buildUrl?: string | null; template: "blank"; useBuildPageAsTarget: boolean }
+export interface CreateExperienceInput { kind: ExperienceKind; widgetType?: WidgetType | null; name: string; buildPageId?: string | null; buildUrl?: string | null; template: "blank" | "default" | "minimal" | "soft" | "compact"; useBuildPageAsTarget: boolean }
 const base = (orgId: string, siteId: string) => `/orgs/${orgId}/sites/${siteId}/experiences`;
 export function listExperiences(orgId: string, siteId: string, kind?: ExperienceKind, widgetType?: WidgetType) { return apiRequest<{ experiences: Experience[] }>(base(orgId, siteId), { query: { kind, widgetType } }); }
 export function createExperience(orgId: string, siteId: string, input: CreateExperienceInput) { return apiRequest<Experience>(base(orgId, siteId), { method: "POST", body: input }); }
