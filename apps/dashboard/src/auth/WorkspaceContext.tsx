@@ -13,6 +13,7 @@ interface WorkspaceContextValue {
   setCurrentSiteId: (siteId: string) => void;
   loading: boolean;
   error: string | null;
+  refreshOrgs?: () => Promise<void>;
   refreshSites: () => Promise<void>;
 }
 
@@ -27,28 +28,43 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const refreshOrgs = useCallback(async () => {
+    try {
+      const res = await authApi.listOrgs();
+      setOrgs(res.organizations);
+      setCurrentOrgId((previous) =>
+        previous && res.organizations.some((organization) => organization.orgId === previous)
+          ? previous
+          : res.organizations[0]?.orgId ?? null,
+      );
+      setError(null);
+    } catch {
+      setError("Couldn't load your organizations.");
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) {
       setOrgs([]);
       setCurrentOrgId(null);
+      setSites([]);
+      setCurrentSiteId(null);
+      setLoading(false);
       return;
     }
-    authApi
-      .listOrgs()
-      .then((res) => {
-        setOrgs(res.organizations);
-        if (res.organizations.length > 0) setCurrentOrgId(res.organizations[0].orgId);
-      })
-      .catch(() => setError("Couldn't load your organizations."))
-      .finally(() => setLoading(false));
-  }, [user]);
+    setLoading(true);
+    void refreshOrgs().finally(() => setLoading(false));
+  }, [refreshOrgs, user]);
 
   const refreshSites = useCallback(async () => {
     if (!currentOrgId) return;
     try {
       const res = await sitesApi.listSites(currentOrgId);
       setSites(res.sites);
-      setCurrentSiteId((prev) => prev ?? res.sites[0]?.id ?? null);
+      setCurrentSiteId((previous) =>
+        previous && res.sites.some((site) => site.id === previous) ? previous : res.sites[0]?.id ?? null,
+      );
+      setError(null);
     } catch {
       setError("Couldn't load sites for this organization.");
     }
@@ -76,6 +92,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         setCurrentSiteId,
         loading,
         error,
+        refreshOrgs,
         refreshSites,
       }}
     >

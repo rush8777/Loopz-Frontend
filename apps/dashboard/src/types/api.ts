@@ -4,10 +4,13 @@ export interface User {
   name: string | null;
 }
 
+export type MembershipRole = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
+export type InvitationRole = Exclude<MembershipRole, "OWNER">;
+
 export interface Org {
   orgId: string;
   name: string;
-  role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
+  role: MembershipRole;
 }
 
 export interface Site {
@@ -15,6 +18,37 @@ export interface Site {
   siteId: string;
   name: string;
   domain: string | null;
+}
+
+export interface SiteStatus {
+  hasReceivedEvents: boolean;
+  lastEventAt: string | null;
+  siteId: string;
+  domain: string | null;
+}
+
+export interface TeamMember {
+  userId: string;
+  name: string | null;
+  email: string;
+  role: MembershipRole;
+  joinedAt: string;
+}
+
+export interface OrganizationInvitation {
+  id: string;
+  email: string;
+  role: InvitationRole;
+  status: "pending" | "expired" | "revoked" | "accepted";
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface InvitationDetail {
+  organization: { id: string; name: string };
+  email: string;
+  role: InvitationRole;
+  expiresAt: string;
 }
 
 export interface SessionSummary {

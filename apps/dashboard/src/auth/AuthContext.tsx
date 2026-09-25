@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import * as authApi from "../api/auth";
+import * as teamApi from "../api/team";
 import { setAccessToken, setRefreshToken, ApiError } from "../api/client";
 import type { User } from "../types/api";
 
@@ -9,6 +10,7 @@ interface AuthContextValue {
   bootstrapping: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (input: { email: string; password: string; orgName: string; name?: string }) => Promise<void>;
+  signupFromInvitation: (token: string, input: { name: string; password: string }) => Promise<{ orgId: string }>;
   logout: () => Promise<void>;
 }
 
@@ -50,6 +52,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }, []);
 
+  const signupFromInvitation = useCallback(async (token: string, input: { name: string; password: string }) => {
+    const res = await teamApi.signupFromInvitation(token, input);
+    setAccessToken(res.accessToken);
+    setRefreshToken(res.refreshToken);
+    setUser(res.user);
+    return { orgId: res.membership.orgId };
+  }, []);
+
   const logout = useCallback(async () => {
     const token = localStorage.getItem("refreshToken");
     setAccessToken(null);
@@ -66,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, bootstrapping, login, signup, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, bootstrapping, login, signup, signupFromInvitation, logout }}>{children}</AuthContext.Provider>
   );
 }
 

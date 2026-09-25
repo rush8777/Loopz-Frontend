@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import type { ReactNode } from "react";
 import { AuthProvider } from "./auth/AuthContext";
 import { WorkspaceProvider } from "./auth/WorkspaceContext";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
@@ -33,25 +32,22 @@ import { ExperienceEditorPage } from "./pages/experiences/ExperienceEditorPage";
 import { DashboardListPage } from "./pages/dashboard/DashboardListPage";
 import { DashboardWorkspacePage } from "./pages/dashboard/DashboardWorkspacePage";
 import { ExperienceAnalyticsPage } from "./pages/analytics/ExperienceAnalyticsPage";
-
-function Workspace({ children }: { children: ReactNode }) {
-  return <WorkspaceProvider>{children}</WorkspaceProvider>;
-}
+import { InvitationPage } from "./pages/auth/InvitationPage";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <WorkspaceProvider>
+          <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/invite/:token" element={<InvitationPage />} />
 
           <Route element={<ProtectedRoute />}>
             <Route
               element={
-                <Workspace>
-                  <AppShell />
-                </Workspace>
+                <AppShell />
               }
             >
               <Route index element={<Navigate to="/analytics" replace />} />
@@ -96,7 +92,8 @@ export default function App() {
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+          </Routes>
+        </WorkspaceProvider>
       </AuthProvider>
     </BrowserRouter>
   );

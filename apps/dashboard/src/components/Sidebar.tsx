@@ -79,7 +79,7 @@ export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, 
           </div>
         ))}
       </nav>
-      <Button type="button" variant="ghost" title={compact ? "Settings" : undefined} className={cn("relative w-full text-[#474747] hover:bg-white/50", compact ? "justify-center" : "justify-start")} onClick={() => onOpenSettings("general")}><Settings />{!compact && "Settings"}</Button>
+      <Button type="button" variant="ghost" title={compact ? "Settings" : undefined} className={cn("relative w-full text-[#474747] hover:bg-white/50", compact ? "justify-center" : "justify-start")} onClick={() => onOpenSettings("workspace")}><Settings />{!compact && "Settings"}</Button>
     </aside>
   );
 

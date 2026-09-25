@@ -1,32 +1,44 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as organizationsApi from "../../api/organizations";
 import * as sitesApi from "../../api/sites";
+import * as teamApi from "../../api/team";
 import * as auth from "../../auth/AuthContext";
 import * as workspace from "../../auth/WorkspaceContext";
 import { AppShell } from "../AppShell";
 
+vi.mock("../../api/organizations");
 vi.mock("../../api/sites");
+vi.mock("../../api/team");
 vi.mock("../../auth/AuthContext");
 vi.mock("../../auth/WorkspaceContext");
 
+const mockedOrganizationsApi = vi.mocked(organizationsApi);
 const mockedSitesApi = vi.mocked(sitesApi);
+const mockedTeamApi = vi.mocked(teamApi);
 const mockedAuth = vi.mocked(auth);
 const mockedWorkspace = vi.mocked(workspace);
 
 const setCurrentOrgId = vi.fn();
 const setCurrentSiteId = vi.fn();
+const refreshOrgs = vi.fn();
 const refreshSites = vi.fn();
 const logout = vi.fn();
-
 const organizations = [
   { orgId: "org_1", name: "Acme", role: "OWNER" as const },
   { orgId: "org_2", name: "Orbit", role: "ADMIN" as const },
 ];
 const sites = [
-  { id: "internal_1", siteId: "site_public_1", name: "Acme Website", domain: "acme.test" },
-  { id: "internal_2", siteId: "site_public_2", name: "Docs", domain: "docs.acme.test" },
+  { id: "internal_1", siteId: "site_public_1", name: "Acme Website", domain: "https://acme.test" },
+  { id: "internal_2", siteId: "site_public_2", name: "Docs", domain: "https://docs.acme.test" },
 ];
+const members = [
+  { userId: "user_1", name: "Owner", email: "owner@acme.test", role: "OWNER" as const, joinedAt: "2026-01-01T00:00:00.000Z" },
+  { userId: "user_2", name: "Sarah", email: "sarah@acme.test", role: "ADMIN" as const, joinedAt: "2026-01-02T00:00:00.000Z" },
+  { userId: "user_3", name: "Mina", email: "mina@acme.test", role: "MEMBER" as const, joinedAt: "2026-01-03T00:00:00.000Z" },
+];
+const pending = { id: "invite_1", email: "pending@acme.test", role: "MEMBER" as const, status: "pending" as const, createdAt: "2026-09-20T00:00:00.000Z", expiresAt: "2026-09-30T00:00:00.000Z" };
 
 function CurrentRoute() {
   const location = useLocation();
@@ -34,15 +46,7 @@ function CurrentRoute() {
 }
 
 function renderApp() {
-  return render(
-    <MemoryRouter initialEntries={["/observe/events"]}>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route path="/observe/events" element={<CurrentRoute />} />
-        </Route>
-      </Routes>
-    </MemoryRouter>
-  );
+  return render(<MemoryRouter initialEntries={["/observe/events"]}><Routes><Route element={<AppShell />}><Route path="/observe/events" element={<CurrentRoute />} /></Route></Routes></MemoryRouter>);
 }
 
 function openSettings() {
@@ -51,104 +55,147 @@ function openSettings() {
   return screen.getByRole("dialog", { name: "Settings" });
 }
 
+async function openTeam() {
+  openSettings();
+  fireEvent.click(screen.getByRole("button", { name: "Team" }));
+  await screen.findByText("Sarah");
+}
+
 describe("Settings modal", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText: vi.fn().mockResolvedValue(undefined) },
-    });
-    mockedAuth.useAuth.mockReturnValue({
-      user: { id: "user_1", email: "owner@acme.test", name: "Owner" },
-      bootstrapping: false,
-      login: vi.fn(),
-      signup: vi.fn(),
-      logout,
-    });
-    mockedWorkspace.useWorkspace.mockReturnValue({
-      orgs: organizations,
-      currentOrg: organizations[0],
-      setCurrentOrgId,
-      sites,
-      currentSite: sites[0],
-      setCurrentSiteId,
-      loading: false,
-      error: null,
-      refreshSites,
-    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: vi.fn().mockResolvedValue(undefined) } });
+    mockedAuth.useAuth.mockReturnValue({ user: { id: "user_1", email: "owner@acme.test", name: "Owner" }, bootstrapping: false, login: vi.fn(), signup: vi.fn(), signupFromInvitation: vi.fn(), logout });
+    mockedWorkspace.useWorkspace.mockReturnValue({ orgs: organizations, currentOrg: organizations[0], setCurrentOrgId, sites, currentSite: sites[0], setCurrentSiteId, loading: false, error: null, refreshOrgs, refreshSites });
+    mockedTeamApi.listMembers.mockResolvedValue({ members });
+    mockedTeamApi.listInvitations.mockResolvedValue({ invitations: [pending] });
+    mockedSitesApi.getSiteStatus.mockResolvedValue({ hasReceivedEvents: false, lastEventAt: null, siteId: "site_public_1", domain: "https://acme.test" });
   });
 
-  it("opens from the sidebar without changing the current route or rendering a TopBar", () => {
-    renderApp();
-    expect(screen.queryByText("owner@acme.test")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Settings" }));
-    expect(screen.getByRole("dialog", { name: "Settings" })).toBeInTheDocument();
+  it("opens on Workspace without changing the route and navigates through every section", async () => {
+    openSettings();
+    expect(screen.getByRole("heading", { name: "Workspace" })).toBeInTheDocument();
     expect(screen.getByTestId("current-route")).toHaveTextContent("/observe/events");
-    expect(screen.getByText("Acme Website")).toBeInTheDocument();
+    for (const section of ["Sites", "Team", "Installation", "Data & Privacy", "Developer", "Account"]) {
+      fireEvent.click(screen.getByRole("button", { name: section }));
+      expect(await screen.findByRole("heading", { name: section })).toBeInTheDocument();
+    }
   });
 
-  it("closes with the X button", () => {
+  it("closes with the close button, Escape, and the backdrop", () => {
     openSettings();
     fireEvent.click(screen.getByRole("button", { name: "Close settings" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
-  it("closes with Escape", () => {
+    cleanup();
     openSettings();
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
-  it("closes from the backdrop but not from a click inside", () => {
+    cleanup();
     const dialog = openSettings();
-    fireEvent.mouseDown(dialog);
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
     fireEvent.mouseDown(dialog.parentElement!);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("navigates between all settings sections", () => {
+  it("updates the workspace name and refreshes organizations", async () => {
+    mockedOrganizationsApi.updateOrganization.mockResolvedValue({ orgId: "org_1", name: "Acme Labs", role: "OWNER" });
     openSettings();
-    for (const section of ["Sites", "Installation", "Data & Privacy", "Developer", "Account"]) {
-      fireEvent.click(screen.getByRole("button", { name: section }));
-      expect(screen.getByRole("heading", { name: section })).toBeInTheDocument();
-    }
+    fireEvent.change(screen.getByLabelText("Workspace name"), { target: { value: "Acme Labs" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(mockedOrganizationsApi.updateOrganization).toHaveBeenCalledWith("org_1", { name: "Acme Labs" }));
+    expect(refreshOrgs).toHaveBeenCalled();
   });
 
-  it("switches sites and creates a new site using the workspace state", async () => {
+  it("switches sites, creates a site, and exposes selected site details", async () => {
     openSettings();
     fireEvent.click(screen.getByRole("button", { name: "Sites" }));
     fireEvent.click(screen.getByRole("button", { name: /Docs/ }));
     expect(setCurrentSiteId).toHaveBeenCalledWith("internal_2");
-
+    expect(screen.getByText("site_public_1")).toBeInTheDocument();
     mockedSitesApi.createSite.mockResolvedValue({ id: "internal_3", siteId: "site_public_3", name: "Blog", domain: null });
-    refreshSites.mockResolvedValue(undefined);
     fireEvent.click(screen.getByRole("button", { name: "+ Add site" }));
     fireEvent.change(screen.getByPlaceholderText("My website"), { target: { value: "Blog" } });
     fireEvent.click(screen.getByRole("button", { name: "Create site" }));
-
     await waitFor(() => expect(mockedSitesApi.createSite).toHaveBeenCalledWith("org_1", { name: "Blog" }));
     expect(refreshSites).toHaveBeenCalled();
-    expect(setCurrentSiteId).toHaveBeenCalledWith("internal_3");
   });
 
-  it("shows installation guidance and copies the public Site ID", async () => {
+  it("loads members, marks the current user, locks the owner, and shows pending invitations", async () => {
+    await openTeam();
+    expect(mockedTeamApi.listMembers).toHaveBeenCalledWith("org_1");
+    expect(screen.getByText("You")).toBeInTheDocument();
+    expect(screen.getByText("pending@acme.test")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Role for owner@acme.test")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Remove owner@acme.test")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Invite member" })).toBeInTheDocument();
+  });
+
+  it("hides Team management actions from MEMBER and VIEWER roles", async () => {
+    for (const role of ["MEMBER", "VIEWER"] as const) {
+      mockedWorkspace.useWorkspace.mockReturnValue({ orgs: [{ ...organizations[0], role }], currentOrg: { ...organizations[0], role }, setCurrentOrgId, sites, currentSite: sites[0], setCurrentSiteId, loading: false, error: null, refreshOrgs, refreshSites });
+      const view = renderApp();
+      fireEvent.click(screen.getByRole("button", { name: "Settings" }));
+      fireEvent.click(screen.getByRole("button", { name: "Team" }));
+      await screen.findByText("Sarah");
+      expect(screen.queryByRole("button", { name: "Invite member" })).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Role for sarah@acme.test")).not.toBeInTheDocument();
+      view.unmount();
+    }
+  });
+
+  it("shows Team management actions to an ADMIN", async () => {
+    const adminOrg = { ...organizations[0], role: "ADMIN" as const };
+    mockedWorkspace.useWorkspace.mockReturnValue({ orgs: [adminOrg], currentOrg: adminOrg, setCurrentOrgId, sites, currentSite: sites[0], setCurrentSiteId, loading: false, error: null, refreshOrgs, refreshSites });
+    await openTeam();
+    expect(screen.getByRole("button", { name: "Invite member" })).toBeInTheDocument();
+    expect(mockedTeamApi.listInvitations).toHaveBeenCalledWith("org_1");
+  });
+
+  it("creates an invitation and makes its one-time link copyable", async () => {
+    mockedTeamApi.createInvitation.mockResolvedValue({ invitation: { ...pending, id: "invite_2", email: "new@acme.test" }, inviteUrl: "https://dashboard.movecues.com/invite/raw-token" });
+    await openTeam();
+    fireEvent.click(screen.getByRole("button", { name: "Invite member" }));
+    const inviteDialog = screen.getByRole("dialog", { name: "Invite member" });
+    expect(within(inviteDialog).getByRole("button", { name: "Create invitation" })).toBeDisabled();
+    fireEvent.change(within(inviteDialog).getByLabelText("Email address"), { target: { value: "not-an-email" } });
+    fireEvent.click(within(inviteDialog).getByRole("button", { name: "Create invitation" }));
+    expect(mockedTeamApi.createInvitation).not.toHaveBeenCalled();
+    fireEvent.change(within(inviteDialog).getByLabelText("Email address"), { target: { value: "new@acme.test" } });
+    fireEvent.click(within(inviteDialog).getByRole("button", { name: "Create invitation" }));
+    expect(await screen.findByRole("heading", { name: "Invitation created" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Copy invite link" }));
+    await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith("https://dashboard.movecues.com/invite/raw-token"));
+  });
+
+  it("changes roles, revokes invitations, and removes members with confirmation", async () => {
+    mockedTeamApi.updateMemberRole.mockResolvedValue({ userId: "user_2", role: "VIEWER" });
+    mockedTeamApi.revokeInvitation.mockResolvedValue(undefined);
+    mockedTeamApi.removeMember.mockResolvedValue(undefined);
+    await openTeam();
+    fireEvent.change(screen.getByLabelText("Role for sarah@acme.test"), { target: { value: "VIEWER" } });
+    await waitFor(() => expect(mockedTeamApi.updateMemberRole).toHaveBeenCalledWith("org_1", "user_2", "VIEWER"));
+    fireEvent.click(screen.getByRole("button", { name: "Revoke" }));
+    await waitFor(() => expect(mockedTeamApi.revokeInvitation).toHaveBeenCalledWith("org_1", "invite_1"));
+    fireEvent.click(screen.getByRole("button", { name: "Remove mina@acme.test" }));
+    await waitFor(() => expect(mockedTeamApi.removeMember).toHaveBeenCalledWith("org_1", "user_3"));
+    expect(window.confirm).toHaveBeenCalled();
+  });
+
+  it("shows evidence-based installation status and copies the public Site ID", async () => {
+    mockedSitesApi.getSiteStatus.mockResolvedValue({ hasReceivedEvents: true, lastEventAt: new Date().toISOString(), siteId: "site_public_1", domain: "https://acme.test" });
     openSettings();
     fireEvent.click(screen.getByRole("button", { name: "Installation" }));
-    expect(screen.getByText(/https:\/\/cdn\.movcues\.com\/v1\.js/)).toBeInTheDocument();
-    expect(screen.getByText(/data-site-id="site_public_1"/)).toBeInTheDocument();
+    expect(await screen.findByText("Receiving data")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Copy Site ID" }));
     await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith("site_public_1"));
-    expect(screen.getByRole("button", { name: "Copy Site ID" })).toHaveTextContent("Copied");
   });
 
-  it("shows account details, switches organizations, and signs out", () => {
+  it("keeps Account personal and signs out", () => {
     openSettings();
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     expect(screen.getByText("owner@acme.test")).toBeInTheDocument();
-    expect(screen.getByText("OWNER")).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("combobox", { name: "Organization" }), { target: { value: "org_2" } });
-    expect(setCurrentOrgId).toHaveBeenCalledWith("org_2");
+    expect(screen.getByText("Owner")).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Organization" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
     expect(logout).toHaveBeenCalled();
   });

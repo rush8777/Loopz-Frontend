@@ -18,7 +18,6 @@ export function DeveloperSettings() {
       <SettingsHeading title="Developer" description="Public identifiers and SDK configuration." />
       <SettingsGroup>
         <SettingsRow label="Site ID" value={currentSite.siteId} mono action={<CopyButton value={currentSite.siteId} label="Site ID" />} />
-        <SettingsRow label="Internal site ID" value={currentSite.id} mono action={<CopyButton value={currentSite.id} label="internal site ID" />} />
         <SettingsRow label="SDK/public configuration" value={config} mono action={<CopyButton value={config} label="SDK configuration" />} />
       </SettingsGroup>
     </div>

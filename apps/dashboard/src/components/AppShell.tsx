@@ -21,7 +21,7 @@ export function AppShell() {
     }
     wasEditor.current = isExperienceEditor;
   }, [isExperienceEditor, sidebarCollapsed]);
-  const openSettings = useCallback((section: SettingsSection = "general") => { setMobileNavOpen(false); setSettingsSection(section); }, []);
+  const openSettings = useCallback((section: SettingsSection = "workspace") => { setMobileNavOpen(false); setSettingsSection(section); }, []);
   const closeSettings = useCallback(() => setSettingsSection(null), []);
   return <div className={`min-h-dvh bg-background lg:grid lg:transition-[grid-template-columns] lg:duration-200 ${sidebarCollapsed ? "lg:grid-cols-[72px_minmax(0,1fr)]" : "lg:grid-cols-[208px_minmax(0,1fr)]"}`}>
     <Sidebar onOpenSettings={openSettings} collapsed={sidebarCollapsed} onCollapsedChange={setSidebarCollapsed} mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
