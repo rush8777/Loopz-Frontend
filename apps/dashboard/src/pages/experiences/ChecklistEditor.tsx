@@ -68,10 +68,23 @@ export function ChecklistEditor({
   const builder = useRef<GrapesWidgetBuilderHandle | null>(null);
 
   useEffect(() => {
-    void experiencesApi
-      .listExperiences(orgId, siteId, "guide")
-      .then((result) => setGuides(result.experiences))
-      .catch(() => setGuides([]));
+    let active = true;
+    const loadGuides = () => {
+      void experiencesApi
+        .listExperiences(orgId, siteId, "guide")
+        .then((result) => {
+          if (active) setGuides(result.experiences);
+        })
+        .catch(() => {
+          if (active) setGuides([]);
+        });
+    };
+    loadGuides();
+    window.addEventListener("focus", loadGuides);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", loadGuides);
+    };
   }, [orgId, siteId]);
 
   useEffect(() => {

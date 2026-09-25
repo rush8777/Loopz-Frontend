@@ -10,7 +10,7 @@ interface WorkspaceContextValue {
   setCurrentOrgId: (orgId: string) => void;
   sites: Site[];
   currentSite: Site | null;
-  setCurrentSiteId: (siteId: string) => void;
+  setCurrentSiteId: (siteId: string | null) => void;
   loading: boolean;
   error: string | null;
   refreshOrgs?: () => Promise<void>;

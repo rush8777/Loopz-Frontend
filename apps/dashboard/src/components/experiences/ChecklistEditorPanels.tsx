@@ -342,12 +342,18 @@ function TaskInspector({
   segments: Segment[];
   onChange(item: ChecklistItem): void;
 }) {
+  const launchableGuides = guides.filter(isLaunchableGuide);
+  const selectedActionGuideId =
+    item.action.type === "launch_guide" ? item.action.experienceId : null;
+  const selectedActionGuide = selectedActionGuideId
+    ? guides.find((guide) => guide.id === selectedActionGuideId)
+    : undefined;
   const updateAction = (type: ChecklistItem["action"]["type"]) =>
     onChange({
       ...item,
       action:
         type === "launch_guide"
-          ? { type, experienceId: guides[0]?.id ?? "" }
+          ? { type, experienceId: launchableGuides[0]?.id ?? "" }
           : type === "navigate" || type === "open_url"
             ? { type, url: "" }
             : { type: "none" },
@@ -417,28 +423,48 @@ function TaskInspector({
           </select>
         </Label>
         {item.action.type === "launch_guide" && (
-          <Label>
-            Guide
-            <select
-              value={item.action.experienceId}
-              onChange={(event) =>
-                onChange({
-                  ...item,
-                  action: {
-                    type: "launch_guide",
-                    experienceId: event.target.value,
-                  },
-                })
-              }
-            >
-              <option value="">Select Guide</option>
-              {guides.map((guide) => (
-                <option key={guide.id} value={guide.id}>
-                  {guide.name}
-                </option>
-              ))}
-            </select>
-          </Label>
+          <>
+            <Label>
+              Guide
+              <select
+                value={item.action.experienceId}
+                onChange={(event) =>
+                  onChange({
+                    ...item,
+                    action: {
+                      type: "launch_guide",
+                      experienceId: event.target.value,
+                    },
+                  })
+                }
+              >
+                <option value="">Select a published Guide</option>
+                {guides.map((guide) => (
+                  <option
+                    key={guide.id}
+                    value={guide.id}
+                    disabled={!isLaunchableGuide(guide)}
+                  >
+                    {guide.name}
+                    {!isLaunchableGuide(guide)
+                      ? ` (${guideAvailabilityLabel(guide)})`
+                      : ""}
+                  </option>
+                ))}
+              </select>
+            </Label>
+            {selectedActionGuide && !isLaunchableGuide(selectedActionGuide) ? (
+              <GuideAvailabilityNotice guide={selectedActionGuide} />
+            ) : launchableGuides.length === 0 ? (
+              <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                No Guides are available to launch. Publish or resume a Guide,
+                then return here.{" "}
+                <a className="font-medium underline" href="/experiences/guides">
+                  Manage Guides
+                </a>
+              </p>
+            ) : null}
+          </>
         )}
         {(item.action.type === "navigate" ||
           item.action.type === "open_url") && (
@@ -531,6 +557,30 @@ function TaskInspector({
         )}
       </FieldGroup>
     </section>
+  );
+}
+
+export function isLaunchableGuide(guide: Experience): boolean {
+  return guide.status === "published" && Boolean(guide.publishedVersionId);
+}
+
+function guideAvailabilityLabel(guide: Experience): string {
+  if (guide.status === "paused") return "Paused";
+  if (guide.status === "archived") return "Archived";
+  return "Draft — publish first";
+}
+
+function GuideAvailabilityNotice({ guide }: { guide: Experience }) {
+  const action = guide.status === "paused" ? "resume" : "publish";
+  return (
+    <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
+      <strong>{guide.name}</strong> is{" "}
+      {guideAvailabilityLabel(guide).toLowerCase()}. You must {action} it before
+      this Checklist can launch it.{" "}
+      <a className="font-medium underline" href="/experiences/guides">
+        Manage Guides
+      </a>
+    </p>
   );
 }
 

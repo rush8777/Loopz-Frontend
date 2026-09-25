@@ -120,6 +120,49 @@ describe("Settings modal", () => {
     expect(refreshSites).toHaveBeenCalled();
   });
 
+  it("keeps the selected site read-only until Rename is clicked", async () => {
+    mockedSitesApi.updateSite.mockResolvedValue({
+      ...sites[0],
+      name: "Acme Product",
+      domain: "https://product.acme.test",
+    });
+    openSettings();
+    fireEvent.click(screen.getByRole("button", { name: "Sites" }));
+
+    expect(screen.queryByLabelText("Site name")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Rename" }));
+    fireEvent.change(screen.getByLabelText("Site name"), { target: { value: "Acme Product" } });
+    fireEvent.change(screen.getByLabelText("Primary domain"), { target: { value: "https://product.acme.test" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+    await waitFor(() => expect(mockedSitesApi.updateSite).toHaveBeenCalledWith("org_1", "internal_1", {
+      name: "Acme Product",
+      domain: "https://product.acme.test",
+    }));
+    expect(refreshSites).toHaveBeenCalled();
+  });
+
+  it("requires the exact site name before deleting and selects a remaining site", async () => {
+    mockedSitesApi.deleteSite.mockResolvedValue(undefined);
+    openSettings();
+    fireEvent.click(screen.getByRole("button", { name: "Sites" }));
+    fireEvent.click(screen.getByRole("button", { name: "Delete site…" }));
+
+    const deleteDialog = screen.getByRole("dialog", { name: "Delete Acme Website?" });
+    const confirmButton = within(deleteDialog).getByRole("button", { name: "Delete site" });
+    const confirmation = within(deleteDialog).getByLabelText("Type Acme Website to confirm");
+    expect(confirmButton).toBeDisabled();
+    fireEvent.change(confirmation, { target: { value: "Acme" } });
+    expect(confirmButton).toBeDisabled();
+    fireEvent.change(confirmation, { target: { value: "Acme Website" } });
+    expect(confirmButton).toBeEnabled();
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => expect(mockedSitesApi.deleteSite).toHaveBeenCalledWith("org_1", "internal_1"));
+    expect(setCurrentSiteId).toHaveBeenCalledWith("internal_2");
+    expect(refreshSites).toHaveBeenCalled();
+  });
+
   it("loads members, marks the current user, locks the owner, and shows pending invitations", async () => {
     await openTeam();
     expect(mockedTeamApi.listMembers).toHaveBeenCalledWith("org_1");
@@ -188,6 +231,48 @@ describe("Settings modal", () => {
     expect(await screen.findByText("Receiving data")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Copy Site ID" }));
     await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith("site_public_1"));
+  });
+
+  it("shows a live SDK timeout without changing historical event status", async () => {
+    mockedSitesApi.getSiteStatus.mockResolvedValue({
+      hasReceivedEvents: true,
+      lastEventAt: new Date().toISOString(),
+      siteId: "site_public_1",
+      domain: "https://acme.test",
+    });
+    mockedSitesApi.createSdkVerification.mockResolvedValue({
+      verification: { id: "sdkv_timeout", status: "pending", expiresAt: new Date(Date.now() + 30_000).toISOString(), detectedAt: null },
+    });
+    mockedSitesApi.getSdkVerification.mockResolvedValue({
+      verification: { id: "sdkv_timeout", status: "expired", expiresAt: new Date().toISOString(), detectedAt: null },
+    });
+
+    openSettings();
+    fireEvent.click(screen.getByRole("button", { name: "Installation" }));
+    expect(await screen.findByText("Receiving data")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Test SDK connection" }));
+
+    expect(await screen.findByText("SDK not detected")).toBeInTheDocument();
+    expect(screen.getByText("Open or refresh https://acme.test and try again.")).toBeInTheDocument();
+    expect(screen.getByText("Receiving data")).toBeInTheDocument();
+    expect(mockedSitesApi.getSdkVerification).toHaveBeenCalledWith("org_1", "internal_1", "sdkv_timeout");
+  });
+
+  it("shows the connected indicator only after backend polling reports acknowledgement", async () => {
+    mockedSitesApi.createSdkVerification.mockResolvedValue({
+      verification: { id: "sdkv_connected", status: "pending", expiresAt: new Date(Date.now() + 30_000).toISOString(), detectedAt: null },
+    });
+    mockedSitesApi.getSdkVerification.mockResolvedValue({
+      verification: { id: "sdkv_connected", status: "connected", expiresAt: new Date(Date.now() + 30_000).toISOString(), detectedAt: new Date().toISOString() },
+    });
+
+    openSettings();
+    fireEvent.click(screen.getByRole("button", { name: "Installation" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Test SDK connection" }));
+
+    expect(await screen.findByText("SDK connected")).toBeInTheDocument();
+    expect(screen.getByText("Detected just now")).toBeInTheDocument();
+    expect(screen.getByLabelText("Connected")).toBeInTheDocument();
   });
 
   it("keeps Account personal and signs out", () => {

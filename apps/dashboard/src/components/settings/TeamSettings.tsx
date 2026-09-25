@@ -180,18 +180,21 @@ export function TeamSettings() {
       )}
 
       <Dialog open={inviteOpen} onOpenChange={(open) => { if (!open) closeInvite(); }}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{inviteUrl ? "Invitation created" : "Invite member"}</DialogTitle><DialogDescription>{inviteUrl ? "Share this private link with the invited person." : "Create a link for someone to join this workspace."}</DialogDescription></DialogHeader>
+        <DialogContent className="max-w-md overflow-hidden p-0">
+          <DialogHeader className="border-b px-5 py-4 pr-12">
+            <DialogTitle className="text-[17px] tracking-[-0.01em]">{inviteUrl ? "Invitation created" : "Invite member"}</DialogTitle>
+            <DialogDescription className="text-[13px] leading-5">{inviteUrl ? "Share this private link with the invited person." : "Create a link for someone to join this workspace."}</DialogDescription>
+          </DialogHeader>
           {inviteUrl ? (
-            <div className="mt-4 space-y-4"><div className="rounded-lg border bg-muted/40 p-3 text-sm">{inviteEmail}</div><CopyButton value={inviteUrl} label="invite link" /></div>
+            <div className="space-y-4 p-5"><div className="rounded-md border bg-muted/40 p-3 text-sm">{inviteEmail}</div><CopyButton value={inviteUrl} label="invite link" /></div>
           ) : (
-            <form id="invite-member-form" className="mt-4 space-y-4" onSubmit={(event) => void createInvite(event)}>
-              <div className="grid gap-1.5"><Label htmlFor="invite-member-email">Email address</Label><Input id="invite-member-email" type="email" required value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} /></div>
-              <div className="grid gap-1.5"><Label htmlFor="invite-member-role">Role</Label><select id="invite-member-role" value={inviteRole} onChange={(event) => setInviteRole(event.target.value as InvitationRole)} className="h-9 rounded-md border bg-input px-3 text-sm">{["MEMBER", "VIEWER", "ADMIN"].map((role) => <option key={role} value={role}>{displayRole(role)}</option>)}</select></div>
+            <form id="invite-member-form" className="grid gap-4 p-5" onSubmit={(event) => void createInvite(event)}>
+              <div className="grid gap-1.5"><Label htmlFor="invite-member-email" className="text-[13px]">Email address</Label><Input id="invite-member-email" type="email" required value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} /></div>
+              <div className="grid gap-1.5"><Label htmlFor="invite-member-role" className="text-[13px]">Role</Label><select id="invite-member-role" value={inviteRole} onChange={(event) => setInviteRole(event.target.value as InvitationRole)} className="h-9 w-full rounded-md border bg-input px-3 text-sm shadow-[rgba(0,0,0,.05)_0_1px_2px] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20">{["MEMBER", "VIEWER", "ADMIN"].map((role) => <option key={role} value={role}>{displayRole(role)}</option>)}</select></div>
               {error && <Alert className="border-destructive/25 bg-red-50 text-destructive">{error}</Alert>}
             </form>
           )}
-          <DialogFooter className="mt-5">{inviteUrl ? <Button type="button" onClick={closeInvite}>Done</Button> : <><Button type="button" variant="ghost" onClick={closeInvite}>Cancel</Button><Button type="submit" form="invite-member-form" disabled={submitting || !inviteEmail.trim()}>{submitting ? "Creating…" : "Create invitation"}</Button></>}</DialogFooter>
+          <DialogFooter className="border-t px-5 py-3">{inviteUrl ? <Button type="button" onClick={closeInvite}>Done</Button> : <><Button type="button" variant="ghost" onClick={closeInvite}>Cancel</Button><Button type="submit" form="invite-member-form" disabled={submitting || !inviteEmail.trim()}>{submitting ? "Creating…" : "Create invitation"}</Button></>}</DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

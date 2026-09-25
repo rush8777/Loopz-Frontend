@@ -27,6 +27,19 @@ export interface SiteStatus {
   domain: string | null;
 }
 
+export type SdkVerificationStatus = "pending" | "connected" | "expired";
+
+export interface SdkVerification {
+  id: string;
+  status: SdkVerificationStatus;
+  expiresAt: string;
+  detectedAt: string | null;
+}
+
+export interface SdkVerificationResponse {
+  verification: SdkVerification;
+}
+
 export interface TeamMember {
   userId: string;
   name: string | null;

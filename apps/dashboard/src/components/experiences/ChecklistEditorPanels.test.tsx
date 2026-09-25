@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { ChecklistExperienceDefinition } from "../../types/experiences";
+import type {
+  ChecklistExperienceDefinition,
+  Experience,
+} from "../../types/experiences";
 import {
   ChecklistInspector,
   ChecklistStructurePanel,
@@ -40,6 +43,29 @@ function definition(): ChecklistExperienceDefinition {
       html: '<section data-movecues-checklist-role="root"></section>',
       css: ".movecues-widget{color:#111}",
     },
+  };
+}
+
+function guide(
+  id: string,
+  name: string,
+  status: Experience["status"],
+): Experience {
+  return {
+    id,
+    name,
+    status,
+    siteId: "site",
+    kind: "guide",
+    widgetType: null,
+    buildPageId: null,
+    buildUrl: null,
+    publishedVersionId: status === "draft" ? null : `${id}-published`,
+    createdBy: "user",
+    createdAt: "2026-01-01",
+    updatedAt: "2026-01-01",
+    draftVersion: null,
+    publishedVersion: null,
   };
 }
 
@@ -117,5 +143,51 @@ describe("Checklist editor panels", () => {
     expect(screen.getByLabelText("Title")).toHaveValue("Invite a teammate");
     expect(screen.getByLabelText("Destination")).toHaveValue("/team");
     expect(screen.getByLabelText("Complete when")).not.toBeDisabled();
+  });
+
+  it("auto-selects only a launchable Guide and explains unavailable Guides", () => {
+    const draftGuide = guide("draft-guide", "Draft guide", "draft");
+    const publishedGuide = guide(
+      "published-guide",
+      "Published guide",
+      "published",
+    );
+    function Harness() {
+      const [value, setValue] = useState(definition());
+      return (
+        <ChecklistInspector
+          definition={value}
+          selection={{ type: "task", itemId: "stable-task-id" }}
+          guides={[draftGuide, publishedGuide]}
+          segments={[]}
+          pages={[]}
+          orgId="org"
+          siteId="site"
+          experienceId="checklist"
+          onChange={(update) =>
+            setValue((current) => {
+              const next = structuredClone(current);
+              update(next);
+              return next;
+            })
+          }
+        />
+      );
+    }
+
+    render(<Harness />);
+    fireEvent.change(screen.getByLabelText("On click"), {
+      target: { value: "launch_guide" },
+    });
+
+    expect(screen.getByLabelText("Guide")).toHaveValue("published-guide");
+    expect(
+      screen.getByRole("option", {
+        name: "Draft guide (Draft — publish first)",
+      }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("option", { name: "Published guide" }),
+    ).not.toBeDisabled();
   });
 });

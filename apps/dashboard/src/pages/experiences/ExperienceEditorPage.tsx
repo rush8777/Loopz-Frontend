@@ -15,6 +15,12 @@ import { ExperienceAnalyticsView } from "../../components/experiences/Experience
 import { ChecklistEditor } from "./ChecklistEditor";
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+export function publishErrorMessage(message: string): string {
+  if (message === "target_required") return "Select a target for every guide step that uses Anchored Card before publishing.";
+  if (message === "guide_unavailable") return "A Launch Guide action references a Draft or Paused Guide. Publish or resume that Guide, then publish this Checklist again.";
+  if (message === "invalid_guide") return "A Checklist task references a missing or incompatible Guide. Select a Guide from this site and try again.";
+  return message;
+}
 export const createGuideStep = (pattern: GuideStepPattern): GuideStep => ({ id: uniqueId("step"), pattern, content: { heading: "Next step", body: "Explain what to do next." }, advance: { type: "button" }, behavior: pattern === "anchored_card" ? { placement: "auto", alignment: "center", offset: 8, pointer: { enabled: true, size: 10 }, dismissible: true } : { dismissible: true } });
 const uniqueId = (prefix: string) => `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 const blankSurveyStep = (): SurveyStep => ({ id: uniqueId("survey_step"), content: { heading: "Follow-up", body: "Add questions for this slide." }, questions: [] });
@@ -75,7 +81,7 @@ export function ExperienceEditorPage() {
       setError(caught instanceof Error ? caught.message : "Couldn't open live editor.");
     }
   };
-  const publish = async () => { if (!currentOrg || !currentSite || !experience || publishing) return; setError(null); setPublishing(true); try { widgetBuilder.current?.flush(); await flush(); const item = await experiencesApi.publishExperience(currentOrg.orgId, currentSite.id, experience.id); setExperience(item); setDefinition(item.draftVersion!.definition); latest.current = item.draftVersion!.definition; setStatus("Published"); } catch (caught) { const message = caught instanceof Error ? caught.message : "Publish failed"; setError(message === "target_required" ? "Select a target for every guide step that uses Anchored Card before publishing." : message); } finally { setPublishing(false); } };
+  const publish = async () => { if (!currentOrg || !currentSite || !experience || publishing) return; setError(null); setPublishing(true); try { widgetBuilder.current?.flush(); await flush(); const item = await experiencesApi.publishExperience(currentOrg.orgId, currentSite.id, experience.id); setExperience(item); setDefinition(item.draftVersion!.definition); latest.current = item.draftVersion!.definition; setStatus("Published"); } catch (caught) { const message = caught instanceof Error ? caught.message : "Publish failed"; setError(publishErrorMessage(message)); } finally { setPublishing(false); } };
   if (error && !experience) return <ErrorNotice>{error}</ErrorNotice>; if (!experience || !definition || !currentOrg || !currentSite) return <div className="text-sm text-muted-foreground">Loading experience...</div>;
   if (checklist) return <ChecklistEditor experience={experience} definition={checklist as ChecklistExperienceDefinition} orgId={currentOrg.orgId} siteId={currentSite.id} pages={pages} segments={segments} status={status} publishing={publishing} error={error} onChange={next => { dirty.current = true; latest.current = next; setDefinition(next); }} onPublish={() => void publish()} />;
   if (!content) return <div className="text-sm text-muted-foreground">Loading experience...</div>;
