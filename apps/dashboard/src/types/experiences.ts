@@ -20,7 +20,7 @@ export interface ChecklistItem { id: string; title: string; description?: string
 export interface ChecklistExperienceDefinition { title: string; description?: string; items: ChecklistItem[]; behavior: { position: "bottom-left" | "bottom-right"; order: "any" | "sequential"; dismissible: boolean; initialState: "expanded" | "collapsed"; showRemainingCount: boolean }; completionMessage: { title: string; description?: string; acknowledgeLabel: string }; targeting: ChecklistTargeting; builder: WidgetBuilderState }
 export type GuideAdvance = { type: "button" } | { type: "element_click" } | { type: "element_hover"; durationMs?: number } | { type: "custom_event"; eventName: string } | { type: "route"; pageRules: PageRule[] };
 export type GuideStepPattern = "anchored_card" | "modal";
-export interface GuideStep { id: string; pattern?: GuideStepPattern; content: ExperienceContent; builder?: WidgetBuilderState; size?: ExperienceSize; advance?: GuideAdvance; target?: ExperienceTarget; behavior: Pick<ExperienceBehavior, "placement" | "alignment" | "offset" | "pointer" | "dismissible"> }
+export interface GuideStep { id: string; pattern?: GuideStepPattern; content: ExperienceContent; builder?: WidgetBuilderState; size?: ExperienceSize; advance?: GuideAdvance; target?: ExperienceTarget; behavior: Pick<ExperienceBehavior, "placement" | "alignment" | "offset" | "pointer" | "dismissible" | "layer"> }
 export function getGuideStepPattern(step: Pick<GuideStep, "pattern">): GuideStepPattern { return step.pattern ?? "anchored_card"; }
 export function guideStepRequiresTarget(step: Pick<GuideStep, "pattern">): boolean { return getGuideStepPattern(step) === "anchored_card"; }
 export function guideStepSupportsTargetAdvance(step: Pick<GuideStep, "pattern">): boolean { return guideStepRequiresTarget(step); }
@@ -32,14 +32,14 @@ export type SurveyQuestion =
   | { id: string; type: "long_text"; label: string; required?: boolean; placeholder?: string; maxLength?: number }
   | { id: string; type: "rating"; label: string; required?: boolean; min: number; max: number }
   | { id: string; type: "nps"; label: string; required?: boolean };
-export interface SurveyStep { id: string; content: { heading: string; body: string }; questions: SurveyQuestion[]; builder?: WidgetBuilderState; size?: ExperienceSize }
+export interface SurveyStep { id: string; content: { heading: string; body: string }; questions: SurveyQuestion[]; builder?: WidgetBuilderState; size?: ExperienceSize; behavior?: { layer?: ExperienceLayer } }
 export interface SurveyConfig { steps: SurveyStep[]; showProgress: boolean; allowBack: boolean; submitLabel: string }
 export type ExperienceDefinition =
   | { content: ExperienceContent; design: ExperienceDesign; behavior: ExperienceBehavior; builder?: WidgetBuilderState; target?: ExperienceTarget; targeting: ExperienceTargeting; survey?: SurveyConfig }
   | { steps: GuideStep[]; design: ExperienceDesign; behavior?: { layer?: ExperienceLayer }; targeting: ExperienceTargeting }
   | ChecklistExperienceDefinition;
 export interface ExperienceVersion { id: string; experienceId: string; versionNumber: number; state: "draft" | "published"; definition: ExperienceDefinition; createdBy: string; createdAt: string; publishedAt: string | null }
-export interface Experience { id: string; siteId: string; kind: ExperienceKind; widgetType: WidgetType | null; name: string; status: ExperienceStatus; buildPageId: string | null; buildUrl: string | null; publishedVersionId: string | null; createdBy: string; createdAt: string; updatedAt: string; draftVersion: ExperienceVersion | null; publishedVersion: ExperienceVersion | null }
+export interface Experience { id: string; siteId: string; kind: ExperienceKind; widgetType: WidgetType | null; name: string; status: ExperienceStatus; buildPageId: string | null; buildUrl: string | null; publishedVersionId: string | null; launchSetupCompletedAt?: string | null; createdBy: string; createdAt: string; updatedAt: string; draftVersion: ExperienceVersion | null; publishedVersion: ExperienceVersion | null }
 export interface ExperienceAnalytics {
   experience: { id: string; name: string; kind: ExperienceKind; widgetType: WidgetType | null };
   summary: { usersSeen: number; usersStarted: number; completed: number; dismissed: number; completionRate: number };

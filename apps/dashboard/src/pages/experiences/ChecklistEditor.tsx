@@ -42,10 +42,11 @@ interface ChecklistEditorProps {
   pages: PageDefinition[];
   segments: Segment[];
   status: string;
-  publishing: boolean;
+  preparingReview: boolean;
   error: string | null;
   onChange(definition: ChecklistExperienceDefinition): void;
-  onPublish(): void;
+  onReview(): void;
+  onRegisterBuilderFlush(flush: (() => void) | null): void;
 }
 
 export function ChecklistEditor({
@@ -56,16 +57,22 @@ export function ChecklistEditor({
   pages,
   segments,
   status,
-  publishing,
+  preparingReview,
   error,
   onChange,
-  onPublish,
+  onReview,
+  onRegisterBuilderFlush,
 }: ChecklistEditorProps) {
   const [guides, setGuides] = useState<Experience[]>([]);
   const [selection, setSelection] = useState<ChecklistSelection>({
     type: "root",
   });
   const builder = useRef<GrapesWidgetBuilderHandle | null>(null);
+
+  useEffect(() => {
+    onRegisterBuilderFlush(() => builder.current?.flush());
+    return () => onRegisterBuilderFlush(null);
+  }, [onRegisterBuilderFlush]);
 
   useEffect(() => {
     let active = true;
@@ -122,10 +129,12 @@ export function ChecklistEditor({
       onChange={structured}
     />
   );
+  const visibleStatus = status || "Saved";
+  const statusClass = visibleStatus === "Published" ? "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200" : visibleStatus === "Saving..." ? "bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-200" : visibleStatus.startsWith("Autosave failed") ? "bg-destructive/10 text-destructive ring-1 ring-inset ring-destructive/20" : "bg-sky-100 text-sky-700 ring-1 ring-inset ring-sky-200";
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem)] min-h-[620px] flex-col overflow-hidden bg-background">
-      <header className="flex h-14 shrink-0 items-center justify-between border-b px-3 sm:px-4">
+    <div className="flex h-dvh min-h-[620px] flex-col overflow-hidden bg-background">
+      <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b bg-background px-3 sm:px-4">
         <div className="flex min-w-0 items-center gap-3">
           <Button asChild variant="ghost" size="sm">
             <Link to="/experiences/checklists">
@@ -133,24 +142,23 @@ export function ChecklistEditor({
             </Link>
           </Button>
           <div className="h-5 w-px bg-border" />
-          <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
             <h1 className="truncate text-sm font-semibold">
               {experience.name}
             </h1>
-            <p className="text-[11px] text-muted-foreground">
+            <span className={visibleStatus === "Published" ? "shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-200" : "shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-inset ring-slate-200"}>{visibleStatus === "Published" ? "Published" : "Draft"}</span>
+            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusClass}`}>{visibleStatus}</span>
+            <p className="hidden text-[11px] text-muted-foreground">
               Draft <span aria-hidden="true">·</span> {status || "Saved"}
             </p>
           </div>
         </div>
         <Button
           size="sm"
-          disabled={publishing}
-          onClick={() => {
-            builder.current?.flush();
-            onPublish();
-          }}
+          disabled={preparingReview}
+          onClick={onReview}
         >
-          {publishing ? "Publishing..." : "Publish"}
+          {preparingReview ? "Preparing…" : "Review & publish"}
         </Button>
       </header>
       {error && (
@@ -158,7 +166,7 @@ export function ChecklistEditor({
           <ErrorNotice>{error}</ErrorNotice>
         </div>
       )}
-      <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[250px_minmax(0,1fr)]">
+      <div className="relative min-h-0 flex-1">
         <ChecklistStructurePanel
           definition={definition}
           selection={selection}
@@ -169,7 +177,7 @@ export function ChecklistEditor({
             })
           }
         />
-        <main className="min-w-0 overflow-hidden">
+        <main className="h-full min-w-0 overflow-visible">
           <GrapesWidgetBuilder
             ref={builder}
             experienceKey={`${experience.id}:${experience.draftVersion?.id}`}

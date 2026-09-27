@@ -89,4 +89,12 @@ export const PLATFORM_GROUPS = [
     label: "Improve",
     items: ["Dashboards", "Experience analytics"],
   },
+  {
+    label: "Automate",
+    items: ["Workflows", "Triggers"],
+  },
+  {
+    label: "Connect",
+    items: ["Integrations", "Webhooks"],
+  },
 ] as const;

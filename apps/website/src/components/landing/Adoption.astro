@@ -322,6 +322,11 @@ const topicData = topics.map((topic) => ({
     const visual =
       document.querySelector<HTMLImageElement>("[data-topic-visual]");
 
+    const visualContainer = visual?.closest<HTMLElement>(".adoption-visual");
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
     let topicIndex = 0;
 
     const renderTopic = (topic: Topic) => {
@@ -370,7 +375,22 @@ const topicData = topics.map((topic) => ({
       window.setInterval(() => {
         topicIndex = (topicIndex + 1) % topics.length;
 
-        renderTopic(topics[topicIndex]);
+        if (prefersReducedMotion) {
+          renderTopic(topics[topicIndex]);
+          return;
+        }
+
+        copy.classList.add("is-topic-changing");
+        visualContainer?.classList.add("is-topic-changing");
+
+        window.setTimeout(() => {
+          renderTopic(topics[topicIndex]);
+
+          requestAnimationFrame(() => {
+            copy.classList.remove("is-topic-changing");
+            visualContainer?.classList.remove("is-topic-changing");
+          });
+        }, 180);
       }, 6000);
     }
   }

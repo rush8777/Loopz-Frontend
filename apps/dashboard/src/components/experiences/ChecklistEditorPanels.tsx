@@ -67,7 +67,7 @@ export function ChecklistStructurePanel({
   };
   return (
     <aside
-      className="flex min-h-0 flex-col border-r bg-background"
+      className="movecues-checklist-step-chip flex min-h-0 flex-col"
       aria-label="Checklist structure"
     >
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
@@ -199,26 +199,6 @@ export function ChecklistStructurePanel({
           Add task
         </Button>
       </div>
-      <nav className="space-y-0.5 border-t p-2" aria-label="Checklist settings">
-        {(
-          [
-            ["settings", Settings2, "Checklist settings"],
-            ["targeting", Target, "Targeting"],
-            ["completion", CheckCircle2, "Completion state"],
-            ["analytics", BarChart3, "Analytics"],
-          ] as const
-        ).map(([type, Icon, label]) => (
-          <button
-            key={type}
-            type="button"
-            className={`flex h-9 w-full items-center gap-2 rounded-md px-2 text-sm ${selection.type === type ? "bg-primary/[0.08] font-medium" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`}
-            onClick={() => onSelect({ type })}
-          >
-            <Icon className="size-4" />
-            {label}
-          </button>
-        ))}
-      </nav>
     </aside>
   );
 }
@@ -681,12 +661,12 @@ function TargetingInspector({
     <section className="space-y-4">
       <InspectorHeading
         icon={Target}
-        title="Targeting"
+        title="Launch settings"
         description="Choose where and for whom this checklist appears."
       />
-      <FieldGroup title="Audience and pages">
+      <FieldGroup title="Who and where">
         <Label>
-          Audience
+          Who should see this?
           <select
             value={
               definition.targeting.audience.type === "segment"
@@ -716,7 +696,7 @@ function TargetingInspector({
           </select>
         </Label>
         <Label>
-          Pages
+          Where should it appear?
           <select
             value={selectedPage}
             onChange={(event) =>
@@ -738,9 +718,9 @@ function TargetingInspector({
           </select>
         </Label>
       </FieldGroup>
-      <FieldGroup title="Schedule">
+      <FieldGroup title="When should it be active?">
         <Label>
-          Start
+          Start time
           <Input
             type="datetime-local"
             value={definition.targeting.schedule?.startsAt?.slice(0, 16) ?? ""}
@@ -757,7 +737,7 @@ function TargetingInspector({
           />
         </Label>
         <Label>
-          End
+          End time
           <Input
             type="datetime-local"
             value={definition.targeting.schedule?.endsAt?.slice(0, 16) ?? ""}
