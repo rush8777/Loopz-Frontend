@@ -101,7 +101,15 @@ function reconcileTextControl(component: Component, question: Extract<SurveyQues
 function setFunctionalText(component: Component, text: string): void {
   const nodes = descendants(component).filter(isTextNode);
   const target = nodes.find(node => !hasAncestorClass(node, component, "movecues-survey-question__required"));
-  if (target) target.set("content", text); else component.append(escapeHtml(text), { at: 0 });
+  if (target) setTextNodeContent(target, text); else component.append(escapeHtml(text), { at: 0 });
+}
+
+// GrapesJS persists a text-node `content` change immediately, but its text-node
+// view does not repaint that change until it is rendered again. Without this,
+// the saved HTML is correct while the canvas keeps showing the previous copy.
+function setTextNodeContent(component: Component, text: string): void {
+  component.set("content", text);
+  component.getView()?.render();
 }
 
 function descendants(component: Component): Component[] {

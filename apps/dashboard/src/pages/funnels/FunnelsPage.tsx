@@ -10,6 +10,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@movecues/ui";
 import { Input } from "@movecues/ui";
 import { DataTableFrame, ErrorNotice, FilterToolbar, LoadingRows, dataTableClass } from "@/components/PageSurface";
+import { RefreshButton } from "../../components/RefreshButton";
 
 export function FunnelsPage() {
   const { currentOrg, currentSite } = useWorkspace();
@@ -20,9 +21,11 @@ export function FunnelsPage() {
   const [funnels, setFunnels] = useState<FunnelListItem[] | null>(null);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!currentOrg || !currentSite) return;
+    setFunnels(null);
     setError(null);
     const handle = setTimeout(
       () => {
@@ -37,7 +40,7 @@ export function FunnelsPage() {
       search ? 250 : 0
     );
     return () => clearTimeout(handle);
-  }, [currentOrg, currentSite, search]);
+  }, [currentOrg, currentSite, search, refreshKey]);
 
   function updateSearch(value: string) {
     const next = new URLSearchParams(searchParams);
@@ -64,7 +67,7 @@ export function FunnelsPage() {
         title="Funnels"
         description="How many users progress through an ordered sequence of steps, and where they drop off."
         actions={
-          <Button onClick={() => navigate("/observe/funnels/new")}><Plus />Create funnel</Button>
+          <div className="flex gap-2"><RefreshButton refreshing={funnels === null && !error} onRefresh={() => setRefreshKey((value) => value + 1)} /><Button onClick={() => navigate("/observe/funnels/new")}><Plus />Create funnel</Button></div>
         }
       />
 

@@ -39,8 +39,11 @@ export function syncChecklistComponents(editor: Editor, items: ChecklistItem[], 
 }
 
 function protect(component: Component, droppable: boolean) { component.set({ removable: false, copyable: false, draggable: false, droppable, editable: false }); }
-function setRoleText(component: Component, role: string, value: string) { const holder = component.find(`[data-movecues-checklist-item-role="${role}"]`)[0]; if (!holder) return; const text = descendants(holder).find(node => node.is?.("textnode") || node.get("type") === "textnode"); if (text) text.set("content", value); else holder.append(escapeHtml(value)); }
-function setSemanticText(component: Component, role: string, value: string) { const holder = component.find(`[data-movecues-checklist-role="${role}"]`)[0]; if (!holder) return; const text = descendants(holder).find(node => node.is?.("textnode") || node.get("type") === "textnode"); if (text) text.set("content", value); else holder.append(escapeHtml(value)); }
+function setRoleText(component: Component, role: string, value: string) { const holder = component.find(`[data-movecues-checklist-item-role="${role}"]`)[0]; if (!holder) return; const text = descendants(holder).find(node => node.is?.("textnode") || node.get("type") === "textnode"); if (text) setTextNodeContent(text, value); else holder.append(escapeHtml(value)); }
+function setSemanticText(component: Component, role: string, value: string) { const holder = component.find(`[data-movecues-checklist-role="${role}"]`)[0]; if (!holder) return; const text = descendants(holder).find(node => node.is?.("textnode") || node.get("type") === "textnode"); if (text) setTextNodeContent(text, value); else holder.append(escapeHtml(value)); }
+// Keep the iframe view aligned with the model. GrapesJS serializes `content`
+// correctly but does not repaint ComponentTextNode views on that change alone.
+function setTextNodeContent(component: Component, value: string) { component.set("content", value); component.getView()?.render(); }
 function descendants(component: Component): Component[] { const values: Component[] = []; component.components()?.forEach?.((child: Component) => values.push(child, ...descendants(child))); return values; }
 function cssEscape(value: string) { return value.replace(/["\\]/g, "\\$&"); }
 function escapeHtml(value: string) { return value.replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]!)); }

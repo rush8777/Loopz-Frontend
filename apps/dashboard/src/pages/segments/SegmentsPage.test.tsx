@@ -68,6 +68,17 @@ describe("SegmentsPage", () => {
     expect(screen.getByText("1,284 users")).toBeInTheDocument();
   });
 
+  it("refreshes the current segment query without reloading the page", async () => {
+    mockWorkspaceReady();
+    mockedSegmentsApi.listSegments.mockResolvedValue({ segments: [sampleSegment], total: 1, limit: 100, offset: 0 });
+    render(<MemoryRouter><SegmentsPage /></MemoryRouter>);
+    await screen.findByText("High-intent trial users");
+
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+
+    await waitFor(() => expect(mockedSegmentsApi.listSegments).toHaveBeenCalledTimes(2));
+  });
+
   it("issues a server-side search request when typing, rather than filtering client-side", async () => {
     mockWorkspaceReady();
     mockedSegmentsApi.listSegments.mockResolvedValue({ segments: [], total: 0, limit: 100, offset: 0 });

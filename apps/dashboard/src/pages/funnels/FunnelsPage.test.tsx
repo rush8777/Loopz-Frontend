@@ -75,6 +75,17 @@ describe("FunnelsPage", () => {
     expect(screen.getByText("39% conversion")).toBeInTheDocument();
   });
 
+  it("refreshes the current funnel query without reloading the page", async () => {
+    mockWorkspaceReady();
+    mockedFunnelsApi.listFunnels.mockResolvedValue({ funnels: [sampleFunnel], total: 1, limit: 100, offset: 0 });
+    render(<MemoryRouter><FunnelsPage /></MemoryRouter>);
+    await screen.findByText("Signup activation");
+
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+
+    await waitFor(() => expect(mockedFunnelsApi.listFunnels).toHaveBeenCalledTimes(2));
+  });
+
   it("issues a server-side search request when typing", async () => {
     mockWorkspaceReady();
     mockedFunnelsApi.listFunnels.mockResolvedValue({ funnels: [], total: 0, limit: 100, offset: 0 });

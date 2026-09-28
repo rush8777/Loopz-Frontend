@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Component, Editor } from "grapesjs";
 import type { SurveyQuestion } from "../../types/experiences";
+import { syncChecklistComponents } from "./checklistComponentSync";
 import { syncSurveyComponents } from "./surveyComponentSync";
 
 class MiniComponent {
@@ -8,7 +9,8 @@ class MiniComponent {
   private values = new Map<string, unknown>();
   constructor(node: Node) { this.node = node; }
   get(key: string): unknown { if (key === "tagName") return this.node instanceof Element ? this.node.tagName.toLowerCase() : undefined; if (key === "type") return this.node.nodeType === Node.TEXT_NODE ? "textnode" : this.values.get(key); if (key === "content") return this.node.textContent ?? ""; return this.values.get(key); }
-  set(key: string | Record<string, unknown>, value?: unknown): this { if (typeof key === "string") { if (key === "content") this.node.textContent = String(value ?? ""); else this.values.set(key, value); } else Object.entries(key).forEach(([name, next]) => this.values.set(name, next)); return this; }
+  set(key: string | Record<string, unknown>, value?: unknown): this { if (typeof key === "string") this.values.set(key, value); else Object.entries(key).forEach(([name, next]) => this.values.set(name, next)); return this; }
+  getView(): { render: () => void } { return { render: () => { if (this.values.has("content")) this.node.textContent = String(this.values.get("content") ?? ""); } }; }
   is(type: string): boolean { return type === "textnode" && this.node.nodeType === Node.TEXT_NODE; }
   getClasses(): string[] { return this.node instanceof Element ? [...this.node.classList] : []; }
   addClass(value: string | string[]): this { if (this.node instanceof Element) this.node.classList.add(...(Array.isArray(value) ? value : value.split(/\s+/)).filter(Boolean)); return this; }
@@ -28,7 +30,7 @@ class MiniComponent {
 function fixture(html: string): { editor: Editor; root: HTMLElement } {
   const template = document.createElement("template"); template.innerHTML = html; const root = template.content.firstElementChild as HTMLElement;
   const rootComponent = new MiniComponent(root) as unknown as Component;
-  const wrapper = { find: (selector: string) => selector === ".movecues-widget" ? [rootComponent] : [] };
+  const wrapper = { find: (selector: string) => root.matches(selector) ? [rootComponent] : [] };
   return { editor: { getWrapper: () => wrapper } as unknown as Editor, root };
 }
 
@@ -59,5 +61,22 @@ describe("non-destructive survey component synchronization", () => {
     expect(root.querySelector(".custom-footer")?.textContent).toBe("Authored footer");
     expect(root.querySelector(".movecues-survey-options")).toBeNull();
     expect(root.querySelector('.custom-control-wrapper textarea[data-movecues-question-input][placeholder="Details"][maxlength="120"]')).not.toBeNull();
+  });
+});
+
+describe("live structured-copy synchronization", () => {
+  it("repaints checklist title, description, and item copy in the canvas", () => {
+    const { editor, root } = fixture('<section class="movecues-widget" data-movecues-checklist-role="root"><h2 data-movecues-checklist-role="title">Old title</h2><p data-movecues-checklist-role="description">Old description</p><span data-movecues-checklist-role="launcher-label">Old launcher</span><div data-movecues-checklist-role="completion-title">Old completion</div><div data-movecues-checklist-role="completion-description">Old completion description</div><button data-movecues-checklist-role="completion-acknowledge">Old button</button><div data-movecues-checklist-view="expanded"><div data-movecues-checklist-role="items"><button data-movecues-checklist-item-id="task-1"><span data-movecues-checklist-item-role="title">Old task</span><span data-movecues-checklist-item-role="description">Old task description</span></button></div></div></section>');
+
+    syncChecklistComponents(
+      editor,
+      [{ id: "task-1", title: "Updated task", description: "Updated task description", action: { type: "none" }, completion: { type: "item_clicked" } }],
+      { title: "Updated title", description: "Updated description", completionMessage: { title: "All done", description: "Finished", acknowledgeLabel: "Close" } },
+    );
+
+    expect(root.querySelector('[data-movecues-checklist-role="title"]')?.textContent).toBe("Updated title");
+    expect(root.querySelector('[data-movecues-checklist-role="description"]')?.textContent).toBe("Updated description");
+    expect(root.querySelector('[data-movecues-checklist-item-role="title"]')?.textContent).toBe("Updated task");
+    expect(root.querySelector('[data-movecues-checklist-item-role="description"]')?.textContent).toBe("Updated task description");
   });
 });

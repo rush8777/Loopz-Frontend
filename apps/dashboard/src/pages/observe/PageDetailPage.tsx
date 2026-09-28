@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
 import { AnalyticsMetricCard } from "@/components/analytics/AnalyticsMetricCard";
 import { EmptyState } from "../../components/EmptyState";
-import { ElementsTable, mergeElementMetadata } from "../../components/elements/ElementsTable";
 import * as pagesApi from "../../api/pages";
-import type { CatalogElement, PageDetail, PageElement, PageRuleOperator } from "../../types/api";
+import type { PageDetail, PageRuleOperator } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
 import { Badge } from "@movecues/ui";
 import { Button } from "@movecues/ui";
@@ -53,13 +52,8 @@ export function PageDetailPage() {
   const { currentOrg, currentSite } = useWorkspace();
   const { pageId } = useParams<{ pageId: string }>();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState<PageDetail | null>(null);
-  const [elements, setElements] = useState<PageElement[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [elementsError, setElementsError] = useState<string | null>(null);
-  const requestedTab = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState<"overview" | "elements">(requestedTab === "elements" ? "elements" : "overview");
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -68,17 +62,6 @@ export function PageDetailPage() {
     setError(null);
     pagesApi.getPage(currentOrg.orgId, currentSite.id, pageId).then(setPage).catch(() => setError("Couldn't load this page."));
   }, [currentOrg, currentSite, pageId]);
-
-  useEffect(() => {
-    if (!currentOrg || !currentSite || !pageId) return;
-    setElements(null);
-    setElementsError(null);
-    pagesApi.listPageElements(currentOrg.orgId, currentSite.id, pageId).then((result) => setElements(result.elements)).catch(() => setElementsError("Couldn't load page elements."));
-  }, [currentOrg, currentSite, pageId]);
-
-  function patchElement(updated: CatalogElement) {
-    setElements((current) => current?.map((element) => element.id === updated.id ? { ...mergeElementMetadata(element, updated), matchedPaths: element.matchedPaths } : element) ?? current);
-  }
 
   async function handleDelete() {
     if (!currentOrg || !currentSite || !pageId || !window.confirm("Delete this page? Its rules will be removed, but nothing happens to the underlying traffic data.")) return;
@@ -110,10 +93,9 @@ export function PageDetailPage() {
         <Badge variant="secondary">Coming soon</Badge>
       </section>
       <div role="tablist" aria-label="Page detail" className="mb-4 flex gap-1 overflow-x-auto border-b">
-        {(["overview", "elements"] as const).map((tab) => <Button key={tab} role="tab" aria-selected={activeTab === tab} variant="ghost" className={`rounded-b-none border-b-2 capitalize ${activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground"}`} onClick={() => { setActiveTab(tab); setSearchParams(tab === "overview" ? {} : { tab }, { replace: true }); }}>{tab}</Button>)}
+        <Button role="tab" aria-selected="true" variant="ghost" className="rounded-b-none border-b-2 border-primary text-foreground">Overview</Button>
       </div>
-      {activeTab === "overview" && <Overview page={page} />}
-      {activeTab === "elements" && <ElementsTable elements={elements} error={elementsError} onUpdated={patchElement} emptyDescription="No discovered elements have been reported from URLs matching this Page's current rules." />}
+      <Overview page={page} />
     </>
   );
 }

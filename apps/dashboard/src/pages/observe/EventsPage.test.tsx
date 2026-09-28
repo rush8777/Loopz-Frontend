@@ -74,6 +74,17 @@ describe("EventsPage", () => {
     expect(screen.getByText("1,041 sessions")).toBeInTheDocument();
   });
 
+  it("refreshes the current event query without reloading the page", async () => {
+    mockWorkspaceReady();
+    mockedEventsApi.listEvents.mockResolvedValue({ events: [], total: 0, limit: 100, offset: 0 });
+    render(<MemoryRouter><EventsPage /></MemoryRouter>);
+    await screen.findByText(/no events recorded yet/i);
+
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+
+    await waitFor(() => expect(mockedEventsApi.listEvents).toHaveBeenCalledTimes(2));
+  });
+
   it("does not render events as autocaptured interactions - no 'Clicked'/'Hovered' labels appear", async () => {
     mockWorkspaceReady();
     mockedEventsApi.listEvents.mockResolvedValue({

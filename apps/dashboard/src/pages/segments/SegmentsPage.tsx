@@ -10,6 +10,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@movecues/ui";
 import { Input } from "@movecues/ui";
 import { DataTableFrame, ErrorNotice, FilterToolbar, LoadingRows, dataTableClass } from "@/components/PageSurface";
+import { RefreshButton } from "../../components/RefreshButton";
 
 export function SegmentsPage() {
   const { currentOrg, currentSite } = useWorkspace();
@@ -20,9 +21,11 @@ export function SegmentsPage() {
   const [segments, setSegments] = useState<Segment[] | null>(null);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!currentOrg || !currentSite) return;
+    setSegments(null);
     setError(null);
     // Debounce typing, but not the initial load - same pattern as UsersPage's search.
     const handle = setTimeout(
@@ -38,7 +41,7 @@ export function SegmentsPage() {
       search ? 250 : 0
     );
     return () => clearTimeout(handle);
-  }, [currentOrg, currentSite, search]);
+  }, [currentOrg, currentSite, search, refreshKey]);
 
   function updateSearch(value: string) {
     const next = new URLSearchParams(searchParams);
@@ -65,7 +68,7 @@ export function SegmentsPage() {
         title="Segments"
         description="Dynamic audiences of users, defined by their behavior and properties. Membership updates automatically as user data changes."
         actions={
-          <Button onClick={() => navigate("/segments/new")}><Plus />Create segment</Button>
+          <div className="flex gap-2"><RefreshButton refreshing={segments === null && !error} onRefresh={() => setRefreshKey((value) => value + 1)} /><Button onClick={() => navigate("/segments/new")}><Plus />Create segment</Button></div>
         }
       />
 

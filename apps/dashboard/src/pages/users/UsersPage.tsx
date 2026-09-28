@@ -15,6 +15,7 @@ import { AnalyticsFilterBar, type AppliedFilters, type FilterDefinition } from "
 import { readFilters, writeFilters } from "@/components/filters/filterUrlState";
 import { resolveDateRange, type DateRangePreset } from "@/lib/dateRange";
 import * as segmentsApi from "../../api/segments";
+import { RefreshButton } from "../../components/RefreshButton";
 
 const PAGE_SIZE = 25;
 
@@ -54,6 +55,7 @@ export function UsersPage() {
   const [search, setSearch] = useState("");
   const [offset, setOffset] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [users, setUsers] = useState<TrackedUserSummary[] | null>(null);
   const [visitors, setVisitors] = useState<AnonymousVisitorSummary[] | null>(null);
@@ -97,7 +99,7 @@ export function UsersPage() {
       search ? 250 : 0
     ); // debounce typing, but not the initial/paged load
     return () => clearTimeout(handle);
-  }, [currentOrg, currentSite, segment, search, offset, filterQuery]);
+  }, [currentOrg, currentSite, segment, search, offset, filterQuery, refreshKey]);
 
   useEffect(() => { if (!currentOrg || !currentSite) return; void segmentsApi.listSegments(currentOrg.orgId, currentSite.id, { limit: 100 }).then((response) => setSavedSegments(response.segments)).catch(() => setSavedSegments([])); }, [currentOrg, currentSite]);
 
@@ -127,6 +129,7 @@ export function UsersPage() {
         }
         actions={
           <div className="flex flex-wrap gap-3">
+            <RefreshButton refreshing={users === null && visitors === null && !error} onRefresh={() => setRefreshKey((value) => value + 1)} />
             <SegmentToggle segment={segment} onChange={setSegment} />
             <Input
               className="w-60"
