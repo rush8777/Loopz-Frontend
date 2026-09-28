@@ -1,0 +1,18 @@
+---
+import MarketingLayout from "../../components/marketing/MarketingLayout.astro";
+import PageHero from "../../components/marketing/PageHero.astro";
+import RelatedLinks from "../../components/marketing/RelatedLinks.astro";
+import BottomCta from "../../components/marketing/BottomCta.astro";
+import { DASHBOARD_URLS } from "../../config/site";
+const links = [
+  { label: "Blog", description: "Practical articles on adoption, onboarding, segmentation, funnels, research, and in-app experiences.", href: "/resources/blog" },
+  { label: "Guides", description: "Long-form resources for understanding and influencing the product journey.", href: "/resources/guides" },
+  { label: "Templates", description: "Focused starting points for onboarding, adoption, and feedback experiences.", href: "/resources/templates" },
+];
+---
+<MarketingLayout title="Product growth resources | Movcues" description="Practical resources for building better onboarding, adoption, feedback, and in-app product experiences." canonicalPath="/resources">
+  <PageHero eyebrow="Resources" title="Learn how better product experiences get built." description="Practical thinking and useful starting points for teams who want to understand the journey, reach the right users, and improve what happens next." visual="resources" secondaryLabel="Browse resources" secondaryHref="#resource-categories" />
+  <RelatedLinks id="resource-categories" title="Choose a place to start" links={links} />
+  <section class="documentation-callout section-shell" id="documentation" data-reveal><div><p class="section-kicker"><span></span>Documentation</p><h2>Technical setup belongs in a focused home.</h2></div><div><p>Public product documentation is being prepared separately from the marketing site. For now, workspace installation guidance remains available inside Movcues.</p><a href={DASHBOARD_URLS.signup}>Open Movcues →</a></div></section>
+  <BottomCta title="Learn the journey. Then improve it." description="Use the product loop to turn behavioral evidence into a better next experience." />
+</MarketingLayout>

@@ -1,0 +1,20 @@
+---
+import { DASHBOARD_URLS } from "../../config/site";
+import ProductVisual from "./ProductVisual.astro";
+
+interface Props { eyebrow: string; title: string; description: string; visual?: string; primaryLabel?: string; secondaryLabel?: string; secondaryHref?: string; compact?: boolean }
+const { eyebrow, title, description, visual, primaryLabel = "Get started free", secondaryLabel, secondaryHref = "#explore", compact = false } = Astro.props;
+---
+
+<section class:list={["page-hero", compact && "is-compact"]}>
+  <div class="page-hero-copy section-shell" data-reveal>
+    <p class="section-kicker"><span></span>{eyebrow}</p>
+    <h1>{title}</h1>
+    <p>{description}</p>
+    <div class="page-hero-actions">
+      <a class="hero-primary" href={DASHBOARD_URLS.signup}>{primaryLabel}</a>
+      {secondaryLabel && <a class="hero-secondary" href={secondaryHref}>{secondaryLabel}</a>}
+    </div>
+  </div>
+  {visual && <div class="page-hero-visual section-shell" data-reveal><ProductVisual variant={visual} /></div>}
+</section>

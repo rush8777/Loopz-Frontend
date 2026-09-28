@@ -1,0 +1,11 @@
+---
+import MarketingLayout from "../components/marketing/MarketingLayout.astro";
+import PageHero from "../components/marketing/PageHero.astro";
+import Workflow from "../components/marketing/Workflow.astro";
+import BottomCta from "../components/marketing/BottomCta.astro";
+---
+<MarketingLayout title="Movcues pricing" description="Start with Movcues and choose the product capabilities that fit your team's journey." canonicalPath="/pricing">
+  <PageHero eyebrow="Pricing" title="Start with the product journey you need to improve." description="Movcues pricing is being shaped around real product needs. We will publish plans, limits, and commercial details when they are finalized — without placeholder numbers." visual="pricing" />
+  <Workflow eyebrow="One product loop" title="The model stays simple." description="However plans are packaged, the product stays organized around the same connected workflow." steps={["Understand", "Target", "Engage", "Improve"]} />
+  <BottomCta title="Start exploring Movcues today." description="Create a workspace and see how behavior, audiences, experiences, and outcomes connect." />
+</MarketingLayout>

@@ -1,6 +1,6 @@
 export const SITE = {
   name: "Movcues",
-  origin: "https://localhost:5173",
+  origin: "https://movecues.com",
   title: "Movcues — Turn user behavior into action",
   description:
     "Understand user behavior, find the right audience, deliver in-app experiences, and learn what moves users forward.",
@@ -12,9 +12,39 @@ export const DASHBOARD_URLS = {
 } as const;
 
 export const NAV_ITEMS = [
-  { label: "Product", href: "#product" },
-  { label: "How it works", href: "#journey" },
-  { label: "Platform", href: "#platform" },
+  {
+    label: "Product",
+    href: "/product",
+    description: "Everything you need to understand users and move them forward.",
+    items: [
+      { label: "Platform overview", description: "See how the entire Movcues loop works", href: "/product" },
+      { label: "Analytics", description: "Events, funnels, sessions and product insights", href: "/product/analytics" },
+      { label: "In-app experiences", description: "Guides, surveys, banners, checklists and contextual experiences", href: "/product/experiences" },
+      { label: "Targeting & segments", description: "Find and reach the users who need attention", href: "/product/targeting" },
+    ],
+  },
+  {
+    label: "Solutions",
+    href: "/solutions/user-onboarding",
+    description: "Use behavior to solve key product-growth problems.",
+    items: [
+      { label: "User onboarding & activation", description: "Help new users reach value", href: "/solutions/user-onboarding" },
+      { label: "Feature adoption", description: "Drive adoption of important product capabilities", href: "/solutions/feature-adoption" },
+      { label: "Reduce funnel drop-off", description: "Find friction and act on affected users", href: "/solutions/funnel-dropoff" },
+      { label: "Product feedback", description: "Ask the right users at meaningful moments", href: "/solutions/product-feedback" },
+    ],
+  },
+  {
+    label: "Resources",
+    href: "/resources",
+    description: "Learn how to understand and influence the product journey.",
+    items: [
+      { label: "Blog", description: "Practical notes for product teams", href: "/resources/blog" },
+      { label: "Guides", description: "Long-form, focused learning", href: "/resources/guides" },
+      { label: "Templates", description: "Starting points for better experiences", href: "/resources/templates" },
+      { label: "Documentation", description: "Technical setup and implementation", href: "/resources#documentation", external: true },
+    ],
+  },
 ] as const;
 
 export type ProductChapter = {
@@ -35,7 +65,7 @@ export const PRODUCT_CHAPTERS: readonly ProductChapter[] = [
     description:
       "Understand how people move through your product, where they hesitate, and which behaviors lead them toward value.",
     detail:
-      "Explore events, pages, sessions, funnels, and heatmaps in one place.",
+      "Explore events, pages, sessions, funnels, and dashboards in one place.",
   },
 
   {
@@ -75,7 +105,7 @@ export const PRODUCT_CHAPTERS: readonly ProductChapter[] = [
 export const PLATFORM_GROUPS = [
   {
     label: "Understand",
-    items: ["Events", "Pages", "Sessions", "Funnels", "Heatmaps"],
+    items: ["Events", "Pages", "Sessions", "Funnels"],
   },
   {
     label: "Target",
@@ -83,18 +113,10 @@ export const PLATFORM_GROUPS = [
   },
   {
     label: "Engage",
-    items: ["Guides", "Surveys", "Banners"],
+    items: ["Guides", "Surveys", "Banners", "Checklists"],
   },
   {
     label: "Improve",
     items: ["Dashboards", "Experience analytics"],
-  },
-  {
-    label: "Automate",
-    items: ["Workflows", "Triggers"],
-  },
-  {
-    label: "Connect",
-    items: ["Integrations", "Webhooks"],
   },
 ] as const;

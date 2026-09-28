@@ -5,12 +5,10 @@ import { DASHBOARD_URLS } from "../../config/site";
 
 <footer class="site-footer">
   <div class="section-shell footer-grid">
-    <div class="footer-brand">
-      <a href="#top" aria-label="Movcues home"><img src={logo.src} width="140" height="26" alt="Movcues" /></a>
-      <p>Turn user behavior into action.</p>
-    </div>
-    <div class="footer-column"><h2>Product</h2><a href="#understand">Understand</a><a href="#target">Target</a><a href="#engage">Engage</a><a href="#measure">Measure</a></div>
-    <div class="footer-column"><h2>Platform</h2><a href="#journey">How it works</a><a href="#platform">Capabilities</a></div>
+    <div class="footer-brand"><a href="/" aria-label="Movcues home"><img src={logo.src} width="140" height="26" alt="Movcues" /></a><p>Turn user behavior into action.</p></div>
+    <div class="footer-column"><h2>Product</h2><a href="/product">Platform overview</a><a href="/product/analytics">Analytics</a><a href="/product/experiences">In-app experiences</a><a href="/product/targeting">Targeting & segments</a></div>
+    <div class="footer-column"><h2>Solutions</h2><a href="/solutions/user-onboarding">User onboarding</a><a href="/solutions/feature-adoption">Feature adoption</a><a href="/solutions/funnel-dropoff">Funnel drop-off</a><a href="/solutions/product-feedback">Product feedback</a></div>
+    <div class="footer-column"><h2>Resources</h2><a href="/resources/blog">Blog</a><a href="/resources/guides">Guides</a><a href="/resources/templates">Templates</a><a href="/pricing">Pricing</a></div>
     <div class="footer-column"><h2>Account</h2><a href={DASHBOARD_URLS.login}>Log in</a><a href={DASHBOARD_URLS.signup}>Get started</a></div>
   </div>
   <div class="section-shell footer-bottom"><span>© {new Date().getFullYear()} Movcues</span><span>Built for product teams who listen.</span></div>

@@ -2,36 +2,57 @@
 import logo from "../../../../dashboard/public/movecues_logo.png";
 import { DASHBOARD_URLS, NAV_ITEMS } from "../../config/site";
 import { LinkButton } from "../react/LinkButton";
+
+const currentPath = Astro.url.pathname;
 ---
 
 <header class="site-header" data-site-header>
   <div class="nav-shell">
-    <a class="brand-link" href="#top" aria-label="Movcues home">
+    <a class="brand-link" href="/" aria-label="Movcues home">
       <img src={logo.src} width="152" height="28" alt="Movcues" />
     </a>
 
     <nav class="desktop-nav" aria-label="Primary navigation">
-      {NAV_ITEMS.map((item) => <a href={item.href}>{item.label}</a>)}
+      {NAV_ITEMS.map((group, index) => (
+        <div class="nav-group" data-nav-group>
+          <button class:list={["nav-group-trigger", (currentPath === group.href || group.items.some((item) => currentPath === item.href.split("#")[0])) && "is-current"]} type="button" aria-expanded="false" aria-controls={`nav-panel-${index}`} data-nav-trigger>
+            {group.label}
+            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" /></svg>
+          </button>
+          <div class="nav-dropdown" id={`nav-panel-${index}`} data-nav-panel hidden>
+            <div class="nav-dropdown-intro"><p>{group.label}</p><span>{group.description}</span></div>
+            <div class="nav-dropdown-links">
+              {group.items.map((item) => (
+                <a href={item.href}>
+                  <span>{item.label}{"external" in item && item.external && <small aria-label="Technical resource">↗</small>}</span>
+                  <small>{item.description}</small>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+      <a class:list={[currentPath === "/pricing" && "is-current"]} href="/pricing">Pricing</a>
     </nav>
 
     <div class="nav-actions">
       <a class="login-link" href={DASHBOARD_URLS.login}>Log in</a>
       <LinkButton href={DASHBOARD_URLS.signup} label="Get started" className="nav-cta" />
-      <button
-        class="mobile-menu-button"
-        type="button"
-        aria-expanded="false"
-        aria-controls="mobile-navigation"
-        aria-label="Open navigation"
-        data-menu-button
-      >
-        <span></span><span></span>
-      </button>
+      <button class="mobile-menu-button" type="button" aria-expanded="false" aria-controls="mobile-navigation" aria-label="Open navigation" data-menu-button><span></span><span></span></button>
     </div>
   </div>
 
   <nav class="mobile-nav" id="mobile-navigation" aria-label="Mobile navigation" data-mobile-nav hidden>
-    {NAV_ITEMS.map((item) => <a href={item.href}>{item.label}</a>)}
+    {NAV_ITEMS.map((group) => (
+      <details class="mobile-nav-group">
+        <summary>{group.label}<span aria-hidden="true">+</span></summary>
+        <div>
+          <a class="mobile-group-overview" href={group.href}>{group.label} overview</a>
+          {group.items.map((item) => <a href={item.href}>{item.label}</a>)}
+        </div>
+      </details>
+    ))}
+    <a href="/pricing">Pricing</a>
     <a href={DASHBOARD_URLS.login}>Log in</a>
     <a class="mobile-primary-link" href={DASHBOARD_URLS.signup}>Get started</a>
   </nav>
@@ -39,21 +60,40 @@ import { LinkButton } from "../react/LinkButton";
 
 <script>
   const header = document.querySelector<HTMLElement>("[data-site-header]");
-  const button = header?.querySelector<HTMLButtonElement>("[data-menu-button]");
-  const menu = header?.querySelector<HTMLElement>("[data-mobile-nav]");
+  const mobileButton = header?.querySelector<HTMLButtonElement>("[data-menu-button]");
+  const mobileMenu = header?.querySelector<HTMLElement>("[data-mobile-nav]");
+  const groups = Array.from(header?.querySelectorAll<HTMLElement>("[data-nav-group]") ?? []);
 
-  const setOpen = (open: boolean) => {
-    if (!button || !menu) return;
-    button.setAttribute("aria-expanded", String(open));
-    button.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
-    menu.hidden = !open;
+  const closeDesktopMenus = (except?: HTMLElement) => {
+    groups.forEach((group) => {
+      if (group === except) return;
+      group.querySelector<HTMLButtonElement>("[data-nav-trigger]")?.setAttribute("aria-expanded", "false");
+      const panel = group.querySelector<HTMLElement>("[data-nav-panel]");
+      if (panel) panel.hidden = true;
+    });
+  };
+  const setGroupOpen = (group: HTMLElement, open: boolean) => {
+    closeDesktopMenus(open ? group : undefined);
+    group.querySelector<HTMLButtonElement>("[data-nav-trigger]")?.setAttribute("aria-expanded", String(open));
+    const panel = group.querySelector<HTMLElement>("[data-nav-panel]");
+    if (panel) panel.hidden = !open;
+  };
+  groups.forEach((group) => {
+    const trigger = group.querySelector<HTMLButtonElement>("[data-nav-trigger]");
+    trigger?.addEventListener("click", () => setGroupOpen(group, trigger.getAttribute("aria-expanded") !== "true"));
+    group.addEventListener("mouseenter", () => { if (window.matchMedia("(hover: hover) and (min-width: 821px)").matches) setGroupOpen(group, true); });
+    group.addEventListener("mouseleave", () => { if (window.matchMedia("(hover: hover) and (min-width: 821px)").matches) setGroupOpen(group, false); });
+    group.addEventListener("focusout", (event) => { if (!group.contains(event.relatedTarget as Node | null)) setGroupOpen(group, false); });
+  });
+  const setMobileOpen = (open: boolean) => {
+    if (!mobileButton || !mobileMenu) return;
+    mobileButton.setAttribute("aria-expanded", String(open));
+    mobileButton.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+    mobileMenu.hidden = !open;
     header?.classList.toggle("menu-open", open);
   };
-
-  button?.addEventListener("click", () => setOpen(button.getAttribute("aria-expanded") !== "true"));
-  menu?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => setOpen(false)));
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setOpen(false);
-  });
-
+  mobileButton?.addEventListener("click", () => setMobileOpen(mobileButton.getAttribute("aria-expanded") !== "true"));
+  mobileMenu?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => setMobileOpen(false)));
+  document.addEventListener("click", (event) => { if (header && !header.contains(event.target as Node)) { closeDesktopMenus(); setMobileOpen(false); } });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeDesktopMenus(); setMobileOpen(false); } });
 </script>

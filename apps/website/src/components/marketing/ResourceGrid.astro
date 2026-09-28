@@ -1,0 +1,11 @@
+---
+import type { ResourceEntry } from "../../data/resources";
+interface Props { eyebrow?: string; title: string; description?: string; entries: ResourceEntry[]; featured?: boolean; id?: string }
+const { eyebrow, title, description, entries, featured = false, id } = Astro.props;
+---
+<section class:list={["resource-section", featured && "has-featured"]} id={id} data-reveal>
+  <div class="section-shell">
+    <div class="resource-heading"><div>{eyebrow && <p class="section-kicker"><span></span>{eyebrow}</p>}<h2>{title}</h2></div>{description && <p>{description}</p>}</div>
+    <div class="resource-grid">{entries.map((entry, index) => <article class:list={[featured && index === 0 && "is-featured"]}><div><span>{entry.category}</span><small>{entry.meta}</small></div><h3>{entry.title}</h3><p>{entry.description}</p>{entry.href ? <a href={entry.href}>Explore →</a> : <span class="resource-status">Content preview</span>}</article>)}</div>
+  </div>
+</section>

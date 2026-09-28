@@ -1,0 +1,18 @@
+---
+import type { MarketingPage } from "../../data/marketing-pages";
+import MarketingLayout from "./MarketingLayout.astro";
+import PageHero from "./PageHero.astro";
+import Workflow from "./Workflow.astro";
+import FeatureSplit from "./FeatureSplit.astro";
+import RelatedLinks from "./RelatedLinks.astro";
+import BottomCta from "./BottomCta.astro";
+interface Props { page: MarketingPage }
+const { page } = Astro.props;
+---
+<MarketingLayout title={page.metaTitle} description={page.description} canonicalPath={page.path}>
+  <PageHero eyebrow={page.eyebrow} title={page.title} description={page.description} visual={page.visual} secondaryLabel={page.secondaryLabel} />
+  <Workflow {...page.workflow} />
+  {page.sections.map((section, index) => <FeatureSplit {...section} reverse={index % 2 === 1} />)}
+  <RelatedLinks links={page.related} />
+  <BottomCta {...page.cta} />
+</MarketingLayout>

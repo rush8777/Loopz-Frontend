@@ -1,0 +1,12 @@
+---
+import MarketingLayout from "../../components/marketing/MarketingLayout.astro";
+import PageHero from "../../components/marketing/PageHero.astro";
+import ResourceGrid from "../../components/marketing/ResourceGrid.astro";
+import RelatedLinks from "../../components/marketing/RelatedLinks.astro";
+import { guides } from "../../data/resources";
+---
+<MarketingLayout title="Product experience guides | Movcues" description="Focused guides for user onboarding, product adoption, behavioral segmentation, funnel analysis, and product feedback." canonicalPath="/resources/guides">
+  <PageHero eyebrow="Movcues guides" title="Understand the journey in more depth." description="Focused learning for onboarding, adoption, segmentation, funnel analysis, feedback, and in-app experiences." compact />
+  <ResourceGrid eyebrow="Guide library" title="Built around real product problems." description="The library is structured for future Astro or MDX content without inventing a large catalogue today." entries={guides} />
+  <RelatedLinks links={[{ label: "User onboarding", description: "See the activation workflow in Movcues.", href: "/solutions/user-onboarding" }, { label: "Funnel drop-off", description: "Move from a break in the journey to recovery.", href: "/solutions/funnel-dropoff" }, { label: "Product feedback", description: "Connect questions with behavioral context.", href: "/solutions/product-feedback" }]} />
+</MarketingLayout>

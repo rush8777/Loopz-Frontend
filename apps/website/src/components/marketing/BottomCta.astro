@@ -1,0 +1,6 @@
+---
+import { DASHBOARD_URLS } from "../../config/site";
+interface Props { title?: string; description?: string }
+const { title = "See what users need. Then help them move forward.", description = "Bring behavior, audiences, experiences, and outcomes into one product loop." } = Astro.props;
+---
+<section class="marketing-cta section-shell" data-reveal><p class="section-kicker"><span></span>Start with behavior</p><h2>{title}</h2><p>{description}</p><a class="cta-button" href={DASHBOARD_URLS.signup}>Get started free</a></section>

@@ -1,0 +1,6 @@
+---
+interface Link { label: string; description: string; href: string }
+interface Props { title?: string; links: Link[]; id?: string }
+const { title = "Keep exploring", links, id } = Astro.props;
+---
+<section class="related-section section-shell" id={id} data-reveal><div class="related-heading"><p class="section-kicker"><span></span>Related</p><h2>{title}</h2></div><div class="related-grid">{links.map((link, index) => <a href={link.href}><span>0{index + 1}</span><h3>{link.label}</h3><p>{link.description}</p><b>Explore →</b></a>)}</div></section>

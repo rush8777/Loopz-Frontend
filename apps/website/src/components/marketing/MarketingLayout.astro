@@ -1,0 +1,13 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import LandingNavbar from "../layout/LandingNavbar.astro";
+import SiteFooter from "../layout/SiteFooter.astro";
+
+interface Props { title: string; description: string; canonicalPath: string }
+---
+
+<BaseLayout {...Astro.props}>
+  <LandingNavbar />
+  <main id="main-content" class="marketing-main"><slot /></main>
+  <SiteFooter />
+</BaseLayout>

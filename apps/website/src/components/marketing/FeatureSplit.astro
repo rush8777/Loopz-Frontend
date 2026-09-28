@@ -1,0 +1,11 @@
+---
+import ProductVisual from "./ProductVisual.astro";
+interface Props { eyebrow: string; title: string; description: string; points?: string[]; visual: string; reverse?: boolean; tone?: "light" | "soft" | "dark" }
+const { eyebrow, title, description, points = [], visual, reverse = false, tone = "light" } = Astro.props;
+---
+<section class:list={["feature-split", `is-${tone}`, reverse && "is-reverse"]} data-reveal>
+  <div class="section-shell feature-split-grid">
+    <div class="feature-split-copy"><p class="section-kicker"><span></span>{eyebrow}</p><h2>{title}</h2><p>{description}</p>{points.length > 0 && <ul>{points.map((point) => <li><span>✓</span>{point}</li>)}</ul>}</div>
+    <div class="feature-split-visual"><ProductVisual variant={visual} /></div>
+  </div>
+</section>
