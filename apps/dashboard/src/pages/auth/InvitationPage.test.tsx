@@ -21,10 +21,11 @@ const logout = vi.fn();
 const signupFromInvitation = vi.fn();
 const login = vi.fn();
 const signup = vi.fn();
+const googleLogin = vi.fn();
 const invitation = { organization: { id: "org_1", name: "Acme" }, email: "person@example.com", role: "MEMBER" as const, expiresAt: "2026-10-01T00:00:00.000Z" };
 
 function authValue(user: { id: string; email: string; name: string | null } | null = null) {
-  return { user, bootstrapping: false, login, signup, signupFromInvitation, logout };
+  return { user, bootstrapping: false, login, signup, googleLogin, signupFromInvitation, logout };
 }
 
 function renderInvitation() {

@@ -66,7 +66,7 @@ describe("Settings modal", () => {
     vi.clearAllMocks();
     vi.spyOn(window, "confirm").mockReturnValue(true);
     Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: vi.fn().mockResolvedValue(undefined) } });
-    mockedAuth.useAuth.mockReturnValue({ user: { id: "user_1", email: "owner@acme.test", name: "Owner" }, bootstrapping: false, login: vi.fn(), signup: vi.fn(), signupFromInvitation: vi.fn(), logout });
+    mockedAuth.useAuth.mockReturnValue({ user: { id: "user_1", email: "owner@acme.test", name: "Owner" }, bootstrapping: false, login: vi.fn(), signup: vi.fn(), googleLogin: vi.fn(), signupFromInvitation: vi.fn(), logout });
     mockedWorkspace.useWorkspace.mockReturnValue({ orgs: organizations, currentOrg: organizations[0], setCurrentOrgId, sites, currentSite: sites[0], setCurrentSiteId, loading: false, error: null, refreshOrgs, refreshSites });
     mockedTeamApi.listMembers.mockResolvedValue({ members });
     mockedTeamApi.listInvitations.mockResolvedValue({ invitations: [pending] });

@@ -1,10 +1,18 @@
 import { apiRequest } from "./client";
 import type { User, Org } from "../types/api";
 
-interface AuthResponse {
+export interface AuthResponse {
   user: User;
   accessToken: string;
   refreshToken: string;
+}
+
+export function googleLogin(credential: string, orgName?: string) {
+  return apiRequest<AuthResponse & { org?: { id: string; name: string } }>("/auth/google", {
+    method: "POST",
+    body: { credential, ...(orgName ? { orgName } : {}) },
+    skipAuthRetry: true,
+  });
 }
 
 export function signup(input: { email: string; password: string; orgName: string; name?: string }) {

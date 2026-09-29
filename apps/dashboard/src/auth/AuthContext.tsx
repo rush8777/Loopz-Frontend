@@ -10,6 +10,7 @@ interface AuthContextValue {
   bootstrapping: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (input: { email: string; password: string; orgName: string; name?: string }) => Promise<void>;
+  googleLogin: (credential: string, orgName?: string) => Promise<void>;
   signupFromInvitation: (token: string, input: { name: string; password: string }) => Promise<{ orgId: string }>;
   logout: () => Promise<void>;
 }
@@ -52,6 +53,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }, []);
 
+  const googleLogin = useCallback(async (credential: string, orgName?: string) => {
+    const res = await authApi.googleLogin(credential, orgName);
+    setAccessToken(res.accessToken);
+    setRefreshToken(res.refreshToken);
+    setUser(res.user);
+  }, []);
+
   const signupFromInvitation = useCallback(async (token: string, input: { name: string; password: string }) => {
     const res = await teamApi.signupFromInvitation(token, input);
     setAccessToken(res.accessToken);
@@ -76,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, bootstrapping, login, signup, signupFromInvitation, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, bootstrapping, login, signup, googleLogin, signupFromInvitation, logout }}>{children}</AuthContext.Provider>
   );
 }
 
