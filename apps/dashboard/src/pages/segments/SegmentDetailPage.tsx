@@ -42,6 +42,8 @@ function describeCondition(c: SegmentCondition): string {
     }
     case "funnel_cohort":
       return `Funnel: ${c.cohort === "reached" ? "reached" : "dropped after"} step ${c.stepIndex + 1}`;
+    case "survey_response":
+      return `Survey: ${c.question.label} · ${c.matcher.type === "answers" ? c.matcher.values.join(" or ") : c.matcher.type === "rating_range" ? `${c.matcher.min}–${c.matcher.max}` : c.matcher.category}`;
   }
 }
 

@@ -24,6 +24,8 @@ export function defaultConditionForType(type: SegmentCondition["type"]): Segment
       // Funnel cohorts are created from the Funnel UI, never as a
       // half-configured generic builder condition.
       throw new Error("Funnel cohort conditions must be created from a funnel step");
+    case "survey_response":
+      throw new Error("Survey response conditions must be created from survey results");
   }
 }
 
@@ -49,5 +51,7 @@ export function isDefinitionComplete(node: SegmentNode): boolean {
       return node.pageId.trim().length > 0;
     case "funnel_cohort":
       return node.funnelId.trim().length > 0 && node.stepIndex >= 0;
+    case "survey_response":
+      return node.experienceId.trim().length > 0 && node.question.id.trim().length > 0;
   }
 }

@@ -640,7 +640,15 @@ export interface SegmentFunnelCohortCondition {
   dateRange: SegmentFunnelCohortDateRange;
 }
 
-export type SegmentCondition = SegmentEventCondition | SegmentUserPropertyCondition | SegmentPageCondition | SegmentFunnelCohortCondition;
+export interface SegmentSurveyResponseCondition {
+  type: "survey_response";
+  experienceId: string;
+  question: { id: string; label: string; type: "single_choice" | "multiple_choice" | "rating" | "nps"; options?: Array<{ id: string; label: string }>; min?: number; max?: number };
+  matcher: { type: "answers"; values: string[] } | { type: "rating_range"; min: number; max: number } | { type: "nps_category"; category: "promoter" | "passive" | "detractor" };
+  dateRange: SegmentFunnelCohortDateRange;
+}
+
+export type SegmentCondition = SegmentEventCondition | SegmentUserPropertyCondition | SegmentPageCondition | SegmentFunnelCohortCondition | SegmentSurveyResponseCondition;
 
 export type SegmentLogic = "and" | "or";
 

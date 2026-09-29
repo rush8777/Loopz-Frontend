@@ -29,6 +29,7 @@ import { FunnelBuilderPage } from "./pages/funnels/FunnelBuilderPage";
 import { FunnelDetailPage } from "./pages/funnels/FunnelDetailPage";
 import { ExperienceListPage } from "./pages/experiences/ExperienceListPage";
 import { ExperienceEditorPage } from "./pages/experiences/ExperienceEditorPage";
+import { SurveyResultsPage } from "./pages/experiences/SurveyResultsPage";
 import { DashboardListPage } from "./pages/dashboard/DashboardListPage";
 import { DashboardWorkspacePage } from "./pages/dashboard/DashboardWorkspacePage";
 import { ExperienceAnalyticsPage } from "./pages/analytics/ExperienceAnalyticsPage";
@@ -88,6 +89,9 @@ export default function App() {
               <Route path="experiences/banners" element={<ExperienceListPage kind="widget" widgetType="banner" singularLabel="banner" pluralLabel="Banners" description="Create full-width banner experiences inside your product." />} />
               <Route path="experiences/checklists" element={<ExperienceListPage kind="checklist" singularLabel="checklist" pluralLabel="Checklists" description="Guide users through persistent onboarding tasks." />} />
               <Route path="experiences/:experienceId/edit" element={<ExperienceEditorPage />} />
+              <Route path="experiences/:experienceId/results" element={<SurveyResultsPage tab="overview" />} />
+              <Route path="experiences/:experienceId/results/responses" element={<SurveyResultsPage tab="responses" />} />
+              <Route path="experiences/:experienceId/results/investigate" element={<SurveyResultsPage tab="investigate" />} />
             </Route>
           </Route>
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, ChevronDown, ChevronUp, Network, Repeat2, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movecues/ui";
 import { Button } from "@movecues/ui";
 import { Input } from "@movecues/ui";
@@ -26,33 +26,29 @@ export function CardEditorDialog({ open, card, orgId, siteId, filters, catalog, 
   useEffect(() => { if (!open || (draft.configuration.kind === "funnel" && !draft.configuration.funnelId) || (draft.configuration.kind === "experience" && !draft.configuration.experienceId)) return; const timer = window.setTimeout(() => { setPreview(undefined); setPreviewError(undefined); analyticsApi.queryAnalytics(orgId, siteId, filters, draft.configuration).then(setPreview).catch((e) => setPreviewError(e instanceof Error ? e.message : "Preview failed")); }, 250); return () => window.clearTimeout(timer); }, [open, orgId, siteId, filters, semanticFingerprint]);
   const valid = draft.title.trim() && !(draft.configuration.kind === "funnel" && !draft.configuration.funnelId) && !(draft.configuration.kind === "experience" && !draft.configuration.experienceId) && !(draft.configuration.kind === "retention" && draft.configuration.cohort.type === "segments" && !draft.configuration.cohort.segmentIds.length);
   return <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-    <DialogContent className="fixed inset-y-0 right-0 left-auto flex h-[100dvh] w-full max-w-[920px] flex-col overflow-hidden translate-x-0 translate-y-0 rounded-l-2xl rounded-r-none border-slate-200/80 bg-white p-0 shadow-[-24px_0_70px_rgba(15,23,42,0.2)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right sm:w-[min(100vw-2rem,920px)]">
-      <DialogHeader className="shrink-0 border-b border-slate-200/80 px-5 py-4 pr-12 sm:px-6 sm:py-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Dashboard card</p>
-        <DialogTitle className="mt-1 text-lg tracking-[-0.02em] text-slate-950">{card ? "Edit card" : "Add card"}</DialogTitle>
-        <DialogDescription className="max-w-2xl text-xs leading-5">Build a reusable analytics view. The preview reflects the same query your dashboard will use.</DialogDescription>
+    <DialogContent className="fixed inset-y-0 right-0 left-auto flex h-[100dvh] w-full max-w-[920px] flex-col overflow-hidden translate-x-0 translate-y-0 rounded-l-xl rounded-r-none border-0 bg-background p-0 shadow-[-16px_0_48px_rgba(15,23,42,0.12)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right sm:w-[min(100vw-2rem,920px)]">
+      <DialogHeader className="shrink-0 px-5 py-5 pr-12 sm:px-7 sm:py-6">
+        <DialogTitle className="text-lg font-medium tracking-[-0.02em] text-foreground">{card ? "Edit card" : "Add card"}</DialogTitle>
+        <DialogDescription className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">Choose the analysis and presentation for this dashboard view.</DialogDescription>
       </DialogHeader>
 
       <div className={`grid min-h-0 flex-1 ${previewExpanded ? "lg:grid-cols-[minmax(0,1fr)_minmax(300px,.82fr)]" : "grid-cols-1"}`}>
-        <div className="min-h-0 overflow-y-auto px-5 py-4 sm:px-6 sm:py-5">
-          <div className="space-y-4">
+        <div className="min-h-0 overflow-y-auto px-5 pb-6 sm:px-7">
+          <div className="space-y-7">
             <section>
-              <div className="mb-3 flex items-baseline justify-between gap-4"><div><p className="text-sm font-semibold text-slate-950">Choose an analysis</p><p className="mt-0.5 text-xs text-slate-500">Start with the view that best answers your question.</p></div></div>
-              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4">{([
-                { kind: "metric", label: "Metrics", detail: "Track a measure", icon: BarChart3 },
-                { kind: "funnel", label: "Funnel", detail: "Follow conversion", icon: Network },
-                { kind: "retention", label: "Retention", detail: "Measure return", icon: Repeat2 },
-                { kind: "experience", label: "Experiences", detail: "Track guides and surveys", icon: BarChart3 },
-              ] as const).map(({ kind, label, detail, icon: Icon }) => <Button key={kind} type="button" variant="ghost" className={`h-auto min-h-[68px] justify-start gap-2 rounded-lg border px-3 py-2 text-left transition-all ${draft.cardType === kind ? "border-blue-600 bg-blue-600 text-white shadow-[0_8px_18px_rgba(37,99,235,0.18)] hover:bg-blue-700 hover:text-white" : "border-slate-200 bg-white text-slate-900 hover:border-blue-200 hover:bg-blue-50/40"}`} onClick={() => setDraft({ ...draft, cardType: kind, title: label, configuration: defaultConfig(kind) })}><span className={`grid size-8 shrink-0 place-items-center rounded-md ${draft.cardType === kind ? "bg-white/15" : "bg-blue-50 text-blue-700"}`}><Icon className="size-3.5" /></span><span className="min-w-0"><span className="block text-xs font-semibold">{label}</span><span className={`mt-0.5 block text-[11px] font-normal ${draft.cardType === kind ? "text-blue-100" : "text-slate-500"}`}>{detail}</span></span></Button>)}</div>
+              <div className="mb-3"><p className="text-sm font-medium text-foreground">Analysis</p><p className="mt-0.5 text-xs text-muted-foreground">Select the question this card answers.</p></div>
+              <div className="flex flex-wrap gap-1 rounded-lg bg-muted/60 p-1">{([
+                { kind: "metric", label: "Metrics" }, { kind: "funnel", label: "Funnel" }, { kind: "retention", label: "Retention" }, { kind: "experience", label: "Experiences" },
+              ] as const).map(({ kind, label }) => <Button key={kind} type="button" variant="ghost" className={`h-8 rounded-md px-3 text-xs font-medium ${draft.cardType === kind ? "bg-background text-foreground shadow-sm hover:bg-background" : "text-muted-foreground hover:bg-transparent hover:text-foreground"}`} onClick={() => setDraft({ ...draft, cardType: kind, title: label, configuration: defaultConfig(kind) })}>{label}</Button>)}</div>
             </section>
 
-            <section className="rounded-lg border border-slate-200/90 bg-slate-50/55 p-3 sm:p-4">
-              <p className="mb-3 text-xs font-semibold text-slate-950">Card details</p>
-              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_172px]"><div className="grid gap-2"><Label htmlFor="card-title">Title</Label><Input id="card-title" className="bg-white" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} /></div><div className="grid gap-2"><Label>Width</Label><Select value={draft.width} onValueChange={(width: DashboardCard["width"]) => setDraft({ ...draft, width })}><SelectTrigger className="bg-white"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="small">Small · 1 column</SelectItem><SelectItem value="medium">Medium · 2 columns</SelectItem><SelectItem value="full">Large · full row</SelectItem></SelectContent></Select></div></div>
+            <section>
+              <p className="mb-3 text-sm font-medium text-foreground">Card details</p>
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_172px]"><div className="grid gap-2"><Label htmlFor="card-title">Title</Label><Input id="card-title" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} /></div><div className="grid gap-2"><Label>Width</Label><Select value={draft.width} onValueChange={(width: DashboardCard["width"]) => setDraft({ ...draft, width })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="small">Small · 1 column</SelectItem><SelectItem value="medium">Medium · 2 columns</SelectItem><SelectItem value="full">Large · full row</SelectItem></SelectContent></Select></div></div>
             </section>
 
-            <section className="rounded-lg border border-slate-200/90 bg-white p-3 sm:p-4">
-              <div className="mb-3"><p className="text-xs font-semibold text-slate-950">Configuration</p><p className="mt-0.5 text-[11px] text-slate-500">Refine the data and how it is summarized.</p></div>
+            <section>
+              <div className="mb-4"><p className="text-sm font-medium text-foreground">Configuration</p><p className="mt-0.5 text-xs text-muted-foreground">Refine the data and how it is summarized.</p></div>
               {draft.configuration.kind === "metric" && <MetricFields value={draft.configuration} catalog={catalog} events={events} segments={segments} onChange={(configuration) => setDraft({ ...draft, configuration })} />}
               {draft.configuration.kind === "funnel" && <div className="grid gap-2"><Label>Saved Funnel</Label><Select value={draft.configuration.funnelId || undefined} onValueChange={(funnelId) => setDraft({ ...draft, configuration: { ...draft.configuration as Extract<DashboardCardConfiguration, { kind: "funnel" }>, funnelId } })}><SelectTrigger><SelectValue placeholder="Select a Funnel" /></SelectTrigger><SelectContent>{funnels.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}</SelectContent></Select><p className="text-xs leading-5 text-muted-foreground">Steps and conversion window come from the saved Funnel.</p></div>}
               {draft.configuration.kind === "retention" && <RetentionFields value={draft.configuration} events={events} segments={segments} onChange={(configuration) => setDraft({ ...draft, configuration })} />}
@@ -61,14 +57,13 @@ export function CardEditorDialog({ open, card, orgId, siteId, filters, catalog, 
           </div>
         </div>
 
-        {previewExpanded && <aside className="min-h-0 overflow-y-auto border-t border-blue-100 bg-gradient-to-b from-blue-50/40 to-white px-4 py-4 sm:px-5 sm:py-5 lg:border-l lg:border-t-0">
-          <div className="flex items-center justify-between gap-3"><div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Live preview</p><p className="mt-1 text-sm font-semibold text-slate-950">How this card will read</p></div><span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-500">UTC</span></div>
-          <p className="mt-2 text-xs leading-5 text-slate-500">Presentation changes render instantly; data refreshes when the analysis changes.</p>
-          <div className="mt-5 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)]"><DashboardCardView card={draft} response={preview} loading={!preview && !previewError} error={previewError} filters={filters} /></div>
+        {previewExpanded && <aside className="min-h-0 overflow-y-auto bg-muted/30 px-5 py-5 sm:px-6 sm:py-6">
+          <div><p className="text-sm font-medium text-foreground">Preview</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Updates as you change the analysis.</p></div>
+          <div className="mt-5 overflow-hidden rounded-xl bg-background"><DashboardCardView card={draft} response={preview} loading={!preview && !previewError} error={previewError} filters={filters} /></div>
         </aside>}
       </div>
 
-      <DialogFooter className="shrink-0 border-t border-slate-200/80 bg-white px-5 py-3 sm:px-6"><Button type="button" variant="ghost" className="mr-auto text-xs text-blue-700 hover:bg-blue-50 hover:text-blue-800" aria-expanded={previewExpanded} onClick={() => setPreviewExpanded((expanded) => !expanded)}>{previewExpanded ? <ChevronDown /> : <ChevronUp />}{previewExpanded ? "Hide preview" : "Expand preview"}</Button><Button variant="ghost" className="text-xs text-slate-600 hover:bg-slate-100 hover:text-slate-950" onClick={onClose}>Cancel</Button><Button className="min-w-24 text-xs bg-blue-600 text-white shadow-sm hover:bg-blue-700" disabled={!valid} onClick={() => onSave({ ...draft, title: draft.title.trim() })}>Save card</Button></DialogFooter>
+      <DialogFooter className="shrink-0 bg-background px-5 py-4 sm:px-7"><Button type="button" variant="ghost" className="mr-auto text-xs text-muted-foreground" aria-expanded={previewExpanded} onClick={() => setPreviewExpanded((expanded) => !expanded)}>{previewExpanded ? "Hide preview" : "Show preview"}</Button><Button variant="ghost" className="text-xs" onClick={onClose}>Cancel</Button><Button className="min-w-24 text-xs" disabled={!valid} onClick={() => onSave({ ...draft, title: draft.title.trim() })}>Save card</Button></DialogFooter>
     </DialogContent>
   </Dialog>;
 }
