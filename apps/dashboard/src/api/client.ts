@@ -1,4 +1,30 @@
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+function resolveApiUrl(): string {
+  const configured = import.meta.env.VITE_API_URL?.trim();
+
+  // Local development remains zero-config. A production build must be given
+  // an explicit API URL so it can never silently send credentials to localhost.
+  if (!configured) {
+    if (import.meta.env.DEV) return "http://localhost:3000";
+    throw new Error("VITE_API_URL must be configured for production builds.");
+  }
+
+  // Cloudflare Pages variables are sometimes entered as a hostname. Normalize
+  // that safe shorthand instead of producing a relative URL at runtime.
+  const candidate = configured.includes("://") ? configured : `https://${configured}`;
+  let url: URL;
+  try {
+    url = new URL(candidate);
+  } catch {
+    throw new Error("VITE_API_URL must be a valid absolute HTTP(S) URL.");
+  }
+  if (!/^https?:$/.test(url.protocol)) throw new Error("VITE_API_URL must use HTTP or HTTPS.");
+  if (import.meta.env.PROD && url.protocol !== "https:") {
+    throw new Error("VITE_API_URL must use HTTPS in production.");
+  }
+  return url.origin + url.pathname.replace(/\/$/, "");
+}
+
+const API_URL = resolveApiUrl();
 
 export class ApiError extends Error {
   status: number;
