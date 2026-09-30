@@ -1,14 +1,14 @@
 export const SITE = {
   name: "Movcues",
-  origin: "https://movecues.com",
+  origin: "https://movecues.pages.dev",
   title: "Movcues — Turn user behavior into action",
   description:
     "Understand user behavior, find the right audience, deliver in-app experiences, and learn what moves users forward.",
 } as const;
 
 export const DASHBOARD_URLS = {
-  login: "https://localhost:5173/login",
-  signup: "https://localhost:5173/signup",
+  login: "https://movcuesdashboard.pages.dev/login",
+  signup: "https://movcuesdashboard.pages.dev/signup",
 } as const;
 
 export const NAV_ITEMS = [
