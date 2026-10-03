@@ -1,10 +1,133 @@
 ---
-interface Props { eyebrow?: string; title: string; description?: string; steps: string[]; dark?: boolean }
-const { eyebrow = "Connected workflow", title, description, steps, dark = false } = Astro.props;
+import ProductVisual from "./ProductVisual.astro";
+interface Props { eyebrow?: string; title: string; description?: string; steps: string[]; dark?: boolean; platformDesign?: boolean }
+const { eyebrow = "Connected workflow", title, description, steps, dark = false, platformDesign = false } = Astro.props;
+
+const stepDetails: Record<string, { description: string; visual: string }> = {
+  understand: { description: "See the behavior and friction that deserve attention.", visual: "analytics" },
+  target: { description: "Turn what users do into an audience that stays current.", visual: "targeting" },
+  engage: { description: "Deliver useful guidance in the moment it matters.", visual: "experiences" },
+  improve: { description: "Measure what changed and use it to improve the next step.", visual: "survey" },
+  inspect: { description: "Start with a saved funnel, event, page, or session view.", visual: "analytics" },
+  "define audience": { description: "Turn the relevant behavior into a reusable segment definition.", visual: "targeting" },
+  "publish guidance": { description: "Configure delivery rules and publish a reviewed experience draft.", visual: "experiences" },
+  "review engagement": { description: "Review experience reach, engagement, completion, and responses.", visual: "survey" },
+  "model a journey": { description: "Define the ordered events or pages that make up a meaningful workflow.", visual: "analytics" },
+  "inspect the cohort": { description: "Open the people and session context behind a funnel step.", visual: "analytics" },
+  "save a segment": { description: "Save reached or drop-off users as an audience you can refine.", visual: "targeting" },
+  "track experience engagement": { description: "Use experience reporting and dashboards to review delivery signals.", visual: "survey" },
+  "build the content": { description: "Create focused content for a guide, survey, banner, or checklist.", visual: "experiences" },
+  "choose an audience": { description: "Choose a saved segment or combine segment rules for eligible users.", visual: "targeting" },
+  "set delivery rules": { description: "Match the audience, page, trigger, frequency, and schedule.", visual: "targeting" },
+  "define conditions": { description: "Describe the behavior, properties, pages, cohorts, or responses that matter.", visual: "targeting" },
+  "preview the audience": { description: "Review the users matching the saved segment before using it.", visual: "targeting" },
+  "use it in delivery": { description: "Select the saved segment when configuring an experience audience.", visual: "experiences" },
+  "find a problem": { description: "Spot the point in the journey where progress slows.", visual: "analytics" },
+  "identify affected users": { description: "See the people behind the pattern, not just the percentage.", visual: "analytics" },
+  "create a segment": { description: "Keep the affected audience ready for relevant action.", visual: "targeting" },
+  "act and measure": { description: "Guide that audience, then learn from the outcome.", visual: "survey" },
+  "build visually": { description: "Create the right guide, survey, banner, or checklist.", visual: "experiences" },
+  "choose audience": { description: "Choose exactly who needs to see the experience.", visual: "targeting" },
+  "set page and trigger": { description: "Match delivery to the right place and behavior.", visual: "experiences" },
+  "measure response": { description: "Track engagement, completion, and the result.", visual: "survey" },
+  behavior: { description: "Start with the actions that reveal what users need next.", visual: "analytics" },
+  "dynamic audience": { description: "Keep the audience in sync as behavior changes.", visual: "targeting" },
+  "contextual experience": { description: "Show focused guidance at the moment it is relevant.", visual: "experiences" },
+};
+const getStepDetail = (step: string) => stepDetails[step.toLowerCase()] ?? { description: "Move this workflow forward with the right next action.", visual: "platform" };
 ---
-<section class:list={["workflow-section", dark && "is-dark"]} id="explore" data-reveal>
-  <div class="section-shell">
-    <div class="workflow-heading"><div><p class="section-kicker"><span></span>{eyebrow}</p><h2>{title}</h2></div>{description && <p>{description}</p>}</div>
-    <ol class="workflow-track">{steps.map((step, index) => <li><span>0{index + 1}</span><strong>{step}</strong>{index < steps.length - 1 && <i aria-hidden="true">→</i>}</li>)}</ol>
-  </div>
-</section>
+{platformDesign ? (
+  <section class="platform-section workflow-platform" id="explore">
+    <div class="platform-shell" data-reveal>
+      <div class="platform-heading">
+        <div>
+          <p class="platform-kicker"><span>{eyebrow}</span><span aria-hidden="true">→</span></p>
+          <h2>{title}</h2>
+        </div>
+        {description && <p>{description}</p>}
+      </div>
+      <ol class="platform-groups workflow-carousel" aria-label={title}>
+        {steps.map((step, index) => {
+          const detail = getStepDetail(step);
+          return (
+          <li class:list={["platform-group", "workflow-card", index === 0 && "is-active"]} tabindex="0">
+            <div class="workflow-card-visual" aria-hidden="true"><ProductVisual variant={detail.visual} /></div>
+            <div class="workflow-card-copy">
+              <span class="group-number">{String(index + 1).padStart(2, "0")}</span>
+              <h3>{step}</h3>
+              <p>{detail.description}</p>
+            </div>
+          </li>
+          );
+        })}
+      </ol>
+    </div>
+  </section>
+) : (
+  <section class:list={["workflow-section", dark && "is-dark"]} id="explore" data-reveal>
+    <div class="section-shell">
+      <div class="workflow-heading"><div><p class="section-kicker"><span></span>{eyebrow}</p><h2>{title}</h2></div>{description && <p>{description}</p>}</div>
+      <ol class="workflow-track">{steps.map((step, index) => <li><span>0{index + 1}</span><strong>{step}</strong>{index < steps.length - 1 && <i aria-hidden="true">→</i>}</li>)}</ol>
+    </div>
+  </section>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>(".workflow-carousel").forEach((carousel) => {
+    const cards = Array.from(carousel.querySelectorAll<HTMLElement>(".workflow-card"));
+    let frame = 0;
+
+    const updateActiveCard = () => {
+      frame = 0;
+      const carouselCenter = carousel.getBoundingClientRect().left + carousel.clientWidth / 2;
+      const activeCard = cards.reduce((closest, card) => {
+        const cardCenter = card.getBoundingClientRect().left + card.clientWidth / 2;
+        const closestCenter = closest.getBoundingClientRect().left + closest.clientWidth / 2;
+        return Math.abs(cardCenter - carouselCenter) < Math.abs(closestCenter - carouselCenter) ? card : closest;
+      });
+      cards.forEach((card) => card.classList.toggle("is-active", card === activeCard));
+    };
+
+    carousel.addEventListener("scroll", () => {
+      if (!frame) frame = requestAnimationFrame(updateActiveCard);
+    }, { passive: true });
+    carousel.addEventListener("focusin", (event) => {
+      const card = (event.target as HTMLElement).closest<HTMLElement>(".workflow-card");
+      if (card) cards.forEach((item) => item.classList.toggle("is-active", item === card));
+    });
+
+    // On phones this rail follows the reader's vertical progress through the
+    // section. It keeps the active step in view without changing desktop's
+    // normal swipe/scroll behavior.
+    const mobileQuery = window.matchMedia("(max-width: 560px)");
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const section = carousel.closest<HTMLElement>(".workflow-platform");
+    let activeIndex = 0;
+
+    const showCard = (index: number) => {
+      const nextIndex = Math.max(0, Math.min(index, cards.length - 1));
+      if (nextIndex === activeIndex) return;
+      activeIndex = nextIndex;
+      const card = cards[nextIndex];
+      const paddingLeft = Number.parseFloat(getComputedStyle(carousel).paddingLeft) || 0;
+      carousel.scrollTo({
+        left: Math.max(0, card.offsetLeft - carousel.offsetLeft - paddingLeft),
+        behavior: reducedMotionQuery.matches ? "auto" : "smooth",
+      });
+    };
+
+    const syncMobileProgress = () => {
+      if (!mobileQuery.matches || !section) return;
+      const bounds = section.getBoundingClientRect();
+      if (bounds.bottom <= window.innerHeight * .25 || bounds.top >= window.innerHeight * .75) return;
+      const travel = Math.max(1, bounds.height + window.innerHeight * .15);
+      const progress = Math.min(1, Math.max(0, (window.innerHeight * .72 - bounds.top) / travel));
+      showCard(Math.floor(progress * cards.length));
+    };
+
+    window.addEventListener("scroll", syncMobileProgress, { passive: true });
+    window.addEventListener("resize", syncMobileProgress, { passive: true });
+    syncMobileProgress();
+    updateActiveCard();
+  });
+</script>

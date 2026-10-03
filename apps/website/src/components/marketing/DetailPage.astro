@@ -2,6 +2,8 @@
 import type { MarketingPage } from "../../data/marketing-pages";
 import MarketingLayout from "./MarketingLayout.astro";
 import PageHero from "./PageHero.astro";
+import ProductBridge from "./ProductBridge.astro";
+import CustomerComments from "./CustomerComments.astro";
 import Workflow from "./Workflow.astro";
 import FeatureSplit from "./FeatureSplit.astro";
 import RelatedLinks from "./RelatedLinks.astro";
@@ -10,9 +12,11 @@ interface Props { page: MarketingPage }
 const { page } = Astro.props;
 ---
 <MarketingLayout title={page.metaTitle} description={page.description} canonicalPath={page.path}>
-  <PageHero eyebrow={page.eyebrow} title={page.title} description={page.description} visual={page.visual} secondaryLabel={page.secondaryLabel} />
-  <Workflow {...page.workflow} />
-  {page.sections.map((section, index) => <FeatureSplit {...section} reverse={index % 2 === 1} />)}
+  <PageHero eyebrow={page.eyebrow} title={page.title} description={page.description} visual={page.visual} secondaryLabel={page.secondaryLabel} sideBySide={page.path.startsWith("/product") || page.path.startsWith("/solutions")} />
+  {page.path.startsWith("/product") && page.bridgeText && <ProductBridge text={page.bridgeText} />}
+  {page.comments && <CustomerComments comments={page.comments} title={page.commentsTitle} />}
+  <Workflow {...page.workflow} platformDesign={page.path.startsWith("/product")} />
+  {page.sections.map((section, index) => <FeatureSplit {...section} reverse={index % 2 === 1} productCard={page.path.startsWith("/product")} />)}
   <RelatedLinks links={page.related} />
   <BottomCta {...page.cta} />
 </MarketingLayout>

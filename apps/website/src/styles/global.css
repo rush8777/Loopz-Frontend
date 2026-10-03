@@ -13,12 +13,20 @@
 }
 
 html {
+  width: 100%;
+  min-height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
   scroll-behavior: smooth;
   scroll-padding-top: 5.5rem;
   overflow-x: clip;
 }
 
 body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
   min-width: 320px;
   overflow-x: clip;
   background: #fcfcfc;
@@ -1636,6 +1644,87 @@ button:focus-visible {
 .platform-group li {
   color: rgba(255, 255, 255, .67);
   font-size: .875rem;
+}
+
+/* Product-page workflows use a swipeable Platform Overview card rail. */
+.workflow-platform .workflow-carousel {
+  width: 100%;
+  margin-top: clamp(3.5rem, 7vw, 5.5rem);
+  padding: clamp(3rem, 5vw, 5rem) clamp(3rem, 8vw, 8rem) clamp(3.5rem, 5vw, 5rem);
+  display: flex;
+  gap: clamp(1rem, 2vw, 1.75rem);
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: clamp(3rem, 8vw, 8rem);
+  scrollbar-width: none;
+  list-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.workflow-platform .workflow-carousel::-webkit-scrollbar { display: none; }
+
+.workflow-platform .workflow-card {
+  min-height: 34rem;
+  padding: 0;
+  flex: 0 0 clamp(21rem, 38vw, 32rem);
+  display: grid;
+  grid-template-rows: 19rem auto;
+  overflow: hidden;
+  border-color: rgba(255, 255, 255, .14);
+  border-radius: clamp(1.8rem, 3vw, 2.6rem);
+  background: #151619;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  cursor: grab;
+  transform: scale(.96);
+  opacity: .76;
+  transition: transform .38s cubic-bezier(.2, .8, .2, 1), opacity .38s ease, background-color .38s ease, border-color .38s ease, box-shadow .38s ease;
+}
+
+.workflow-platform .workflow-card:active { cursor: grabbing; }
+.workflow-platform .workflow-card:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+.workflow-platform .workflow-card.is-active {
+  z-index: 1;
+  border-color: color-mix(in srgb, var(--primary) 82%, white);
+  background: var(--primary);
+  box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, .34);
+  transform: scale(1.10);
+  opacity: 1;
+}
+
+.workflow-platform .workflow-card-visual {
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, .18);
+  background: #eff1f6;
+}
+
+.workflow-platform .workflow-card-visual .marketing-visual {
+  width: 200%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transform: scale(.5);
+  transform-origin: top left;
+}
+
+.workflow-platform .workflow-card-copy { padding: 1.25rem 1.4rem 1.5rem; }
+.workflow-platform .workflow-card h3 { margin: .7rem 0 .65rem; font-size: clamp(1.35rem, 2vw, 1.75rem); }
+.workflow-platform .workflow-card p { margin: 0; color: rgba(255, 255, 255, .7); font-size: .875rem; line-height: 1.55; }
+.workflow-platform .workflow-card.is-active p { color: rgba(255, 255, 255, .82); }
+
+@media (max-width: 820px) {
+  .workflow-platform .workflow-card { min-height: 31rem; grid-template-rows: 17rem auto; flex-basis: clamp(19rem, 72vw, 27rem); }
+  .workflow-platform .workflow-card.is-active { transform: scale(1.06); }
+}
+
+@media (max-width: 560px) {
+  .workflow-platform .workflow-card { min-height: 28rem; grid-template-rows: 15rem auto; flex-basis: 82vw; }
+  .workflow-platform .workflow-card.is-active { transform: scale(1.03); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workflow-platform .workflow-card { transition: none; }
 }
 
 /* Final CTA + footer */

@@ -7,7 +7,9 @@ interface Props { title: string; description: string; canonicalPath: string }
 ---
 
 <BaseLayout {...Astro.props}>
-  <LandingNavbar />
-  <main id="main-content" class="marketing-main"><slot /></main>
-  <SiteFooter />
+  <div class="marketing-page">
+    <LandingNavbar />
+    <main id="main-content" class="marketing-main"><slot /></main>
+    <SiteFooter />
+  </div>
 </BaseLayout>

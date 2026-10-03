@@ -6,7 +6,7 @@ import BottomCta from "../../components/marketing/BottomCta.astro";
 import { templates } from "../../data/resources";
 ---
 <MarketingLayout title="In-app experience templates | Movcues" description="Reusable starting points for onboarding, feature adoption, and contextual product feedback." canonicalPath="/resources/templates">
-  <PageHero eyebrow="Template library" title="Start with the product moment you need to improve." description="Focused starting points for guides, checklists, banners, anchored experiences, and surveys." visual="experiences" secondaryLabel="Browse templates" secondaryHref="#onboarding" />
+  <PageHero eyebrow="Template library" title="Start with the product moment you need to improve." description="Focused starting points for guides, checklists, banners, anchored experiences, and surveys." visual="experiences" secondaryLabel="Browse templates" secondaryHref="#onboarding" sideBySide />
   <ResourceGrid eyebrow="Onboarding" title="Help users reach first value." entries={templates.filter((item) => item.group === "onboarding")} id="onboarding" />
   <ResourceGrid eyebrow="Adoption" title="Move from discovery to meaningful use." entries={templates.filter((item) => item.group === "adoption")} id="adoption" />
   <ResourceGrid eyebrow="Feedback" title="Ask when behavior makes the question relevant." entries={templates.filter((item) => item.group === "feedback")} id="feedback" />

@@ -1,13 +1,20 @@
 ---
 import { DASHBOARD_URLS } from "../../config/site";
-interface Props { variant?: string; caption?: string }
-const { variant = "platform", caption } = Astro.props;
+interface Props { variant?: string; caption?: string; video?: string }
+const { variant = "platform", caption, video } = Astro.props;
 const labels: Record<string, { eyebrow: string; title: string }> = {
-  platform: { eyebrow: "Workspace overview", title: "Product journey" }, analytics: { eyebrow: "Funnel analysis", title: "Onboarding activation" }, experiences: { eyebrow: "Experience builder", title: "New feature guide" }, targeting: { eyebrow: "Dynamic segment", title: "Setup incomplete" }, onboarding: { eyebrow: "Activation journey", title: "First value" }, adoption: { eyebrow: "Feature adoption", title: "Advanced reports" }, funnel: { eyebrow: "Funnel recovery", title: "Publish first experience" }, survey: { eyebrow: "Survey results", title: "Feature feedback" }, resources: { eyebrow: "Movcues resources", title: "Practical product notes" }, pricing: { eyebrow: "A plan that fits", title: "Start with your product journey" },
+  platform: { eyebrow: "Workspace overview", title: "Product workflow" }, analytics: { eyebrow: "Funnel analysis", title: "Activation journey" }, experiences: { eyebrow: "Experience builder", title: "Guidance draft" }, targeting: { eyebrow: "Dynamic segment", title: "Setup progress" }, onboarding: { eyebrow: "Activation journey", title: "First value" }, adoption: { eyebrow: "Feature adoption", title: "Feature discovery" }, funnel: { eyebrow: "Funnel recovery", title: "Continue setup" }, survey: { eyebrow: "Survey results", title: "Contextual feedback" }, resources: { eyebrow: "Movcues resources", title: "Practical product notes" }, pricing: { eyebrow: "A plan that fits", title: "Start with your product journey" },
 };
 const meta = labels[variant] ?? labels.platform;
 ---
 
+{video ? (
+  <div class:list={["marketing-visual", `is-${variant}`, "has-video"]} role="img" aria-label={`${meta.title} video demonstration`}>
+    <video class="marketing-video" autoplay muted loop playsinline preload="metadata">
+      <source src={video} type="video/mp4" />
+    </video>
+  </div>
+) : (
 <div class:list={["marketing-visual", `is-${variant}`]} role="img" aria-label={`${meta.title} shown in a simplified Movcues product interface`}>
   <div class="mv-bar"><span class="mv-logo">M</span><span>{meta.eyebrow}</span><i></i><i></i></div>
   <div class="mv-body">
@@ -16,15 +23,15 @@ const meta = labels[variant] ?? labels.platform;
       <div class="mv-heading"><div><small>{meta.eyebrow}</small><strong>{meta.title}</strong></div><button>Last 30 days</button></div>
       {variant === "analytics" || variant === "funnel" || variant === "onboarding" ? (
         <div class="mv-funnel">
-          {[{n:"Sign up",v:"2,480",w:"100%"},{n: variant === "funnel" ? "Create workspace" : "Start setup",v:"1,934",w:"78%"},{n: variant === "funnel" ? "Invite teammate" : "Configure",v:"1,271",w:"51%"},{n: variant === "funnel" ? "Publish experience" : "First success",v:"892",w:"36%"}].map((step, i) => <div><span>0{i + 1}</span><b>{step.n}</b><i style={`--width:${step.w}`}></i><strong>{step.v}</strong></div>)}
-          <p><span>Drop-off audience</span><b>663 users</b><button>Create segment →</button></p>
+          {[{n:"Sign up",w:"100%"},{n: variant === "funnel" ? "Create workspace" : "Start setup",w:"78%"},{n: variant === "funnel" ? "Invite teammate" : "Configure",w:"51%"},{n: variant === "funnel" ? "Publish experience" : "First success",w:"36%"}].map((step, i) => <div><span>0{i + 1}</span><b>{step.n}</b><i style={`--width:${step.w}`}></i><strong>Step</strong></div>)}
+          <p><span>Selected cohort</span><b>Users who stopped here</b><button>Create segment →</button></p>
         </div>
       ) : variant === "targeting" ? (
-        <div class="mv-rules"><p>Users match <b>all</b> of these conditions</p><div><span>EVENT</span><b>Signed up</b><small>performed</small></div><div><span>FUNNEL</span><b>Onboarding</b><small>dropped after setup</small></div><div><span>EVENT</span><b>Feature X used</b><small>not performed</small></div><footer><strong>1,284 matching users</strong><button>Use this segment →</button></footer></div>
+        <div class="mv-rules"><p>Users match <b>all</b> of these conditions</p><div><span>EVENT</span><b>Signed up</b><small>performed</small></div><div><span>FUNNEL</span><b>Activation journey</b><small>dropped after setup</small></div><div><span>PAGE</span><b>Workspace settings</b><small>visited</small></div><footer><strong>Audience preview</strong><button>Use this segment →</button></footer></div>
       ) : variant === "experiences" || variant === "adoption" ? (
-        <div class="mv-builder"><div class="mv-tools"><b>Content</b><span>Heading</span><span>Body</span><span>Button</span><b>Style</b><span>Surface</span><span>Spacing</span></div><div class="mv-preview"><div><small>NEW IN REPORTS</small><strong>Compare any two segments</strong><p>See how different groups adopt the features that matter.</p><button>Show me how</button></div></div></div>
+        <div class="mv-builder"><div class="mv-tools"><b>Content</b><span>Heading</span><span>Body</span><span>Button</span><b>Delivery</b><span>Audience</span><span>Page rules</span></div><div class="mv-preview"><div><small>GUIDANCE DRAFT</small><strong>Help users complete setup</strong><p>Choose the audience, page, and trigger before publishing.</p><button>Review delivery →</button></div></div></div>
       ) : variant === "survey" ? (
-        <div class="mv-survey"><div class="mv-metrics"><p><span>Response rate</span><b>42.8%</b></p><p><span>Completed</span><b>486</b></p><p><span>Median time</span><b>38s</b></p></div><div class="mv-feedback"><section><span>Response distribution</span><div><i style="--width:72%"></i><b>Very useful · 72%</b></div><div><i style="--width:19%"></i><b>Somewhat · 19%</b></div></section><section><span>Latest comments</span><p>“The comparison made the difference clear.”</p><p>“I found it right when I needed it.”</p></section></div></div>
+        <div class="mv-survey"><div class="mv-metrics"><p><span>Response rate</span><b>Reported</b></p><p><span>Completed</span><b>Reported</b></p><p><span>Median time</span><b>Reported</b></p></div><div class="mv-feedback"><section><span>Response distribution</span><div><i style="--width:72%"></i><b>Helpful</b></div><div><i style="--width:19%"></i><b>Needs follow-up</b></div></section><section><span>Latest comments</span><p>“I needed help finding the next step.”</p><p>“The setup flow was clear after this.”</p></section></div></div>
       ) : variant === "resources" ? (
         <div class="mv-library"><article><small>GUIDE · 12 MIN</small><b>Design onboarding around activation</b><p>Turn a product journey into timely, useful guidance.</p></article><article><small>TEMPLATE</small><b>Setup checklist</b><p>A focused path from sign-up to first value.</p></article><article><small>ARTICLE · 6 MIN</small><b>What funnel drop-off hides</b><p>Move from a percentage to the people affected.</p></article></div>
       ) : variant === "pricing" ? (
@@ -33,6 +40,7 @@ const meta = labels[variant] ?? labels.platform;
         <div class="mv-loop">{["Understand","Target","Engage","Improve"].map((item, i) => <div><span>0{i + 1}</span><b>{item}</b><small>{["Behavior and funnels","Dynamic audiences","Contextual experiences","Outcomes and responses"][i]}</small></div>)}</div>
       )}
     </div>
-  </div>
+</div>
   {caption && <p class="mv-caption">{caption}</p>}
 </div>
+)}

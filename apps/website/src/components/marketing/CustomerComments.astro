@@ -1,0 +1,21 @@
+---
+interface Props { comments: Array<{ quote: string; role: string }>; title?: string }
+const { comments, title = "What product teams are saying" } = Astro.props;
+---
+
+<section class="customer-comments" aria-labelledby="customer-comments-title">
+  <div class="customer-comments-inner section-shell">
+    <h2 id="customer-comments-title" class="customer-comments-heading">{title}</h2>
+    <div class="customer-comments-grid">
+      {comments.slice(0, 3).map((comment, index) => (
+        <figure class:list={["customer-comment", `is-${["top-left", "middle-right", "bottom-left"][index]}`]} data-reveal>
+          <blockquote>
+            <span class="customer-comment-mark" aria-hidden="true">“</span>
+            <p>{comment.quote}</p>
+          </blockquote>
+          <figcaption>— {comment.role}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>
