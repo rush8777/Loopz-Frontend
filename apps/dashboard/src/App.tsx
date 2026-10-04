@@ -87,6 +87,12 @@ export default function App() {
               <Route path="experiences/guides" element={<ExperienceListPage kind="guide" />} />
               <Route path="experiences/surveys" element={<ExperienceListPage kind="widget" widgetType="survey" singularLabel="survey" pluralLabel="Surveys" description="Collect contextual, multi-step feedback from active users." />} />
               <Route path="experiences/banners" element={<ExperienceListPage kind="widget" widgetType="banner" singularLabel="banner" pluralLabel="Banners" description="Create full-width banner experiences inside your product." />} />
+              <Route path="experiences/anchored-cards" element={<ExperienceListPage kind="widget" widgetType="anchored_card" singularLabel="anchored card" pluralLabel="Anchored cards" description="Attach contextual cards to specific parts of your product." />} />
+              <Route path="experiences/toasts" element={<ExperienceListPage kind="widget" widgetType="toast" singularLabel="toast" pluralLabel="Toasts" description="Deliver brief, non-blocking product updates." />} />
+              <Route path="experiences/cursor-followers" element={<ExperienceListPage kind="widget" widgetType="cursor_follow" singularLabel="cursor follower" pluralLabel="Cursor followers" description="Keep helpful guidance alongside a user's cursor." />} />
+              <Route path="experiences/modals" element={<ExperienceListPage kind="widget" widgetType="modal" singularLabel="modal" pluralLabel="Modals" description="Present focused product messages that need attention." />} />
+              <Route path="experiences/slideouts" element={<ExperienceListPage kind="widget" widgetType="slideout" singularLabel="slideout" pluralLabel="Slideouts" description="Show detailed updates from the edge of your product." />} />
+              <Route path="experiences/hotspots" element={<ExperienceListPage kind="widget" widgetType="hotspot" singularLabel="hotspot" pluralLabel="Hotspots" description="Draw attention to specific product features." />} />
               <Route path="experiences/checklists" element={<ExperienceListPage kind="checklist" singularLabel="checklist" pluralLabel="Checklists" description="Guide users through persistent onboarding tasks." />} />
               <Route path="experiences/:experienceId/edit" element={<ExperienceEditorPage />} />
               <Route path="experiences/:experienceId/results" element={<SurveyResultsPage tab="overview" />} />

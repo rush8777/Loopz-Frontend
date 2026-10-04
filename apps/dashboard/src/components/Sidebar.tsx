@@ -1,4 +1,4 @@
-import { BarChart2, Grip, UserRoundPen, CheckSquare, ChevronDown, FileText, Flame, Gauge, LayoutTemplate, ListChecks, MousePointerClick, Network, PanelLeftClose, PanelLeftOpen, Settings, Users, Waypoints, X } from "lucide-react";
+import { BarChart2, Ellipsis, Grip, UserRoundPen, CheckSquare, ChevronDown, FileText, Flame, Gauge, LayoutTemplate, ListChecks, MousePointerClick, Network, PanelLeftClose, PanelLeftOpen, Settings, Users, Waypoints, X } from "lucide-react";
 import type { ComponentType } from "react";
 import { NavLink } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
@@ -9,6 +9,15 @@ import type { SettingsSection } from "./settings/SettingsModal";
 
 interface NavItem { label: string; path?: string; disabled?: boolean; icon: ComponentType<{ className?: string }> }
 interface NavSection { label: string; items: NavItem[] }
+
+const OTHER_EXPERIENCE_ITEMS: NavItem[] = [
+  { label: "Anchored cards", path: "/experiences/anchored-cards", icon: Grip },
+  { label: "Toasts", path: "/experiences/toasts", icon: Grip },
+  { label: "Cursor followers", path: "/experiences/cursor-followers", icon: Grip },
+  { label: "Modals", path: "/experiences/modals", icon: Grip },
+  { label: "Slideouts", path: "/experiences/slideouts", icon: Grip },
+  { label: "Hotspots", path: "/experiences/hotspots", icon: Grip },
+];
 
 const SECTIONS: NavSection[] = [
   { label: "Workspace", items: [{ label: "Overview", path: "/analytics", icon: Gauge }, { label: "Dashboards", path: "/dashboard", icon: BarChart2 }] },
@@ -75,6 +84,7 @@ export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, 
                   </NavLink>
                 );
               })}
+              {section.label === "Experiences" && <OtherExperiencesMenu compact={compact} onNavigate={onMobileClose} />}
             </div>
           </div>
         ))}
@@ -94,4 +104,38 @@ export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, 
       )}
     </>
   );
+}
+
+function OtherExperiencesMenu({ compact, onNavigate }: { compact: boolean; onNavigate?: () => void }) {
+  const [open, setOpen] = useState(false);
+
+  return <div
+    className="relative"
+    onMouseEnter={() => setOpen(true)}
+    onMouseLeave={() => setOpen(false)}
+    onFocusCapture={() => setOpen(true)}
+    onBlurCapture={event => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+    }}
+  >
+    <button
+      type="button"
+      aria-haspopup="menu"
+      aria-expanded={open}
+      aria-label={compact ? "Other experiences" : undefined}
+      title={compact ? "Other experiences" : undefined}
+      className={cn("flex h-8 w-full items-center rounded-lg text-[13px] text-[#474747] transition-colors hover:bg-white/50 hover:text-[#141414] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20", compact ? "justify-center" : "gap-2 px-2")}
+    >
+      <Ellipsis className="size-4" />
+      {!compact && "Other"}
+    </button>
+    {open && <div role="menu" aria-label="Other experience types" className={cn("z-20 rounded-lg border border-white/70 bg-white/95 p-1 shadow-lg backdrop-blur", compact ? "absolute left-full top-0 ml-2 w-44" : "absolute left-2 right-2 top-full mt-1")}>
+      {OTHER_EXPERIENCE_ITEMS.map(item => {
+        const Icon = item.icon;
+        return <NavLink key={item.path} to={item.path!} onClick={onNavigate} role="menuitem" className={({ isActive }) => cn("flex h-8 items-center gap-2 rounded-md px-2 text-xs text-[#474747] transition-colors hover:bg-[#eff6ff] hover:text-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20", isActive && "bg-[#eff6ff] font-medium text-[#1d4ed8]") }>
+          <Icon className="size-3.5" />{item.label}
+        </NavLink>;
+      })}
+    </div>}
+  </div>;
 }
