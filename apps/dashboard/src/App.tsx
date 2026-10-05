@@ -34,12 +34,14 @@ import { DashboardListPage } from "./pages/dashboard/DashboardListPage";
 import { DashboardWorkspacePage } from "./pages/dashboard/DashboardWorkspacePage";
 import { ExperienceAnalyticsPage } from "./pages/analytics/ExperienceAnalyticsPage";
 import { InvitationPage } from "./pages/auth/InvitationPage";
+import { UpgradeNowProvider } from "./components/billing/UpgradeNowModal";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <WorkspaceProvider>
+          <UpgradeNowProvider>
           <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -103,6 +105,7 @@ export default function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </UpgradeNowProvider>
         </WorkspaceProvider>
       </AuthProvider>
     </BrowserRouter>

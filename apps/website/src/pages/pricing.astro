@@ -1,11 +1,148 @@
 ---
 import MarketingLayout from "../components/marketing/MarketingLayout.astro";
 import PageHero from "../components/marketing/PageHero.astro";
-import Workflow from "../components/marketing/Workflow.astro";
 import BottomCta from "../components/marketing/BottomCta.astro";
+import { DASHBOARD_URLS } from "../config/site";
+
+const plans = [
+  {
+    name: "Starter",
+    price: "$49",
+    featured: false,
+    description: "For small teams building their first connected product journey.",
+    limits: ["5,000 monthly active users", "1 site", "3 team members", "5 published experiences"],
+    features: ["Product analytics and funnels", "Basic segments and targeting", "Guides, surveys, checklists, and widgets", "Page-load triggers and experience analytics"],
+  },
+  {
+    name: "Growth",
+    price: "$129",
+    featured: true,
+    description: "For teams that need precise targeting, timing, and orchestration.",
+    limits: ["15,000 monthly active users", "3 sites", "10 team members", "25 published experiences"],
+    features: ["Everything in Starter", "Combined audiences and exclusions", "Custom-event triggers and scheduling", "Advanced frequency, progression, and priority controls"],
+  },
+  {
+    name: "Scale",
+    price: "$299",
+    featured: false,
+    description: "For larger product teams running more programs across more sites.",
+    limits: ["50,000 monthly active users", "10 sites", "30 team members", "100 published experiences"],
+    features: ["Everything in Growth", "30 dashboards", "200 segments", "50 funnels"],
+  },
+] as const;
+
+const comparisonRows = [
+  { label: "Monthly active users", values: ["5,000", "15,000", "50,000"] },
+  { label: "Sites", values: ["1", "3", "10"] },
+  { label: "Team members", values: ["3", "10", "30"] },
+  { label: "Published experiences", values: ["5", "25", "100"] },
+  { label: "Dashboards", values: ["3", "10", "30"] },
+  { label: "Saved segments", values: ["10", "50", "200"] },
+  { label: "Funnels", values: ["3", "15", "50"] },
+  { label: "Advanced targeting, triggers & scheduling", values: ["—", "Included", "Included"] },
+] as const;
+
+const faqs = [
+  {
+    question: "What happens after my Growth trial?",
+    answer: "Choose Starter, Growth, or Scale when the trial ends. Until then, your workspace includes the complete Growth experience.",
+  },
+  {
+    question: "What happens if I reach my MAU allowance?",
+    answer: "Nothing stops immediately. MAU is a soft allowance, so data collection and live experiences continue while you decide whether to move up a plan.",
+  },
+  {
+    question: "Can I change plans later?",
+    answer: "Yes. You can move to a plan that fits your current product stage. Existing resources remain available after a downgrade; new resources need available capacity.",
+  },
+] as const;
 ---
-<MarketingLayout title="Movcues pricing" description="Start with Movcues and choose the product capabilities that fit your team's journey." canonicalPath="/pricing">
-  <PageHero eyebrow="Pricing" title="Start with the product journey you need to improve." description="Movcues pricing is being shaped around real product needs. We will publish plans, limits, and commercial details when they are finalized — without placeholder numbers." visual="pricing" />
-  <Workflow eyebrow="One product loop" title="The model stays simple." description="However plans are packaged, the product stays organized around the same connected workflow." steps={["Understand", "Target", "Engage", "Improve"]} />
-  <BottomCta title="Start exploring Movcues today." description="Create a workspace and see how behavior, audiences, experiences, and outcomes connect." />
+<MarketingLayout title="Movcues pricing" description="Simple Movcues plans for product analytics, targeting, and in-app experiences." canonicalPath="/pricing">
+  <PageHero eyebrow="Pricing" title="Start on Growth. Choose the plan that fits when your trial ends." description="Every new workspace gets the complete Growth experience for 14 days. No card is required to explore the product." primaryLabel="Start your Growth trial" />
+  <section class="pricing-section section-shell" aria-labelledby="pricing-heading">
+    <div class="pricing-intro" data-reveal>
+      <p class="section-kicker"><span></span>Three straightforward plans</p>
+      <h2 id="pricing-heading">Capacity grows with your product.</h2>
+      <p>MAU is a soft allowance. Crossing it never stops data collection or interrupts experiences already running.</p>
+    </div>
+    <div class="pricing-grid">
+      {plans.map(plan => <article class:list={["pricing-card", plan.featured && "is-featured"]} data-reveal>
+        {plan.featured && <p class="pricing-badge">14-day trial plan</p>}
+        <h3>{plan.name}</h3>
+        <p class="pricing-description">{plan.description}</p>
+        <p class="pricing-price"><strong>{plan.price}</strong><span>/ month</span></p>
+        <a href={DASHBOARD_URLS.signup}>{plan.featured ? "Start free" : `Choose ${plan.name}`}</a>
+        <div class="pricing-list"><h4>Capacity</h4><ul>{plan.limits.map(item => <li>{item}</li>)}</ul></div>
+        <div class="pricing-list"><h4>Includes</h4><ul>{plan.features.map(item => <li>{item}</li>)}</ul></div>
+      </article>)}
+    </div>
+    <p class="pricing-note">All prices are monthly. Existing resources stay available after a downgrade; creating new resources or enabling newly locked capabilities requires available plan capacity.</p>
+  </section>
+  <section class="comparison-section" aria-labelledby="comparison-heading">
+    <div class="section-shell">
+      <div class="comparison-heading" data-reveal>
+        <p class="section-kicker"><span></span>Compare plans</p>
+        <h2 id="comparison-heading">The details that matter when you grow.</h2>
+        <p>Every plan gives your team the connected loop of analytics, audiences, in-app experiences, and outcome measurement.</p>
+      </div>
+      <div class="comparison-table-wrap" data-reveal tabindex="0">
+        <table class="comparison-table">
+          <caption class="sr-only">Movcues plan comparison</caption>
+          <thead><tr><th scope="col">Plan capacity</th>{plans.map(plan => <th scope="col" class:list={plan.featured && "is-featured"}>{plan.name}{plan.featured && <small>Most popular</small>}</th>)}</tr></thead>
+          <tbody>{comparisonRows.map(row => <tr><th scope="row">{row.label}</th>{row.values.map((value, index) => <td class:list={plans[index].featured && "is-featured"}>{value}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <section class="pricing-faq section-shell" aria-labelledby="faq-heading">
+    <div class="faq-heading" data-reveal><p class="section-kicker"><span></span>Good to know</p><h2 id="faq-heading">Pricing, without surprises.</h2></div>
+    <div class="faq-list" data-reveal>{faqs.map((faq) => <details><summary>{faq.question}<span aria-hidden="true">+</span></summary><p>{faq.answer}</p></details>)}</div>
+  </section>
+  <BottomCta title="Try every Growth feature for 14 days." description="Create a workspace, connect your product, and see how behavior, audiences, experiences, and outcomes work together." />
 </MarketingLayout>
+
+<style>
+  .pricing-section { padding-block: 1rem clamp(5rem, 9vw, 8rem); }
+  .pricing-intro { max-width: 48rem; margin-inline: auto; text-align: center; }
+  .pricing-intro .section-kicker { justify-content: center; }
+  .pricing-intro h2 { margin: 1.1rem 0 0; font-size: clamp(2.25rem, 4.5vw, 4.6rem); font-weight: 500; letter-spacing: -.055em; line-height: 1; }
+  .pricing-intro > p:last-child { margin: 1.2rem auto 0; max-width: 39rem; color: var(--text-secondary); line-height: 1.65; }
+  .pricing-grid { margin-top: clamp(2.5rem, 5vw, 4.5rem); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; align-items: stretch; }
+  .pricing-card { position: relative; padding: clamp(1.4rem, 2.5vw, 2rem); border: 1px solid var(--border); border-radius: 1rem; background: #fff; box-shadow: 0 18px 55px rgba(32, 32, 32, .06); }
+  .pricing-card.is-featured { border-color: #3156c8; box-shadow: 0 24px 70px rgba(49, 86, 200, .14); }
+  .pricing-badge { width: fit-content; margin: 0 0 1rem; padding: .35rem .65rem; border-radius: 999px; background: #e9edff; color: #2445aa; font-size: .7rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+  .pricing-card h3 { margin: 0; font-size: 1.4rem; }
+  .pricing-description { min-height: 4.5rem; margin: .8rem 0 0; color: var(--text-secondary); font-size: .88rem; line-height: 1.55; }
+  .pricing-price { margin: 1.4rem 0 1rem; display: flex; align-items: baseline; gap: .4rem; }
+  .pricing-price strong { font-size: 2.7rem; letter-spacing: -.05em; }
+  .pricing-price span { color: var(--text-muted); font-size: .8rem; }
+  .pricing-card > a { min-height: 2.8rem; display: flex; align-items: center; justify-content: center; border: 1px solid #202020; border-radius: .6rem; background: #202020; color: #fff; font-size: .84rem; font-weight: 650; }
+  .pricing-card.is-featured > a { border-color: #3156c8; background: #3156c8; }
+  .pricing-list { margin-top: 1.6rem; padding-top: 1.3rem; border-top: 1px solid var(--border); }
+  .pricing-list h4 { margin: 0 0 .75rem; font-size: .78rem; }
+  .pricing-list ul { margin: 0; padding: 0; display: grid; gap: .65rem; list-style: none; }
+  .pricing-list li { position: relative; padding-left: 1.1rem; color: var(--text-secondary); font-size: .78rem; line-height: 1.45; }
+  .pricing-list li::before { position: absolute; top: .55em; left: 0; width: .35rem; height: .35rem; border-radius: 50%; background: #3156c8; content: ""; }
+  .pricing-note { max-width: 52rem; margin: 1.5rem auto 0; color: var(--text-muted); font-size: .72rem; line-height: 1.6; text-align: center; }
+  .comparison-section { padding: clamp(5rem, 9vw, 8rem) 0; border-block: 1px solid var(--border); background: #f7f7f8; }
+  .comparison-heading { max-width: 42rem; }
+  .comparison-heading h2, .faq-heading h2 { margin: 1rem 0 0; font-size: clamp(2.2rem, 4vw, 4.1rem); font-weight: 500; letter-spacing: -.055em; line-height: 1; }
+  .comparison-heading > p:last-child { max-width: 36rem; margin: 1.2rem 0 0; color: var(--text-secondary); line-height: 1.65; }
+  .comparison-table-wrap { margin-top: clamp(2.5rem, 5vw, 4rem); overflow-x: auto; border: 1px solid var(--border); border-radius: 1rem; background: #fff; }
+  .comparison-table { width: 100%; min-width: 42rem; border-collapse: collapse; text-align: left; }
+  .comparison-table th, .comparison-table td { padding: 1rem clamp(.9rem, 2vw, 1.5rem); border-bottom: 1px solid var(--border); font-size: .8rem; line-height: 1.35; }
+  .comparison-table thead th { color: var(--foreground); font-size: .88rem; font-weight: 700; vertical-align: top; }
+  .comparison-table thead th:first-child, .comparison-table tbody th { width: 40%; color: var(--text-secondary); font-weight: 500; }
+  .comparison-table thead small { display: block; margin-top: .25rem; color: var(--primary); font-size: .62rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .comparison-table .is-featured { background: #f4f6ff; }
+  .comparison-table tbody tr:last-child th, .comparison-table tbody tr:last-child td { border-bottom: 0; }
+  .pricing-faq { padding-block: clamp(5rem, 9vw, 8rem); display: grid; grid-template-columns: minmax(14rem, .75fr) minmax(20rem, 1fr); gap: clamp(3rem, 10vw, 10rem); }
+  .faq-list { border-top: 1px solid var(--border); }
+  .faq-list details { border-bottom: 1px solid var(--border); }
+  .faq-list summary { min-height: 4.4rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; cursor: pointer; font-size: .9rem; font-weight: 650; list-style: none; }
+  .faq-list summary::-webkit-details-marker { display: none; }
+  .faq-list summary span { color: var(--primary); font-size: 1.4rem; font-weight: 400; transition: transform 150ms var(--ease); }
+  .faq-list details[open] summary span { transform: rotate(45deg); }
+  .faq-list p { max-width: 40rem; margin: -.35rem 0 1.35rem; color: var(--text-secondary); font-size: .88rem; line-height: 1.65; }
+  @media (max-width: 800px) { .pricing-grid { grid-template-columns: 1fr; } .pricing-description { min-height: 0; } .pricing-faq { grid-template-columns: 1fr; gap: 2.5rem; } }
+</style>

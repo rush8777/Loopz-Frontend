@@ -6,6 +6,7 @@ import * as sitesApi from "../../api/sites";
 import * as teamApi from "../../api/team";
 import * as auth from "../../auth/AuthContext";
 import * as workspace from "../../auth/WorkspaceContext";
+import * as billingApi from "../../api/billing";
 import { AppShell } from "../AppShell";
 
 vi.mock("../../api/organizations");
@@ -13,12 +14,14 @@ vi.mock("../../api/sites");
 vi.mock("../../api/team");
 vi.mock("../../auth/AuthContext");
 vi.mock("../../auth/WorkspaceContext");
+vi.mock("../../api/billing");
 
 const mockedOrganizationsApi = vi.mocked(organizationsApi);
 const mockedSitesApi = vi.mocked(sitesApi);
 const mockedTeamApi = vi.mocked(teamApi);
 const mockedAuth = vi.mocked(auth);
 const mockedWorkspace = vi.mocked(workspace);
+const mockedBillingApi = vi.mocked(billingApi);
 
 const setCurrentOrgId = vi.fn();
 const setCurrentSiteId = vi.fn();
@@ -71,16 +74,31 @@ describe("Settings modal", () => {
     mockedTeamApi.listMembers.mockResolvedValue({ members });
     mockedTeamApi.listInvitations.mockResolvedValue({ invitations: [pending] });
     mockedSitesApi.getSiteStatus.mockResolvedValue({ hasReceivedEvents: false, lastEventAt: null, siteId: "site_public_1", domain: "https://acme.test" });
+    mockedBillingApi.getPlanUsage.mockResolvedValue({
+      subscription: { planId: "growth", planName: "Growth", status: "trialing", active: true, trialEndsAt: "2026-10-18T00:00:00.000Z", currentPeriodStartsAt: null, currentPeriodEndsAt: null, cancelAtPeriodEnd: false },
+      usage: { sites: 2, members: 4, dashboards: 2, segments: 8, funnels: 3, publishedExperiences: 6, monthlyActiveUsers: 12000, monthlyActiveUsersBySite: [] },
+      limits: { site: 3, member: 10, dashboard: 10, segment: 50, funnel: 15, published_experience: 25, monthlyActiveUsers: 15000 },
+      features: [], billingConfigured: false,
+      monthlyActiveUsers: { current: 12000, limit: 15000, percent: 80, state: "warning", softCap: true },
+    });
   });
 
   it("opens on Workspace without changing the route and navigates through every section", async () => {
     openSettings();
     expect(screen.getByRole("heading", { name: "Workspace" })).toBeInTheDocument();
     expect(screen.getByTestId("current-route")).toHaveTextContent("/observe/events");
-    for (const section of ["Sites", "Team", "Installation", "Data & Privacy", "Developer", "Account"]) {
+    for (const section of ["Plan & Usage", "Sites", "Team", "Installation", "Data & Privacy", "Developer", "Account"]) {
       fireEvent.click(screen.getByRole("button", { name: section }));
       expect(await screen.findByRole("heading", { name: section })).toBeInTheDocument();
     }
+  });
+
+  it("shows the Growth trial, capacity meters, and soft MAU warning", async () => {
+    openSettings(); fireEvent.click(screen.getByRole("button", { name: "Plan & Usage" }));
+    expect(await screen.findByText("You have used at least 80% of this month's MAU allowance.")).toBeInTheDocument();
+    expect(screen.getByText("Growth")).toBeInTheDocument();
+    expect(screen.getByText("12,000 of 15,000")).toBeInTheDocument();
+    expect(screen.getByText("6 of 25")).toBeInTheDocument();
   });
 
   it("closes with the close button, Escape, and the backdrop", () => {

@@ -15,8 +15,8 @@ export function CreateExperienceModal({ kind, widgetType: fixedWidgetType, singu
   const { currentOrg, currentSite } = useWorkspace(); const navigate = useNavigate(); const [pages, setPages] = useState<PageDefinition[]>([]);
   const [name, setName] = useState(`Untitled ${singularLabel}`);
   const [preset, setPreset] = useState<"default" | "minimal" | "soft" | "compact">("default");
-  const [source, setSource] = useState("manual"); const [manualUrl, setManualUrl] = useState(""); const [targetPage, setTargetPage] = useState(false); const [error, setError] = useState<string | null>(null); const [saving, setSaving] = useState(false);
-  useEffect(() => { if (open && currentOrg && currentSite) pagesApi.listPages(currentOrg.orgId, currentSite.id).then((r) => { setPages(r.pages); if (r.pages[0]) setSource(r.pages[0].id); }).catch(() => setPages([])); }, [open, currentOrg, currentSite]);
+  const [source, setSource] = useState("manual"); const [manualUrl, setManualUrl] = useState(""); const [targetPage, setTargetPage] = useState(true); const [error, setError] = useState<string | null>(null); const [saving, setSaving] = useState(false);
+  useEffect(() => { if (open && currentOrg && currentSite) { setTargetPage(true); pagesApi.listPages(currentOrg.orgId, currentSite.id).then((r) => { setPages(r.pages); if (r.pages[0]) setSource(r.pages[0].id); else { setSource("manual"); setTargetPage(false); } }).catch(() => { setPages([]); setSource("manual"); setTargetPage(false); }); } }, [open, currentOrg, currentSite]);
 
   async function submit() {
     if (!currentOrg || !currentSite) return; setError(null);

@@ -44,6 +44,29 @@ export class ApiError extends Error {
   }
 }
 
+export interface EntitlementErrorBody {
+  error: "resource_limit" | "feature_unavailable" | "subscription_inactive";
+  entitlement?: {
+    allowed?: false;
+    reason?: string;
+    planId?: "starter" | "growth" | "scale";
+    resource?: string;
+    feature?: string;
+    current?: number;
+    limit?: number;
+    trialEndsAt?: string | null;
+    upgradeRequired?: boolean;
+  };
+}
+
+export function entitlementError(error: unknown): EntitlementErrorBody | null {
+  if (!(error instanceof ApiError) || !error.body || typeof error.body !== "object") return null;
+  const body = error.body as Partial<EntitlementErrorBody>;
+  return body.error === "resource_limit" || body.error === "feature_unavailable" || body.error === "subscription_inactive"
+    ? body as EntitlementErrorBody
+    : null;
+}
+
 function formatApiDetails(details: unknown): string | null {
   if (!details || typeof details !== "object") return null;
   const flattened = details as { formErrors?: unknown; fieldErrors?: unknown; issues?: unknown };
@@ -148,7 +171,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     } catch {
       // no JSON body - fine, ApiError falls back to the status code
     }
-    throw new ApiError(res.status, body);
+    const error = new ApiError(res.status, body);
+    const entitlement = entitlementError(error);
+    if (entitlement && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent<EntitlementErrorBody>("movecues:upgrade-required", { detail: entitlement }));
+    }
+    throw error;
   }
 
   if (res.status === 204) return undefined as T;
