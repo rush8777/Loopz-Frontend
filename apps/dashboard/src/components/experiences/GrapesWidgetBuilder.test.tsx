@@ -22,6 +22,8 @@ function fakeEditor() {
   harness.init.mockImplementation((config: any) => { config.plugins?.forEach((plugin: any) => plugin(editor)); if (config.components) editor.setComponents(config.components); if (config.style) editor.setStyle(config.style); activeProjectData = { pages: [{ id: "page-1", component: { components: [{}] } }], styles: [] }; return editor; }); return editor;
 }
 
+const CHECKLIST_HTML = '<section class="movecues-widget" data-movecues-checklist-role="root"><div data-movecues-checklist-view="expanded"><h2 data-movecues-checklist-role="title">Getting started</h2><p data-movecues-checklist-role="description">Complete the tasks</p><div data-movecues-checklist-role="progress"></div><div data-movecues-checklist-role="items"><button data-movecues-checklist-item-id="task-1" data-movecues-checklist-role="item"><span data-movecues-checklist-item-role="state">✓</span><span data-movecues-checklist-item-role="title">Create a project</span><span data-movecues-checklist-item-role="description"></span></button></div></div><button data-movecues-checklist-view="launcher"><span data-movecues-checklist-role="launcher-label">Getting started</span><span data-movecues-checklist-role="remaining-count"></span></button><div data-movecues-checklist-view="completion"><h2 data-movecues-checklist-role="completion-title">Done</h2><p data-movecues-checklist-role="completion-description"></p><button data-movecues-checklist-role="completion-acknowledge">Close</button></div></section>';
+
 describe("GrapesWidgetBuilder", () => {
   afterEach(() => { harness.handlers.clear(); harness.init.mockReset(); harness.destroy.mockReset(); harness.dirty = 0; vi.useRealTimers(); });
   it("initializes once, mounts custom managers, bootstraps once, and destroys cleanly", async () => {
@@ -304,11 +306,11 @@ describe("GrapesWidgetBuilder", () => {
     act(() => harness.handlers.get("style:property:update")?.()); await act(async () => { await Promise.resolve(); }); expect(within(screen.getByRole("group", { name: "Alignment" })).getByRole("button", { name: "Right" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("keeps Checklist preview controls canvas-only and removes structural block insertion", async () => {
+  it("keeps Checklist preview controls canvas-only, removes structural blocks, and safely applies authored HTML and CSS", async () => {
     vi.useFakeTimers();
-    fakeEditor();
+    const editor = fakeEditor();
     const onChange = vi.fn();
-    const html = '<section class="movecues-widget" data-movecues-checklist-role="root"><div data-movecues-checklist-view="expanded"><div data-movecues-checklist-role="items"><button data-movecues-checklist-item-id="task-1"><span data-movecues-checklist-item-role="title">Create a project</span><span data-movecues-checklist-item-role="description"></span></button></div></div><button data-movecues-checklist-view="launcher"></button><div data-movecues-checklist-view="completion"></div></section>';
+    const html = CHECKLIST_HTML;
     render(
       <GrapesWidgetBuilder
         experienceKey="checklist:preview"
@@ -330,10 +332,57 @@ describe("GrapesWidgetBuilder", () => {
 
     expect(harness.init.mock.calls[0][0].blockManager.blocks).toEqual([]);
     expect(screen.getByText("Structured settings")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Toggle HTML and CSS editor" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Toggle HTML and CSS editor" }));
+    expect(screen.getByLabelText("Builder HTML")).toHaveValue(html);
+    expect(screen.getByLabelText("Builder CSS")).toHaveValue(".movecues-widget{color:#111}");
+    const customHtml = html.replace('class="movecues-widget"', 'class="movecues-widget custom-checklist"').replace('<h2 data-movecues-checklist-role="title">', '<div class="custom-title-wrap"><h2 data-movecues-checklist-role="title">').replace('</h2><p data-movecues-checklist-role="description">', '</h2></div><p data-movecues-checklist-role="description">');
+    const css = '.movecues-widget [data-movecues-checklist-view="expanded"]{background:#fff}.movecues-widget [data-movecues-checklist-view="launcher"]{background:#111}.movecues-widget [data-movecues-checklist-view="completion"]{background:#0f0}.movecues-widget [data-movecues-checklist-item-id][data-state="completed"]{opacity:.7}';
+    fireEvent.change(screen.getByLabelText("Builder HTML"), { target: { value: customHtml } });
+    fireEvent.change(screen.getByLabelText("Builder CSS"), { target: { value: css } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply HTML and CSS" }));
+    expect(editor.setComponents).toHaveBeenCalledTimes(2);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.mock.calls[0][0].builder.html).toContain("custom-checklist");
+    expect(onChange.mock.calls[0][0].builder.html).toContain("custom-title-wrap");
+    expect(onChange.mock.calls[0][0].builder.css).toBe(css);
+    fireEvent.change(screen.getByLabelText("Builder CSS"), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply HTML and CSS" }));
+    expect(editor.setComponents).toHaveBeenCalledTimes(3);
+    expect(onChange).toHaveBeenCalledTimes(2);
+    expect(onChange.mock.calls[1][0].builder.html).toContain("custom-title-wrap");
+    expect(onChange.mock.calls[1][0].builder.css).toBe("");
+    fireEvent.click(screen.getByRole("button", { name: "Toggle HTML and CSS editor" }));
     fireEvent.change(screen.getByLabelText("Preview progress"), { target: { value: "complete" } });
     fireEvent.change(screen.getByLabelText("Preview view"), { target: { value: "completion" } });
     act(() => vi.runAllTimers());
+    expect(onChange).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the saved Checklist design when authored HTML or CSS would break its contract", async () => {
+    vi.useFakeTimers();
+    const editor = fakeEditor();
+    const onChange = vi.fn();
+    const html = CHECKLIST_HTML;
+    const originalCss = ".movecues-widget{color:#111}";
+    render(<GrapesWidgetBuilder experienceKey="checklist:invalid-css" widgetType="modal" interactionContext="checklist" value={{ version: 1, projectData: {}, html, css: originalCss }} content={{ heading: "Getting started", body: "Complete the tasks" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} checklistItems={[{ id: "task-1", title: "Create a project", action: { type: "none" }, completion: { type: "item_clicked" } }]} checklistCopy={{ title: "Getting started", description: "Complete the tasks", completionMessage: { title: "Done", acknowledgeLabel: "Close" } }} onChange={onChange} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
+    await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
+    onChange.mockClear(); editor.Css.clear.mockClear(); editor.setStyle.mockClear(); editor.setComponents.mockClear();
+    fireEvent.click(screen.getByRole("button", { name: "Toggle HTML and CSS editor" }));
+    fireEvent.change(screen.getByLabelText("Builder HTML"), { target: { value: html.replace(' data-movecues-checklist-role="remaining-count"', "") } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply HTML and CSS" }));
+    expect(screen.getByText("Checklist HTML must contain exactly one checklist role “remaining-count”.")).toBeInTheDocument();
+    expect(editor.Css.clear).not.toHaveBeenCalled();
+    expect(editor.setStyle).not.toHaveBeenCalled();
+    expect(editor.setComponents).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("Builder HTML"), { target: { value: html } });
+    fireEvent.change(screen.getByLabelText("Builder CSS"), { target: { value: "body{color:red}" } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply HTML and CSS" }));
+    expect(screen.getByText("Every CSS selector must be scoped under .movecues-widget.")).toBeInTheDocument();
+    expect(editor.Css.clear).not.toHaveBeenCalled();
+    expect(editor.setStyle).not.toHaveBeenCalled();
+    expect(editor.setComponents).not.toHaveBeenCalled();
+    expect(editor.getCss({ avoidProtected: true })).toBe(originalCss);
     expect(onChange).not.toHaveBeenCalled();
   });
 });
