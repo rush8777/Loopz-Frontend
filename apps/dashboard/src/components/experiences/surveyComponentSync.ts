@@ -12,19 +12,29 @@ type ComponentCollection = { forEach?: (callback: (component: Component) => void
 export function syncSurveyComponents(editor: Editor, questions: SurveyQuestion[]): void {
   const wrapper = editor.getWrapper(); const root = wrapper?.find(".movecues-widget")[0]; if (!root) return;
   ensureSurveyNavigation(root);
+  root.find("[data-movecues-survey-question-gateway]").forEach(component => component.remove());
   const wanted = new Map(questions.map(question => [question.id, question]));
   const existing = root.find("[data-movecues-question-id]");
+  const componentsById = new Map<string, Component>();
   const seen = new Set<string>();
   for (const component of existing) {
     const id = String(component.getAttributes()["data-movecues-question-id"] ?? "");
     const question = wanted.get(id);
     if (!question || seen.has(id)) { component.remove(); continue; }
     seen.add(id);
+    componentsById.set(id, component);
     reconcileSurveyQuestion(component, question);
   }
   const action = root.find("[data-movecues-survey-action]")[0]; const actionContainer = action?.parent();
-  const insertionIndex = actionContainer?.parent() === root ? collectionIndex(root.components(), actionContainer) : undefined;
-  questions.forEach((question, offset) => { if (!seen.has(question.id)) root.append(surveyQuestionMarkup(question), insertionIndex === undefined ? undefined : { at: insertionIndex + offset }); });
+  questions.forEach((question, index) => {
+    if (seen.has(question.id)) return;
+    const next = questions.slice(index + 1).map(candidate => componentsById.get(candidate.id)).find((component): component is Component => Boolean(component && component.parent() === root));
+    const fallback = actionContainer?.parent() === root ? collectionIndex(root.components(), actionContainer) : undefined;
+    const at = next ? collectionIndex(root.components(), next) : fallback;
+    root.append(surveyQuestionMarkup(question), at === undefined ? undefined : { at });
+    const added = root.find(`[data-movecues-question-id="${cssAttributeEscape(question.id)}"]`)[0];
+    if (added) { componentsById.set(question.id, added); seen.add(question.id); }
+  });
 }
 
 export function reconcileSurveyQuestion(component: Component, question: SurveyQuestion): void {

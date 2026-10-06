@@ -7,7 +7,9 @@ import { syncSurveyComponents } from "./surveyComponentSync";
 class MiniComponent {
   readonly node: Node;
   private values = new Map<string, unknown>();
-  constructor(node: Node) { this.node = node; }
+  private readonly cache: Map<Node, MiniComponent>;
+  constructor(node: Node, cache = new Map<Node, MiniComponent>()) { this.node = node; this.cache = cache; cache.set(node, this); }
+  private wrap(node: Node): MiniComponent { return this.cache.get(node) ?? new MiniComponent(node, this.cache); }
   get(key: string): unknown { if (key === "tagName") return this.node instanceof Element ? this.node.tagName.toLowerCase() : undefined; if (key === "type") return this.node.nodeType === Node.TEXT_NODE ? "textnode" : this.values.get(key); if (key === "content") return this.node.textContent ?? ""; return this.values.get(key); }
   set(key: string | Record<string, unknown>, value?: unknown): this { if (typeof key === "string") this.values.set(key, value); else Object.entries(key).forEach(([name, next]) => this.values.set(name, next)); return this; }
   getView(): { render: () => void } { return { render: () => { if (this.values.has("content")) this.node.textContent = String(this.values.get("content") ?? ""); } }; }
@@ -18,9 +20,9 @@ class MiniComponent {
   getAttributes(): Record<string, string> { return this.node instanceof Element ? Object.fromEntries([...this.node.attributes].map(attribute => [attribute.name, attribute.value])) : {}; }
   addAttributes(value: Record<string, string>): this { return this.setAttributes({ ...this.getAttributes(), ...value }); }
   setAttributes(value: Record<string, string>): this { if (this.node instanceof Element) { [...this.node.attributes].forEach(attribute => this.node instanceof Element && this.node.removeAttribute(attribute.name)); Object.entries(value).forEach(([name, next]) => this.node instanceof Element && this.node.setAttribute(name, next)); } return this; }
-  find(selector: string): Component[] { return this.node instanceof Element ? [...this.node.querySelectorAll(selector)].map(node => new MiniComponent(node) as unknown as Component) : []; }
-  parent(): Component | null { return this.node.parentNode ? new MiniComponent(this.node.parentNode) as unknown as Component : null; }
-  components(): { forEach: (callback: (component: Component) => void) => void; indexOf: (component: Component) => number } { const children = [...this.node.childNodes]; return { forEach: callback => children.forEach(node => callback(new MiniComponent(node) as unknown as Component)), indexOf: component => children.indexOf((component as unknown as MiniComponent).node as ChildNode) }; }
+  find(selector: string): Component[] { return this.node instanceof Element ? [...this.node.querySelectorAll(selector)].map(node => this.wrap(node) as unknown as Component) : []; }
+  parent(): Component | null { return this.node.parentNode ? this.wrap(this.node.parentNode) as unknown as Component : null; }
+  components(): { forEach: (callback: (component: Component) => void) => void; indexOf: (component: Component) => number } { const children = [...this.node.childNodes]; return { forEach: callback => children.forEach(node => callback(this.wrap(node) as unknown as Component)), indexOf: component => children.indexOf((component as unknown as MiniComponent).node as ChildNode) }; }
   append(markup: string, options?: { at?: number }): this { const template = document.createElement("template"); template.innerHTML = markup; const nodes = [...template.content.childNodes]; const reference = options?.at === undefined ? null : this.node.childNodes.item(options.at); nodes.forEach(node => this.node.insertBefore(node, reference)); return this; }
   remove(): this { this.node.parentNode?.removeChild(this.node); return this; }
   index(): number { return this.node.parentNode ? [...this.node.parentNode.childNodes].indexOf(this.node as ChildNode) : -1; }
@@ -61,6 +63,19 @@ describe("non-destructive survey component synchronization", () => {
     expect(root.querySelector(".custom-footer")?.textContent).toBe("Authored footer");
     expect(root.querySelector(".movecues-survey-options")).toBeNull();
     expect(root.querySelector('.custom-control-wrapper textarea[data-movecues-question-input][placeholder="Details"][maxlength="120"]')).not.toBeNull();
+  });
+
+  it("inserts a structured question at the requested order without rebuilding customized questions or navigation", () => {
+    const { editor, root } = fixture('<section class="movecues-widget"><div class="movecues-survey-question custom-first" data-movecues-question-id="question_1" data-movecues-question-type="single_choice"><p class="movecues-survey-question__label"><span class="authored-wrapper">First</span></p><div class="movecues-survey-options"><button data-movecues-option-id="a">A</button></div></div><div data-movecues-survey-question-gateway="short_text"></div><div class="movecues-survey-question custom-second" data-movecues-question-id="question_2" data-movecues-question-type="short_text"><p class="movecues-survey-question__label">Second</p><input data-movecues-question-input></div><div data-movecues-survey-controls><button data-movecues-survey-action="next">Next</button></div></section>');
+    const added: SurveyQuestion = { id: "question_new", type: "rating", label: "Rate it", min: 1, max: 5 };
+    syncSurveyComponents(editor, [choices("First", [["a", "A"]]), added, { id: "question_2", type: "short_text", label: "Second", placeholder: "Answer", maxLength: 250 }]);
+    const ids = [...root.querySelectorAll<HTMLElement>("[data-movecues-question-id]")].map(element => element.dataset.movecuesQuestionId);
+    expect(ids).toEqual(["question_1", "question_new", "question_2"]);
+    expect(root.querySelector(".custom-first .authored-wrapper")?.textContent).toBe("First");
+    expect(root.querySelector(".custom-second")).not.toBeNull();
+    expect(root.querySelectorAll("[data-movecues-survey-controls]")).toHaveLength(1);
+    expect(root.querySelectorAll('[data-movecues-question-id="question_new"]')).toHaveLength(1);
+    expect(root.querySelector("[data-movecues-survey-question-gateway]")).toBeNull();
   });
 });
 

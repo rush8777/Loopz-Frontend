@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject, type UIEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { Component, Editor } from "grapesjs";
+import type { Block, Component, Editor } from "grapesjs";
 import { Badge as BadgeIcon, Box, CircleDot, CircleUserRound, Code2, Columns3, Hand, Heading2, ImagePlus as ImageIcon, List, Maximize2, Minus, Monitor, MousePointer2, MousePointerClick, MoveVertical, Plus, Redo2, Rows3, SquareMousePointer, Star, Smartphone, Tablet, Type, Undo2, X, type LucideIcon } from "lucide-react";
 import "grapesjs/dist/css/grapes.min.css";
 import "./GrapesWidgetBuilder.css";
@@ -28,6 +28,7 @@ interface Props {
   onPrimaryActionChange: (action: ExperienceAction | undefined) => void;
   onSizeChange: (size: ExperienceSize) => void;
   surveyQuestions?: SurveyQuestion[];
+  onAddSurveyQuestion?: (type: SurveyQuestion["type"], placement?: number) => string | void;
   checklistItems?: ChecklistItem[];
   checklistCopy?: ChecklistPresentationCopy;
   checklistOrder?: "any" | "sequential";
@@ -101,7 +102,7 @@ function applyChecklistPreview(editor: Editor, items: ChecklistItem[], order: "a
   if (remaining) remaining.textContent = String(Math.max(0, items.length - completeCount));
 }
 
-export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(function GrapesWidgetBuilder({ experienceKey, widgetType, interactionContext = widgetType === "survey" ? "survey" : "widget", value, content, design, onChange, onPrimaryActionChange, onSizeChange, surveyQuestions, checklistItems, checklistCopy, checklistOrder = "any", checklistInspector, onChecklistSelectionChange }, ref) {
+export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(function GrapesWidgetBuilder({ experienceKey, widgetType, interactionContext = widgetType === "survey" ? "survey" : "widget", value, content, design, onChange, onPrimaryActionChange, onSizeChange, surveyQuestions, onAddSurveyQuestion, checklistItems, checklistCopy, checklistOrder = "any", checklistInspector, onChecklistSelectionChange }, ref) {
   const checklistMode = interactionContext === "checklist";
   const canvasViewportRef = useRef<HTMLDivElement>(null); const canvasRef = useRef<HTMLDivElement>(null); const blocksRef = useRef<HTMLDivElement>(null); const stylesRef = useRef<HTMLDivElement>(null); const traitsRef = useRef<HTMLDivElement>(null); const editorRef = useRef<Editor | null>(null);
   const htmlHighlightRef = useRef<HTMLPreElement>(null); const cssHighlightRef = useRef<HTMLPreElement>(null);
@@ -122,18 +123,19 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const interactionControllerRef = useRef<WidgetInteractionController | null>(null);
   const selectedFreeItemRef = useRef<Component | null>(null);
   const surveyProjectionSignatureRef = useRef("");
+  const pendingSurveySelectionRef = useRef<string | null>(null);
   const checklistProjectionSignatureRef = useRef("");
   const editorExperienceKeyRef = useRef<string | null>(null);
   const projectDataRef = useRef<Record<string, unknown>>(value?.projectData ?? {});
   const lastPersistedCssRef = useRef(value?.css ?? "");
-  const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const checklistSelectionRef = useRef(onChecklistSelectionChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
+  const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const addSurveyQuestionRef = useRef(onAddSurveyQuestion); const checklistSelectionRef = useRef(onChecklistSelectionChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
   const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedComponent, setSelectedComponent] = useState<Component | null>(null); const [selectedInteraction, setSelectedInteraction] = useState<SelectedInteraction>(null); const [styleRevision, setStyleRevision] = useState(0); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">(checklistMode ? "properties" : "blocks"); const [zoomLabel, setZoomLabel] = useState(100); const [handTool, setHandTool] = useState(false); const [spacePressed, setSpacePressed] = useState(false); const [panning, setPanning] = useState(false); const [freeItemBox, setFreeItemBox] = useState<FreeItemBox | null>(null); const [checklistPreviewProgress, setChecklistPreviewProgress] = useState<"empty" | "progress" | "complete">("empty"); const [checklistPreviewView, setChecklistPreviewView] = useState<"expanded" | "launcher" | "completion">("expanded");
-  useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { checklistSelectionRef.current = onChecklistSelectionChange; }, [onChecklistSelectionChange]); useEffect(() => { contentRef.current = content; }, [content]);
+  useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { addSurveyQuestionRef.current = onAddSurveyQuestion; }, [onAddSurveyQuestion]); useEffect(() => { checklistSelectionRef.current = onChecklistSelectionChange; }, [onChecklistSelectionChange]); useEffect(() => { contentRef.current = content; }, [content]);
   useEffect(() => { designRef.current = design; applySizeEnvelopeRef.current(design); }, [design]);
   useEffect(() => { codeModeRef.current = codeMode; }, [codeMode]);
   useEffect(() => { handToolRef.current = handTool; }, [handTool]);
   useImperativeHandle(ref, () => ({ flush: () => flushExportRef.current(), selectChecklistItem: itemId => { const component = editorRef.current?.getWrapper()?.find(`[data-movecues-checklist-item-id="${itemId.replace(/["\\]/g, "\\$&")}"]`)[0]; if (component) editorRef.current?.select(component); }, selectChecklistRoot: () => { const component = editorRef.current?.getWrapper()?.find('[data-movecues-checklist-role="root"]')[0]; if (component) editorRef.current?.select(component); } }), []);
-  useEffect(() => { if (widgetType !== "survey" || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !surveyQuestions) return; const signature = `${experienceKey}:${JSON.stringify(surveyQuestions)}`; if (signature === surveyProjectionSignatureRef.current) return; builderDebug(experienceKey, "survey:projection:start", { questionCount: surveyQuestions.length, signature }); surveyProjectionSignatureRef.current = signature; syncSurveyComponents(editorRef.current, surveyQuestions); flushExportRef.current(); builderDebug(experienceKey, "survey:projection:complete"); }, [experienceKey, ready, surveyQuestions, widgetType]);
+  useEffect(() => { if (widgetType !== "survey" || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !surveyQuestions) return; const signature = `${experienceKey}:${JSON.stringify(surveyQuestions)}`; if (signature === surveyProjectionSignatureRef.current) return; builderDebug(experienceKey, "survey:projection:start", { questionCount: surveyQuestions.length, signature }); surveyProjectionSignatureRef.current = signature; syncSurveyComponents(editorRef.current, surveyQuestions); const pendingSelection = pendingSurveySelectionRef.current; if (pendingSelection) { const component = editorRef.current.getWrapper()?.find(`[data-movecues-question-id="${cssAttributeEscape(pendingSelection)}"]`)[0]; if (component) { pendingSurveySelectionRef.current = null; editorRef.current.select(component); } } flushExportRef.current(); builderDebug(experienceKey, "survey:projection:complete"); }, [experienceKey, ready, surveyQuestions, widgetType]);
   useEffect(() => { if (!checklistMode || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !checklistItems) return; const signature = `${experienceKey}:${JSON.stringify({ items: checklistItems, copy: checklistCopy })}`; if (signature !== checklistProjectionSignatureRef.current) { checklistProjectionSignatureRef.current = signature; syncChecklistComponents(editorRef.current, checklistItems, checklistCopy); flushExportRef.current(); } applyChecklistPreview(editorRef.current, checklistItems, checklistOrder, checklistPreviewProgress, checklistPreviewView); }, [checklistCopy, checklistItems, checklistMode, checklistOrder, checklistPreviewProgress, checklistPreviewView, experienceKey, ready]);
 
   useEffect(() => {
@@ -329,7 +331,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         components: initialHtml,
         style: initialCss,
         deviceManager: { devices: [{ id: "desktop", name: "Desktop", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px` }, { id: "tablet", name: "Tablet", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "768px" }, { id: "mobile", name: "Mobile", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "390px" }] },
-        blockManager: { appendTo: blocksRef.current, blocks: checklistMode ? [] : blocks() },
+        blockManager: { appendTo: blocksRef.current, blocks: checklistMode ? [] : blocks(interactionContext) },
         traitManager: { appendTo: traitsRef.current },
         styleManager: { appendTo: stylesRef.current, sectors: styleSectors() },
         plugins: [instance => {
@@ -339,6 +341,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
           instance.DomComponents.addType("movecues-widget-root", { isComponent: element => element.classList?.contains("movecues-widget") ? { type: "movecues-widget-root" } : false, model: { defaults: { tagName: "section", removable: false, copyable: false } } });
           instance.DomComponents.addType("movecues-survey-controls", { isComponent: element => element.hasAttribute?.("data-movecues-survey-controls") ? { type: "movecues-survey-controls" } : false, model: { defaults: { tagName: "div", removable: false, copyable: false } } });
           instance.DomComponents.addType("movecues-survey-question", { isComponent: element => element.hasAttribute?.("data-movecues-question-id") ? { type: "movecues-survey-question" } : false, model: { defaults: { droppable: true, editable: false, removable: false, copyable: false, traits: [] } } });
+          instance.DomComponents.addType("movecues-survey-question-gateway", { isComponent: element => element.hasAttribute?.("data-movecues-survey-question-gateway") ? { type: "movecues-survey-question-gateway" } : false, model: { defaults: { tagName: "div", droppable: false, editable: false, removable: false, copyable: false, traits: [] } } });
           instance.DomComponents.addType("movecues-button", { isComponent: element => element.tagName === "BUTTON" && (element.hasAttribute?.("data-movecues-action-id") || element.hasAttribute?.("data-movecues-survey-action")) ? { type: "movecues-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, removable: true, copyable: false, traits: [] } } });
           instance.DomComponents.addType("movecues-free-area", { isComponent: element => element.classList?.contains(FREE_AREA_CLASS) ? { type: "movecues-free-area" } : false, model: { defaults: { tagName: "div", classes: [FREE_AREA_CLASS], droppable: true } } });
           instance.DomComponents.addType("movecues-avatar-image", { isComponent: element => element.tagName === "IMG" && element.classList?.contains("movecues-widget__avatar-image") ? { type: "movecues-avatar-image" } : false, model: { defaults: { tagName: "img", droppable: false, traits: [{ type: "text", name: "src", label: "Image URL" }, { type: "text", name: "alt", label: "Alt text" }] } } });
@@ -392,6 +395,16 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       editor.on("redo", () => setStyleRevision(value => value + 1));
       editor.on("component:add", (component: Component) => { builderDebug(experienceKey, "grapes:component-add", { component: debugComponent(component), snapshot: currentEditorDebugSnapshot(editor, widgetType) }, "info"); keepOneActionPerSlot(component); if (!applyingCodeRef.current) installNewBlockStyles(editor!, component); });
       editor.on("component:remove", (component: Component) => { builderDebug(experienceKey, "grapes:component-remove", { component: debugComponent(component), snapshot: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); });
+      editor.on("block:drag:stop", (component: Component | undefined, block: Block) => {
+        const type = surveyQuestionTypeForBlock(block) ?? surveyQuestionTypeForGateway(component);
+        if (!component || !type) return;
+        const root = editor!.getWrapper()?.find(".movecues-widget")[0];
+        const placement = root ? surveyGatewayPlacement(root, component) : undefined;
+        applyingCodeRef.current = true;
+        try { component.remove(); } finally { applyingCodeRef.current = false; }
+        const questionId = addSurveyQuestionRef.current?.(type, placement);
+        if (questionId) pendingSurveySelectionRef.current = questionId;
+      });
       editor.on("load", () => { builderDebug(experienceKey, "grapes:load"); finishInitialization("grapes:load"); }); editor.onReady(() => { builderDebug(experienceKey, "grapes:on-ready"); finishInitialization("grapes:on-ready"); });
       initializationTimer = window.setTimeout(() => {
         if (initialized || cancelled) return;
@@ -575,7 +588,50 @@ function isEditableTarget(target: EventTarget | null): boolean {
   return Boolean(element?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'));
 }
 
-function blocks() { return [
+const SURVEY_QUESTION_BLOCK_PREFIX = "survey-question:";
+const SURVEY_QUESTION_TYPES: SurveyQuestion["type"][] = ["single_choice", "multiple_choice", "short_text", "long_text", "rating", "nps"];
+
+function surveyQuestionBlocks() {
+  const definitions: Array<[SurveyQuestion["type"], string, LucideIcon]> = [
+    ["single_choice", "Single choice", CircleDot],
+    ["multiple_choice", "Multiple choice", List],
+    ["short_text", "Short text", Type],
+    ["long_text", "Long text", Rows3],
+    ["rating", "Rating", Star],
+    ["nps", "NPS", BadgeIcon],
+  ];
+  return definitions.map(([type, label, Icon]) => ({ id: `${SURVEY_QUESTION_BLOCK_PREFIX}${type}`, label, media: blockIcon(Icon), category: "Questions", content: { type: "movecues-survey-question-gateway", tagName: "div", attributes: { "data-movecues-survey-question-gateway": type } } }));
+}
+
+function surveyQuestionTypeForBlock(block?: Block): SurveyQuestion["type"] | null {
+  const id = String(block?.getId?.() ?? block?.get?.("id") ?? "");
+  const type = id.startsWith(SURVEY_QUESTION_BLOCK_PREFIX) ? id.slice(SURVEY_QUESTION_BLOCK_PREFIX.length) as SurveyQuestion["type"] : null;
+  return type && SURVEY_QUESTION_TYPES.includes(type) ? type : null;
+}
+
+function surveyQuestionTypeForGateway(component?: Component): SurveyQuestion["type"] | null {
+  const type = String(component?.getAttributes?.()["data-movecues-survey-question-gateway"] ?? "") as SurveyQuestion["type"];
+  return SURVEY_QUESTION_TYPES.includes(type) ? type : null;
+}
+
+function surveyGatewayPlacement(root: Component, gateway: Component): number | undefined {
+  if (gateway.parent?.() !== root) return undefined;
+  const gatewayIndex = gateway.index?.();
+  if (typeof gatewayIndex !== "number" || gatewayIndex < 0) return undefined;
+  let placement = 0;
+  root.components()?.forEach?.((component: Component) => {
+    if (component === gateway || component.index?.() >= gatewayIndex) return;
+    const ownId = component.getAttributes?.()["data-movecues-question-id"];
+    const nested = component.find?.("[data-movecues-question-id]") ?? [];
+    if (ownId) placement += 1;
+    else placement += nested.length;
+  });
+  return placement;
+}
+
+function cssAttributeEscape(value: string): string { return value.replace(/["\\]/g, "\\$&"); }
+
+function blocks(interactionContext: NonNullable<Props["interactionContext"]>) { const generic = [
   { id: "free-area", label: "Free Area", media: blockIcon(Maximize2), category: "Layout", content: { type: "movecues-free-area", tagName: "div", classes: [FREE_AREA_CLASS] } },
   { id: "container", label: "Container", media: blockIcon(Box), category: "Layout", content: { type: "default", tagName: "div", classes: ["movecues-widget__container"], components: "Container" } },
   { id: "row", label: "Row", media: blockIcon(Rows3), category: "Layout", content: '<div class="movecues-widget__row"><div class="movecues-widget__column">Column</div><div class="movecues-widget__column">Column</div></div>' },
@@ -593,7 +649,7 @@ function blocks() { return [
   { id: "secondary-button", label: "Secondary button", media: blockIcon(SquareMousePointer), category: "Actions", content: '<button class="movecues-widget__button movecues-widget__button--secondary" data-movecues-action-id="secondary">Dismiss</button>' },
   { id: "progress", label: "Progress", media: blockIcon(CircleDot), category: "Guide", content: '<div class="movecues-widget__progress" aria-label="Progress"><span class="movecues-widget__progress-dot movecues-widget__progress-dot--active"></span><span class="movecues-widget__progress-dot"></span><span class="movecues-widget__progress-dot"></span></div>' },
   { id: "close", label: "Close", media: blockIcon(X), category: "Guide", content: '<button class="movecues-widget__close" type="button" aria-label="Close">&times;</button>' },
-]; }
+]; return interactionContext === "survey" ? [...surveyQuestionBlocks(), ...generic] : generic; }
 
 function blockIcon(Icon: LucideIcon): string {
   return renderToStaticMarkup(<Icon aria-hidden="true" focusable="false" strokeWidth={1.8} />);

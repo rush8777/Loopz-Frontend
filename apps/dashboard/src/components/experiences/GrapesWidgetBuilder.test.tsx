@@ -49,6 +49,29 @@ describe("GrapesWidgetBuilder", () => {
     expect(definitions.get("movecues-avatar-image").model.defaults.traits.map((trait: { name: string }) => trait.name)).toEqual(["src", "alt"]);
   });
 
+  it.each([
+    { context: "survey" as const, widgetType: "survey" as const, expected: true },
+    { context: "widget" as const, widgetType: "modal" as const, expected: false },
+    { context: "guide" as const, widgetType: "modal" as const, expected: false },
+  ])("shows question gateways only for the survey builder ($context)", async ({ context, widgetType, expected }) => {
+    vi.useFakeTimers(); fakeEditor(); render(<GrapesWidgetBuilder experienceKey={`exp:blocks:${context}`} widgetType={widgetType} interactionContext={context} content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={vi.fn()} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
+    await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); });
+    const blocks = harness.init.mock.calls[0][0].blockManager.blocks as Array<{ id: string; label: string; category: string }>;
+    const questionBlocks = blocks.filter(block => block.id.startsWith("survey-question:"));
+    expect(questionBlocks.map(block => block.label)).toEqual(expected ? ["Single choice", "Multiple choice", "Short text", "Long text", "Rating", "NPS"] : []);
+    expect(questionBlocks.every(block => block.category === "Questions")).toBe(true);
+  });
+
+  it.each(["single_choice", "multiple_choice", "short_text", "long_text", "rating", "nps"] as const)("turns the %s gateway drop into a structured mutation intent and removes its temporary component", async type => {
+    vi.useFakeTimers(); const editor = fakeEditor(); const onAddSurveyQuestion = vi.fn(() => `question_${type}`); render(<GrapesWidgetBuilder experienceKey={`exp:add:${type}`} widgetType="survey" interactionContext="survey" content={{ heading: "Survey", body: "Tell us more" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onAddSurveyQuestion={onAddSurveyQuestion} onChange={vi.fn()} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
+    await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); }); editor.__configureChild({ attributes: { "data-movecues-question-id": "question_existing" } });
+    const dropped = { parent: () => editor.__root, index: () => 1, remove: vi.fn() };
+    const block = { getId: () => `survey-question:${type}` };
+    act(() => harness.handlers.get("block:drag:stop")?.(dropped, block));
+    expect(dropped.remove).toHaveBeenCalledTimes(1);
+    expect(onAddSurveyQuestion).toHaveBeenCalledWith(type, 1);
+  });
+
   it("exports inserted blocks with scoped baseline CSS while preserving existing CSS", async () => {
     vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn(); const css = ".movecues-widget{background:#123456}"; render(<GrapesWidgetBuilder experienceKey="exp:insert-blocks" widgetType="modal" value={{ version: 1, projectData: {}, html: '<section class="movecues-widget"></section>', css }} content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={onChange} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
     await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); }); onChange.mockClear();

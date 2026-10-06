@@ -16,6 +16,7 @@ interface Props {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#fcfcfc" />
     <SeoHead {...Astro.props} />
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
