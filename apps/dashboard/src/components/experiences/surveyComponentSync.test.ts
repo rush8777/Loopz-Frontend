@@ -40,48 +40,48 @@ const choices = (label: string, options: Array<[string, string]>): SurveyQuestio
 
 describe("non-destructive survey component synchronization", () => {
   it("preserves custom wrappers, classes, and GrapesJS style hooks across label and option edits", () => {
-    const { editor, root } = fixture('<section class="movecues-widget"><div class="movecues-survey-question custom-question movecues-style--question" data-movecues-question-id="question_1" data-movecues-question-type="single_choice"><p class="movecues-survey-question__label custom-label movecues-style--label"><span class="custom-label-wrapper"><em>Old label</em></span></p><div class="custom-control-wrapper"><div class="movecues-survey-options"><button class="movecues-survey-option custom-option movecues-style--option" data-movecues-option-id="a"><span class="custom-option-wrapper">Old A</span></button><button class="movecues-survey-option remove-me" data-movecues-option-id="remove">Remove</button></div></div><aside class="custom-child">Keep me</aside></div></section>');
+    const { editor, root } = fixture('<section class="movcues-widget"><div class="movcues-survey-question custom-question movcues-style--question" data-movcues-question-id="question_1" data-movcues-question-type="single_choice"><p class="movcues-survey-question__label custom-label movcues-style--label"><span class="custom-label-wrapper"><em>Old label</em></span></p><div class="custom-control-wrapper"><div class="movcues-survey-options"><button class="movcues-survey-option custom-option movcues-style--option" data-movcues-option-id="a"><span class="custom-option-wrapper">Old A</span></button><button class="movcues-survey-option remove-me" data-movcues-option-id="remove">Remove</button></div></div><aside class="custom-child">Keep me</aside></div></section>');
     syncSurveyComponents(editor, [choices("Edited label", [["a", "Edited A"], ["b", "Added B"]])]);
-    expect(root.querySelector(".custom-question.movecues-style--question")).not.toBeNull();
-    expect(root.querySelector(".custom-label.movecues-style--label .custom-label-wrapper em")?.textContent).toBe("Edited label");
-    expect([...root.querySelector('[data-movecues-option-id="a"]')!.classList]).toEqual(expect.arrayContaining(["custom-option", "movecues-style--option"]));
-    expect(root.querySelector('[data-movecues-option-id="a"] .custom-option-wrapper')?.textContent).toBe("Edited A");
-    expect(root.querySelector('[data-movecues-option-id="remove"]')).toBeNull();
-    expect(root.querySelector('[data-movecues-option-id="b"]')?.textContent).toBe("Added B");
-    expect(root.querySelector(".custom-control-wrapper .movecues-survey-options")).not.toBeNull();
+    expect(root.querySelector(".custom-question.movcues-style--question")).not.toBeNull();
+    expect(root.querySelector(".custom-label.movcues-style--label .custom-label-wrapper em")?.textContent).toBe("Edited label");
+    expect([...root.querySelector('[data-movcues-option-id="a"]')!.classList]).toEqual(expect.arrayContaining(["custom-option", "movcues-style--option"]));
+    expect(root.querySelector('[data-movcues-option-id="a"] .custom-option-wrapper')?.textContent).toBe("Edited A");
+    expect(root.querySelector('[data-movcues-option-id="remove"]')).toBeNull();
+    expect(root.querySelector('[data-movcues-option-id="b"]')?.textContent).toBe("Added B");
+    expect(root.querySelector(".custom-control-wrapper .movcues-survey-options")).not.toBeNull();
     expect(root.querySelector(".custom-child")?.textContent).toBe("Keep me");
   });
 
   it("treats applied custom HTML as authoritative and replaces only the functional control when the question type changes", () => {
-    const { editor, root } = fixture('<section class="movecues-widget"><div class="movecues-survey-question applied-html custom-question" data-movecues-question-id="question_1" data-movecues-question-type="single_choice"><div class="custom-header"><p class="movecues-survey-question__label movecues-style--label">Choose</p></div><div class="custom-control-wrapper"><div class="movecues-survey-options"><button data-movecues-option-id="a">A</button></div></div><div class="custom-footer">Authored footer</div></div></section>');
+    const { editor, root } = fixture('<section class="movcues-widget"><div class="movcues-survey-question applied-html custom-question" data-movcues-question-id="question_1" data-movcues-question-type="single_choice"><div class="custom-header"><p class="movcues-survey-question__label movcues-style--label">Choose</p></div><div class="custom-control-wrapper"><div class="movcues-survey-options"><button data-movcues-option-id="a">A</button></div></div><div class="custom-footer">Authored footer</div></div></section>');
     const question: SurveyQuestion = { id: "question_1", type: "long_text", label: "Explain", placeholder: "Details", maxLength: 120 };
     syncSurveyComponents(editor, [question]);
-    const surveyQuestion = root.querySelector('[data-movecues-question-id="question_1"]')!;
-    expect([...surveyQuestion.classList]).toEqual(expect.arrayContaining(["applied-html", "custom-question", "movecues-survey-question--long_text"]));
-    expect(surveyQuestion.classList.contains("movecues-survey-question--single_choice")).toBe(false);
-    expect(root.querySelector(".custom-header .movecues-style--label")?.textContent).toBe("Explain");
+    const surveyQuestion = root.querySelector('[data-movcues-question-id="question_1"]')!;
+    expect([...surveyQuestion.classList]).toEqual(expect.arrayContaining(["applied-html", "custom-question", "movcues-survey-question--long_text"]));
+    expect(surveyQuestion.classList.contains("movcues-survey-question--single_choice")).toBe(false);
+    expect(root.querySelector(".custom-header .movcues-style--label")?.textContent).toBe("Explain");
     expect(root.querySelector(".custom-footer")?.textContent).toBe("Authored footer");
-    expect(root.querySelector(".movecues-survey-options")).toBeNull();
-    expect(root.querySelector('.custom-control-wrapper textarea[data-movecues-question-input][placeholder="Details"][maxlength="120"]')).not.toBeNull();
+    expect(root.querySelector(".movcues-survey-options")).toBeNull();
+    expect(root.querySelector('.custom-control-wrapper textarea[data-movcues-question-input][placeholder="Details"][maxlength="120"]')).not.toBeNull();
   });
 
   it("inserts a structured question at the requested order without rebuilding customized questions or navigation", () => {
-    const { editor, root } = fixture('<section class="movecues-widget"><div class="movecues-survey-question custom-first" data-movecues-question-id="question_1" data-movecues-question-type="single_choice"><p class="movecues-survey-question__label"><span class="authored-wrapper">First</span></p><div class="movecues-survey-options"><button data-movecues-option-id="a">A</button></div></div><div data-movecues-survey-question-gateway="short_text"></div><div class="movecues-survey-question custom-second" data-movecues-question-id="question_2" data-movecues-question-type="short_text"><p class="movecues-survey-question__label">Second</p><input data-movecues-question-input></div><div data-movecues-survey-controls><button data-movecues-survey-action="next">Next</button></div></section>');
+    const { editor, root } = fixture('<section class="movcues-widget"><div class="movcues-survey-question custom-first" data-movcues-question-id="question_1" data-movcues-question-type="single_choice"><p class="movcues-survey-question__label"><span class="authored-wrapper">First</span></p><div class="movcues-survey-options"><button data-movcues-option-id="a">A</button></div></div><div data-movcues-survey-question-gateway="short_text"></div><div class="movcues-survey-question custom-second" data-movcues-question-id="question_2" data-movcues-question-type="short_text"><p class="movcues-survey-question__label">Second</p><input data-movcues-question-input></div><div data-movcues-survey-controls><button data-movcues-survey-action="next">Next</button></div></section>');
     const added: SurveyQuestion = { id: "question_new", type: "rating", label: "Rate it", min: 1, max: 5 };
     syncSurveyComponents(editor, [choices("First", [["a", "A"]]), added, { id: "question_2", type: "short_text", label: "Second", placeholder: "Answer", maxLength: 250 }]);
-    const ids = [...root.querySelectorAll<HTMLElement>("[data-movecues-question-id]")].map(element => element.dataset.movecuesQuestionId);
+    const ids = [...root.querySelectorAll<HTMLElement>("[data-movcues-question-id]")].map(element => element.dataset.movcuesQuestionId);
     expect(ids).toEqual(["question_1", "question_new", "question_2"]);
     expect(root.querySelector(".custom-first .authored-wrapper")?.textContent).toBe("First");
     expect(root.querySelector(".custom-second")).not.toBeNull();
-    expect(root.querySelectorAll("[data-movecues-survey-controls]")).toHaveLength(1);
-    expect(root.querySelectorAll('[data-movecues-question-id="question_new"]')).toHaveLength(1);
-    expect(root.querySelector("[data-movecues-survey-question-gateway]")).toBeNull();
+    expect(root.querySelectorAll("[data-movcues-survey-controls]")).toHaveLength(1);
+    expect(root.querySelectorAll('[data-movcues-question-id="question_new"]')).toHaveLength(1);
+    expect(root.querySelector("[data-movcues-survey-question-gateway]")).toBeNull();
   });
 });
 
 describe("live structured-copy synchronization", () => {
   it("repaints checklist title, description, and item copy in the canvas", () => {
-    const { editor, root } = fixture('<section class="movecues-widget" data-movecues-checklist-role="root"><h2 data-movecues-checklist-role="title">Old title</h2><p data-movecues-checklist-role="description">Old description</p><span data-movecues-checklist-role="launcher-label">Old launcher</span><div data-movecues-checklist-role="completion-title">Old completion</div><div data-movecues-checklist-role="completion-description">Old completion description</div><button data-movecues-checklist-role="completion-acknowledge">Old button</button><div data-movecues-checklist-view="expanded"><div data-movecues-checklist-role="items"><button data-movecues-checklist-item-id="task-1"><span data-movecues-checklist-item-role="title">Old task</span><span data-movecues-checklist-item-role="description">Old task description</span></button></div></div></section>');
+    const { editor, root } = fixture('<section class="movcues-widget" data-movcues-checklist-role="root"><h2 data-movcues-checklist-role="title">Old title</h2><p data-movcues-checklist-role="description">Old description</p><span data-movcues-checklist-role="launcher-label">Old launcher</span><div data-movcues-checklist-role="completion-title">Old completion</div><div data-movcues-checklist-role="completion-description">Old completion description</div><button data-movcues-checklist-role="completion-acknowledge">Old button</button><div data-movcues-checklist-view="expanded"><div data-movcues-checklist-role="items"><button data-movcues-checklist-item-id="task-1"><span data-movcues-checklist-item-role="title">Old task</span><span data-movcues-checklist-item-role="description">Old task description</span></button></div></div></section>');
 
     syncChecklistComponents(
       editor,
@@ -89,9 +89,9 @@ describe("live structured-copy synchronization", () => {
       { title: "Updated title", description: "Updated description", completionMessage: { title: "All done", description: "Finished", acknowledgeLabel: "Close" } },
     );
 
-    expect(root.querySelector('[data-movecues-checklist-role="title"]')?.textContent).toBe("Updated title");
-    expect(root.querySelector('[data-movecues-checklist-role="description"]')?.textContent).toBe("Updated description");
-    expect(root.querySelector('[data-movecues-checklist-item-role="title"]')?.textContent).toBe("Updated task");
-    expect(root.querySelector('[data-movecues-checklist-item-role="description"]')?.textContent).toBe("Updated task description");
+    expect(root.querySelector('[data-movcues-checklist-role="title"]')?.textContent).toBe("Updated title");
+    expect(root.querySelector('[data-movcues-checklist-role="description"]')?.textContent).toBe("Updated description");
+    expect(root.querySelector('[data-movcues-checklist-item-role="title"]')?.textContent).toBe("Updated task");
+    expect(root.querySelector('[data-movcues-checklist-item-role="description"]')?.textContent).toBe("Updated task description");
   });
 });

@@ -1,13 +1,13 @@
 import { useAuth } from "../../auth/AuthContext";
 import { SettingsGroup, SettingsHeading, SettingsRow } from "./SettingsShared";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 
 export function AccountSettings() {
   const { user, logout } = useAuth();
 
   return (
     <div>
-      <SettingsHeading title="Account" description="Your personal Movecues account." />
+      <SettingsHeading title="Account" description="Your personal movcues account." />
       <SettingsGroup>
         <SettingsRow label="Name" value={user?.name ?? "Not set"} />
         <SettingsRow label="Email" value={user?.email ?? "Unavailable"} />

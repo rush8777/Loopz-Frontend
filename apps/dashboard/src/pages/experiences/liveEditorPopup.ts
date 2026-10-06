@@ -1,4 +1,4 @@
-export const LIVE_EDITOR_WINDOW_NAME = "movecues-live-editor";
+export const LIVE_EDITOR_WINDOW_NAME = "movcues-live-editor";
 const POPUP_MAX_WIDTH = 1200;
 const POPUP_MAX_HEIGHT = 640;
 const POPUP_SCREEN_MARGIN = 120;

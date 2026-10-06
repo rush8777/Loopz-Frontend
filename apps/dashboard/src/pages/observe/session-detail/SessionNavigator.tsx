@@ -1,5 +1,5 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@movecues/ui";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@movecues/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@movcues/ui";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@movcues/ui";
 import type { SessionEpisodeViewModel } from "./sessionTimeline";
 import { elapsedLabel, episodeSummary } from "./sessionTimeline";
 

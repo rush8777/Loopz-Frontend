@@ -1,12 +1,12 @@
 import { AlertCircle, ChevronDown, ChevronUp, Copy, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ReferenceLine, XAxis, YAxis } from "recharts";
 import { DashboardCardFooter, DashboardCardHeader } from "@/components/dashboard/DashboardCardChrome";
-import { Button } from "@movecues/ui";
-import { Card, CardContent } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Card, CardContent } from "@movcues/ui";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Skeleton } from "@movecues/ui";
+import { Skeleton } from "@movcues/ui";
 import type { AnalyticsResponse, DashboardCard, DashboardFilters } from "@/types/api";
-import { cn } from "@movecues/ui";
+import { cn } from "@movcues/ui";
 import { AnalyticsMetricCard } from "@/components/analytics/AnalyticsMetricCard";
 import { chartAxisTick, chartMargin, formatTooltipDate, getResponsiveDateAxisProps, getResponsiveTickProps } from "@/lib/chartFormatting";
 

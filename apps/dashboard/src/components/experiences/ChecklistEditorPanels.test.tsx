@@ -40,8 +40,8 @@ function definition(): ChecklistExperienceDefinition {
     builder: {
       version: 1,
       projectData: {},
-      html: '<section data-movecues-checklist-role="root"></section>',
-      css: ".movecues-widget{color:#111}",
+      html: '<section data-movcues-checklist-role="root"></section>',
+      css: ".movcues-widget{color:#111}",
     },
   };
 }

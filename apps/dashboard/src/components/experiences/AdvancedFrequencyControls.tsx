@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Input, Label } from "@movecues/ui";
+import { Input, Label } from "@movcues/ui";
 import type { ExperienceTargeting } from "../../types/experiences";
 
 type Frequency = ExperienceTargeting["frequency"];

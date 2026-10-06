@@ -1,4 +1,4 @@
-import { Badge } from "@movecues/ui";
+import { Badge } from "@movcues/ui";
 import { PageHeader } from "../../components/PageHeader";
 
 export function HeatmapsPage() {

@@ -18,11 +18,11 @@ import type {
   EventSessionSummary,
   EventPageSummary,
 } from "../../types/api";
-import { Button } from "@movecues/ui";
-import { Badge } from "@movecues/ui";
-import { Skeleton } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Badge } from "@movcues/ui";
+import { Skeleton } from "@movcues/ui";
 import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
-import { cn } from "@movecues/ui";
+import { cn } from "@movcues/ui";
 
 type Tab = "properties" | "occurrences" | "users" | "sessions" | "pages";
 

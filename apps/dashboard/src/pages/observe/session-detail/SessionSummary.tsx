@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import type { SessionActivity } from "../../../types/api";
 import { formatDuration, formatTimestamp } from "../../../lib/format";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 import { Metric as SurfaceMetric, MetricGrid } from "@/components/PageSurface";
 
 export function SessionSummary({ session, visitorPath, onViewHeatmap }: { session: SessionActivity; visitorPath: string | null; onViewHeatmap: () => void }) {

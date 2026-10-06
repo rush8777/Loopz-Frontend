@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 import * as experiencesApi from "../../api/experiences";
 import type { PageDefinition, Segment } from "../../types/api";
 import type {

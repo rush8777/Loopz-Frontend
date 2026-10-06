@@ -1,7 +1,7 @@
 import { DATE_RANGE_PRESETS, type DateRangePreset } from "../lib/dateRange";
-import { Button } from "@movecues/ui";
-import { Input } from "@movecues/ui";
-import { cn } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Input } from "@movcues/ui";
+import { cn } from "@movcues/ui";
 
 export function DateRangePicker({
   preset,

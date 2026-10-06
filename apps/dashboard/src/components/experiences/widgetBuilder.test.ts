@@ -10,50 +10,50 @@ describe("widget builder compatibility", () => {
     const examples: Record<WidgetType, string> = { anchored_card: "Quick tip", toast: "Success", cursor_follow: "Tip", modal: "New feature", slideout: "What's new", hotspot: "Feature spotlight", banner: "Announcement", survey: "feedback" };
     for (const type of ["anchored_card", "toast", "cursor_follow", "modal", "slideout", "hotspot", "banner", "survey"] satisfies WidgetType[]) {
       const starter = createWidgetStarter(type, content, design);
-      expect(starter.html).toContain(`data-movecues-widget-type="${type}"`); expect(starter.html).toContain(examples[type]); expect(starter.html).toContain("movecues-widget"); expect(validateBuilderCss(starter.css)).toBe(starter.css);
+      expect(starter.html).toContain(`data-movcues-widget-type="${type}"`); expect(starter.html).toContain(examples[type]); expect(starter.html).toContain("movcues-widget"); expect(validateBuilderCss(starter.css)).toBe(starter.css);
     }
     const modal = createWidgetStarter("modal", content, design), slideout = createWidgetStarter("slideout", content, design), banner = createWidgetStarter("banner", content, design); expect(modal.css).toContain("display:flex;flex-direction:column"); expect(modal.css).toContain("width:600px"); expect(slideout.css).toContain("width:400px"); expect(slideout.css).toContain("min-height:460px"); expect(banner.css).toContain("display:flex;flex-direction:row"); expect(banner.css).toContain("width:100%");
-    const survey = createWidgetStarter("survey", content, design); expect(survey.html).toContain("movecues-survey-validation"); expect(survey.html).not.toContain("data-movecues-survey-controls"); expect(survey.html).not.toContain("data-movecues-survey-action"); expect(survey.html).not.toMatch(/>Back<|>Next<|>Submit</);
+    const survey = createWidgetStarter("survey", content, design); expect(survey.html).toContain("movcues-survey-validation"); expect(survey.html).not.toContain("data-movcues-survey-controls"); expect(survey.html).not.toContain("data-movcues-survey-action"); expect(survey.html).not.toMatch(/>Back<|>Next<|>Submit</);
   });
 
-  it("removes executable markup and unsafe attributes while preserving movecues action ids", () => {
-    const result = sanitizeBuilderHtml('<section class="movecues-widget"><script>alert(1)</script><button data-movecues-action-id="primary" onclick="alert(1)">Go</button><button data-movecues-action-id="primary">Duplicate</button><iframe src="javascript:alert(1)"></iframe></section>');
-    expect(result).not.toMatch(/script|onclick|Duplicate|javascript:|iframe/i); expect(result).toContain('data-movecues-action-id="primary"');
+  it("removes executable markup and unsafe attributes while preserving movcues action ids", () => {
+    const result = sanitizeBuilderHtml('<section class="movcues-widget"><script>alert(1)</script><button data-movcues-action-id="primary" onclick="alert(1)">Go</button><button data-movcues-action-id="primary">Duplicate</button><iframe src="javascript:alert(1)"></iframe></section>');
+    expect(result).not.toMatch(/script|onclick|Duplicate|javascript:|iframe/i); expect(result).toContain('data-movcues-action-id="primary"');
   });
 
   it("preserves supported image and structural markup while removing unsupported media", () => {
-    const html = '<section class="movecues-widget"><div class="movecues-widget__video"><video controls playsinline muted loop src="https://cdn.test/demo.mp4"><source src="/fallback.mp4"></video></div><div class="movecues-widget__avatar"><img src="https://cdn.test/avatar.png" alt="Profile"></div><ul class="movecues-widget__list"><li>Edited item</li></ul><iframe src="https://example.test/embed" title="Example" loading="lazy"></iframe><div class="movecues-widget__progress" aria-label="Progress"><span></span></div><button class="movecues-widget__close" type="button" aria-label="Close">×</button></section>';
+    const html = '<section class="movcues-widget"><div class="movcues-widget__video"><video controls playsinline muted loop src="https://cdn.test/demo.mp4"><source src="/fallback.mp4"></video></div><div class="movcues-widget__avatar"><img src="https://cdn.test/avatar.png" alt="Profile"></div><ul class="movcues-widget__list"><li>Edited item</li></ul><iframe src="https://example.test/embed" title="Example" loading="lazy"></iframe><div class="movcues-widget__progress" aria-label="Progress"><span></span></div><button class="movcues-widget__close" type="button" aria-label="Close">×</button></section>';
     const result = sanitizeBuilderHtml(html);
-    expect(result).not.toMatch(/<(?:video|iframe)\b/i); expect(result).toContain('<ul class="movecues-widget__list"><li>Edited item</li></ul>'); expect(result).toContain('src="https://cdn.test/avatar.png"'); expect(result).toContain('aria-label="Close"');
-    const unsafe = sanitizeBuilderHtml('<section class="movecues-widget"><img src="data:image/svg+xml;base64,unsafe"><img src="data:image/png;base64,safe"></section>');
+    expect(result).not.toMatch(/<(?:video|iframe)\b/i); expect(result).toContain('<ul class="movcues-widget__list"><li>Edited item</li></ul>'); expect(result).toContain('src="https://cdn.test/avatar.png"'); expect(result).toContain('aria-label="Close"');
+    const unsafe = sanitizeBuilderHtml('<section class="movcues-widget"><img src="data:image/svg+xml;base64,unsafe"><img src="data:image/png;base64,safe"></section>');
     expect(unsafe).not.toContain("svg+xml"); expect(unsafe).toContain("data:image/png;base64,safe");
   });
 
   it("preserves independently authored and duplicated survey button actions", () => {
-    const result = sanitizeBuilderHtml('<section class="movecues-widget"><button class="movecues-widget__button" data-movecues-survey-action="next">Continue</button><button class="movecues-widget__button--secondary" data-movecues-survey-action="next">Alternate</button><button data-movecues-survey-action="back">Previous</button></section>', true);
-    expect(result.match(/data-movecues-survey-action="next"/g)).toHaveLength(2); expect(result).toContain('data-movecues-survey-action="back"');
+    const result = sanitizeBuilderHtml('<section class="movcues-widget"><button class="movcues-widget__button" data-movcues-survey-action="next">Continue</button><button class="movcues-widget__button--secondary" data-movcues-survey-action="next">Alternate</button><button data-movcues-survey-action="back">Previous</button></section>', true);
+    expect(result.match(/data-movcues-survey-action="next"/g)).toHaveLength(2); expect(result).toContain('data-movcues-survey-action="back"');
   });
 
   it("round-trips custom survey HTML and CSS through save and reload sanitization", () => {
-    const html = '<section class="movecues-widget custom-survey"><div class="movecues-survey-question custom-question movecues-style--saved" data-movecues-question-id="question_1" data-movecues-question-type="short_text"><div class="custom-wrapper"><p class="movecues-survey-question__label">Name</p><input type="text" class="custom-input" data-movecues-question-input placeholder="Your name"></div></div></section>';
-    const css = ".movecues-widget.custom-survey{background:#fff}.movecues-widget .movecues-style--saved{padding:12px}";
+    const html = '<section class="movcues-widget custom-survey"><div class="movcues-survey-question custom-question movcues-style--saved" data-movcues-question-id="question_1" data-movcues-question-type="short_text"><div class="custom-wrapper"><p class="movcues-survey-question__label">Name</p><input type="text" class="custom-input" data-movcues-question-input placeholder="Your name"></div></div></section>';
+    const css = ".movcues-widget.custom-survey{background:#fff}.movcues-widget .movcues-style--saved{padding:12px}";
     const savedHtml = sanitizeBuilderHtml(html, true); const savedCss = validateBuilderCss(css);
     expect(sanitizeBuilderHtml(savedHtml, true)).toBe(savedHtml); expect(validateBuilderCss(savedCss)).toBe(savedCss);
-    expect(savedHtml).toContain("custom-wrapper"); expect(savedHtml).toContain("movecues-style--saved"); expect(savedHtml).toContain("custom-input");
+    expect(savedHtml).toContain("custom-wrapper"); expect(savedHtml).toContain("movcues-style--saved"); expect(savedHtml).toContain("custom-input");
   });
 
   it("preserves Free Area and stable item marker classes", () => {
-    const result = sanitizeBuilderHtml('<section class="movecues-widget"><div class="movecues-free-area movecues-free-area--stable"><p class="movecues-free-item movecues-free-item--stable-1">Free text</p></div></section>');
-    expect(result).toContain("movecues-free-area--stable"); expect(result).toContain("movecues-free-item--stable-1"); expect(validateBuilderCss(".movecues-widget .movecues-free-item--stable-1{position:absolute;left:12px;top:20px}")).toContain("movecues-free-item--stable-1");
+    const result = sanitizeBuilderHtml('<section class="movcues-widget"><div class="movcues-free-area movcues-free-area--stable"><p class="movcues-free-item movcues-free-item--stable-1">Free text</p></div></section>');
+    expect(result).toContain("movcues-free-area--stable"); expect(result).toContain("movcues-free-item--stable-1"); expect(validateBuilderCss(".movcues-widget .movcues-free-item--stable-1{position:absolute;left:12px;top:20px}")).toContain("movcues-free-item--stable-1");
   });
 
   it("preserves safe line breaks created by rich-text editing", () => {
-    const result = sanitizeBuilderHtml('<section class="movecues-widget"><p>First line<br>Second line<br/>Third line</p></section>');
+    const result = sanitizeBuilderHtml('<section class="movcues-widget"><p>First line<br>Second line<br/>Third line</p></section>');
     expect(result).toContain("First line<br>Second line<br>Third line");
   });
 
   it("rejects executable or unscoped CSS", () => {
-    expect(() => validateBuilderCss("button{color:red}")).toThrow(/scoped/i); expect(() => validateBuilderCss("@import url('https://evil.test/x.css')")).toThrow(/not allowed/i); expect(validateBuilderCss(".movecues-widget .button{color:red}")).toContain(".movecues-widget");
+    expect(() => validateBuilderCss("button{color:red}")).toThrow(/scoped/i); expect(() => validateBuilderCss("@import url('https://evil.test/x.css')")).toThrow(/not allowed/i); expect(validateBuilderCss(".movcues-widget .button{color:red}")).toContain(".movcues-widget");
   });
 
   it("rejects executable GrapesJS project state before it can be reopened", () => {
@@ -61,7 +61,7 @@ describe("widget builder compatibility", () => {
   });
 
   it("projects canonical builder content back into the legacy runtime model", () => {
-    const html = '<section class="movecues-widget"><h2 data-movecues-content="heading">Updated</h2><p data-movecues-content="body">New body</p><button data-movecues-action-id="primary">Launch</button></section>';
+    const html = '<section class="movcues-widget"><h2 data-movcues-content="heading">Updated</h2><p data-movcues-content="body">New body</p><button data-movcues-action-id="primary">Launch</button></section>';
     expect(projectLegacyContent(html, content)).toEqual({ heading: "Updated", body: "New body", primaryAction: { label: "Launch", type: "track_event", eventName: "continued" }, secondaryAction: undefined });
   });
 });

@@ -8,7 +8,7 @@ import * as segmentsApi from "../../api/segments";
 import * as pagesApi from "../../api/pages";
 import type { SessionSummary } from "../../types/api";
 import { formatDuration, formatRelativeTime, formatTimestamp } from "../../lib/format";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 import { BrowserIcon } from "../../components/BrowserIcon";
 import { AnalyticsFilterBar, type AppliedFilters, type FilterDefinition } from "@/components/filters/AnalyticsFilterBar";
 import { readFilters, writeFilters } from "@/components/filters/filterUrlState";

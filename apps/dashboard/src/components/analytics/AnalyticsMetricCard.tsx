@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "@movecues/ui";
+import { cn } from "@movcues/ui";
 
 type Props = {
   label: string;

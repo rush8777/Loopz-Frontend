@@ -1,5 +1,5 @@
 {
-  "name": "@movecues/website",
+  "name": "@movcues/website",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@astrojs/react": "5.0.7",
-    "@movecues/tokens": "*",
-    "@movecues/ui": "*",
+    "@movcues/tokens": "*",
+    "@movcues/ui": "*",
     "astro": "^6.0.0",
     "lucide-astro": "^0.556.0",
     "react": "^19.2.8",

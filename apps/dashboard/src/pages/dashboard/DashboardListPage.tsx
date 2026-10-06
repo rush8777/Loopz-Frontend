@@ -3,7 +3,7 @@ import { LayoutDashboard, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
 import * as dashboardsApi from "@/api/dashboards";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorNotice, LoadingRows } from "@/components/PageSurface";
 import { PageHeader } from "@/components/PageHeader";

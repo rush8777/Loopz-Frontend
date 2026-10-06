@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ResponsiveContainer, Tooltip } from "recharts";
-import { cn } from "@movecues/ui";
+import { cn } from "@movcues/ui";
 import { formatTooltipDate } from "@/lib/chartFormatting";
 
 export type ChartConfig = Record<string, { label?: React.ReactNode; color?: string }>;

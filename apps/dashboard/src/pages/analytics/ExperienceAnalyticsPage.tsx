@@ -8,7 +8,7 @@ import type { Experience, ExperienceAnalytics } from "@/types/experiences";
 import { PageHeader } from "@/components/PageHeader";
 import { AnalyticsMetricCard } from "@/components/analytics/AnalyticsMetricCard";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { cn } from "@movecues/ui";
+import { cn } from "@movcues/ui";
 import { chartAxisTick, chartMargin, getResponsiveDateAxisProps } from "@/lib/chartFormatting";
 
 type TrendMetric = "viewers" | "engagement" | "completion" | "goal";

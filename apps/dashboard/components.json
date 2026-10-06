@@ -4,6 +4,6 @@
   "rsc": false,
   "tsx": true,
   "tailwind": { "css": "src/styles/globals.css", "baseColor": "neutral", "cssVariables": true, "prefix": "" },
-  "aliases": { "components": "@/components", "utils": "@movecues/ui", "ui": "@movecues/ui", "lib": "@/lib", "hooks": "@/hooks" },
+  "aliases": { "components": "@/components", "utils": "@movcues/ui", "ui": "@movcues/ui", "lib": "@/lib", "hooks": "@/hooks" },
   "iconLibrary": "lucide"
 }

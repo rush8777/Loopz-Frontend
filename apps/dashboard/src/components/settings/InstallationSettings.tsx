@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CircleCheck, CircleX, LoaderCircle } from "lucide-react";
-import { Alert, Badge, Button } from "@movecues/ui";
+import { Alert, Badge, Button } from "@movcues/ui";
 import * as sitesApi from "../../api/sites";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import type { SiteStatus } from "../../types/api";
@@ -93,7 +93,7 @@ export function InstallationSettings() {
 
   return (
     <div>
-      <SettingsHeading title="Installation" description="Install Movecues and verify that this site is sending data." />
+      <SettingsHeading title="Installation" description="Install movcues and verify that this site is sending data." />
       {!currentSite ? <NoSiteMessage /> : <>
         {statusError && <Alert className="mb-4 border-destructive/25 bg-red-50 text-destructive">{statusError}</Alert>}
         <SettingsGroup title="SDK connection">

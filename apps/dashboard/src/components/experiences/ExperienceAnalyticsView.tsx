@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as experiencesApi from "@/api/experiences";
 import type { ExperienceAnalytics, SurveyResponseRecord } from "@/types/experiences";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 
 export function ExperienceAnalyticsView({ orgId, siteId, experienceId }: { orgId: string; siteId: string; experienceId: string }) {
   const [analytics, setAnalytics] = useState<ExperienceAnalytics>();

@@ -20,7 +20,7 @@ describe("UpgradeNowProvider", () => {
 
   it("opens a hovering upgrade wall for a resource-limit response", async () => {
     render(<UpgradeNowProvider><p>Workspace</p></UpgradeNowProvider>);
-    fireEvent(window, new CustomEvent("movecues:upgrade-required", { detail: { error: "resource_limit", entitlement: { resource: "site", current: 1, limit: 1, planId: "starter" } } }));
+    fireEvent(window, new CustomEvent("movcues:upgrade-required", { detail: { error: "resource_limit", entitlement: { resource: "site", current: 1, limit: 1, planId: "starter" } } }));
     expect(await screen.findByRole("dialog")).toHaveTextContent("You’ve reached your plan limit");
     expect(screen.getByRole("dialog")).toHaveTextContent("You’re using 1 of 1.");
     await waitFor(() => expect(mockedBilling.getPlanUsage).toHaveBeenCalledWith("org_1"));

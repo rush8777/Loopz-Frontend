@@ -5,10 +5,10 @@ import { Badge as BadgeIcon, Box, CircleDot, CircleUserRound, Code2, Columns3, H
 import "grapesjs/dist/css/grapes.min.css";
 import "./GrapesWidgetBuilder.css";
 import type { BuilderCanvasViewport, ChecklistItem, ExperienceAction, ExperienceContent, ExperienceDesign, ExperienceSize, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
-import { Button } from "@movecues/ui";
-import { Input } from "@movecues/ui";
-import { Label } from "@movecues/ui";
-import { Textarea } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Input } from "@movcues/ui";
+import { Label } from "@movcues/ui";
+import { Textarea } from "@movcues/ui";
 import { builderSignature, createWidgetStarter, projectLegacyContent, sanitizeBuilderHtml, validateBuilderCss, type BuilderExport } from "./widgetBuilder";
 import { FREE_AREA_CLASS, installWidgetInteractions, type FreeItemBox, type WidgetInteractionController } from "./grapesWidgetInteractions";
 import { GrapesWidgetInspector, type InspectorStylePatch, type InspectorStyleSnapshot } from "./GrapesWidgetInspector";
@@ -43,7 +43,7 @@ const AUTHORING_CANVAS_HEIGHT = 900;
 const MIN_CANVAS_ZOOM = 25;
 const MAX_CANVAS_ZOOM = 200;
 const CANVAS_ZOOM_STEP = 10;
-const STYLE_CLASS_PREFIX = "movecues-style--";
+const STYLE_CLASS_PREFIX = "movcues-style--";
 const AUTHORING_CANVAS_DOT_BACKGROUND = "#f8fafc radial-gradient(circle at 1px 1px, rgb(148 163 184 / .38) 1px, transparent 1.1px)";
 // Keep the GrapesJS iframe on the same runtime baseline as the SDK Shadow DOM.
 // Builder CSS is injected afterwards and remains free to override these defaults.
@@ -66,12 +66,12 @@ type SelectedInteraction =
 
 function interactionForComponent(component?: Component): SelectedInteraction {
   const attributes = component?.getAttributes?.() ?? {};
-  if (attributes["data-movecues-option-id"]) return null;
-  const slot = attributes["data-movecues-action-id"];
+  if (attributes["data-movcues-option-id"]) return null;
+  const slot = attributes["data-movcues-action-id"];
   if (slot === "primary" || slot === "secondary") return { kind: slot };
-  const surveyAction = attributes["data-movecues-survey-action"];
+  const surveyAction = attributes["data-movcues-survey-action"];
   if (surveyAction === "back" || surveyAction === "next" || surveyAction === "submit") return { kind: "survey", action: surveyAction };
-  if (component?.get?.("tagName") === "button" || component?.getClasses?.().includes("movecues-widget__button")) return { kind: "button" };
+  if (component?.get?.("tagName") === "button" || component?.getClasses?.().includes("movcues-widget__button")) return { kind: "button" };
   return null;
 }
 
@@ -79,9 +79,9 @@ function checklistSelection(component: Component): { type: "root" } | { type: "t
   let current: Component | undefined = component;
   while (current) {
     const attributes = current.getAttributes?.() ?? {};
-    const itemId = attributes["data-movecues-checklist-item-id"];
+    const itemId = attributes["data-movcues-checklist-item-id"];
     if (typeof itemId === "string" && itemId) return { type: "task", itemId };
-    if (attributes["data-movecues-checklist-role"] === "root") return { type: "root" };
+    if (attributes["data-movcues-checklist-role"] === "root") return { type: "root" };
     current = current.parent?.() ?? undefined;
   }
   return null;
@@ -91,14 +91,14 @@ function applyChecklistPreview(editor: Editor, items: ChecklistItem[], order: "a
   const documentValue = editor.Canvas.getDocument?.();
   if (!documentValue) return;
   const completeCount = progress === "complete" ? items.length : progress === "progress" ? Math.max(1, Math.floor(items.length / 2)) : 0;
-  documentValue.querySelectorAll<HTMLElement>("[data-movecues-checklist-view]").forEach(element => element.classList.toggle("is-active", element.dataset.movecuesChecklistView === view));
+  documentValue.querySelectorAll<HTMLElement>("[data-movcues-checklist-view]").forEach(element => element.classList.toggle("is-active", element.dataset.movcuesChecklistView === view));
   items.forEach((item, index) => {
-    const element = Array.from(documentValue.querySelectorAll<HTMLElement>("[data-movecues-checklist-item-id]")).find(candidate => candidate.dataset.movecuesChecklistItemId === item.id);
+    const element = Array.from(documentValue.querySelectorAll<HTMLElement>("[data-movcues-checklist-item-id]")).find(candidate => candidate.dataset.movcuesChecklistItemId === item.id);
     if (element) element.dataset.state = index < completeCount ? "completed" : order === "sequential" && index > completeCount ? "locked" : "available";
   });
-  const progressElement = documentValue.querySelector<HTMLElement>('[data-movecues-checklist-role="progress"]');
+  const progressElement = documentValue.querySelector<HTMLElement>('[data-movcues-checklist-role="progress"]');
   if (progressElement) progressElement.textContent = `${completeCount} of ${items.length} complete`;
-  const remaining = documentValue.querySelector<HTMLElement>('[data-movecues-checklist-role="remaining-count"]');
+  const remaining = documentValue.querySelector<HTMLElement>('[data-movcues-checklist-role="remaining-count"]');
   if (remaining) remaining.textContent = String(Math.max(0, items.length - completeCount));
 }
 
@@ -134,8 +134,8 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   useEffect(() => { designRef.current = design; applySizeEnvelopeRef.current(design); }, [design]);
   useEffect(() => { codeModeRef.current = codeMode; }, [codeMode]);
   useEffect(() => { handToolRef.current = handTool; }, [handTool]);
-  useImperativeHandle(ref, () => ({ flush: () => flushExportRef.current(), selectChecklistItem: itemId => { const component = editorRef.current?.getWrapper()?.find(`[data-movecues-checklist-item-id="${itemId.replace(/["\\]/g, "\\$&")}"]`)[0]; if (component) editorRef.current?.select(component); }, selectChecklistRoot: () => { const component = editorRef.current?.getWrapper()?.find('[data-movecues-checklist-role="root"]')[0]; if (component) editorRef.current?.select(component); } }), []);
-  useEffect(() => { if (widgetType !== "survey" || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !surveyQuestions) return; const signature = `${experienceKey}:${JSON.stringify(surveyQuestions)}`; if (signature === surveyProjectionSignatureRef.current) return; builderDebug(experienceKey, "survey:projection:start", { questionCount: surveyQuestions.length, signature }); surveyProjectionSignatureRef.current = signature; syncSurveyComponents(editorRef.current, surveyQuestions); const pendingSelection = pendingSurveySelectionRef.current; if (pendingSelection) { const component = editorRef.current.getWrapper()?.find(`[data-movecues-question-id="${cssAttributeEscape(pendingSelection)}"]`)[0]; if (component) { pendingSurveySelectionRef.current = null; editorRef.current.select(component); } } flushExportRef.current(); builderDebug(experienceKey, "survey:projection:complete"); }, [experienceKey, ready, surveyQuestions, widgetType]);
+  useImperativeHandle(ref, () => ({ flush: () => flushExportRef.current(), selectChecklistItem: itemId => { const component = editorRef.current?.getWrapper()?.find(`[data-movcues-checklist-item-id="${itemId.replace(/["\\]/g, "\\$&")}"]`)[0]; if (component) editorRef.current?.select(component); }, selectChecklistRoot: () => { const component = editorRef.current?.getWrapper()?.find('[data-movcues-checklist-role="root"]')[0]; if (component) editorRef.current?.select(component); } }), []);
+  useEffect(() => { if (widgetType !== "survey" || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !surveyQuestions) return; const signature = `${experienceKey}:${JSON.stringify(surveyQuestions)}`; if (signature === surveyProjectionSignatureRef.current) return; builderDebug(experienceKey, "survey:projection:start", { questionCount: surveyQuestions.length, signature }); surveyProjectionSignatureRef.current = signature; syncSurveyComponents(editorRef.current, surveyQuestions); const pendingSelection = pendingSurveySelectionRef.current; if (pendingSelection) { const component = editorRef.current.getWrapper()?.find(`[data-movcues-question-id="${cssAttributeEscape(pendingSelection)}"]`)[0]; if (component) { pendingSurveySelectionRef.current = null; editorRef.current.select(component); } } flushExportRef.current(); builderDebug(experienceKey, "survey:projection:complete"); }, [experienceKey, ready, surveyQuestions, widgetType]);
   useEffect(() => { if (!checklistMode || !ready || !editorRef.current || editorExperienceKeyRef.current !== experienceKey || !checklistItems) return; const signature = `${experienceKey}:${JSON.stringify({ items: checklistItems, copy: checklistCopy })}`; if (signature !== checklistProjectionSignatureRef.current) { checklistProjectionSignatureRef.current = signature; syncChecklistComponents(editorRef.current, checklistItems, checklistCopy); flushExportRef.current(); } applyChecklistPreview(editorRef.current, checklistItems, checklistOrder, checklistPreviewProgress, checklistPreviewView); }, [checklistCopy, checklistItems, checklistMode, checklistOrder, checklistPreviewProgress, checklistPreviewView, experienceKey, ready]);
 
   useEffect(() => {
@@ -293,7 +293,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     const finishInitialization = (source: string) => {
       if (!editor || cancelled) return;
       if (initialized) return;
-      const currentRoot = editor.getWrapper()?.find(".movecues-widget")[0];
+      const currentRoot = editor.getWrapper()?.find(".movcues-widget")[0];
       if (!currentRoot) {
         builderDebug(experienceKey, "lifecycle:ready-deferred-missing-root", { source, current: currentEditorDebugSnapshot(editor, widgetType) }, "warn");
         return;
@@ -301,7 +301,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       builderDebug(experienceKey, "lifecycle:ready:start", { source, before: summarizeBuilder({ version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: editorCss(), canvas: { ...viewportRef.current } }) }, "info");
       initialized = true; setReady(true);
       applyingCodeRef.current = true;
-      const widgetRoot = editor.getWrapper()?.find(".movecues-widget")[0];
+      const widgetRoot = editor.getWrapper()?.find(".movcues-widget")[0];
       if (widgetRoot) { widgetRoot.set("removable", false); widgetRoot.set("copyable", false); }
       interactionControllerRef.current?.syncFreeAreas();
       editor.clearDirtyCount();
@@ -335,16 +335,16 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         traitManager: { appendTo: traitsRef.current },
         styleManager: { appendTo: stylesRef.current, sectors: styleSectors() },
         plugins: [instance => {
-          instance.DomComponents.addType("movecues-checklist-root", { isComponent: element => element.getAttribute?.("data-movecues-checklist-role") === "root" ? { type: "movecues-checklist-root" } : false, model: { defaults: { tagName: "section", removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
-          instance.DomComponents.addType("movecues-checklist-item", { isComponent: element => element.hasAttribute?.("data-movecues-checklist-item-id") ? { type: "movecues-checklist-item" } : false, model: { defaults: { removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
-          instance.DomComponents.addType("movecues-checklist-structure", { isComponent: element => checklistMode && (element.hasAttribute?.("data-movecues-checklist-role") || element.hasAttribute?.("data-movecues-checklist-view") || element.hasAttribute?.("data-movecues-checklist-item-role")) ? { type: "movecues-checklist-structure" } : false, model: { defaults: { removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
-          instance.DomComponents.addType("movecues-widget-root", { isComponent: element => element.classList?.contains("movecues-widget") ? { type: "movecues-widget-root" } : false, model: { defaults: { tagName: "section", removable: false, copyable: false } } });
-          instance.DomComponents.addType("movecues-survey-controls", { isComponent: element => element.hasAttribute?.("data-movecues-survey-controls") ? { type: "movecues-survey-controls" } : false, model: { defaults: { tagName: "div", removable: false, copyable: false } } });
-          instance.DomComponents.addType("movecues-survey-question", { isComponent: element => element.hasAttribute?.("data-movecues-question-id") ? { type: "movecues-survey-question" } : false, model: { defaults: { droppable: true, editable: false, removable: false, copyable: false, traits: [] } } });
-          instance.DomComponents.addType("movecues-survey-question-gateway", { isComponent: element => element.hasAttribute?.("data-movecues-survey-question-gateway") ? { type: "movecues-survey-question-gateway" } : false, model: { defaults: { tagName: "div", droppable: false, editable: false, removable: false, copyable: false, traits: [] } } });
-          instance.DomComponents.addType("movecues-button", { isComponent: element => element.tagName === "BUTTON" && (element.hasAttribute?.("data-movecues-action-id") || element.hasAttribute?.("data-movecues-survey-action")) ? { type: "movecues-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, removable: true, copyable: false, traits: [] } } });
-          instance.DomComponents.addType("movecues-free-area", { isComponent: element => element.classList?.contains(FREE_AREA_CLASS) ? { type: "movecues-free-area" } : false, model: { defaults: { tagName: "div", classes: [FREE_AREA_CLASS], droppable: true } } });
-          instance.DomComponents.addType("movecues-avatar-image", { isComponent: element => element.tagName === "IMG" && element.classList?.contains("movecues-widget__avatar-image") ? { type: "movecues-avatar-image" } : false, model: { defaults: { tagName: "img", droppable: false, traits: [{ type: "text", name: "src", label: "Image URL" }, { type: "text", name: "alt", label: "Alt text" }] } } });
+          instance.DomComponents.addType("movcues-checklist-root", { isComponent: element => element.getAttribute?.("data-movcues-checklist-role") === "root" ? { type: "movcues-checklist-root" } : false, model: { defaults: { tagName: "section", removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
+          instance.DomComponents.addType("movcues-checklist-item", { isComponent: element => element.hasAttribute?.("data-movcues-checklist-item-id") ? { type: "movcues-checklist-item" } : false, model: { defaults: { removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
+          instance.DomComponents.addType("movcues-checklist-structure", { isComponent: element => checklistMode && (element.hasAttribute?.("data-movcues-checklist-role") || element.hasAttribute?.("data-movcues-checklist-view") || element.hasAttribute?.("data-movcues-checklist-item-role")) ? { type: "movcues-checklist-structure" } : false, model: { defaults: { removable: false, copyable: false, draggable: false, droppable: false, editable: false } } });
+          instance.DomComponents.addType("movcues-widget-root", { isComponent: element => element.classList?.contains("movcues-widget") ? { type: "movcues-widget-root" } : false, model: { defaults: { tagName: "section", removable: false, copyable: false } } });
+          instance.DomComponents.addType("movcues-survey-controls", { isComponent: element => element.hasAttribute?.("data-movcues-survey-controls") ? { type: "movcues-survey-controls" } : false, model: { defaults: { tagName: "div", removable: false, copyable: false } } });
+          instance.DomComponents.addType("movcues-survey-question", { isComponent: element => element.hasAttribute?.("data-movcues-question-id") ? { type: "movcues-survey-question" } : false, model: { defaults: { droppable: true, editable: false, removable: false, copyable: false, traits: [] } } });
+          instance.DomComponents.addType("movcues-survey-question-gateway", { isComponent: element => element.hasAttribute?.("data-movcues-survey-question-gateway") ? { type: "movcues-survey-question-gateway" } : false, model: { defaults: { tagName: "div", droppable: false, editable: false, removable: false, copyable: false, traits: [] } } });
+          instance.DomComponents.addType("movcues-button", { isComponent: element => element.tagName === "BUTTON" && (element.hasAttribute?.("data-movcues-action-id") || element.hasAttribute?.("data-movcues-survey-action")) ? { type: "movcues-button" } : false, model: { defaults: { tagName: "button", droppable: false, editable: true, removable: true, copyable: false, traits: [] } } });
+          instance.DomComponents.addType("movcues-free-area", { isComponent: element => element.classList?.contains(FREE_AREA_CLASS) ? { type: "movcues-free-area" } : false, model: { defaults: { tagName: "div", classes: [FREE_AREA_CLASS], droppable: true } } });
+          instance.DomComponents.addType("movcues-avatar-image", { isComponent: element => element.tagName === "IMG" && element.classList?.contains("movcues-widget__avatar-image") ? { type: "movcues-avatar-image" } : false, model: { defaults: { tagName: "img", droppable: false, traits: [{ type: "text", name: "src", label: "Image URL" }, { type: "text", name: "alt", label: "Alt text" }] } } });
         }, instance => { if (!checklistMode) interactionControllerRef.current = installWidgetInteractions(instance, { widgetType, design: () => designRef.current, onRootResize: (size, commit) => { const next = { ...designRef.current, size }; applySizeEnvelopeRef.current(next); if (commit) { designRef.current = next; onSizeChangeRef.current(size); } }, onFreeItemChange: (component, box) => { selectedFreeItemRef.current = component; setFreeItemBox(box); }, onMutation: scheduleCustomMutation, canStartFreeDrag: target => !handToolRef.current && !spacePressedRef.current && !codeModeRef.current && !isEditableTarget(target) }); }],
       });
       if (cancelled) { editor.destroy(); return; }
@@ -363,13 +363,13 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         if (!editor || cancelled) return;
         const documentValue = editor.Canvas.getDocument();
         if (!documentValue) return;
-        let style = documentValue.head.querySelector<HTMLStyleElement>("style[data-movecues-size-envelope]");
-        if (!style) { style = documentValue.createElement("style"); style.dataset.movecuesSizeEnvelope = ""; documentValue.head.appendChild(style); }
+        let style = documentValue.head.querySelector<HTMLStyleElement>("style[data-movcues-size-envelope]");
+        if (!style) { style = documentValue.createElement("style"); style.dataset.movcuesSizeEnvelope = ""; documentValue.head.appendChild(style); }
         style.textContent = builderPreviewSizeEnvelopeCss(widgetType, next);
       };
       fitCanvasRef.current = (persist = true) => {
         if (!editor || cancelled || !canvasRef.current) return;
-        const widget = editor.getWrapper()?.find(".movecues-widget")[0]?.getEl();
+        const widget = editor.getWrapper()?.find(".movcues-widget")[0]?.getEl();
         if (!widget) { setPositioned(true); return; }
         const availableWidth = canvasRef.current.clientWidth - 80;
         const availableHeight = canvasRef.current.clientHeight - 96;
@@ -386,7 +386,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       }
       applySizeEnvelopeRef.current(designRef.current);
       const selectAction = (component?: Component) => { setSelectedComponent(component ?? null); setSelectedInteraction(interactionForComponent(component)); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setStyleRevision(value => value + 1); setSidebarTab("properties"); if (checklistMode && component) { const selection = checklistSelection(component); if (selection) checklistSelectionRef.current?.(selection); } };
-      const keepOneActionPerSlot = (component: Component) => { if (widgetType === "survey") return; const slot = component.getAttributes()?.["data-movecues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movecues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
+      const keepOneActionPerSlot = (component: Component) => { if (widgetType === "survey") return; const slot = component.getAttributes()?.["data-movcues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movcues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
       editor.on("update", () => { builderDebug(experienceKey, "grapes:update", { dirtyCount: editor?.getDirtyCount() }); schedule(false, "grapes:update"); });
       editor.on("component:styleUpdate", (component: Component) => { builderDebug(experienceKey, "grapes:component-style-update", { component: debugComponent(component), css: debugCss(rawEditorCss()) }); persistComponentStyle(component); setStyleRevision(value => value + 1); });
       editor.on("style:property:update", () => { builderDebug(experienceKey, "grapes:style-property-update", { selected: debugComponent(editor?.getSelected()), css: debugCss(rawEditorCss()) }); queueMicrotask(() => { persistComponentStyle(); setStyleRevision(value => value + 1); }); });
@@ -398,7 +398,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       editor.on("block:drag:stop", (component: Component | undefined, block: Block) => {
         const type = surveyQuestionTypeForBlock(block) ?? surveyQuestionTypeForGateway(component);
         if (!component || !type) return;
-        const root = editor!.getWrapper()?.find(".movecues-widget")[0];
+        const root = editor!.getWrapper()?.find(".movcues-widget")[0];
         const placement = root ? surveyGatewayPlacement(root, component) : undefined;
         applyingCodeRef.current = true;
         try { component.remove(); } finally { applyingCodeRef.current = false; }
@@ -479,14 +479,14 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     const component = editorRef.current?.getSelected();
     if (!component) return;
     const attributes = { ...component.getAttributes() };
-    delete attributes["data-movecues-action-id"];
-    delete attributes["data-movecues-survey-action"];
-    if (value === "dismiss") attributes["data-movecues-action-id"] = component.getClasses?.().includes("movecues-widget__button--secondary") ? "secondary" : "primary";
-    if (value === "back" || value === "next" || value === "submit") attributes["data-movecues-survey-action"] = value;
+    delete attributes["data-movcues-action-id"];
+    delete attributes["data-movcues-survey-action"];
+    if (value === "dismiss") attributes["data-movcues-action-id"] = component.getClasses?.().includes("movcues-widget__button--secondary") ? "secondary" : "primary";
+    if (value === "back" || value === "next" || value === "submit") attributes["data-movcues-survey-action"] = value;
     component.setAttributes(attributes);
     setSelectedInteraction(interactionForComponent(component));
   };
-  const interactionInspector = selectedInteraction && <div className="movecues-action-inspector"><h3>Interaction</h3>{interactionContext === "survey" ? <Label>On click<select value={selectedSurveyAction} onChange={event => updateSurveyAction(event.target.value as "" | "dismiss" | "back" | "next" | "submit")}><option value="">No action</option><optgroup label="General"><option value="dismiss">Dismiss experience</option></optgroup><optgroup label="Survey"><option value="back">Survey: Back</option><option value="next">Survey: Next</option><option value="submit">Survey: Submit</option></optgroup></select></Label> : selectedInteraction.kind === "primary" ? <Label>On click<select value={displayedActionType} onChange={event => updateActionType(event.target.value as ExperienceAction["type"])}>{interactionContext === "guide" ? <option value="next_step">Next step</option> : <><option value="dismiss">Dismiss experience</option><option value="open_url">Open URL</option><option value="track_event">Track event</option></>}</select></Label> : selectedInteraction.kind === "secondary" ? <><p className="movecues-action-inspector__label">On click</p><p>Dismiss experience</p></> : null}{interactionContext !== "survey" && selectedInteraction.kind === "primary" && displayedActionType === "open_url" && <Label>URL<Input type="url" value={currentAction?.type === "open_url" ? currentAction.url ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "open_url", url: event.target.value })} /></Label>}{interactionContext !== "survey" && selectedInteraction.kind === "primary" && displayedActionType === "track_event" && <Label>Event name<Input value={currentAction?.type === "track_event" ? currentAction.eventName ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "track_event", eventName: event.target.value })} /></Label>}</div>;
+  const interactionInspector = selectedInteraction && <div className="movcues-action-inspector"><h3>Interaction</h3>{interactionContext === "survey" ? <Label>On click<select value={selectedSurveyAction} onChange={event => updateSurveyAction(event.target.value as "" | "dismiss" | "back" | "next" | "submit")}><option value="">No action</option><optgroup label="General"><option value="dismiss">Dismiss experience</option></optgroup><optgroup label="Survey"><option value="back">Survey: Back</option><option value="next">Survey: Next</option><option value="submit">Survey: Submit</option></optgroup></select></Label> : selectedInteraction.kind === "primary" ? <Label>On click<select value={displayedActionType} onChange={event => updateActionType(event.target.value as ExperienceAction["type"])}>{interactionContext === "guide" ? <option value="next_step">Next step</option> : <><option value="dismiss">Dismiss experience</option><option value="open_url">Open URL</option><option value="track_event">Track event</option></>}</select></Label> : selectedInteraction.kind === "secondary" ? <><p className="movcues-action-inspector__label">On click</p><p>Dismiss experience</p></> : null}{interactionContext !== "survey" && selectedInteraction.kind === "primary" && displayedActionType === "open_url" && <Label>URL<Input type="url" value={currentAction?.type === "open_url" ? currentAction.url ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "open_url", url: event.target.value })} /></Label>}{interactionContext !== "survey" && selectedInteraction.kind === "primary" && displayedActionType === "track_event" && <Label>Event name<Input value={currentAction?.type === "track_event" ? currentAction.eventName ?? "" : ""} onChange={event => onPrimaryActionChange({ label: currentAction?.label ?? "Continue", type: "track_event", eventName: event.target.value })} /></Label>}</div>;
   const readInspectorStyle = (component: Component): InspectorStyleSnapshot => {
     const editor = editorRef.current;
     const selector = canonicalStyleSelector(component);
@@ -499,35 +499,35 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     const effective = Object.fromEntries(properties.map(property => [property, computed?.getPropertyValue(property)?.trim() ?? ""]));
     return { authored, effective };
   };
-  const freePositionInspector = freeItemBox && <div className="movecues-position-inspector"><h3>Position</h3><div className="movecues-position-grid">{([['x', 'X'], ['y', 'Y'], ['width', 'W'], ['height', 'H']] as const).map(([property, label]) => <Label key={property}>{label}<Input aria-label={`Position ${label}`} type="number" value={Math.round(freeItemBox[property])} onChange={event => updateFreeItem(property, event.target.value)} /></Label>)}</div><div className="movecues-position-actions"><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "forward")}>Bring forward</Button><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "backward")}>Send backward</Button></div></div>;
+  const freePositionInspector = freeItemBox && <div className="movcues-position-inspector"><h3>Position</h3><div className="movcues-position-grid">{([['x', 'X'], ['y', 'Y'], ['width', 'W'], ['height', 'H']] as const).map(([property, label]) => <Label key={property}>{label}<Input aria-label={`Position ${label}`} type="number" value={Math.round(freeItemBox[property])} onChange={event => updateFreeItem(property, event.target.value)} /></Label>)}</div><div className="movcues-position-actions"><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "forward")}>Bring forward</Button><Button type="button" size="sm" variant="outline" onClick={() => selectedFreeItemRef.current && interactionControllerRef.current?.moveLayer(selectedFreeItemRef.current, "backward")}>Send backward</Button></div></div>;
   const widgetSizeInspector = checklistMode ? undefined : <WidgetSizeEditor widgetType={widgetType} design={design} onPreview={previewSize} onChange={onSizeChange} />;
 
-  return <div className={`movecues-builder-shell${checklistMode ? " movecues-builder-shell--checklist" : ""}`}>
-    {checklistMode && <div className="movecues-builder-preview-controls"><Label>Progress<select aria-label="Preview progress" value={checklistPreviewProgress} onChange={event => setChecklistPreviewProgress(event.target.value as typeof checklistPreviewProgress)}><option value="empty">Empty</option><option value="progress">In progress</option><option value="complete">Complete</option></select></Label><Label>View<select aria-label="Preview view" value={checklistPreviewView} onChange={event => setChecklistPreviewView(event.target.value as typeof checklistPreviewView)}><option value="expanded">Expanded</option><option value="launcher">Collapsed</option><option value="completion">Completion</option></select></Label></div>}
-    <div className="movecues-builder-toolbar"><div className="movecues-builder-toolbar__group movecues-builder-toolbar__devices movecues-builder-device-switcher" role="group" aria-label="Preview device">{[["Desktop", Monitor], ["Tablet", Tablet], ["Mobile", Smartphone]].map(([name, Icon]) => <Button key={String(name)} type="button" size="icon" variant="ghost" className={device === name ? "movecues-builder-device-switcher__button movecues-builder-device-switcher__button--active" : "movecues-builder-device-switcher__button"} aria-label={String(name)} aria-pressed={device === name} onClick={() => chooseDevice(String(name))}><Icon className="size-4" /></Button>)}</div><div className="movecues-builder-toolbar__group movecues-builder-toolbar__controls">{!codeMode && <div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant="outline" aria-label="Undo" onClick={() => editorRef.current?.UndoManager.undo()}><Undo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Redo" onClick={() => editorRef.current?.UndoManager.redo()}><Redo2 /></Button></div>}<div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant={!handTool ? "default" : "outline"} aria-label="Select tool" onClick={() => setHandTool(false)}><MousePointer2 /></Button><Button type="button" size="icon" variant={handTool ? "default" : "outline"} aria-label="Hand tool" aria-pressed={handTool} onClick={() => setHandTool(true)}><Hand /></Button></div><div className="movecues-builder-toolbar__cluster"><Button type="button" size="icon" variant={codeMode ? "default" : "outline"} aria-label="Toggle HTML and CSS editor" onClick={toggleCode}><Code2 /></Button></div></div></div>
-    <div className={`movecues-builder-code${codeMode ? "" : " movecues-builder-view--hidden"}`} aria-hidden={!codeMode}><Label>HTML<div className="movecues-builder-code__editor"><pre ref={htmlHighlightRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: highlightHtml(codeHtml) }} /><Textarea className="movecues-builder-code__input" aria-label="Builder HTML" spellCheck={false} value={codeHtml} onChange={event => setCodeHtml(event.target.value)} onScroll={event => syncCodeScroll(event, htmlHighlightRef)} /></div></Label><Label>CSS<div className="movecues-builder-code__editor"><pre ref={cssHighlightRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: highlightCss(codeCss) }} /><Textarea className="movecues-builder-code__input" aria-label="Builder CSS" spellCheck={false} value={codeCss} onChange={event => setCodeCss(event.target.value)} onScroll={event => syncCodeScroll(event, cssHighlightRef)} /></div></Label><div className="col-span-full flex items-center gap-3"><Button type="button" variant="outline" onClick={formatCode}>Format HTML and CSS</Button><Button type="button" onClick={applyCode}>Apply HTML and CSS</Button>{codeError && <p className="m-0 text-sm text-destructive">{codeError}</p>}</div></div>
-    {!codeMode && codeError && <div className="movecues-builder-error" role="alert">Builder changes could not be saved: {codeError}</div>}
-    <div className={`movecues-builder-workspace${codeMode ? " movecues-builder-view--hidden" : ""}`} aria-hidden={codeMode}>
-      <aside className="movecues-builder-panel">
-        <div className="movecues-builder-tabs" role="tablist" aria-label={checklistMode ? "Checklist editor panel" : "Builder sidebar"}>
+  return <div className={`movcues-builder-shell${checklistMode ? " movcues-builder-shell--checklist" : ""}`}>
+    {checklistMode && <div className="movcues-builder-preview-controls"><Label>Progress<select aria-label="Preview progress" value={checklistPreviewProgress} onChange={event => setChecklistPreviewProgress(event.target.value as typeof checklistPreviewProgress)}><option value="empty">Empty</option><option value="progress">In progress</option><option value="complete">Complete</option></select></Label><Label>View<select aria-label="Preview view" value={checklistPreviewView} onChange={event => setChecklistPreviewView(event.target.value as typeof checklistPreviewView)}><option value="expanded">Expanded</option><option value="launcher">Collapsed</option><option value="completion">Completion</option></select></Label></div>}
+    <div className="movcues-builder-toolbar"><div className="movcues-builder-toolbar__group movcues-builder-toolbar__devices movcues-builder-device-switcher" role="group" aria-label="Preview device">{[["Desktop", Monitor], ["Tablet", Tablet], ["Mobile", Smartphone]].map(([name, Icon]) => <Button key={String(name)} type="button" size="icon" variant="ghost" className={device === name ? "movcues-builder-device-switcher__button movcues-builder-device-switcher__button--active" : "movcues-builder-device-switcher__button"} aria-label={String(name)} aria-pressed={device === name} onClick={() => chooseDevice(String(name))}><Icon className="size-4" /></Button>)}</div><div className="movcues-builder-toolbar__group movcues-builder-toolbar__controls">{!codeMode && <div className="movcues-builder-toolbar__cluster"><Button type="button" size="icon" variant="outline" aria-label="Undo" onClick={() => editorRef.current?.UndoManager.undo()}><Undo2 /></Button><Button type="button" size="icon" variant="outline" aria-label="Redo" onClick={() => editorRef.current?.UndoManager.redo()}><Redo2 /></Button></div>}<div className="movcues-builder-toolbar__cluster"><Button type="button" size="icon" variant={!handTool ? "default" : "outline"} aria-label="Select tool" onClick={() => setHandTool(false)}><MousePointer2 /></Button><Button type="button" size="icon" variant={handTool ? "default" : "outline"} aria-label="Hand tool" aria-pressed={handTool} onClick={() => setHandTool(true)}><Hand /></Button></div><div className="movcues-builder-toolbar__cluster"><Button type="button" size="icon" variant={codeMode ? "default" : "outline"} aria-label="Toggle HTML and CSS editor" onClick={toggleCode}><Code2 /></Button></div></div></div>
+    <div className={`movcues-builder-code${codeMode ? "" : " movcues-builder-view--hidden"}`} aria-hidden={!codeMode}><Label>HTML<div className="movcues-builder-code__editor"><pre ref={htmlHighlightRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: highlightHtml(codeHtml) }} /><Textarea className="movcues-builder-code__input" aria-label="Builder HTML" spellCheck={false} value={codeHtml} onChange={event => setCodeHtml(event.target.value)} onScroll={event => syncCodeScroll(event, htmlHighlightRef)} /></div></Label><Label>CSS<div className="movcues-builder-code__editor"><pre ref={cssHighlightRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: highlightCss(codeCss) }} /><Textarea className="movcues-builder-code__input" aria-label="Builder CSS" spellCheck={false} value={codeCss} onChange={event => setCodeCss(event.target.value)} onScroll={event => syncCodeScroll(event, cssHighlightRef)} /></div></Label><div className="col-span-full flex items-center gap-3"><Button type="button" variant="outline" onClick={formatCode}>Format HTML and CSS</Button><Button type="button" onClick={applyCode}>Apply HTML and CSS</Button>{codeError && <p className="m-0 text-sm text-destructive">{codeError}</p>}</div></div>
+    {!codeMode && codeError && <div className="movcues-builder-error" role="alert">Builder changes could not be saved: {codeError}</div>}
+    <div className={`movcues-builder-workspace${codeMode ? " movcues-builder-view--hidden" : ""}`} aria-hidden={codeMode}>
+      <aside className="movcues-builder-panel">
+        <div className="movcues-builder-tabs" role="tablist" aria-label={checklistMode ? "Checklist editor panel" : "Builder sidebar"}>
           {checklistMode ? <>
-            <button type="button" role="tab" id="movecues-builder-design-tab" aria-selected={sidebarTab === "properties"} aria-controls="movecues-builder-properties-panel" onClick={() => setSidebarTab("properties")}>Design</button>
-            <button type="button" role="tab" id="movecues-builder-checklist-tab" aria-selected={sidebarTab === "blocks"} aria-controls="movecues-builder-blocks-panel" onClick={() => setSidebarTab("blocks")}>Checklist</button>
+            <button type="button" role="tab" id="movcues-builder-design-tab" aria-selected={sidebarTab === "properties"} aria-controls="movcues-builder-properties-panel" onClick={() => setSidebarTab("properties")}>Design</button>
+            <button type="button" role="tab" id="movcues-builder-checklist-tab" aria-selected={sidebarTab === "blocks"} aria-controls="movcues-builder-blocks-panel" onClick={() => setSidebarTab("blocks")}>Checklist</button>
           </> : <>
-            <button type="button" role="tab" id="movecues-builder-blocks-tab" aria-selected={sidebarTab === "blocks"} aria-controls="movecues-builder-blocks-panel" onClick={() => setSidebarTab("blocks")}>Blocks</button>
-            <button type="button" role="tab" id="movecues-builder-properties-tab" aria-selected={sidebarTab === "properties"} aria-controls="movecues-builder-properties-panel" onClick={() => setSidebarTab("properties")}>Properties</button>
+            <button type="button" role="tab" id="movcues-builder-blocks-tab" aria-selected={sidebarTab === "blocks"} aria-controls="movcues-builder-blocks-panel" onClick={() => setSidebarTab("blocks")}>Blocks</button>
+            <button type="button" role="tab" id="movcues-builder-properties-tab" aria-selected={sidebarTab === "properties"} aria-controls="movcues-builder-properties-panel" onClick={() => setSidebarTab("properties")}>Properties</button>
           </>}
         </div>
-        <div className={`movecues-builder-tab-panel${sidebarTab === "blocks" ? "" : " movecues-builder-tab-panel--hidden"}`} role="tabpanel" id="movecues-builder-blocks-panel" aria-labelledby={checklistMode ? "movecues-builder-checklist-tab" : "movecues-builder-blocks-tab"}>
-          {checklistMode ? <><div ref={blocksRef} className="movecues-builder-blocks-target--hidden" /><div className="movecues-checklist-structured-inspector">{checklistInspector}</div></> : <><p className="movecues-builder-hint">Drag blocks into the canvas, then select an element to customize it.</p><div ref={blocksRef} /></>}
+        <div className={`movcues-builder-tab-panel${sidebarTab === "blocks" ? "" : " movcues-builder-tab-panel--hidden"}`} role="tabpanel" id="movcues-builder-blocks-panel" aria-labelledby={checklistMode ? "movcues-builder-checklist-tab" : "movcues-builder-blocks-tab"}>
+          {checklistMode ? <><div ref={blocksRef} className="movcues-builder-blocks-target--hidden" /><div className="movcues-checklist-structured-inspector">{checklistInspector}</div></> : <><p className="movcues-builder-hint">Drag blocks into the canvas, then select an element to customize it.</p><div ref={blocksRef} /></>}
         </div>
-        <div className={`movecues-builder-tab-panel${sidebarTab === "properties" ? "" : " movecues-builder-tab-panel--hidden"}`} role="tabpanel" id="movecues-builder-properties-panel" aria-labelledby={checklistMode ? "movecues-builder-design-tab" : "movecues-builder-properties-tab"}>
+        <div className={`movcues-builder-tab-panel${sidebarTab === "properties" ? "" : " movcues-builder-tab-panel--hidden"}`} role="tabpanel" id="movcues-builder-properties-panel" aria-labelledby={checklistMode ? "movcues-builder-design-tab" : "movcues-builder-properties-tab"}>
           <GrapesWidgetInspector editor={editorRef.current} component={selectedComponent} isFreeItem={Boolean(selectedComponent && selectedFreeItemRef.current === selectedComponent)} styleRevision={styleRevision} readStyle={readInspectorStyle} onStyleChange={(component, patch) => applyInspectorStyleRef.current(component, patch)} onSelect={component => editorRef.current?.select(component)} traitsRef={traitsRef} stylesRef={stylesRef} widgetSize={widgetSizeInspector} freePosition={freePositionInspector} interaction={interactionInspector} />
         </div>
       </aside>
-      <div ref={canvasViewportRef} className={`movecues-builder-canvas${handTool || spacePressed ? " movecues-builder-canvas--pan-ready" : ""}${panning ? " movecues-builder-canvas--panning" : ""}`}><div ref={canvasRef} className="movecues-builder-editor" /><div className={`movecues-builder-pan-layer${handTool || spacePressed || panning ? " movecues-builder-pan-layer--active" : ""}`} aria-hidden="true" onPointerDown={beginPan} onPointerMove={movePan} onPointerUp={endPan} onPointerCancel={endPan} />{(!ready || !positioned) && <div className="movecues-builder-loading">Loading builder…</div>}</div>
+      <div ref={canvasViewportRef} className={`movcues-builder-canvas${handTool || spacePressed ? " movcues-builder-canvas--pan-ready" : ""}${panning ? " movcues-builder-canvas--panning" : ""}`}><div ref={canvasRef} className="movcues-builder-editor" /><div className={`movcues-builder-pan-layer${handTool || spacePressed || panning ? " movcues-builder-pan-layer--active" : ""}`} aria-hidden="true" onPointerDown={beginPan} onPointerMove={movePan} onPointerUp={endPan} onPointerCancel={endPan} />{(!ready || !positioned) && <div className="movcues-builder-loading">Loading builder…</div>}</div>
     </div>
-    {!codeMode && <div className="movecues-builder-canvas-zoom" role="group" aria-label="Canvas zoom"><Button type="button" size="icon" variant="outline" aria-label="Zoom out" disabled={zoomLabel <= MIN_CANVAS_ZOOM} onClick={() => zoomBy(-CANVAS_ZOOM_STEP)}><Minus /></Button><output className="movecues-builder-zoom" aria-label="Zoom percentage">{zoomLabel}%</output><Button type="button" size="icon" variant="outline" aria-label="Zoom in" disabled={zoomLabel >= MAX_CANVAS_ZOOM} onClick={() => zoomBy(CANVAS_ZOOM_STEP)}><Plus /></Button></div>}
+    {!codeMode && <div className="movcues-builder-canvas-zoom" role="group" aria-label="Canvas zoom"><Button type="button" size="icon" variant="outline" aria-label="Zoom out" disabled={zoomLabel <= MIN_CANVAS_ZOOM} onClick={() => zoomBy(-CANVAS_ZOOM_STEP)}><Minus /></Button><output className="movcues-builder-zoom" aria-label="Zoom percentage">{zoomLabel}%</output><Button type="button" size="icon" variant="outline" aria-label="Zoom in" disabled={zoomLabel >= MAX_CANVAS_ZOOM} onClick={() => zoomBy(CANVAS_ZOOM_STEP)}><Plus /></Button></div>}
   </div>;
 });
 
@@ -600,7 +600,7 @@ function surveyQuestionBlocks() {
     ["rating", "Rating", Star],
     ["nps", "NPS", BadgeIcon],
   ];
-  return definitions.map(([type, label, Icon]) => ({ id: `${SURVEY_QUESTION_BLOCK_PREFIX}${type}`, label, media: blockIcon(Icon), category: "Questions", content: { type: "movecues-survey-question-gateway", tagName: "div", attributes: { "data-movecues-survey-question-gateway": type } } }));
+  return definitions.map(([type, label, Icon]) => ({ id: `${SURVEY_QUESTION_BLOCK_PREFIX}${type}`, label, media: blockIcon(Icon), category: "Questions", content: { type: "movcues-survey-question-gateway", tagName: "div", attributes: { "data-movcues-survey-question-gateway": type } } }));
 }
 
 function surveyQuestionTypeForBlock(block?: Block): SurveyQuestion["type"] | null {
@@ -610,7 +610,7 @@ function surveyQuestionTypeForBlock(block?: Block): SurveyQuestion["type"] | nul
 }
 
 function surveyQuestionTypeForGateway(component?: Component): SurveyQuestion["type"] | null {
-  const type = String(component?.getAttributes?.()["data-movecues-survey-question-gateway"] ?? "") as SurveyQuestion["type"];
+  const type = String(component?.getAttributes?.()["data-movcues-survey-question-gateway"] ?? "") as SurveyQuestion["type"];
   return SURVEY_QUESTION_TYPES.includes(type) ? type : null;
 }
 
@@ -621,8 +621,8 @@ function surveyGatewayPlacement(root: Component, gateway: Component): number | u
   let placement = 0;
   root.components()?.forEach?.((component: Component) => {
     if (component === gateway || component.index?.() >= gatewayIndex) return;
-    const ownId = component.getAttributes?.()["data-movecues-question-id"];
-    const nested = component.find?.("[data-movecues-question-id]") ?? [];
+    const ownId = component.getAttributes?.()["data-movcues-question-id"];
+    const nested = component.find?.("[data-movcues-question-id]") ?? [];
     if (ownId) placement += 1;
     else placement += nested.length;
   });
@@ -632,23 +632,23 @@ function surveyGatewayPlacement(root: Component, gateway: Component): number | u
 function cssAttributeEscape(value: string): string { return value.replace(/["\\]/g, "\\$&"); }
 
 function blocks(interactionContext: NonNullable<Props["interactionContext"]>) { const generic = [
-  { id: "free-area", label: "Free Area", media: blockIcon(Maximize2), category: "Layout", content: { type: "movecues-free-area", tagName: "div", classes: [FREE_AREA_CLASS] } },
-  { id: "container", label: "Container", media: blockIcon(Box), category: "Layout", content: { type: "default", tagName: "div", classes: ["movecues-widget__container"], components: "Container" } },
-  { id: "row", label: "Row", media: blockIcon(Rows3), category: "Layout", content: '<div class="movecues-widget__row"><div class="movecues-widget__column">Column</div><div class="movecues-widget__column">Column</div></div>' },
-  { id: "columns", label: "Columns", media: blockIcon(Columns3), category: "Layout", content: '<div class="movecues-widget__columns"><div class="movecues-widget__column">Left</div><div class="movecues-widget__column">Right</div></div>' },
-  { id: "heading", label: "Heading", media: blockIcon(Heading2), category: "Content", content: '<h2 class="movecues-widget__heading">Heading</h2>' },
-  { id: "text", label: "Text", media: blockIcon(Type), category: "Content", content: '<p class="movecues-widget__body">Add your message.</p>' },
-  { id: "image", label: "Image", media: blockIcon(ImageIcon), category: "Content", content: { type: "image", tagName: "img", attributes: { class: "movecues-widget__image", alt: "" } }, activate: true },
-  { id: "icon", label: "Icon", media: blockIcon(Star), category: "Content", content: '<span class="movecues-widget__icon" role="img" aria-label="Icon">★</span>' },
-  { id: "divider", label: "Divider", media: blockIcon(Minus), category: "Content", content: '<hr class="movecues-widget__divider">' },
-  { id: "badge", label: "Badge", media: blockIcon(BadgeIcon), category: "Content", content: '<span class="movecues-widget__badge">New</span>' },
-  { id: "avatar", label: "Avatar", media: blockIcon(CircleUserRound), category: "Content", content: { type: "default", tagName: "div", classes: ["movecues-widget__avatar"], components: [{ type: "movecues-avatar-image", tagName: "img", classes: ["movecues-widget__avatar-image"], attributes: { src: "", alt: "" } }] } },
-  { id: "list", label: "List", media: blockIcon(List), category: "Content", content: '<ul class="movecues-widget__list"><li>First item</li><li>Second item</li><li>Third item</li></ul>' },
-  { id: "spacer", label: "Spacer", media: blockIcon(MoveVertical), category: "Layout", content: '<div class="movecues-widget__spacer">&nbsp;</div>' },
-  { id: "button", label: "Button", media: blockIcon(MousePointerClick), category: "Actions", content: '<button class="movecues-widget__button" data-movecues-action-id="primary">Continue</button>' },
-  { id: "secondary-button", label: "Secondary button", media: blockIcon(SquareMousePointer), category: "Actions", content: '<button class="movecues-widget__button movecues-widget__button--secondary" data-movecues-action-id="secondary">Dismiss</button>' },
-  { id: "progress", label: "Progress", media: blockIcon(CircleDot), category: "Guide", content: '<div class="movecues-widget__progress" aria-label="Progress"><span class="movecues-widget__progress-dot movecues-widget__progress-dot--active"></span><span class="movecues-widget__progress-dot"></span><span class="movecues-widget__progress-dot"></span></div>' },
-  { id: "close", label: "Close", media: blockIcon(X), category: "Guide", content: '<button class="movecues-widget__close" type="button" aria-label="Close">&times;</button>' },
+  { id: "free-area", label: "Free Area", media: blockIcon(Maximize2), category: "Layout", content: { type: "movcues-free-area", tagName: "div", classes: [FREE_AREA_CLASS] } },
+  { id: "container", label: "Container", media: blockIcon(Box), category: "Layout", content: { type: "default", tagName: "div", classes: ["movcues-widget__container"], components: "Container" } },
+  { id: "row", label: "Row", media: blockIcon(Rows3), category: "Layout", content: '<div class="movcues-widget__row"><div class="movcues-widget__column">Column</div><div class="movcues-widget__column">Column</div></div>' },
+  { id: "columns", label: "Columns", media: blockIcon(Columns3), category: "Layout", content: '<div class="movcues-widget__columns"><div class="movcues-widget__column">Left</div><div class="movcues-widget__column">Right</div></div>' },
+  { id: "heading", label: "Heading", media: blockIcon(Heading2), category: "Content", content: '<h2 class="movcues-widget__heading">Heading</h2>' },
+  { id: "text", label: "Text", media: blockIcon(Type), category: "Content", content: '<p class="movcues-widget__body">Add your message.</p>' },
+  { id: "image", label: "Image", media: blockIcon(ImageIcon), category: "Content", content: { type: "image", tagName: "img", attributes: { class: "movcues-widget__image", alt: "" } }, activate: true },
+  { id: "icon", label: "Icon", media: blockIcon(Star), category: "Content", content: '<span class="movcues-widget__icon" role="img" aria-label="Icon">★</span>' },
+  { id: "divider", label: "Divider", media: blockIcon(Minus), category: "Content", content: '<hr class="movcues-widget__divider">' },
+  { id: "badge", label: "Badge", media: blockIcon(BadgeIcon), category: "Content", content: '<span class="movcues-widget__badge">New</span>' },
+  { id: "avatar", label: "Avatar", media: blockIcon(CircleUserRound), category: "Content", content: { type: "default", tagName: "div", classes: ["movcues-widget__avatar"], components: [{ type: "movcues-avatar-image", tagName: "img", classes: ["movcues-widget__avatar-image"], attributes: { src: "", alt: "" } }] } },
+  { id: "list", label: "List", media: blockIcon(List), category: "Content", content: '<ul class="movcues-widget__list"><li>First item</li><li>Second item</li><li>Third item</li></ul>' },
+  { id: "spacer", label: "Spacer", media: blockIcon(MoveVertical), category: "Layout", content: '<div class="movcues-widget__spacer">&nbsp;</div>' },
+  { id: "button", label: "Button", media: blockIcon(MousePointerClick), category: "Actions", content: '<button class="movcues-widget__button" data-movcues-action-id="primary">Continue</button>' },
+  { id: "secondary-button", label: "Secondary button", media: blockIcon(SquareMousePointer), category: "Actions", content: '<button class="movcues-widget__button movcues-widget__button--secondary" data-movcues-action-id="secondary">Dismiss</button>' },
+  { id: "progress", label: "Progress", media: blockIcon(CircleDot), category: "Guide", content: '<div class="movcues-widget__progress" aria-label="Progress"><span class="movcues-widget__progress-dot movcues-widget__progress-dot--active"></span><span class="movcues-widget__progress-dot"></span><span class="movcues-widget__progress-dot"></span></div>' },
+  { id: "close", label: "Close", media: blockIcon(X), category: "Guide", content: '<button class="movcues-widget__close" type="button" aria-label="Close">&times;</button>' },
 ]; return interactionContext === "survey" ? [...surveyQuestionBlocks(), ...generic] : generic; }
 
 function blockIcon(Icon: LucideIcon): string {
@@ -656,22 +656,22 @@ function blockIcon(Icon: LucideIcon): string {
 }
 
 const NEW_BLOCK_STYLES: Record<string, Array<[string, Record<string, string>]>> = {
-  "movecues-widget__container": [[".movecues-widget .movecues-widget__container", { display: "flex", "flex-direction": "column" }]],
-  "movecues-widget__row": [[".movecues-widget .movecues-widget__row", { display: "flex", "flex-direction": "row" }]],
-  "movecues-widget__columns": [[".movecues-widget .movecues-widget__columns", { display: "flex", "flex-direction": "row" }]],
-  "movecues-widget__column": [[".movecues-widget .movecues-widget__column", { display: "flex", "flex-direction": "column" }]],
-  "movecues-widget__badge": [[".movecues-widget .movecues-widget__badge", { display: "inline-flex", "align-items": "center", padding: "2px 8px", "border-radius": "999px", background: "rgba(15,23,42,.08)", color: "inherit", "font-size": "12px", "line-height": "1.5" }]],
-  "movecues-widget__avatar": [
-    [".movecues-widget .movecues-widget__avatar", { width: "40px", height: "40px", overflow: "hidden", "border-radius": "50%", background: "rgba(15,23,42,.08)" }],
-    [".movecues-widget .movecues-widget__avatar img", { display: "block", width: "100%", height: "100%", "object-fit": "cover" }],
+  "movcues-widget__container": [[".movcues-widget .movcues-widget__container", { display: "flex", "flex-direction": "column" }]],
+  "movcues-widget__row": [[".movcues-widget .movcues-widget__row", { display: "flex", "flex-direction": "row" }]],
+  "movcues-widget__columns": [[".movcues-widget .movcues-widget__columns", { display: "flex", "flex-direction": "row" }]],
+  "movcues-widget__column": [[".movcues-widget .movcues-widget__column", { display: "flex", "flex-direction": "column" }]],
+  "movcues-widget__badge": [[".movcues-widget .movcues-widget__badge", { display: "inline-flex", "align-items": "center", padding: "2px 8px", "border-radius": "999px", background: "rgba(15,23,42,.08)", color: "inherit", "font-size": "12px", "line-height": "1.5" }]],
+  "movcues-widget__avatar": [
+    [".movcues-widget .movcues-widget__avatar", { width: "40px", height: "40px", overflow: "hidden", "border-radius": "50%", background: "rgba(15,23,42,.08)" }],
+    [".movcues-widget .movcues-widget__avatar img", { display: "block", width: "100%", height: "100%", "object-fit": "cover" }],
   ],
-  "movecues-widget__list": [[".movecues-widget .movecues-widget__list", { margin: "0", "padding-left": "20px", "line-height": "1.5" }]],
-  "movecues-widget__progress": [
-    [".movecues-widget .movecues-widget__progress", { display: "flex", "align-items": "center", gap: "6px", color: "inherit" }],
-    [".movecues-widget .movecues-widget__progress-dot", { display: "block", width: "8px", height: "8px", "border-radius": "50%", background: "currentColor", opacity: ".3" }],
-    [".movecues-widget .movecues-widget__progress-dot--active", { opacity: "1" }],
+  "movcues-widget__list": [[".movcues-widget .movcues-widget__list", { margin: "0", "padding-left": "20px", "line-height": "1.5" }]],
+  "movcues-widget__progress": [
+    [".movcues-widget .movcues-widget__progress", { display: "flex", "align-items": "center", gap: "6px", color: "inherit" }],
+    [".movcues-widget .movcues-widget__progress-dot", { display: "block", width: "8px", height: "8px", "border-radius": "50%", background: "currentColor", opacity: ".3" }],
+    [".movcues-widget .movcues-widget__progress-dot--active", { opacity: "1" }],
   ],
-  "movecues-widget__close": [[".movecues-widget .movecues-widget__close", { display: "inline-grid", width: "32px", height: "32px", "place-items": "center", padding: "0", border: "0", "border-radius": "50%", background: "transparent", color: "inherit", "font-size": "20px", "line-height": "1", cursor: "pointer" }]],
+  "movcues-widget__close": [[".movcues-widget .movcues-widget__close", { display: "inline-grid", width: "32px", height: "32px", "place-items": "center", padding: "0", border: "0", "border-radius": "50%", background: "transparent", color: "inherit", "font-size": "20px", "line-height": "1", cursor: "pointer" }]],
 };
 
 function installNewBlockStyles(editor: Editor, component: Component): void {
@@ -696,7 +696,7 @@ function WidgetSizeEditor({ widgetType, design, onPreview, onChange }: { widgetT
   const previewHeight = (value: string) => { const numeric = Number(value); if (value.trim() && Number.isFinite(numeric)) onPreview({ ...size, height: { mode: "fixed", value: clampWidgetHeight(widgetType, numeric).value } }); };
   const commitWidth = () => { const result = clampWidgetWidth(widgetType, Number(width)); const next = { ...size, width: { mode: "fixed" as const, value: result.value } }; setWidth(String(result.value)); setNotice(result.boundary === "min" ? `Minimum width for ${widgetLabel(widgetType)} is ${constraint.width.min}px.` : result.boundary === "max" ? `Maximum width for ${widgetLabel(widgetType)} is ${constraint.width.max}px.` : ""); persist(next); };
   const commitHeight = () => { const result = clampWidgetHeight(widgetType, Number(height)); const next = { ...size, height: { mode: "fixed" as const, value: result.value } }; setHeight(String(result.value)); setNotice(result.boundary === "min" ? `Minimum height is ${constraint.height.min}px.` : result.boundary === "max" ? `Maximum height is ${constraint.height.max}px.` : ""); persist(next); };
-  return <div className="movecues-builder-size"><h3>Widget size</h3>{widgetType === "banner" ? <><Label>Width<Input value="Full width" disabled /></Label><p>Banner width is locked to its container.</p></> : <><Label>Width mode<select value={size.width.mode} onChange={event => { const mode = event.target.value as "fixed" | "full"; const next = mode === "full" ? { width: { mode: "full" as const }, height: { mode: "viewport" as const } } : { ...size, width: { mode: "fixed" as const, value: typeof constraint.width.default === "number" ? constraint.width.default : constraint.width.min } }; setNotice(""); persist(next); }}><option value="fixed">Fixed</option>{constraint.width.allowFull && <option value="full">Fullscreen</option>}</select></Label>{size.width.mode === "fixed" && <Label>Width<div className="movecues-size-input"><Input aria-label="Widget width" type="number" min={constraint.width.min} max={constraint.width.max} value={width} onChange={event => { setWidth(event.target.value); previewWidth(event.target.value); }} onBlur={commitWidth} /><span>px</span></div></Label>}</>}{constraint.height.allowFixed && <><Label>Height<select value={size.height.mode} onChange={event => { const mode = event.target.value as ExperienceSize["height"]["mode"]; const next = { ...size, height: mode === "fixed" ? { mode, value: constraint.height.min } : { mode } }; setNotice(""); persist(next); }}><option value="auto">Auto</option><option value="fixed">Fixed</option>{constraint.height.allowViewport && <option value="viewport">Viewport safe</option>}</select></Label>{size.height.mode === "fixed" && <Label>Height<div className="movecues-size-input"><Input aria-label="Widget height" type="number" min={constraint.height.min} max={constraint.height.max} value={height} onChange={event => { setHeight(event.target.value); previewHeight(event.target.value); }} onBlur={commitHeight} /><span>px</span></div></Label>}</>}{!constraint.height.allowFixed && widgetType !== "banner" && <Label>Height<Input value="Auto" disabled /></Label>}<p>{notice || (constraint.width.max ? `Allowed width: ${constraint.width.min}–${constraint.width.max}px.` : "")}</p></div>;
+  return <div className="movcues-builder-size"><h3>Widget size</h3>{widgetType === "banner" ? <><Label>Width<Input value="Full width" disabled /></Label><p>Banner width is locked to its container.</p></> : <><Label>Width mode<select value={size.width.mode} onChange={event => { const mode = event.target.value as "fixed" | "full"; const next = mode === "full" ? { width: { mode: "full" as const }, height: { mode: "viewport" as const } } : { ...size, width: { mode: "fixed" as const, value: typeof constraint.width.default === "number" ? constraint.width.default : constraint.width.min } }; setNotice(""); persist(next); }}><option value="fixed">Fixed</option>{constraint.width.allowFull && <option value="full">Fullscreen</option>}</select></Label>{size.width.mode === "fixed" && <Label>Width<div className="movcues-size-input"><Input aria-label="Widget width" type="number" min={constraint.width.min} max={constraint.width.max} value={width} onChange={event => { setWidth(event.target.value); previewWidth(event.target.value); }} onBlur={commitWidth} /><span>px</span></div></Label>}</>}{constraint.height.allowFixed && <><Label>Height<select value={size.height.mode} onChange={event => { const mode = event.target.value as ExperienceSize["height"]["mode"]; const next = { ...size, height: mode === "fixed" ? { mode, value: constraint.height.min } : { mode } }; setNotice(""); persist(next); }}><option value="auto">Auto</option><option value="fixed">Fixed</option>{constraint.height.allowViewport && <option value="viewport">Viewport safe</option>}</select></Label>{size.height.mode === "fixed" && <Label>Height<div className="movcues-size-input"><Input aria-label="Widget height" type="number" min={constraint.height.min} max={constraint.height.max} value={height} onChange={event => { setHeight(event.target.value); previewHeight(event.target.value); }} onBlur={commitHeight} /><span>px</span></div></Label>}</>}{!constraint.height.allowFixed && widgetType !== "banner" && <Label>Height<Input value="Auto" disabled /></Label>}<p>{notice || (constraint.width.max ? `Allowed width: ${constraint.width.min}–${constraint.width.max}px.` : "")}</p></div>;
 }
 
 function widgetLabel(widgetType: WidgetType): string { return widgetType.split("_").map(value => value[0].toUpperCase() + value.slice(1)).join(" "); }
@@ -721,9 +721,9 @@ function debugCss(css: string): Record<string, number> {
 }
 
 function canonicalStyleSelector(component: Component): string | null {
-  if (component.getClasses?.().includes("movecues-widget")) return ".movecues-widget";
+  if (component.getClasses?.().includes("movcues-widget")) return ".movcues-widget";
   const styleClass = component.getClasses?.().find(name => name.startsWith(STYLE_CLASS_PREFIX));
-  return styleClass ? `.movecues-widget .${styleClass}` : null;
+  return styleClass ? `.movcues-widget .${styleClass}` : null;
 }
 
 function ensureCanonicalStyleSelector(component: Component): string {
@@ -732,5 +732,5 @@ function ensureCanonicalStyleSelector(component: Component): string {
   styleClassSequence += 1;
   const styleClass = `${STYLE_CLASS_PREFIX}${Date.now().toString(36)}-${styleClassSequence.toString(36)}`;
   component.addClass(styleClass);
-  return `.movecues-widget .${styleClass}`;
+  return `.movcues-widget .${styleClass}`;
 }

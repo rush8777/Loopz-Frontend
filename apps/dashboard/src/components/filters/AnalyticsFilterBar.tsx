@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Filter, X } from "lucide-react";
-import { Button } from "@movecues/ui";
-import { Checkbox } from "@movecues/ui";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movecues/ui";
-import { Input } from "@movecues/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@movecues/ui";
-import { cn } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Checkbox } from "@movcues/ui";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movcues/ui";
+import { Input } from "@movcues/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@movcues/ui";
+import { cn } from "@movcues/ui";
 import { filterCount, filterLabel, normalizedValues, type AppliedFilters, type FilterDefinition, type FilterValue } from "./filterTypes";
 
 export { type AppliedFilters, type FilterDefinition, type FilterOption, type FilterValue } from "./filterTypes";

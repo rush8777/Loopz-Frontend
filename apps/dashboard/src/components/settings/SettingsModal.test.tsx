@@ -213,7 +213,7 @@ describe("Settings modal", () => {
   });
 
   it("creates an invitation and makes its one-time link copyable", async () => {
-    mockedTeamApi.createInvitation.mockResolvedValue({ invitation: { ...pending, id: "invite_2", email: "new@acme.test" }, inviteUrl: "https://dashboard.movecues.com/invite/raw-token" });
+    mockedTeamApi.createInvitation.mockResolvedValue({ invitation: { ...pending, id: "invite_2", email: "new@acme.test" }, inviteUrl: "https://dashboard.movcues.com/invite/raw-token" });
     await openTeam();
     fireEvent.click(screen.getByRole("button", { name: "Invite member" }));
     const inviteDialog = screen.getByRole("dialog", { name: "Invite member" });
@@ -225,7 +225,7 @@ describe("Settings modal", () => {
     fireEvent.click(within(inviteDialog).getByRole("button", { name: "Create invitation" }));
     expect(await screen.findByRole("heading", { name: "Invitation created" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Copy invite link" }));
-    await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith("https://dashboard.movecues.com/invite/raw-token"));
+    await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith("https://dashboard.movcues.com/invite/raw-token"));
   });
 
   it("changes roles, revokes invitations, and removes members with confirmation", async () => {

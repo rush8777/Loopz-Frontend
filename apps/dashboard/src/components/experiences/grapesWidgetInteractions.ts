@@ -2,15 +2,15 @@ import type { Component, ComponentResizeEventUpdateProps, Editor, ResizerOptions
 import type { ExperienceDesign, ExperienceSize, WidgetType } from "../../types/experiences";
 import { clampWidgetHeight, clampWidgetWidth, normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS } from "./widgetSizing";
 
-export const FREE_AREA_CLASS = "movecues-free-area";
-export const FREE_AREA_CLASS_PREFIX = "movecues-free-area--";
-export const FREE_LAYOUT_ITEM_CLASS = "movecues-free-item";
-export const FREE_LAYOUT_ITEM_CLASS_PREFIX = "movecues-free-item--";
+export const FREE_AREA_CLASS = "movcues-free-area";
+export const FREE_AREA_CLASS_PREFIX = "movcues-free-area--";
+export const FREE_LAYOUT_ITEM_CLASS = "movcues-free-item";
+export const FREE_LAYOUT_ITEM_CLASS_PREFIX = "movcues-free-item--";
 
-const FLOW_BOX_PROPERTY = "movecuesFreeLayoutFlowBox";
-const FLOW_DRAGGABLE_PROPERTY = "movecuesFreeLayoutDraggable";
-const LEGACY_FREE_ROOT_CLASS = "movecues-widget--free-layout";
-const LEGACY_FREE_ROOT_SELECTOR = `.movecues-widget.${LEGACY_FREE_ROOT_CLASS}`;
+const FLOW_BOX_PROPERTY = "movcuesFreeLayoutFlowBox";
+const FLOW_DRAGGABLE_PROPERTY = "movcuesFreeLayoutDraggable";
+const LEGACY_FREE_ROOT_CLASS = "movcues-widget--free-layout";
+const LEGACY_FREE_ROOT_SELECTOR = `.movcues-widget.${LEGACY_FREE_ROOT_CLASS}`;
 const BOX_PROPERTIES = ["position", "top", "right", "bottom", "left", "width", "height", "z-index"] as const;
 const GRID_SIZE = 4;
 let freeItemSequence = 0;
@@ -67,14 +67,14 @@ export function isFreeArea(component?: Component | null): boolean {
 export function interactionKind(component: Component): InteractionKind | null {
   const classes = new Set(component.getClasses?.() ?? []);
   const tagName = String(component.get?.("tagName") ?? component.getEl?.()?.tagName ?? "").toLowerCase();
-  if (classes.has("movecues-widget")) return "root";
+  if (classes.has("movcues-widget")) return "root";
   if (tagName === "img" || component.is?.("image")) return "image";
-  if (classes.has("movecues-widget__icon")) return "icon";
-  if (tagName === "button" || classes.has("movecues-widget__button")) return "button";
-  if (["h1", "h2", "h3", "h4", "p"].includes(tagName) || classes.has("movecues-widget__heading") || classes.has("movecues-widget__body") || classes.has("movecues-widget__eyebrow")) return "text";
-  if (tagName === "hr" || classes.has("movecues-widget__divider")) return "divider";
-  if (classes.has("movecues-widget__spacer")) return "spacer";
-  if (["movecues-widget__container", "movecues-widget__row", "movecues-widget__columns", "movecues-widget__column", "movecues-widget__message", "movecues-widget__actions"].some(name => classes.has(name))) return "layout";
+  if (classes.has("movcues-widget__icon")) return "icon";
+  if (tagName === "button" || classes.has("movcues-widget__button")) return "button";
+  if (["h1", "h2", "h3", "h4", "p"].includes(tagName) || classes.has("movcues-widget__heading") || classes.has("movcues-widget__body") || classes.has("movcues-widget__eyebrow")) return "text";
+  if (tagName === "hr" || classes.has("movcues-widget__divider")) return "divider";
+  if (classes.has("movcues-widget__spacer")) return "spacer";
+  if (["movcues-widget__container", "movcues-widget__row", "movcues-widget__columns", "movcues-widget__column", "movcues-widget__message", "movcues-widget__actions"].some(name => classes.has(name))) return "layout";
   return null;
 }
 
@@ -141,7 +141,7 @@ export function installWidgetInteractions(editor: Editor, options: InteractionOp
   let dragDocument: Document | null = null;
   const freeAreaParents = new WeakMap<Component, Component>();
 
-  const getRoot = () => editor.getWrapper()?.find(".movecues-widget")[0];
+  const getRoot = () => editor.getWrapper()?.find(".movcues-widget")[0];
   const findFreeAreaParent = (component?: Component | null) => isFreeArea(component?.parent?.()) ? component!.parent!() : null;
   const isFreeItem = (component?: Component | null) => {
     return Boolean(component && findFreeAreaParent(component) && component.getClasses?.().includes(FREE_LAYOUT_ITEM_CLASS));
@@ -196,7 +196,7 @@ export function installWidgetInteractions(editor: Editor, options: InteractionOp
   };
   const removeFreeItem = (component: Component) => {
     const uniqueClass = getFreeItemClass(component);
-    if (uniqueClass) editor.Css.remove(`.movecues-widget .${uniqueClass}`);
+    if (uniqueClass) editor.Css.remove(`.movcues-widget .${uniqueClass}`);
     component.setDragMode();
     component.set("draggable", component.get(FLOW_DRAGGABLE_PROPERTY));
     component.set(FLOW_DRAGGABLE_PROPERTY, undefined);
@@ -211,7 +211,7 @@ export function installWidgetInteractions(editor: Editor, options: InteractionOp
   };
   const configureFreeArea = (area: Component) => {
     if (findAncestorFreeArea(area)) { area.remove(); options.onMutation?.(); return; }
-    const uniqueClass = ensureFreeAreaClasses(area); const selector = `.movecues-widget .${uniqueClass}`;
+    const uniqueClass = ensureFreeAreaClasses(area); const selector = `.movcues-widget .${uniqueClass}`;
     if (!editor.Css.getRule(selector)) editor.Css.setRule(selector, { position: "relative", width: "100%", "min-height": "120px" });
     area.setDragMode(); area.set("resizable", { ...ALL_HANDLES, minDim: 120, step: GRID_SIZE });
     for (const child of directChildren(area)) configureFreeItem(child);
@@ -221,8 +221,8 @@ export function installWidgetInteractions(editor: Editor, options: InteractionOp
     if (root.getClasses?.().includes(LEGACY_FREE_ROOT_CLASS)) { root.removeClass(LEGACY_FREE_ROOT_CLASS); changed = true; }
     if (editor.Css.getRule(LEGACY_FREE_ROOT_SELECTOR)) { editor.Css.remove(LEGACY_FREE_ROOT_SELECTOR); changed = true; }
     walkComponents(root, component => {
-      if (isFreeArea(component)) { const existingClass = getFreeAreaClass(component); const existingRule = existingClass && editor.Css.getRule(`.movecues-widget .${existingClass}`); configureFreeArea(component); if (!existingClass || !existingRule) changed = true; }
-      else if (findFreeAreaParent(component)) { const existingClass = getFreeItemClass(component); const existingRule = existingClass && editor.Css.getRule(`.movecues-widget .${existingClass}`); configureFreeItem(component); if (!existingClass || !existingRule) changed = true; }
+      if (isFreeArea(component)) { const existingClass = getFreeAreaClass(component); const existingRule = existingClass && editor.Css.getRule(`.movcues-widget .${existingClass}`); configureFreeArea(component); if (!existingClass || !existingRule) changed = true; }
+      else if (findFreeAreaParent(component)) { const existingClass = getFreeItemClass(component); const existingRule = existingClass && editor.Css.getRule(`.movcues-widget .${existingClass}`); configureFreeItem(component); if (!existingClass || !existingRule) changed = true; }
       else if (component.getClasses?.().includes(FREE_LAYOUT_ITEM_CLASS)) { removeFreeItem(component); changed = true; }
     });
     notifySelected();
@@ -308,10 +308,10 @@ export function installWidgetInteractions(editor: Editor, options: InteractionOp
   editor.on("component:mount", configure);
   editor.on("component:remove", (component: Component) => {
     if (isFreeArea(component)) {
-      const uniqueClass = getFreeAreaClass(component); if (uniqueClass) editor.Css.remove(`.movecues-widget .${uniqueClass}`);
+      const uniqueClass = getFreeAreaClass(component); if (uniqueClass) editor.Css.remove(`.movcues-widget .${uniqueClass}`);
       walkComponents(component, child => { if (child !== component && child.getClasses?.().includes(FREE_LAYOUT_ITEM_CLASS)) removeFreeItem(child); });
     } else {
-      const uniqueClass = getFreeItemClass(component); if (uniqueClass) editor.Css.remove(`.movecues-widget .${uniqueClass}`);
+      const uniqueClass = getFreeItemClass(component); if (uniqueClass) editor.Css.remove(`.movcues-widget .${uniqueClass}`);
     }
     options.onMutation?.();
   });
@@ -412,7 +412,7 @@ function getFreeAreaClass(component: Component): string | undefined {
 }
 
 function freeAreaSelector(component: Component): string {
-  return `.movecues-widget .${getFreeAreaClass(component) ?? ensureFreeAreaClasses(component)}`;
+  return `.movcues-widget .${getFreeAreaClass(component) ?? ensureFreeAreaClasses(component)}`;
 }
 
 function getFreeItemClass(component: Component): string | undefined {
@@ -420,7 +420,7 @@ function getFreeItemClass(component: Component): string | undefined {
 }
 
 function freeItemSelector(component: Component): string {
-  return `.movecues-widget .${getFreeItemClass(component) ?? ensureFreeItemClasses(component)}`;
+  return `.movcues-widget .${getFreeItemClass(component) ?? ensureFreeItemClasses(component)}`;
 }
 
 function pickBoxStyles(style: ComponentStyle): ComponentStyle {

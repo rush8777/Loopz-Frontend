@@ -577,7 +577,7 @@ export interface EventPageSummary {
 }
 
 // --- Segments (audience definitions - task brief "Build Segments V1") ---
-// Mirrors src/lib/segments/types.ts in movecues-Backend; V1 has no shared
+// Mirrors src/lib/segments/types.ts in movcues-Backend; V1 has no shared
 // types package between the two repos, so this is a deliberate,
 // minimal duplication of the same shape (same precedent as
 // EventDefinitionSummary/PageRule above).
@@ -685,7 +685,7 @@ export interface SegmentMember {
 
 
 // --- Funnels (ordered step conversion analysis - task brief "Build Funnels V1") ---
-// Mirrors src/lib/funnels/types.ts in movecues-Backend; duplicated here for the
+// Mirrors src/lib/funnels/types.ts in movcues-Backend; duplicated here for the
 // same reason Segment types are (see the note above them).
 
 export type FunnelStepType = "event" | "page";

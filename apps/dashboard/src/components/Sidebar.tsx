@@ -3,8 +3,8 @@ import type { ComponentType } from "react";
 import { NavLink } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
 import { useRef, useState } from "react";
-import { Button } from "@movecues/ui";
-import { cn } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { cn } from "@movcues/ui";
 import type { SettingsSection } from "./settings/SettingsModal";
 
 interface NavItem { label: string; path?: string; disabled?: boolean; icon: ComponentType<{ className?: string }> }

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
 import { Metric, MetricGrid, ErrorNotice } from "../../components/PageSurface";
-import { Button, Skeleton } from "@movecues/ui";
+import { Button, Skeleton } from "@movcues/ui";
 import * as pagesApi from "../../api/pages";
 import type { HeatmapDateRange, HeatmapDevice, HeatmapLayer, PageDetail, PageHeatmapResult, PageHeatmapState } from "../../types/api";
 

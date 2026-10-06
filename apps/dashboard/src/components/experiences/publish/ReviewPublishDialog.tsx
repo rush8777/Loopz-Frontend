@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, CircleAlert } from "lucide-react";
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from "@movecues/ui";
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from "@movcues/ui";
 import type { Experience, ExperienceDefinition } from "../../../types/experiences";
 import { getGuideStepPattern, guideStepRequiresTarget, isChecklistDefinition, isGuideDefinition, isWidgetDefinition } from "../../../types/experiences";
 import { audienceLabel, frequencyLabel, launchSummary, pageLabel, scheduleLabel, triggerLabel } from "./launchSummary";

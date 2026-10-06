@@ -1,7 +1,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Building2, Code2, Database, Globe2, Users, UserRound, WalletCards, X } from "lucide-react";
-import { Button } from "@movecues/ui";
-import { cn } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { cn } from "@movcues/ui";
 import { AccountSettings } from "./AccountSettings";
 import { DataPrivacySettings } from "./DataPrivacySettings";
 import { DeveloperSettings } from "./DeveloperSettings";

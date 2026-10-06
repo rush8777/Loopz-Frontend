@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 
 export function SettingsHeading({ title, description }: { title: string; description?: string }) {
   return (

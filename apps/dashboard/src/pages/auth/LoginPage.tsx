@@ -1,6 +1,6 @@
 import { useCallback, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Alert, Button, Input, Label } from "@movecues/ui";
+import { Alert, Button, Input, Label } from "@movcues/ui";
 import { ApiError } from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
 import { GoogleAuthButton, isGoogleAuthConfigured } from "../../components/auth/GoogleAuthButton";
@@ -51,7 +51,7 @@ export function LoginPage() {
       const code = apiErrorCode(caught);
       if (code === "google_signup_required") setShowSignupLink(true);
       setError(code === "google_signup_required"
-        ? "No Movecues account exists for this Google account yet."
+        ? "No movcues account exists for this Google account yet."
         : code === "invalid_google_credential"
           ? "Google sign-in couldn't be verified. Please try again."
           : code === "google_auth_not_configured"
@@ -64,7 +64,7 @@ export function LoginPage() {
 
   const onGoogleError = useCallback((message: string) => setError(message), []);
 
-  return <AuthLayout mode="login" title="Welcome back" subtitle="Enter your details to access your workspace." footer={<p className="mt-7 mb-0 text-[14px] text-muted-foreground">{returnTo ? <Link to={returnTo} className="font-semibold text-primary underline decoration-primary/45 decoration-2 underline-offset-4 hover:text-[var(--primary-hover)]">Return to invitation</Link> : <>New to Movecues? <Link to="/signup" className="font-semibold text-primary underline decoration-primary/45 decoration-2 underline-offset-4 hover:text-[var(--primary-hover)]">Create an account</Link></>}</p>}>
+  return <AuthLayout mode="login" title="Welcome back" subtitle="Enter your details to access your workspace." footer={<p className="mt-7 mb-0 text-[14px] text-muted-foreground">{returnTo ? <Link to={returnTo} className="font-semibold text-primary underline decoration-primary/45 decoration-2 underline-offset-4 hover:text-[var(--primary-hover)]">Return to invitation</Link> : <>New to movcues? <Link to="/signup" className="font-semibold text-primary underline decoration-primary/45 decoration-2 underline-offset-4 hover:text-[var(--primary-hover)]">Create an account</Link></>}</p>}>
     {isGoogleAuthConfigured && <><GoogleAuthButton onCredential={onGoogleCredential} onError={onGoogleError} disabled={submitting} /><div className="my-6 flex items-center gap-3 text-xs text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">or continue with email</div></>}
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
       <div className="grid gap-1.5"><Label htmlFor="email" className="text-[13px] font-medium text-foreground">Email address</Label><Input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@company.com" className={fieldClass} /></div>

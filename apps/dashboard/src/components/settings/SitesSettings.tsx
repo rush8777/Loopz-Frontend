@@ -11,7 +11,7 @@ import {
   DialogTitle,
   Input,
   Label,
-} from "@movecues/ui";
+} from "@movcues/ui";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import * as sitesApi from "../../api/sites";
 import { useWorkspace } from "../../auth/WorkspaceContext";

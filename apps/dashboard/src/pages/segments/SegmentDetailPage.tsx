@@ -8,9 +8,9 @@ import * as segmentsApi from "../../api/segments";
 import type { Segment, SegmentCondition, SegmentGroup, SegmentMember, SegmentNode } from "../../types/api";
 import { isSegmentGroup } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
-import { Badge } from "@movecues/ui";
-import { Button } from "@movecues/ui";
-import { Skeleton } from "@movecues/ui";
+import { Badge } from "@movcues/ui";
+import { Button } from "@movcues/ui";
+import { Skeleton } from "@movcues/ui";
 import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
 
 const PAGE_SIZE = 25;

@@ -13,7 +13,7 @@ import {
   Minus,
   Plus,
 } from "lucide-react";
-import { Button, Input, Label } from "@movecues/ui";
+import { Button, Input, Label } from "@movcues/ui";
 import { getInspectorKind, type InspectorKind } from "./grapesWidgetInspectorModel";
 
 export type InspectorStylePatch = Record<string, string | null>;
@@ -55,12 +55,12 @@ const SHADOW_PRESETS = {
 
 function componentLabel(component: Component, kind: InspectorKind): string {
   const classes = component.getClasses?.() ?? [];
-  if (classes.includes("movecues-widget__row")) return "Row";
-  if (classes.includes("movecues-widget__columns")) return "Columns";
-  if (classes.includes("movecues-widget__column")) return "Column";
-  if (classes.includes("movecues-widget__actions")) return "Actions";
-  if (classes.includes("movecues-widget__message")) return "Message";
-  if (classes.includes("movecues-survey-question")) return "Question";
+  if (classes.includes("movcues-widget__row")) return "Row";
+  if (classes.includes("movcues-widget__columns")) return "Columns";
+  if (classes.includes("movcues-widget__column")) return "Column";
+  if (classes.includes("movcues-widget__actions")) return "Actions";
+  if (classes.includes("movcues-widget__message")) return "Message";
+  if (classes.includes("movcues-survey-question")) return "Question";
   const labels: Record<InspectorKind, string> = {
     widget: "Widget",
     container: "Container",
@@ -130,15 +130,15 @@ export function GrapesWidgetInspector({ editor, component, isFreeItem, styleRevi
   const showShadow = visualKind === "widget" || visualKind === "container" || visualKind === "button" || visualKind === "image" || visualKind === "avatar" || visualKind === "video" || visualKind === "embed" || visualKind === "generic";
   const showAppearance = showBackground || showCorners || showBorder || showShadow;
 
-  return <div className="movecues-inspector" data-inspector-kind={kind ?? "none"}>
+  return <div className="movcues-inspector" data-inspector-kind={kind ?? "none"}>
     {component ? <>
-      <nav className="movecues-inspector__breadcrumb" aria-label="Component hierarchy">
+      <nav className="movcues-inspector__breadcrumb" aria-label="Component hierarchy">
         {trail.map((entry, index) => <span key={`${entry.label}-${index}`}><button type="button" onClick={() => onSelect(entry.component)} aria-current={entry.component === component ? "page" : undefined}>{entry.label}</button>{index < trail.length - 1 && <span aria-hidden="true">›</span>}</span>)}
       </nav>
-      <h2 className="movecues-inspector__title">{componentLabel(component, visualKind ?? "generic")}</h2>
-    </> : <p className="movecues-inspector__empty">Select an element in the canvas to edit its properties.</p>}
+      <h2 className="movcues-inspector__title">{componentLabel(component, visualKind ?? "generic")}</h2>
+    </> : <p className="movcues-inspector__empty">Select an element in the canvas to edit its properties.</p>}
 
-    <section className={hasTraits ? "movecues-inspector__section" : "movecues-inspector__manager--hidden"} aria-hidden={!hasTraits}>
+    <section className={hasTraits ? "movcues-inspector__section" : "movcues-inspector__manager--hidden"} aria-hidden={!hasTraits}>
       {hasTraits && <h3>Content</h3>}
       <div ref={traitsRef} />
     </section>
@@ -172,7 +172,7 @@ export function GrapesWidgetInspector({ editor, component, isFreeItem, styleRevi
 
     {interaction}
 
-    <details className="movecues-inspector__advanced">
+    <details className="movcues-inspector__advanced">
       <summary>Advanced styles</summary>
       <div ref={stylesRef} />
     </details>
@@ -181,11 +181,11 @@ export function GrapesWidgetInspector({ editor, component, isFreeItem, styleRevi
 }
 
 function InspectorSection({ title, children }: { title: string; children: ReactNode }) {
-  return <section className="movecues-inspector__section"><h3>{title}</h3><div className="movecues-inspector__controls">{children}</div></section>;
+  return <section className="movcues-inspector__section"><h3>{title}</h3><div className="movcues-inspector__controls">{children}</div></section>;
 }
 
 function SegmentedControl({ label, value, options, onChange }: { label: string; value: string; options: Array<{ value: string; label: string }>; onChange: (value: string) => void }) {
-  return <div className="movecues-inspector__field"><span className="movecues-inspector__label">{label}</span><div className="movecues-inspector__segments" role="group" aria-label={label}>{options.map(option => <button key={option.value} type="button" aria-pressed={value === option.value} onClick={() => onChange(option.value)}>{option.label}</button>)}</div></div>;
+  return <div className="movcues-inspector__field"><span className="movcues-inspector__label">{label}</span><div className="movcues-inspector__segments" role="group" aria-label={label}>{options.map(option => <button key={option.value} type="button" aria-pressed={value === option.value} onClick={() => onChange(option.value)}>{option.label}</button>)}</div></div>;
 }
 
 function DirectionControl({ style, write }: ControlProps) {
@@ -214,13 +214,13 @@ function ContentPositionControl({ style, write }: ControlProps) {
     const verticalValue = verticalPart === "middle" ? "center" : verticalPart === "bottom" ? "flex-end" : "flex-start";
     write({ display: "flex", "justify-content": direction === "row" ? horizontalValue : verticalValue, "align-items": direction === "row" ? verticalValue : horizontalValue });
   };
-  return <div className="movecues-inspector__field"><span className="movecues-inspector__label">Content position</span><div className="movecues-inspector__alignment-grid" role="group" aria-label="Content position">{POSITION_OPTIONS.map(([position, Icon]) => <button key={position} type="button" aria-label={`Content position ${position.replace("-", " ")}`} aria-pressed={selected === position} onClick={() => choose(position)}><Icon /></button>)}</div></div>;
+  return <div className="movcues-inspector__field"><span className="movcues-inspector__label">Content position</span><div className="movcues-inspector__alignment-grid" role="group" aria-label="Content position">{POSITION_OPTIONS.map(([position, Icon]) => <button key={position} type="button" aria-label={`Content position ${position.replace("-", " ")}`} aria-pressed={selected === position} onClick={() => choose(position)}><Icon /></button>)}</div></div>;
 }
 
 function GapControl({ style, write }: ControlProps) {
   const value = Math.max(0, numericValue(styleValue(style, "gap"), 0));
   const update = (next: number) => write({ gap: `${Math.max(0, next)}px` });
-  return <div className="movecues-inspector__field"><span className="movecues-inspector__label">Space between items</span><div className="movecues-inspector__stepper"><Button type="button" size="icon" variant="outline" aria-label="Decrease gap" onClick={() => update(value - 1)}><Minus /></Button><Input aria-label="Space between items" type="number" min={0} value={value} onChange={event => update(Number(event.target.value))} /><span>px</span><Button type="button" size="icon" variant="outline" aria-label="Increase gap" onClick={() => update(value + 1)}><Plus /></Button></div></div>;
+  return <div className="movcues-inspector__field"><span className="movcues-inspector__label">Space between items</span><div className="movcues-inspector__stepper"><Button type="button" size="icon" variant="outline" aria-label="Decrease gap" onClick={() => update(value - 1)}><Minus /></Button><Input aria-label="Space between items" type="number" min={0} value={value} onChange={event => update(Number(event.target.value))} /><span>px</span><Button type="button" size="icon" variant="outline" aria-label="Increase gap" onClick={() => update(value + 1)}><Plus /></Button></div></div>;
 }
 
 function WidthControl({ kind, style, write }: ControlProps & { kind: InspectorKind }) {
@@ -229,14 +229,14 @@ function WidthControl({ kind, style, write }: ControlProps & { kind: InspectorKi
   const mode = declared === "fit-content" ? "hug" : declared === "100%" ? "fill" : /^\d+(?:\.\d+)?px$/.test(declared) ? "fixed" : declared ? "custom" : defaultMode;
   const fixed = Math.max(1, numericValue(declared, numericValue(styleValue(style, "width"), 320)));
   const choose = (next: string) => write({ width: next === "hug" ? "fit-content" : next === "fill" ? "100%" : `${Math.round(fixed)}px` });
-  return <div className="movecues-inspector__field"><SegmentedControl label="Width" value={mode} options={[{ value: "hug", label: "Hug" }, { value: "fill", label: "Fill" }, { value: "fixed", label: "Fixed" }]} onChange={choose} />{mode === "fixed" && <UnitInput label="Fixed width" value={fixed} min={1} onChange={value => write({ width: `${value}px` })} />}{mode === "custom" && <span className="movecues-inspector__custom">Custom width — edit in Advanced</span>}</div>;
+  return <div className="movcues-inspector__field"><SegmentedControl label="Width" value={mode} options={[{ value: "hug", label: "Hug" }, { value: "fill", label: "Fill" }, { value: "fixed", label: "Fixed" }]} onChange={choose} />{mode === "fixed" && <UnitInput label="Fixed width" value={fixed} min={1} onChange={value => write({ width: `${value}px` })} />}{mode === "custom" && <span className="movcues-inspector__custom">Custom width — edit in Advanced</span>}</div>;
 }
 
 function HeightControl({ style, write }: ControlProps) {
   const declared = style.authored.height?.trim() ?? "";
   const fixed = /^\d+(?:\.\d+)?px$/.test(declared);
   const value = Math.max(1, numericValue(declared, numericValue(styleValue(style, "height"), 120)));
-  return <div className="movecues-inspector__field"><SegmentedControl label="Height" value={fixed ? "fixed" : "auto"} options={[{ value: "auto", label: "Auto" }, { value: "fixed", label: "Fixed" }]} onChange={mode => write({ height: mode === "auto" ? null : `${Math.round(value)}px` })} />{fixed && <UnitInput label="Fixed height" value={value} min={1} onChange={next => write({ height: `${next}px` })} />}</div>;
+  return <div className="movcues-inspector__field"><SegmentedControl label="Height" value={fixed ? "fixed" : "auto"} options={[{ value: "auto", label: "Auto" }, { value: "fixed", label: "Fixed" }]} onChange={mode => write({ height: mode === "auto" ? null : `${Math.round(value)}px` })} />{fixed && <UnitInput label="Fixed height" value={value} min={1} onChange={next => write({ height: `${next}px` })} />}</div>;
 }
 
 function BlockAlignmentControl({ style, write }: ControlProps) {
@@ -257,7 +257,7 @@ function PaddingControl({ style, write, expanded, onExpandedChange }: ControlPro
   const allEqual = values.every(value => value === values[0]);
   const updateSide = (side: typeof sides[number], value: number) => write({ [`padding-${side}`]: `${Math.max(0, value)}px` });
   const updateAll = (value: number) => write(Object.fromEntries(sides.map(side => [`padding-${side}`, `${Math.max(0, value)}px`])));
-  return <div className="movecues-inspector__field"><div className="movecues-inspector__label-row"><span className="movecues-inspector__label">Padding</span><button type="button" className="movecues-inspector__link" aria-expanded={expanded} onClick={() => onExpandedChange(!expanded)}>{expanded ? "Use all sides" : "Edit sides"}</button></div>{expanded ? <div className="movecues-inspector__side-grid">{sides.map((side, index) => <UnitInput key={side} label={side[0].toUpperCase() + side.slice(1)} value={values[index]} min={0} onChange={value => updateSide(side, value)} />)}</div> : <UnitInput label="Padding all sides" value={allEqual ? values[0] : ""} placeholder={allEqual ? undefined : "Mixed"} min={0} onChange={updateAll} />}</div>;
+  return <div className="movcues-inspector__field"><div className="movcues-inspector__label-row"><span className="movcues-inspector__label">Padding</span><button type="button" className="movcues-inspector__link" aria-expanded={expanded} onClick={() => onExpandedChange(!expanded)}>{expanded ? "Use all sides" : "Edit sides"}</button></div>{expanded ? <div className="movcues-inspector__side-grid">{sides.map((side, index) => <UnitInput key={side} label={side[0].toUpperCase() + side.slice(1)} value={values[index]} min={0} onChange={value => updateSide(side, value)} />)}</div> : <UnitInput label="Padding all sides" value={allEqual ? values[0] : ""} placeholder={allEqual ? undefined : "Mixed"} min={0} onChange={updateAll} />}</div>;
 }
 
 function TypographyControls({ style, write }: ControlProps) {
@@ -269,10 +269,10 @@ function TypographyControls({ style, write }: ControlProps) {
   const alignment = matchValue(styleValue(style, "text-align"), ["left", "center", "right"]);
   return <>
     <SegmentedControl label="Font" value={fontPreset} options={[{ value: "default", label: "Default" }, { value: "sans", label: "Sans" }, { value: "serif", label: "Serif" }, { value: "monospace", label: "Mono" }]} onChange={value => write({ "font-family": value === "default" ? null : FONT_PRESETS[value as keyof typeof FONT_PRESETS] })} />
-    {fontPreset === "custom" && <span className="movecues-inspector__custom">Custom font — edit in Advanced</span>}
+    {fontPreset === "custom" && <span className="movcues-inspector__custom">Custom font — edit in Advanced</span>}
     <SegmentedControl label="Weight" value={weight} options={[{ value: "400", label: "Regular" }, { value: "500", label: "Medium" }, { value: "600", label: "Semibold" }, { value: "700", label: "Bold" }]} onChange={value => write({ "font-weight": value })} />
     <UnitInput label="Size" value={size} min={1} onChange={value => write({ "font-size": `${value}px` })} />
-    <Label className="movecues-inspector__field">Line height<Input aria-label="Line height" type="number" min={0.5} step={0.1} value={lineHeight} onChange={event => write({ "line-height": String(Math.max(0.5, Number(event.target.value))) })} /></Label>
+    <Label className="movcues-inspector__field">Line height<Input aria-label="Line height" type="number" min={0.5} step={0.1} value={lineHeight} onChange={event => write({ "line-height": String(Math.max(0.5, Number(event.target.value))) })} /></Label>
     <ColorControl label="Text color" value={styleValue(style, "color")} fallback="#202020" onChange={value => write({ color: value })} />
     <SegmentedControl label="Alignment" value={alignment} options={[{ value: "left", label: "Left" }, { value: "center", label: "Center" }, { value: "right", label: "Right" }]} onChange={value => write({ "text-align": value })} />
   </>;
@@ -292,11 +292,11 @@ function AppearanceControls({ style, write, background, corners, border, shadow 
 
 function ColorControl({ label, value, fallback, onChange }: { label: string; value: string; fallback: string; onChange: (value: string) => void }) {
   const color = toHex(value, fallback);
-  return <div className="movecues-inspector__field"><span className="movecues-inspector__label">{label}</span><div className="movecues-inspector__color"><input aria-label={`${label} picker`} type="color" value={color} onChange={event => onChange(event.target.value)} /><Input aria-label={label} value={color} onChange={event => /^#[0-9a-f]{6}$/i.test(event.target.value) && onChange(event.target.value)} /></div></div>;
+  return <div className="movcues-inspector__field"><span className="movcues-inspector__label">{label}</span><div className="movcues-inspector__color"><input aria-label={`${label} picker`} type="color" value={color} onChange={event => onChange(event.target.value)} /><Input aria-label={label} value={color} onChange={event => /^#[0-9a-f]{6}$/i.test(event.target.value) && onChange(event.target.value)} /></div></div>;
 }
 
 function UnitInput({ label, value, min, placeholder, onChange }: { label: string; value: number | string; min: number; placeholder?: string; onChange: (value: number) => void }) {
-  return <Label className="movecues-inspector__unit">{label}<span><Input aria-label={label} type="number" min={min} value={value} placeholder={placeholder} onChange={event => { const numeric = Number(event.target.value); if (Number.isFinite(numeric)) onChange(Math.max(min, numeric)); }} /><small>px</small></span></Label>;
+  return <Label className="movcues-inspector__unit">{label}<span><Input aria-label={label} type="number" min={min} value={value} placeholder={placeholder} onChange={event => { const numeric = Number(event.target.value); if (Number.isFinite(numeric)) onChange(Math.max(min, numeric)); }} /><small>px</small></span></Label>;
 }
 
 interface ControlProps { style: InspectorStyleSnapshot; write: (patch: InspectorStylePatch) => void }

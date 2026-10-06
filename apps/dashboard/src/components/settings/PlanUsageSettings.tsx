@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Badge, Button } from "@movecues/ui";
+import { Alert, Badge, Button } from "@movcues/ui";
 import { createCheckout, createPortalSession, getPlanUsage, type PlanUsage } from "../../api/billing";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { SettingsGroup, SettingsHeading, SettingsRow } from "./SettingsShared";

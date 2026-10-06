@@ -7,10 +7,10 @@ import { EmptyState } from "../../components/EmptyState";
 import * as trackedUsersApi from "../../api/trackedUsers";
 import type { TrackedUserDetail, UserActivityItem, SessionSummary, EnvironmentContext } from "../../types/api";
 import { formatDuration, formatRelativeTime, formatTimestamp, formatDeviceLabel } from "../../lib/format";
-import { Button } from "@movecues/ui";
-import { Badge } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Badge } from "@movcues/ui";
 import { DataTableFrame, ErrorNotice, LoadingRows, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
-import { cn } from "@movecues/ui";
+import { cn } from "@movcues/ui";
 
 type Tab = "overview" | "activity" | "properties" | "sessions";
 const PAGE_SIZE = 25;

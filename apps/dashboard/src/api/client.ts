@@ -174,7 +174,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     const error = new ApiError(res.status, body);
     const entitlement = entitlementError(error);
     if (entitlement && typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent<EntitlementErrorBody>("movecues:upgrade-required", { detail: entitlement }));
+      window.dispatchEvent(new CustomEvent<EntitlementErrorBody>("movcues:upgrade-required", { detail: entitlement }));
     }
     throw error;
   }

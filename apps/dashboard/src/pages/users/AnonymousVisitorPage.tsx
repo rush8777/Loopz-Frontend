@@ -7,9 +7,9 @@ import * as anonymousUsersApi from "../../api/anonymousUsers";
 import type { AnonymousVisitorDetail, UserActivityItem, SessionSummary } from "../../types/api";
 import { formatDuration, formatRelativeTime, formatTimestamp, formatDeviceLabel } from "../../lib/format";
 import { EnvironmentBlock } from "./UserProfilePage";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 import { DataTableFrame, ErrorNotice, LoadingRows, Metric, MetricGrid, dataTableClass } from "@/components/PageSurface";
-import { cn } from "@movecues/ui";
+import { cn } from "@movcues/ui";
 
 type Tab = "overview" | "activity" | "sessions";
 const PAGE_SIZE = 25;

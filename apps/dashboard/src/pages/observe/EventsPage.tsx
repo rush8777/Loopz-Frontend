@@ -7,7 +7,7 @@ import * as eventsApi from "../../api/events";
 import * as segmentsApi from "../../api/segments";
 import type { EventDefinitionSummary } from "../../types/api";
 import { formatTimestamp } from "../../lib/format";
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 import { AnalyticsFilterBar, type AppliedFilters, type FilterDefinition } from "@/components/filters/AnalyticsFilterBar";
 import { readFilters, writeFilters } from "@/components/filters/filterUrlState";
 import { resolveDateRange, type DateRangePreset } from "@/lib/dateRange";

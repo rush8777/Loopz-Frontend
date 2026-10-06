@@ -42,7 +42,7 @@ describe("widget sizing", () => {
 
   it("uses a preview-only outer envelope and makes the authored root fill canonical fixed and viewport heights", () => {
     const fixed = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "fixed", value: 480 } }));
-    expect(fixed).toContain("body{width:720px!important"); expect(fixed).toContain("height:480px!important"); expect(fixed).toContain("body>.movecues-widget"); expect(fixed).toContain("width:100%!important"); expect(fixed).toContain("height:100%!important");
+    expect(fixed).toContain("body{width:720px!important"); expect(fixed).toContain("height:480px!important"); expect(fixed).toContain("body>.movcues-widget"); expect(fixed).toContain("width:100%!important"); expect(fixed).toContain("height:100%!important");
     const viewport = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "viewport" } }));
     expect(viewport).toContain("height:calc(100vh - 24px)!important"); expect(viewport).toContain("height:100%!important");
     const automatic = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "auto" } }));

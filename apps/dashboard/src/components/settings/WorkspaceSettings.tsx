@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Alert, Button, Input, Label } from "@movecues/ui";
+import { Alert, Button, Input, Label } from "@movcues/ui";
 import * as organizationsApi from "../../api/organizations";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { CopyButton, SettingsGroup, SettingsHeading, SettingsRow } from "./SettingsShared";

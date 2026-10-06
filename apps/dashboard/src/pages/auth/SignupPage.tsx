@@ -1,6 +1,6 @@
 import { useCallback, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Alert, Button, Input, Label } from "@movecues/ui";
+import { Alert, Button, Input, Label } from "@movcues/ui";
 import { ApiError } from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
 import { GoogleAuthButton, isGoogleAuthConfigured } from "../../components/auth/GoogleAuthButton";

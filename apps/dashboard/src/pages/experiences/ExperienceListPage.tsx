@@ -7,8 +7,8 @@ import { getGuideStepPattern, type Experience, type ExperienceAnalytics, type Ex
 import { PageHeader } from "../../components/PageHeader";
 import { EmptyState } from "../../components/EmptyState";
 import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
-import { Button } from "@movecues/ui";
-import { Badge } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Badge } from "@movcues/ui";
 import { formatRelativeTime } from "../../lib/format";
 import { normalizeWidgetSize, WIDGET_SIZE_CONSTRAINTS } from "../../components/experiences/widgetSizing";
 import { CreateExperienceModal } from "./CreateExperienceModal";
@@ -206,7 +206,7 @@ function widgetPreviewWidth(widgetType: WidgetType, design: Pick<ExperienceDesig
 }
 
 function builderPreviewWidth(builder: WidgetBuilderState, fallback: number) {
-  const rootRule = builder.css.match(/(?:^|})\s*\.movecues-widget\s*\{([^}]*)\}/i)?.[1] ?? "";
+  const rootRule = builder.css.match(/(?:^|})\s*\.movcues-widget\s*\{([^}]*)\}/i)?.[1] ?? "";
   const width = Number(rootRule.match(/(?:^|;)\s*width\s*:\s*(\d+(?:\.\d+)?)px/i)?.[1]);
   return Number.isFinite(width) && width > 0 ? width : fallback;
 }
@@ -214,12 +214,12 @@ function builderPreviewWidth(builder: WidgetBuilderState, fallback: number) {
 function previewDocument(source: PreviewSource) {
   const markup = previewMarkup(source);
   const authoredCss = ("builder" in source ? source.builder?.css : "")?.replaceAll("</style", "<\\/style") ?? "";
-  const previewStateCss = source.mode === "checklist" && source.builder ? '#movecues-preview-root [data-movecues-checklist-view]{display:none!important}#movecues-preview-root [data-movecues-checklist-view="expanded"]{display:block!important}' : "";
+  const previewStateCss = source.mode === "checklist" && source.builder ? '#movcues-preview-root [data-movcues-checklist-view]{display:none!important}#movcues-preview-root [data-movcues-checklist-view="expanded"]{display:block!important}' : "";
   return `<!doctype html><html><head><style>
-    html,body{width:100%;height:100%;margin:0;overflow:hidden}body{display:grid;place-items:center;background:#f8fafc;color:#0f172a;font-family:Inter,ui-sans-serif,system-ui,sans-serif}#movecues-preview-root{width:100%;height:100%;display:grid;place-items:center;overflow:hidden}.movecues-list-fallback{width:min(100%,280px);box-sizing:border-box;border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:13px;box-shadow:0 4px 14px rgba(15,23,42,.08)}.movecues-list-fallback h2{margin:0 0 5px;font-size:14px;line-height:1.25}.movecues-list-fallback p{margin:0;color:#64748b;font-size:10px;line-height:1.4}.movecues-list-fallback button{margin-top:10px;border:0;border-radius:6px;background:#4f46e5;color:#fff;padding:5px 8px;font:600 10px inherit}.movecues-list-guide{box-sizing:border-box;display:flex;height:calc(100% - 12px);width:calc(100% - 12px);flex-direction:column;justify-content:center;overflow:hidden;padding:8px;box-shadow:0 2px 8px rgba(15,23,42,.12)}.movecues-list-guide__eyebrow,.movecues-list-checklist__eyebrow{margin:0 0 3px;font-size:6px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.72}.movecues-list-guide h2,.movecues-list-checklist h2{margin:0;overflow:hidden;font-size:11px;line-height:1.15;text-overflow:ellipsis;white-space:nowrap}.movecues-list-guide p,.movecues-list-checklist p{margin:3px 0 0;overflow:hidden;font-size:7px;line-height:1.25;text-overflow:ellipsis;white-space:nowrap;opacity:.75}.movecues-list-guide__footer{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:6px;font-weight:700}.movecues-list-guide__button{border-radius:4px;padding:3px 5px}.movecues-list-checklist{box-sizing:border-box;width:calc(100% - 12px);padding:8px;border:1px solid #e2e8f0;border-radius:7px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.08)}.movecues-list-checklist__items{display:flex;gap:3px;margin-top:6px}.movecues-list-checklist__item{height:4px;flex:1;border-radius:99px;background:#e2e8f0}.movecues-list-checklist__item:first-child{background:#6366f1}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden}body{display:grid;place-items:center;background:#f8fafc;color:#0f172a;font-family:Inter,ui-sans-serif,system-ui,sans-serif}#movcues-preview-root{width:100%;height:100%;display:grid;place-items:center;overflow:hidden}.movcues-list-fallback{width:min(100%,280px);box-sizing:border-box;border:1px solid #e2e8f0;border-radius:10px;background:#fff;padding:13px;box-shadow:0 4px 14px rgba(15,23,42,.08)}.movcues-list-fallback h2{margin:0 0 5px;font-size:14px;line-height:1.25}.movcues-list-fallback p{margin:0;color:#64748b;font-size:10px;line-height:1.4}.movcues-list-fallback button{margin-top:10px;border:0;border-radius:6px;background:#4f46e5;color:#fff;padding:5px 8px;font:600 10px inherit}.movcues-list-guide{box-sizing:border-box;display:flex;height:calc(100% - 12px);width:calc(100% - 12px);flex-direction:column;justify-content:center;overflow:hidden;padding:8px;box-shadow:0 2px 8px rgba(15,23,42,.12)}.movcues-list-guide__eyebrow,.movcues-list-checklist__eyebrow{margin:0 0 3px;font-size:6px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.72}.movcues-list-guide h2,.movcues-list-checklist h2{margin:0;overflow:hidden;font-size:11px;line-height:1.15;text-overflow:ellipsis;white-space:nowrap}.movcues-list-guide p,.movcues-list-checklist p{margin:3px 0 0;overflow:hidden;font-size:7px;line-height:1.25;text-overflow:ellipsis;white-space:nowrap;opacity:.75}.movcues-list-guide__footer{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:6px;font-weight:700}.movcues-list-guide__button{border-radius:4px;padding:3px 5px}.movcues-list-checklist{box-sizing:border-box;width:calc(100% - 12px);padding:8px;border:1px solid #e2e8f0;border-radius:7px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.08)}.movcues-list-checklist__items{display:flex;gap:3px;margin-top:6px}.movcues-list-checklist__item{height:4px;flex:1;border-radius:99px;background:#e2e8f0}.movcues-list-checklist__item:first-child{background:#6366f1}
     ${authoredCss}
     ${previewStateCss}
-  </style></head><body><div id="movecues-preview-root">${markup}</div></body></html>`;
+  </style></head><body><div id="movcues-preview-root">${markup}</div></body></html>`;
 }
 
 function previewMarkup(source: PreviewSource) {
@@ -229,10 +229,10 @@ function previewMarkup(source: PreviewSource) {
     const foreground = previewColor(source.theme.foreground, "#0f172a");
     const primary = previewColor(source.theme.primary, "#4f46e5");
     const radius = source.theme.borderRadius === "sm" ? "5px" : source.theme.borderRadius === "lg" ? "12px" : "8px";
-    return `<section class="movecues-list-guide" style="background:${background};color:${foreground};border-radius:${radius}"><p class="movecues-list-guide__eyebrow">Guide · Step 1 of ${source.steps}</p><h2>${escapeHtml(source.heading)}</h2><p>${escapeHtml(source.body)}</p><div class="movecues-list-guide__footer"><span>${source.steps} step${source.steps === 1 ? "" : "s"}</span>${source.action ? `<span class="movecues-list-guide__button" style="background:${primary};color:#fff">${escapeHtml(source.action)}</span>` : ""}</div></section>`;
+    return `<section class="movcues-list-guide" style="background:${background};color:${foreground};border-radius:${radius}"><p class="movcues-list-guide__eyebrow">Guide · Step 1 of ${source.steps}</p><h2>${escapeHtml(source.heading)}</h2><p>${escapeHtml(source.body)}</p><div class="movcues-list-guide__footer"><span>${source.steps} step${source.steps === 1 ? "" : "s"}</span>${source.action ? `<span class="movcues-list-guide__button" style="background:${primary};color:#fff">${escapeHtml(source.action)}</span>` : ""}</div></section>`;
   }
-  if (source.mode === "checklist") return source.builder?.html || `<section class="movecues-list-checklist"><p class="movecues-list-checklist__eyebrow">Checklist</p><h2>${escapeHtml(source.heading)}</h2><p>${escapeHtml(source.body || `${source.items} tasks to complete`)}</p><div class="movecues-list-checklist__items">${Array.from({ length: Math.min(Math.max(source.items, 1), 4) }, () => '<i class="movecues-list-checklist__item"></i>').join("")}</div></section>`;
-  return source.builder?.html || `<section class="movecues-list-fallback"><h2>${escapeHtml(source.heading)}</h2><p>${escapeHtml(source.body)}</p>${source.action ? `<button>${escapeHtml(source.action)}</button>` : ""}</section>`;
+  if (source.mode === "checklist") return source.builder?.html || `<section class="movcues-list-checklist"><p class="movcues-list-checklist__eyebrow">Checklist</p><h2>${escapeHtml(source.heading)}</h2><p>${escapeHtml(source.body || `${source.items} tasks to complete`)}</p><div class="movcues-list-checklist__items">${Array.from({ length: Math.min(Math.max(source.items, 1), 4) }, () => '<i class="movcues-list-checklist__item"></i>').join("")}</div></section>`;
+  return source.builder?.html || `<section class="movcues-list-fallback"><h2>${escapeHtml(source.heading)}</h2><p>${escapeHtml(source.body)}</p>${source.action ? `<button>${escapeHtml(source.action)}</button>` : ""}</section>`;
 }
 
 function previewColor(value: string, fallback: string) {

@@ -1,4 +1,4 @@
-import { Button } from "@movecues/ui";
+import { Button } from "@movcues/ui";
 
 type Props = {
   href: string;

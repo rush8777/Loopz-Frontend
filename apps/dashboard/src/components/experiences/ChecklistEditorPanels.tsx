@@ -22,7 +22,7 @@ import {
   Input,
   Label,
   Textarea,
-} from "@movecues/ui";
+} from "@movcues/ui";
 import type { PageDefinition, Segment } from "../../types/api";
 import type {
   ChecklistExperienceDefinition,
@@ -67,7 +67,7 @@ export function ChecklistStructurePanel({
   };
   return (
     <aside
-      className="movecues-checklist-step-chip flex min-h-0 flex-col"
+      className="movcues-checklist-step-chip flex min-h-0 flex-col"
       aria-label="Checklist structure"
     >
       <div className="min-h-0 flex-1 overflow-y-auto p-3">

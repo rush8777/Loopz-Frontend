@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 
 export default defineConfig({
-  site: "https://movecues.com",
+  site: "https://movcues.com",
   output: "static",
   integrations: [react()],
 });

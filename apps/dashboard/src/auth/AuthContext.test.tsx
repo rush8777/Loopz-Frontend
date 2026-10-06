@@ -21,7 +21,7 @@ describe("AuthContext Google session", () => {
     vi.clearAllMocks();
   });
 
-  it("stores the standard Movecues token pair and updates the user", async () => {
+  it("stores the standard movcues token pair and updates the user", async () => {
     vi.mocked(authApi.googleLogin).mockResolvedValue({
       user: { id: "usr_1", email: "person@example.com", name: "Person" },
       accessToken: "access",

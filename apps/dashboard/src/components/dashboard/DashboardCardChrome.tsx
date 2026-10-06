@@ -1,7 +1,7 @@
 import { ArrowRight, ChevronDown, ChevronUp, Copy, Info, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@movecues/ui";
-import { CardFooter, CardHeader, CardTitle } from "@movecues/ui";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { CardFooter, CardHeader, CardTitle } from "@movcues/ui";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@movcues/ui";
 import { formatRelativeTime } from "@/lib/format";
 
 export function DashboardCardHeader({ title, definition, editable, onEdit, onDuplicate, onDelete, onMove }: { title: string; definition?: string; editable?: boolean; onEdit?: () => void; onDuplicate?: () => void; onDelete?: () => void; onMove?: (delta: number) => void }) {

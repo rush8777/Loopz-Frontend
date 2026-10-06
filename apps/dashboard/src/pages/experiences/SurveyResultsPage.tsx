@@ -12,7 +12,7 @@ import { AnalyticsMetricCard } from "../../components/analytics/AnalyticsMetricC
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "../../components/ui/chart";
 import { ErrorNotice, LoadingRows } from "../../components/PageSurface";
 import { chartAxisTick, chartMargin, getResponsiveDateAxisProps } from "../../lib/chartFormatting";
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, cn } from "@movecues/ui";
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, cn } from "@movcues/ui";
 
 type ResultsTab = "overview" | "responses" | "investigate";
 type TrendMetric = "responses" | "responseRate" | "starts" | "abandoned";

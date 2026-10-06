@@ -5,7 +5,7 @@ import { PageHeader } from "../../components/PageHeader";
 import { EmptyState } from "../../components/EmptyState";
 import * as sessionsApi from "../../api/sessions";
 import type { SessionActivity } from "../../types/api";
-import { Button, Checkbox } from "@movecues/ui";
+import { Button, Checkbox } from "@movcues/ui";
 import { DataTableFrame, ErrorNotice, LoadingRows } from "@/components/PageSurface";
 import { SessionEpisodeCard } from "./session-detail/SessionEpisodeCard";
 import { SessionNavigator } from "./session-detail/SessionNavigator";

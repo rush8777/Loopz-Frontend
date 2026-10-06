@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@movecues/ui";
-import { Skeleton } from "@movecues/ui";
-import { cn } from "@movecues/ui";
+import { Alert, AlertDescription } from "@movcues/ui";
+import { Skeleton } from "@movcues/ui";
+import { cn } from "@movcues/ui";
 
 export function FilterToolbar({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn("mb-5 flex flex-wrap items-center justify-between gap-3", className)}>{children}</div>;

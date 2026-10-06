@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movecues/ui";
-import { Button } from "@movecues/ui";
-import { Input } from "@movecues/ui";
-import { Label } from "@movecues/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@movecues/ui";
-import { Checkbox } from "@movecues/ui";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movcues/ui";
+import { Button } from "@movcues/ui";
+import { Input } from "@movcues/ui";
+import { Label } from "@movcues/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@movcues/ui";
+import { Checkbox } from "@movcues/ui";
 import * as analyticsApi from "@/api/analytics";
 import * as experiencesApi from "@/api/experiences";
 import type { AnalyticsCatalog, AnalyticsResponse, DashboardCard, DashboardCardConfiguration, DashboardFilters, EventDefinitionSummary, ExperienceCardConfiguration, FunnelListItem, MetricCardConfiguration, Segment } from "@/types/api";

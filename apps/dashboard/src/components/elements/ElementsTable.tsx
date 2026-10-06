@@ -4,12 +4,12 @@ import { EmptyState } from "../EmptyState";
 import * as elementsApi from "../../api/elements";
 import type { CatalogElement } from "../../types/api";
 import { formatRelativeTime } from "../../lib/format";
-import { Button } from "@movecues/ui";
-import { Badge } from "@movecues/ui";
-import { Checkbox } from "@movecues/ui";
-import { Input } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Badge } from "@movcues/ui";
+import { Checkbox } from "@movcues/ui";
+import { Input } from "@movcues/ui";
 import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
-import { cn } from "@movecues/ui";
+import { cn } from "@movcues/ui";
 
 function RenameField({ element, onSaved }: { element: CatalogElement; onSaved: (updated: CatalogElement) => void }) {
   const { currentOrg, currentSite } = useWorkspace();

@@ -47,7 +47,7 @@ describe("Google authentication pages", () => {
     googleLogin.mockRejectedValue(new ApiError(409, { error: "google_signup_required" }));
     render(<MemoryRouter><LoginPage /></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
-    expect(await screen.findByText("No Movecues account exists for this Google account yet.")).toBeInTheDocument();
+    expect(await screen.findByText("No movcues account exists for this Google account yet.")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Create an account" }).some((link) => link.getAttribute("href") === "/signup")).toBe(true);
     expect(googleLogin).toHaveBeenCalledTimes(1);
   });

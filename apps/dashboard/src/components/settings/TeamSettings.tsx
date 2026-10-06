@@ -11,7 +11,7 @@ import {
   DialogTitle,
   Input,
   Label,
-} from "@movecues/ui";
+} from "@movcues/ui";
 import { Plus, Trash2 } from "lucide-react";
 import * as teamApi from "../../api/team";
 import { ApiError } from "../../api/client";

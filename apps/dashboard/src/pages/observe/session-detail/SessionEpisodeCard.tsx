@@ -1,6 +1,6 @@
 import type { SessionActivityEvidence, SessionActivityItem } from "../../../types/api";
 import { formatDuration, formatTimestamp } from "../../../lib/format";
-import { Badge } from "@movecues/ui";
+import { Badge } from "@movcues/ui";
 import type { SessionEpisodeViewModel } from "./sessionTimeline";
 import { elapsedLabel, episodeSummary } from "./sessionTimeline";
 

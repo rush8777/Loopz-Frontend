@@ -1,8 +1,8 @@
 import type { ExperienceDefinition, WidgetBuilderState } from "../../types/experiences";
 import { isChecklistDefinition, isGuideDefinition } from "../../types/experiences";
 
-const STORAGE_KEY = "movecues:grapes-builder-trace:v1";
-const ENABLE_KEY = "movecues:grapes-builder-debug";
+const STORAGE_KEY = "movcues:grapes-builder-trace:v1";
+const ENABLE_KEY = "movcues:grapes-builder-debug";
 const MAX_ENTRIES = 400;
 const sessionId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -24,7 +24,7 @@ interface BuilderDebugApi {
 }
 
 declare global {
-  interface Window { __MOVECUES_BUILDER_DEBUG__?: BuilderDebugApi }
+  interface Window { __movcues_BUILDER_DEBUG__?: BuilderDebugApi }
 }
 
 let entries = readEntries();
@@ -51,7 +51,7 @@ export function summarizeBuilder(builder?: WidgetBuilderState): Record<string, u
     cssHash: hash(css),
     htmlElements: (html.match(/<[a-z][^>]*>/gi) ?? []).length,
     buttons: (html.match(/<button\b/gi) ?? []).length,
-    surveyActions: (html.match(/data-movecues-survey-action=/gi) ?? []).length,
+    surveyActions: (html.match(/data-movcues-survey-action=/gi) ?? []).length,
     styleRules: (css.match(/\{/g) ?? []).length,
     projectPages: pages.length,
     projectStyles: Array.isArray(project?.styles) ? project.styles.length : null,
@@ -71,14 +71,14 @@ function isEnabled(): boolean {
     const setting = window.localStorage.getItem(ENABLE_KEY);
     if (setting === "0") return false;
     if (setting === "1") return true;
-    if (new URLSearchParams(window.location.search).get("movecues_builder_debug") === "1") return true;
+    if (new URLSearchParams(window.location.search).get("movcues_builder_debug") === "1") return true;
   } catch { return false; }
   return import.meta.env.DEV && import.meta.env.MODE !== "test";
 }
 
 function installApi(): void {
   if (typeof window === "undefined") return;
-  window.__MOVECUES_BUILDER_DEBUG__ = {
+  window.__movcues_BUILDER_DEBUG__ = {
     entries: () => [...entries],
     export: () => JSON.stringify(entries, null, 2),
     clear: () => { entries = []; sequence = 0; try { window.sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage can be unavailable. */ } },

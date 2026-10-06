@@ -7,9 +7,9 @@ import { EmptyState } from "../../components/EmptyState";
 import * as pagesApi from "../../api/pages";
 import type { PageDetail, PageRuleOperator } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
-import { Badge } from "@movecues/ui";
-import { Button } from "@movecues/ui";
-import { Skeleton } from "@movecues/ui";
+import { Badge } from "@movcues/ui";
+import { Button } from "@movcues/ui";
+import { Skeleton } from "@movcues/ui";
 import { DataTableFrame, ErrorNotice, dataTableClass } from "@/components/PageSurface";
 
 const OPERATOR_LABEL: Record<PageRuleOperator, string> = {

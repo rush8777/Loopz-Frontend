@@ -7,8 +7,8 @@ import * as funnelsApi from "../../api/funnels";
 import type { FunnelListItem } from "../../types/api";
 import { formatRelativeTime, formatTimestamp } from "../../lib/format";
 import { Plus } from "lucide-react";
-import { Button } from "@movecues/ui";
-import { Input } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Input } from "@movcues/ui";
 import { DataTableFrame, ErrorNotice, FilterToolbar, LoadingRows, dataTableClass } from "@/components/PageSurface";
 import { RefreshButton } from "../../components/RefreshButton";
 

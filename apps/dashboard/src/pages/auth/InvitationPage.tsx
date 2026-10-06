@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Alert, Badge, Button, Input, Label } from "@movecues/ui";
+import { Alert, Badge, Button, Input, Label } from "@movcues/ui";
 import * as teamApi from "../../api/team";
 import { ApiError } from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
@@ -103,7 +103,7 @@ export function InvitationPage() {
         <div className="space-y-3">
           <Button asChild className="h-11 w-full"><Link to="/login" state={{ returnTo: `/invite/${token}` }}>Sign in</Link></Button>
           <Button variant="outline" className="h-11 w-full" onClick={() => setShowSignup(true)}>Create account and join</Button>
-          <p className="m-0 text-center text-xs text-muted-foreground">Already have an account? Sign in. New to Movecues? Create an account here.</p>
+          <p className="m-0 text-center text-xs text-muted-foreground">Already have an account? Sign in. New to movcues? Create an account here.</p>
         </div>
       )}
       {!user && showSignup && (

@@ -5,11 +5,11 @@ import * as pagesApi from "../../api/pages";
 import * as experiencesApi from "../../api/experiences";
 import type { PageDefinition } from "../../types/api";
 import type { ExperienceKind, WidgetType } from "../../types/experiences";
-import { Button } from "@movecues/ui";
-import { Checkbox } from "@movecues/ui";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movecues/ui";
-import { Input } from "@movecues/ui";
-import { Label } from "@movecues/ui";
+import { Button } from "@movcues/ui";
+import { Checkbox } from "@movcues/ui";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movcues/ui";
+import { Input } from "@movcues/ui";
+import { Label } from "@movcues/ui";
 
 export function CreateExperienceModal({ kind, widgetType: fixedWidgetType, singularLabel = kind, open, onOpenChange, onCreated }: { kind: ExperienceKind; widgetType?: WidgetType; singularLabel?: string; open: boolean; onOpenChange: (open: boolean) => void; onCreated?: () => void }) {
   const { currentOrg, currentSite } = useWorkspace(); const navigate = useNavigate(); const [pages, setPages] = useState<PageDefinition[]>([]);

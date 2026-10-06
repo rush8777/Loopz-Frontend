@@ -1,5 +1,5 @@
 {
-  "name": "@movecues/dashboard",
+  "name": "@movcues/dashboard",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,8 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@movecues/tokens": "*",
-    "@movecues/ui": "*",
+    "@movcues/tokens": "*",
+    "@movcues/ui": "*",
     "@tailwindcss/vite": "^4.2.4",
     "@xyflow/react": "^12.11.3",
     "grapesjs": "^0.23.6",

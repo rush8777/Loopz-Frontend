@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Alert, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movecues/ui";
+import { Alert, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movcues/ui";
 import { ArrowUpRight, Crown } from "lucide-react";
 import { createCheckout, getPlanUsage, type PlanUsage } from "../../api/billing";
 import type { EntitlementErrorBody } from "../../api/client";
@@ -39,8 +39,8 @@ export function UpgradeNowProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const open = (event: Event) => setReason((event as CustomEvent<EntitlementErrorBody>).detail);
-    window.addEventListener("movecues:upgrade-required", open);
-    return () => window.removeEventListener("movecues:upgrade-required", open);
+    window.addEventListener("movcues:upgrade-required", open);
+    return () => window.removeEventListener("movcues:upgrade-required", open);
   }, []);
   useEffect(() => {
     if (!reason || !currentOrg) return;

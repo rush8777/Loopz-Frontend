@@ -1,6 +1,6 @@
-# Movecues frontend workspace
+# movcues frontend workspace
 
-This repository is an npm workspace containing the Movecues dashboard and its shared design-system packages.
+This repository is an npm workspace containing the movcues dashboard and its shared design-system packages.
 
 ## Structure
 
@@ -62,13 +62,13 @@ npm run build --workspace=apps/dashboard
 Use shared primitives through their public entrypoint:
 
 ```tsx
-import { Button, Dialog, Input } from "@movecues/ui";
+import { Button, Dialog, Input } from "@movcues/ui";
 ```
 
 Applications load the shared brand tokens once at their entrypoint:
 
 ```ts
-import "@movecues/tokens/styles.css";
+import "@movcues/tokens/styles.css";
 ```
 
 Both packages are private workspace dependencies and are not published to npm.
