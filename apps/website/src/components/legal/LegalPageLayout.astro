@@ -1,0 +1,64 @@
+---
+import MarketingLayout from "../marketing/MarketingLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  eyebrow: string;
+  updated: string;
+}
+
+const { title, description, canonicalPath, eyebrow, updated } = Astro.props;
+const links = [
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+  { href: "/refunds", label: "Refunds & cancellation" },
+];
+---
+
+<MarketingLayout {title} {description} {canonicalPath}>
+  <header class="legal-hero">
+    <div class="section-shell">
+      <p class="section-kicker"><span></span>{eyebrow}</p>
+      <h1>{title}</h1>
+      <p>Effective date: {updated}</p>
+    </div>
+  </header>
+  <section class="legal-shell section-shell">
+    <aside class="legal-nav" aria-label="Legal documents">
+      <p>Legal</p>
+      <nav>{links.map((link) => <a class:list={[canonicalPath === link.href && "is-current"]} href={link.href}>{link.label}</a>)}</nav>
+      <small>Questions? <a href="mailto:rashmikanavod@gmail.com">Contact us</a></small>
+    </aside>
+    <article class="legal-content">
+      <slot />
+    </article>
+  </section>
+</MarketingLayout>
+
+<style>
+  .legal-hero { padding: clamp(4.5rem, 8vw, 7rem) 0 clamp(2.75rem, 5vw, 4.5rem); border-bottom: 1px solid var(--border); background: radial-gradient(ellipse at 50% 0%, rgba(126, 152, 228, .14), transparent 70%); }
+  .legal-hero .section-kicker { justify-content: center; }
+  .legal-hero h1 { max-width: 46rem; margin: 1.1rem auto 0; font-size: clamp(3rem, 6vw, 5.8rem); font-weight: 500; letter-spacing: -.07em; line-height: .95; text-align: center; }
+  .legal-hero p:last-child { margin: 1rem 0 0; color: var(--text-secondary); font-size: .85rem; text-align: center; }
+  .legal-shell { padding-block: clamp(3.5rem, 7vw, 6.5rem); display: grid; grid-template-columns: 11rem minmax(0, 46rem); justify-content: center; gap: clamp(3rem, 8vw, 8rem); }
+  .legal-nav { position: sticky; top: 6.5rem; align-self: start; display: grid; gap: 1rem; }
+  .legal-nav > p { margin: 0; color: var(--text-muted); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .legal-nav nav { display: grid; gap: .25rem; }
+  .legal-nav nav a { padding: .4rem .55rem; border-radius: .45rem; color: var(--text-secondary); font-size: .82rem; }
+  .legal-nav nav a:hover, .legal-nav nav a.is-current { background: var(--blue-soft); color: var(--primary); }
+  .legal-nav small { padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: .7rem; line-height: 1.5; }
+  .legal-nav small a { color: var(--foreground); text-decoration: underline; text-underline-offset: .15em; }
+  .legal-content { min-width: 0; color: var(--ink-soft); font-size: .95rem; line-height: 1.75; }
+  .legal-content :global(h2) { margin: 3.25rem 0 1rem; color: var(--foreground); font-size: clamp(1.35rem, 2.4vw, 1.7rem); letter-spacing: -.035em; line-height: 1.15; }
+  .legal-content :global(h2:first-child) { margin-top: 0; }
+  .legal-content :global(h3) { margin: 1.8rem 0 .5rem; color: var(--foreground); font-size: 1rem; }
+  .legal-content :global(p) { margin: 0 0 1rem; }
+  .legal-content :global(ul) { margin: .35rem 0 1.2rem; padding-left: 1.25rem; }
+  .legal-content :global(li) { margin-block: .35rem; }
+  .legal-content :global(a) { color: var(--primary); text-decoration: underline; text-underline-offset: .15em; }
+  .legal-content :global(.legal-note) { margin: 1.5rem 0; padding: 1rem 1.15rem; border: 1px solid #d8e0ff; border-radius: .75rem; background: #f5f7ff; color: #384a7e; font-size: .86rem; }
+  .legal-content :global(address) { margin-top: .5rem; color: var(--ink-soft); font-style: normal; }
+  @media (max-width: 760px) { .legal-shell { grid-template-columns: 1fr; gap: 2rem; } .legal-nav { position: static; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); } .legal-nav nav { grid-template-columns: repeat(3, minmax(0, 1fr)); } .legal-nav nav a { padding-inline: .25rem; font-size: .72rem; } .legal-nav small { display: none; } }
+</style>

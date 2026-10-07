@@ -13,6 +13,8 @@ describe("widget builder compatibility", () => {
       expect(starter.html).toContain(`data-movcues-widget-type="${type}"`); expect(starter.html).toContain(examples[type]); expect(starter.html).toContain("movcues-widget"); expect(validateBuilderCss(starter.css)).toBe(starter.css);
     }
     const modal = createWidgetStarter("modal", content, design), slideout = createWidgetStarter("slideout", content, design), banner = createWidgetStarter("banner", content, design); expect(modal.css).toContain("display:flex;flex-direction:column"); expect(modal.css).toContain("width:600px"); expect(slideout.css).toContain("width:400px"); expect(slideout.css).toContain("min-height:460px"); expect(banner.css).toContain("display:flex;flex-direction:row"); expect(banner.css).toContain("width:100%");
+    expect(modal.css).toContain("@media(max-width:600px)"); expect(modal.css).toContain(".movcues-widget--modal,.movcues-widget--survey{padding:24px 20px}"); expect(modal.css).toContain(".movcues-widget__actions{flex-wrap:wrap}");
+    expect(banner.css).toContain(".movcues-widget--banner .movcues-widget__actions{width:100%;margin:0}"); expect(slideout.css).toContain(".movcues-widget--slideout{min-height:0;padding:24px 20px}");
     const survey = createWidgetStarter("survey", content, design); expect(survey.html).toContain("movcues-survey-validation"); expect(survey.html).not.toContain("data-movcues-survey-controls"); expect(survey.html).not.toContain("data-movcues-survey-action"); expect(survey.html).not.toMatch(/>Back<|>Next<|>Submit</);
   });
 
@@ -54,6 +56,8 @@ describe("widget builder compatibility", () => {
 
   it("rejects executable or unscoped CSS", () => {
     expect(() => validateBuilderCss("button{color:red}")).toThrow(/scoped/i); expect(() => validateBuilderCss("@import url('https://evil.test/x.css')")).toThrow(/not allowed/i); expect(validateBuilderCss(".movcues-widget .button{color:red}")).toContain(".movcues-widget");
+    expect(validateBuilderCss("@media(max-width:600px){.movcues-widget .button{width:100%}}")).toContain("@media");
+    expect(() => validateBuilderCss("@media(max-width:600px){button{width:100%}}")).toThrow(/scoped/i);
   });
 
   it("rejects executable GrapesJS project state before it can be reopened", () => {

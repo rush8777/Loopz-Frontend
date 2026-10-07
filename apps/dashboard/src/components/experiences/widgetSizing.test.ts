@@ -36,16 +36,17 @@ describe("widget sizing", () => {
 
   it("adds mobile viewport safety to floating widgets", () => {
     const css = widgetSizeCss("toast", design());
-    expect(css.maxWidth).toBe("min(520px,calc(100vw - 24px))");
-    expect(css.maxHeight).toBe("calc(100vh - 24px)");
+    expect(css.maxWidth).toBe("min(520px,var(--movcues-usable-viewport-width,calc(100vw - 24px)))");
+    expect(css.maxHeight).toBe("var(--movcues-usable-viewport-height,calc(100vh - 24px))");
   });
 
   it("uses a preview-only outer envelope and makes the authored root fill canonical fixed and viewport heights", () => {
     const fixed = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "fixed", value: 480 } }));
     expect(fixed).toContain("body{width:720px!important"); expect(fixed).toContain("height:480px!important"); expect(fixed).toContain("body>.movcues-widget"); expect(fixed).toContain("width:100%!important"); expect(fixed).toContain("height:100%!important");
     const viewport = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "viewport" } }));
-    expect(viewport).toContain("height:calc(100vh - 24px)!important"); expect(viewport).toContain("height:100%!important");
+    expect(viewport).toContain("height:var(--movcues-usable-viewport-height,calc(100vh - 24px))!important"); expect(viewport).toContain("height:100%!important");
     const automatic = builderPreviewSizeEnvelopeCss("survey", design("md", { width: { mode: "fixed", value: 720 }, height: { mode: "auto" } }));
-    expect(automatic).toContain("height:auto!important"); expect(automatic).toContain("max-height:none!important");
+    expect(automatic).toContain("height:auto!important"); expect(automatic).toContain("overflow-y:auto!important");
+    expect(automatic).toContain("100dvw"); expect(automatic).toContain("100dvh"); expect(automatic).toContain("safe-area-inset-bottom");
   });
 });

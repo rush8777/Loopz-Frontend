@@ -10,13 +10,14 @@ import RelatedLinks from "./RelatedLinks.astro";
 import BottomCta from "./BottomCta.astro";
 interface Props { page: MarketingPage }
 const { page } = Astro.props;
+const isProductPage = page.path.startsWith("/product") || ["/explore", "/explore/analytics", "/explore/experiences", "/explore/targeting"].includes(page.path);
 ---
 <MarketingLayout title={page.metaTitle} description={page.description} canonicalPath={page.path}>
-  <PageHero eyebrow={page.eyebrow} title={page.title} description={page.description} visual={page.visual} secondaryLabel={page.secondaryLabel} sideBySide={page.path.startsWith("/product") || page.path.startsWith("/solutions")} />
-  {page.path.startsWith("/product") && page.bridgeText && <ProductBridge text={page.bridgeText} />}
+  <PageHero eyebrow={page.eyebrow} title={page.title} description={page.description} visual={page.visual} secondaryLabel={page.secondaryLabel} sideBySide={page.path.startsWith("/product") || page.path.startsWith("/explore")} />
+  {isProductPage && page.bridgeText && <ProductBridge text={page.bridgeText} />}
   {page.comments && <CustomerComments comments={page.comments} title={page.commentsTitle} />}
-  <Workflow {...page.workflow} platformDesign={page.path.startsWith("/product")} />
-  {page.sections.map((section, index) => <FeatureSplit {...section} reverse={index % 2 === 1} productCard={page.path.startsWith("/product")} />)}
+  <Workflow {...page.workflow} platformDesign={isProductPage} />
+  {page.sections.map((section, index) => <FeatureSplit {...section} reverse={index % 2 === 1} productCard={isProductPage} />)}
   <RelatedLinks links={page.related} />
   <BottomCta {...page.cta} />
 </MarketingLayout>

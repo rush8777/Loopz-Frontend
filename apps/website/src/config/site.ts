@@ -11,28 +11,33 @@ export const DASHBOARD_URLS = {
   signup: "https://dash.movcues.com/signup",
 } as const;
 
+const EXPLORE_NAV_ITEMS = [
+  { label: "Platform overview", description: "See how the entire Movcues loop works", href: "/explore" },
+  { label: "Analytics", description: "Events, funnels, sessions and product insights", href: "/explore/analytics" },
+  { label: "In-app experiences", description: "Guides, surveys, banners, checklists and contextual experiences", href: "/explore/experiences" },
+  { label: "Targeting & segments", description: "Find and reach the users who need attention", href: "/explore/targeting" },
+] as const;
+
+const PRODUCT_NAV_ITEMS = [
+  { label: "Guides", description: "Create multi-step guidance for important user journeys", href: "/product/guide" },
+  { label: "Modals", description: "Present focused messages at the right moment", href: "/product/modals" },
+  { label: "Checklists", description: "Help users make progress through key tasks", href: "/product/checklists" },
+  { label: "Tooltips", description: "Add contextual help directly in the product", href: "/product/tooltips" },
+  { label: "Dashboards", description: "Track the product signals that matter", href: "/product/dashboards" },
+] as const;
+
 export const NAV_ITEMS = [
   {
     label: "Product",
-    href: "/product",
+    href: "/product/guide",
     description: "Everything you need to understand users and move them forward.",
-    items: [
-      { label: "Platform overview", description: "See how the entire Movcues loop works", href: "/product" },
-      { label: "Analytics", description: "Events, funnels, sessions and product insights", href: "/product/analytics" },
-      { label: "In-app experiences", description: "Guides, surveys, banners, checklists and contextual experiences", href: "/product/experiences" },
-      { label: "Targeting & segments", description: "Find and reach the users who need attention", href: "/product/targeting" },
-    ],
+    items: PRODUCT_NAV_ITEMS,
   },
   {
-    label: "Solutions",
-    href: "/solutions/user-onboarding",
-    description: "Use behavior to solve key product-growth problems.",
-    items: [
-      { label: "User onboarding & activation", description: "Help new users reach value", href: "/solutions/user-onboarding" },
-      { label: "Feature adoption", description: "Drive adoption of important product capabilities", href: "/solutions/feature-adoption" },
-      { label: "Reduce funnel drop-off", description: "Find friction and act on affected users", href: "/solutions/funnel-dropoff" },
-      { label: "Product feedback", description: "Ask the right users at meaningful moments", href: "/solutions/product-feedback" },
-    ],
+    label: "Explore",
+    href: "/explore",
+    description: "Explore how Movcues turns behavior into action.",
+    items: EXPLORE_NAV_ITEMS,
   },
   {
     label: "Resources",

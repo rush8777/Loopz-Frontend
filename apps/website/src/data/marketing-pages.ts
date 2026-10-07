@@ -18,7 +18,7 @@ export type MarketingPage = {
 export const marketingPages = {
   product: {
     metaTitle: "Movcues product platform | Understand and act on user behavior",
-    path: "/product",
+    path: "/explore",
     eyebrow: "The Movcues platform",
     title: "Turn product evidence into a useful next step.",
     description: "Follow behavior through funnels, sessions, pages, and events; define the affected audience; then publish guidance where it can help.",
@@ -58,15 +58,15 @@ export const marketingPages = {
       },
     ],
     related: [
-      { label: "Analytics", description: "See where users move forward and where they stop.", href: "/product/analytics" },
-      { label: "In-app experiences", description: "Guide users with contextual product experiences.", href: "/product/experiences" },
-      { label: "Targeting & segments", description: "Reach the exact users who need attention.", href: "/product/targeting" }
+      { label: "Analytics", description: "See where users move forward and where they stop.", href: "/explore/analytics" },
+      { label: "In-app experiences", description: "Guide users with contextual product experiences.", href: "/explore/experiences" },
+      { label: "Targeting & segments", description: "Reach the exact users who need attention.", href: "/explore/targeting" }
     ],
   },
 
   analytics: {
     metaTitle: "Product analytics that leads to action | Movcues",
-    path: "/product/analytics",
+    path: "/explore/analytics",
     eyebrow: "Movcues analytics",
     title: "Find the step that needs attention.",
     description: "Build an event- or page-based funnel, inspect conversion and the users behind each step, then save a reached or drop-off cohort as a segment.",
@@ -107,15 +107,15 @@ export const marketingPages = {
     ],
 
     related: [
-      { label: "Reduce funnel drop-off", description: "A complete workflow for finding and recovering friction.", href: "/solutions/funnel-dropoff" },
-      { label: "Targeting & segments", description: "Build an audience from what users did or missed.", href: "/product/targeting" },
-      { label: "Feature adoption", description: "Measure use before and after contextual guidance.", href: "/solutions/feature-adoption" }
+      { label: "Reduce funnel drop-off", description: "A complete workflow for finding and recovering friction.", href: "/explore/funnel-dropoff" },
+      { label: "Targeting & segments", description: "Build an audience from what users did or missed.", href: "/explore/targeting" },
+      { label: "Feature adoption", description: "Measure use before and after contextual guidance.", href: "/explore/feature-adoption" }
     ],
   },
 
   experiences: {
     metaTitle: "Contextual in-app experiences | Movcues",
-    path: "/product/experiences",
+    path: "/explore/experiences",
     eyebrow: "In-app experiences",
     title: "Build in-product guidance around a real moment.",
     description: "Create guides, surveys, banners, and checklists in the dashboard, then configure where, when, and for whom each experience should appear.",
@@ -165,15 +165,15 @@ export const marketingPages = {
     ],
 
     related: [
-      { label: "User onboarding", description: "Guide new users toward their first success.", href: "/solutions/user-onboarding" },
-      { label: "Product feedback", description: "Ask relevant users at a meaningful moment.", href: "/solutions/product-feedback" },
+      { label: "User onboarding", description: "Guide new users toward their first success.", href: "/explore/user-onboarding" },
+      { label: "Product feedback", description: "Ask relevant users at a meaningful moment.", href: "/explore/product-feedback" },
       { label: "Templates", description: "Start from a focused experience pattern.", href: "/resources/templates" }
     ],
   },
 
   targeting: {
     metaTitle: "Behavioral targeting and dynamic segments | Movcues",
-    path: "/product/targeting",
+    path: "/explore/targeting",
     eyebrow: "Targeting & segments",
     title: "Build an audience from product behavior.",
     description: "Create dynamic segments from events, user properties, page visits, funnel cohorts, and survey responses—then use them as experience audiences.",
@@ -215,15 +215,15 @@ export const marketingPages = {
     ],
 
     related: [
-      { label: "User onboarding", description: "Segment new users by activation progress.", href: "/solutions/user-onboarding" },
-      { label: "Feature adoption", description: "Find eligible users who have not adopted a feature.", href: "/solutions/feature-adoption" },
-      { label: "Analytics", description: "Start an audience from behavioral evidence.", href: "/product/analytics" }
+      { label: "User onboarding", description: "Segment new users by activation progress.", href: "/explore/user-onboarding" },
+      { label: "Feature adoption", description: "Find eligible users who have not adopted a feature.", href: "/explore/feature-adoption" },
+      { label: "Analytics", description: "Start an audience from behavioral evidence.", href: "/explore/analytics" }
     ],
   },
 
   onboarding: {
     metaTitle: "User onboarding and activation | Movcues",
-    path: "/solutions/user-onboarding",
+    path: "/explore/user-onboarding",
     eyebrow: "User onboarding & activation",
     title: "Help new users reach value faster.",
     description: "Understand where new users stop, define the behavior that signals value, and guide each person from sign-up to first success.",
@@ -253,15 +253,15 @@ export const marketingPages = {
       },
     ],
     related: [
-      { label: "Targeting & segments", description: "Build audiences from activation progress.", href: "/product/targeting" },
-      { label: "In-app experiences", description: "Choose the right format for each onboarding moment.", href: "/product/experiences" },
+      { label: "Targeting & segments", description: "Build audiences from activation progress.", href: "/explore/targeting" },
+      { label: "In-app experiences", description: "Choose the right format for each onboarding moment.", href: "/explore/experiences" },
       { label: "Onboarding templates", description: "Start with a welcome flow or setup checklist.", href: "/resources/templates#onboarding" }
     ],
   },
 
   adoption: {
     metaTitle: "Feature adoption and discovery | Movcues",
-    path: "/solutions/feature-adoption",
+    path: "/explore/feature-adoption",
     eyebrow: "Feature adoption",
     title: "Turn feature discovery into feature adoption.",
     description: "Find the users who would benefit, see who has not adopted the capability, guide them in context, and measure use after exposure.",
@@ -291,15 +291,15 @@ export const marketingPages = {
       },
     ],
     related: [
-      { label: "Analytics", description: "Understand feature usage and product journeys.", href: "/product/analytics" },
-      { label: "Targeting & segments", description: "Create an audience from eligibility and behavior.", href: "/product/targeting" },
+      { label: "Analytics", description: "Understand feature usage and product journeys.", href: "/explore/analytics" },
+      { label: "Targeting & segments", description: "Create an audience from eligibility and behavior.", href: "/explore/targeting" },
       { label: "Adoption templates", description: "Start with an announcement or discovery tooltip.", href: "/resources/templates#adoption" }
     ],
   },
 
   funnel: {
     metaTitle: "Reduce product funnel drop-off | Movcues",
-    path: "/solutions/funnel-dropoff",
+    path: "/explore/funnel-dropoff",
     eyebrow: "Reduce funnel drop-off",
     title: "Don't just find drop-off. Act on it.",
     description: "See where the journey breaks, identify the users affected, turn them into a live segment, and guide them back toward success.",
@@ -330,9 +330,9 @@ export const marketingPages = {
       },
     ],
     related: [
-      { label: "Analytics", description: "Build and inspect the funnel behind the workflow.", href: "/product/analytics" },
-      { label: "Targeting & segments", description: "Turn drop-off into an addressable audience.", href: "/product/targeting" },
-      { label: "User onboarding", description: "Apply the workflow to activation.", href: "/solutions/user-onboarding" }
+      { label: "Analytics", description: "Build and inspect the funnel behind the workflow.", href: "/explore/analytics" },
+      { label: "Targeting & segments", description: "Turn drop-off into an addressable audience.", href: "/explore/targeting" },
+      { label: "User onboarding", description: "Apply the workflow to activation.", href: "/explore/user-onboarding" }
     ],
     cta: {
       title: "The users behind drop-off are still in the journey.",
@@ -342,7 +342,7 @@ export const marketingPages = {
 
   feedback: {
     metaTitle: "Contextual product feedback | Movcues",
-    path: "/solutions/product-feedback",
+    path: "/explore/product-feedback",
     eyebrow: "Product feedback",
     title: "Ask the right users, at the right moment.",
     description: "Connect short in-product surveys to the behavior, audience, and product moment that make each response meaningful.",
@@ -372,8 +372,8 @@ export const marketingPages = {
       },
     ],
     related: [
-      { label: "In-app experiences", description: "Build and target multi-step surveys.", href: "/product/experiences" },
-      { label: "Targeting & segments", description: "Choose respondents from product behavior.", href: "/product/targeting" },
+      { label: "In-app experiences", description: "Build and target multi-step surveys.", href: "/explore/experiences" },
+      { label: "Targeting & segments", description: "Choose respondents from product behavior.", href: "/explore/targeting" },
       { label: "Feedback templates", description: "Start from a focused survey pattern.", href: "/resources/templates#feedback" }
     ],
   },

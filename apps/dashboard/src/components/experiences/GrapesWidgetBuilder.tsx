@@ -38,8 +38,11 @@ interface Props {
 
 export interface GrapesWidgetBuilderHandle { flush: () => void; selectChecklistItem: (itemId: string) => void; selectChecklistRoot: () => void }
 
-const AUTHORING_CANVAS_WIDTH = 1200;
-const AUTHORING_CANVAS_HEIGHT = 900;
+export const BUILDER_PREVIEW_DEVICES = [
+  { id: "desktop", name: "Desktop", width: "1200px", height: "900px" },
+  { id: "tablet", name: "Tablet", width: "768px", height: "1024px", widthMedia: "768px" },
+  { id: "mobile", name: "Mobile", width: "390px", height: "844px", widthMedia: "390px" },
+] as const;
 const MIN_CANVAS_ZOOM = 25;
 const MAX_CANVAS_ZOOM = 200;
 const CANVAS_ZOOM_STEP = 10;
@@ -73,6 +76,11 @@ function interactionForComponent(component?: Component): SelectedInteraction {
   if (surveyAction === "back" || surveyAction === "next" || surveyAction === "submit") return { kind: "survey", action: surveyAction };
   if (component?.get?.("tagName") === "button" || component?.getClasses?.().includes("movcues-widget__button")) return { kind: "button" };
   return null;
+}
+
+function previewDevice(name: string): { width: number; height: number } {
+  const selected = BUILDER_PREVIEW_DEVICES.find(device => device.name === name) ?? BUILDER_PREVIEW_DEVICES[0];
+  return { width: Number.parseInt(selected.width, 10), height: Number.parseInt(selected.height, 10) };
 }
 
 function checklistSelection(component: Component): { type: "root" } | { type: "task"; itemId: string } | null {
@@ -115,6 +123,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const applySizeEnvelopeRef = useRef<(next: ExperienceDesign) => void>(() => void 0);
   const applyInspectorStyleRef = useRef<(component: Component, patch: InspectorStylePatch) => void>(() => void 0);
   const viewportRef = useRef<ViewportState>({ zoom: 100, panX: 0, panY: 0 });
+  const persistedViewportRef = useRef<ViewportState>({ zoom: 100, panX: 0, panY: 0 });
   const viewportPersistedRef = useRef(Boolean(value?.canvas));
   const panGestureRef = useRef<PanGesture | null>(null);
   const spacePressedRef = useRef(false);
@@ -143,7 +152,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
     editorExperienceKeyRef.current = experienceKey; setReady(false); setPositioned(false); handToolRef.current = false;
     const restoredViewport = savedViewport(value?.canvas);
     viewportPersistedRef.current = Boolean(restoredViewport);
-    viewportRef.current = restoredViewport ?? { zoom: 100, panX: 0, panY: 0 }; setZoomLabel(viewportRef.current.zoom); setHandTool(false); setSpacePressed(false); setPanning(false); setSelectedComponent(null); setSelectedInteraction(null); setStyleRevision(0); setFreeItemBox(null); spacePressedRef.current = false; panGestureRef.current = null; selectedFreeItemRef.current = null;
+    viewportRef.current = restoredViewport ?? { zoom: 100, panX: 0, panY: 0 }; persistedViewportRef.current = { ...viewportRef.current }; setZoomLabel(viewportRef.current.zoom); setHandTool(false); setSpacePressed(false); setPanning(false); setSelectedComponent(null); setSelectedInteraction(null); setStyleRevision(0); setFreeItemBox(null); spacePressedRef.current = false; panGestureRef.current = null; selectedFreeItemRef.current = null;
     lastSignature.current = value ? builderSignature(value) : "";
     projectDataRef.current = value?.projectData ?? {};
     const starter = createWidgetStarter(widgetType, contentRef.current, design);
@@ -163,7 +172,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       if (!initialized) { builderDebug(experienceKey, "export:blocked-during-hydration", { current: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); return; }
       try {
         const html = sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"); const css = editorCss();
-        const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css, ...(viewportPersistedRef.current ? { canvas: { ...viewportRef.current } } : {}) }; const signature = builderSignature(builder);
+        const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css, ...(viewportPersistedRef.current ? { canvas: { ...persistedViewportRef.current } } : {}) }; const signature = builderSignature(builder);
         builderDebug(experienceKey, "export:captured", { snapshot: summarizeBuilder(builder), signature, previousSignature: lastSignature.current, dirtyCount: editor.getDirtyCount() });
         if (signature === lastSignature.current) { builderDebug(experienceKey, "export:skipped-unchanged"); return; }
         // A normal canvas mutation must never replace an already styled document
@@ -179,7 +188,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
             editor.clearDirtyCount();
           } finally { applyingCodeRef.current = false; }
           const restoredCss = editorCss();
-          const restoredBuilder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css: restoredCss, ...(viewportPersistedRef.current ? { canvas: { ...viewportRef.current } } : {}) };
+          const restoredBuilder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html, css: restoredCss, ...(viewportPersistedRef.current ? { canvas: { ...persistedViewportRef.current } } : {}) };
           lastSignature.current = builderSignature(restoredBuilder); setCodeHtml(html); setCodeCss(restoredCss); setCodeError(null);
           builderDebug(experienceKey, "css:self-healed", { snapshot: summarizeBuilder(restoredBuilder), restoredCss }, "warn");
           onChangeRef.current({ builder: restoredBuilder, content: projectLegacyContent(html, contentRef.current) });
@@ -326,11 +335,11 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       const grapesjs = module.default;
       const envelopeCss = builderPreviewSizeEnvelopeCss(widgetType, designRef.current);
       editor = grapesjs.init({
-        container: canvasRef.current, height: "100%", width: "auto", storageManager: false, panels: { defaults: [] }, parser: { optionsHtml: { allowScripts: false, allowUnsafeAttr: false, allowUnsafeAttrValue: false } }, canvasCss: `html{box-sizing:border-box;width:100%;height:100%;min-width:${AUTHORING_CANVAS_WIDTH}px;min-height:${AUTHORING_CANVAS_HEIGHT}px;overflow:hidden;padding:1px 80px;background:${AUTHORING_CANVAS_DOT_BACKGROUND};background-size:16px 16px}body{box-sizing:border-box;min-width:0;min-height:0;margin:95px auto 160px;padding:0;background:transparent}*{box-sizing:border-box}${SDK_BUTTON_BASELINE_CSS}${envelopeCss}`,
+        container: canvasRef.current, height: "100%", width: "auto", storageManager: false, panels: { defaults: [] }, parser: { optionsHtml: { allowScripts: false, allowUnsafeAttr: false, allowUnsafeAttrValue: false } }, canvasCss: `html{box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;padding:1px 0;background:${AUTHORING_CANVAS_DOT_BACKGROUND};background-size:16px 16px}body{box-sizing:border-box;min-width:0;min-height:0;margin:95px auto 160px;padding:0;background:transparent}*{box-sizing:border-box}${SDK_BUTTON_BASELINE_CSS}${envelopeCss}`,
         selectorManager: { componentFirst: true },
         components: initialHtml,
         style: initialCss,
-        deviceManager: { devices: [{ id: "desktop", name: "Desktop", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px` }, { id: "tablet", name: "Tablet", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "768px" }, { id: "mobile", name: "Mobile", width: `${AUTHORING_CANVAS_WIDTH}px`, height: `${AUTHORING_CANVAS_HEIGHT}px`, widthMedia: "390px" }] },
+        deviceManager: { devices: BUILDER_PREVIEW_DEVICES.map(item => ({ ...item })) },
         blockManager: { appendTo: blocksRef.current, blocks: checklistMode ? [] : blocks(interactionContext) },
         traitManager: { appendTo: traitsRef.current },
         styleManager: { appendTo: stylesRef.current, sectors: styleSectors() },
@@ -357,7 +366,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         editor.Canvas.setZoom(viewport.zoom);
         editor.Canvas.setCoords(viewport.panX, viewport.panY);
         if (updateLabel) setZoomLabel(Math.round(viewport.zoom));
-        if (persist) { viewportPersistedRef.current = true; schedule(true, "canvas:viewport"); }
+        if (persist) { viewportPersistedRef.current = true; persistedViewportRef.current = { ...viewport }; schedule(true, "canvas:viewport"); }
       };
       applySizeEnvelopeRef.current = next => {
         if (!editor || cancelled) return;
@@ -369,15 +378,15 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
       };
       fitCanvasRef.current = (persist = true) => {
         if (!editor || cancelled || !canvasRef.current) return;
-        const widget = editor.getWrapper()?.find(".movcues-widget")[0]?.getEl();
-        if (!widget) { setPositioned(true); return; }
-        const availableWidth = canvasRef.current.clientWidth - 80;
-        const availableHeight = canvasRef.current.clientHeight - 96;
+        const activeDevice = previewDevice(editor.getDevice());
+        const frame = editor.Canvas.getFrameEl();
+        const frameWidth = frame?.offsetWidth || activeDevice.width;
+        const frameHeight = frame?.offsetHeight || activeDevice.height;
+        const availableWidth = canvasRef.current.clientWidth - 40;
+        const availableHeight = canvasRef.current.clientHeight - 40;
         if (availableWidth <= 0 || availableHeight <= 0) { setPositioned(true); return; }
-        const widgetWidth = Math.max(1, widget.offsetWidth);
-        const widgetHeight = Math.max(1, widget.offsetHeight);
-        const zoom = Math.min(1, Math.max(MIN_CANVAS_ZOOM / 100, availableWidth / widgetWidth), Math.max(MIN_CANVAS_ZOOM / 100, availableHeight / widgetHeight));
-        applyViewportRef.current({ zoom: zoom * 100, panX: (canvasRef.current.clientWidth - AUTHORING_CANVAS_WIDTH * zoom) / 2, panY: 0 }, true, persist);
+        const zoom = Math.max(MIN_CANVAS_ZOOM / 100, Math.min(1, availableWidth / frameWidth, availableHeight / frameHeight));
+        applyViewportRef.current({ zoom: zoom * 100, panX: (canvasRef.current.clientWidth - frameWidth * zoom) / 2, panY: (canvasRef.current.clientHeight - frameHeight * zoom) / 2 }, true, persist);
         setPositioned(true);
       };
       if (typeof ResizeObserver !== "undefined" && canvasRef.current) {
@@ -441,7 +450,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const toggleCode = () => { builderDebug(experienceKey, "code:toggle", { opening: !codeMode, current: currentEditorDebugSnapshot(editorRef.current, widgetType) }, "info"); if (!codeMode && editorRef.current) { setCodeHtml(sanitizeBuilderHtml(editorRef.current.getHtml(), widgetType === "survey")); setCodeCss(validateBuilderCss(editorRef.current.getCss({ avoidProtected: true }) ?? "")); } setCodeError(null); setCodeMode(value => !value); };
   const formatCode = () => { setCodeHtml(formatHtml(codeHtml)); setCodeCss(formatCss(codeCss)); setCodeError(null); };
   const syncCodeScroll = (event: UIEvent<HTMLTextAreaElement>, highlight: RefObject<HTMLPreElement | null>) => { if (highlight.current) { highlight.current.scrollTop = event.currentTarget.scrollTop; highlight.current.scrollLeft = event.currentTarget.scrollLeft; } };
-  const applyCode = () => { const editor = editorRef.current; if (!editor) return; builderDebug(experienceKey, "code:apply:start", { htmlLength: codeHtml.length, cssLength: codeCss.length, html: codeHtml, css: codeCss }, "info"); try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); if (checklistMode) validateChecklistBuilderHtml(html, checklistItems ?? []); applyingCodeRef.current = true; builderDebug(experienceKey, "code:css-clear", { before: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (checklistMode && checklistItems) syncChecklistComponents(editor, checklistItems, checklistCopy); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? ""), ...(viewportPersistedRef.current ? { canvas: { ...viewportRef.current } } : {}) }; lastSignature.current = builderSignature(builder); lastPersistedCssRef.current = builder.css; setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); builderDebug(experienceKey, "code:apply:dispatch", { snapshot: summarizeBuilder(builder), html: builder.html, css: builder.css }, "info"); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { const message = error instanceof Error ? error.message : "The code could not be applied."; builderDebug(experienceKey, "code:apply:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); } finally { applyingCodeRef.current = false; } };
+  const applyCode = () => { const editor = editorRef.current; if (!editor) return; builderDebug(experienceKey, "code:apply:start", { htmlLength: codeHtml.length, cssLength: codeCss.length, html: codeHtml, css: codeCss }, "info"); try { const html = sanitizeBuilderHtml(codeHtml, widgetType === "survey"); const css = validateBuilderCss(codeCss); if (checklistMode) validateChecklistBuilderHtml(html, checklistItems ?? []); applyingCodeRef.current = true; builderDebug(experienceKey, "code:css-clear", { before: currentEditorDebugSnapshot(editor, widgetType) }, "warn"); editor.setComponents(html); editor.Css.clear(); editor.setStyle(css); interactionControllerRef.current?.syncFreeAreas(); if (widgetType === "survey" && surveyQuestions) syncSurveyComponents(editor, surveyQuestions); if (checklistMode && checklistItems) syncChecklistComponents(editor, checklistItems, checklistCopy); if (!interactionControllerRef.current?.isEditing()) editor.clearDirtyCount(); const builder: WidgetBuilderState = { version: 1, projectData: projectDataRef.current, html: sanitizeBuilderHtml(editor.getHtml(), widgetType === "survey"), css: validateBuilderCss(editor.getCss({ avoidProtected: true }) ?? ""), ...(viewportPersistedRef.current ? { canvas: { ...persistedViewportRef.current } } : {}) }; lastSignature.current = builderSignature(builder); lastPersistedCssRef.current = builder.css; setCodeHtml(builder.html); setCodeCss(builder.css); setCodeError(null); builderDebug(experienceKey, "code:apply:dispatch", { snapshot: summarizeBuilder(builder), html: builder.html, css: builder.css }, "info"); onChangeRef.current({ builder, content: projectLegacyContent(builder.html, contentRef.current) }); scheduleCanvasRefreshRef.current(); } catch (error) { const message = error instanceof Error ? error.message : "The code could not be applied."; builderDebug(experienceKey, "code:apply:error", { message, stack: error instanceof Error ? error.stack : undefined }, "error"); setCodeError(message); } finally { applyingCodeRef.current = false; } };
   const updateFreeItem = (property: keyof FreeItemBox, value: string) => {
     const component = selectedFreeItemRef.current; const numeric = Number(value);
     if (!component || !Number.isFinite(numeric)) return;

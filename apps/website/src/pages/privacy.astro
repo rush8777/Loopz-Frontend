@@ -1,0 +1,46 @@
+---
+import LegalPageLayout from "../components/legal/LegalPageLayout.astro";
+---
+
+<LegalPageLayout title="Privacy Policy" description="How Movcues collects, uses, and protects information." canonicalPath="/privacy" eyebrow="Your data, explained clearly" updated="7 October 2026">
+  <h2>1. Who we are</h2>
+  <p>Movcues provides product analytics, audience targeting, surveys, and in-product experiences that help businesses understand how people use their websites and improve those experiences. Movcues is operated by Rashmika Navod ("Movcues", "we", "us", or "our").</p>
+
+  <h2>2. Information we process</h2>
+  <p>The information we process depends on whether you use the Movcues dashboard or visit a website that uses the Movcues SDK.</p>
+  <h3>Account and billing information</h3>
+  <p>We may process your name, email address, organization or workspace name, role, authentication and session information, team invitations, and Google account identifiers when you use Google Sign-In. Passwords are stored only in hashed form.</p>
+  <p>Paid subscriptions are handled through Paddle. We may store subscription status, plan, billing-period dates, and Paddle customer, subscription, and price identifiers. We do not store full payment-card details.</p>
+  <h3>Information collected through the SDK</h3>
+  <p>The SDK may use randomly generated anonymous visitor, session, page-view, and event identifiers. The anonymous identifier is stored in browser local storage and session-related identifiers are stored in session storage. These identifiers are not generated from IP addresses, browser fingerprints, email addresses, or other directly identifying information.</p>
+  <p>Depending on a customer's configuration, analytics may include page paths; timestamps; clicks; scroll progress; rage clicks; element selectors, roles, and labels; viewport and document dimensions; interaction coordinates; originating website; browser, device, operating system, language, timezone, screen dimensions, and referrer information. Standard ingestion stores a page path rather than a complete URL query string.</p>
+  <h3>Element labels, forms, and customer-provided data</h3>
+  <p>Movcues is designed to avoid collecting complete webpage content through ordinary interaction analytics. For non-private elements, however, the SDK may create a short label from accessible or visible information such as an ARIA label, visible text, alt text, title, or placeholder. Customers can prevent collection from a subtree using supported privacy attributes including <code>data-private</code>, <code>data-ignore</code>, and <code>data-analytics-ignore</code>.</p>
+  <p>Automatic tracking is not designed to collect values typed into normal form fields. Customers must not send passwords, payment-card data, health data, authentication secrets, or other highly sensitive information through element attributes, URLs, user traits, or custom event properties.</p>
+  <p>A customer may call <code>identify()</code> to associate an anonymous visitor with its own user identifier and attributes, and may send custom events with customer-defined properties. Customers can also collect survey answers, including free-text responses. Those customers are responsible for the data they choose to send and the questions they ask.</p>
+
+  <h2>3. How we use information</h2>
+  <p>We use information to provide, secure, maintain, and improve Movcues; authenticate users; manage workspaces and access; provide analytics, audiences, experiences, and surveys; process subscriptions; diagnose issues; prevent abuse; and comply with legal obligations. We do not sell customer analytics data or end-user behavioral data as a data-broker product.</p>
+
+  <h2>4. Customers and end-user data</h2>
+  <p>Movcues customers decide where to install the SDK, what identifiers and properties to send, which surveys to publish, and how to use the results. For data processed through a customer's implementation, that customer generally determines the purpose of processing. Customers are responsible for providing notices, obtaining consent where required, configuring privacy controls, and honoring end-user privacy rights.</p>
+
+  <h2>5. Browser storage and Do Not Track</h2>
+  <p>The SDK uses browser local storage and session storage for analytics identity and session management; it does not rely on a tracking cookie to create its anonymous visitor ID. The dashboard uses local storage to retain a refresh token for authenticated sessions. The SDK has an option to stop collection when a browser's Do Not Track signal is enabled, but this is not enabled by default and is configured by the customer.</p>
+
+  <h2>6. Service providers and international processing</h2>
+  <p>We use service providers to operate Movcues, including providers for authentication, payment processing, hosting, database infrastructure, networking, and security. Current integrations include Google authentication and Paddle billing. Paddle may process billing identity, payment, tax, invoicing, fraud-prevention, and transaction information under its own terms and privacy practices. Information may be processed in countries other than your own; where required, appropriate safeguards will be used.</p>
+
+  <h2>7. Retention and security</h2>
+  <p>Movcues does not currently enforce one universal automatic deletion period for all customer analytics data. We retain information for as long as reasonably necessary to provide the service, maintain workspaces and billing records, meet security needs, or comply with legal obligations.</p>
+  <p>We use measures intended to protect information, including hashed passwords and server-side refresh tokens, short-lived access tokens, refresh-token rotation, role-based workspace access, signed authentication tokens, and HTTPS requirements for the production dashboard API. No online system can guarantee absolute security.</p>
+
+  <h2>8. Your rights</h2>
+  <p>Depending on applicable law, individuals may have rights to request access, correction, deletion, restriction, objection, or portability. If information was collected through a website using Movcues, contact the operator of that website first. For Movcues account or service data, contact us using the details below.</p>
+
+  <h2>9. Children and changes</h2>
+  <p>Movcues is business software and is not intended for people under 18 to create an account. Customers must not use Movcues to collect children's personal information where doing so would violate applicable law. We may update this policy as Movcues evolves; material changes will be reflected by an updated effective date and additional notice where appropriate.</p>
+
+  <h2>10. Contact</h2>
+  <address><strong>Movcues</strong><br />Operated by Rashmika Navod<br /><a href="mailto:rashmikanavod@gmail.com">rashmikanavod@gmail.com</a></address>
+</LegalPageLayout>

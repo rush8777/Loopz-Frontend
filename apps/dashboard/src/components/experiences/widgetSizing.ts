@@ -52,20 +52,24 @@ export function clampWidgetHeight(widgetType: WidgetType, value: number): { valu
 
 export function widgetSizeCss(widgetType: WidgetType, design: Pick<ExperienceDesign, "width" | "size">): { width: string; height: string; minWidth?: string; maxWidth?: string; maxHeight: string } {
   const size = normalizeWidgetSize(widgetType, design); const constraint = WIDGET_SIZE_CONSTRAINTS[widgetType];
+  const viewportWidth = `var(--movcues-usable-viewport-width,calc(100vw - ${constraint.viewportGutter}px))`;
+  const viewportHeight = `var(--movcues-usable-viewport-height,calc(100vh - ${Math.max(24, constraint.viewportGutter)}px))`;
   return {
     width: size.width.mode === "full" ? "100%" : `${size.width.value}px`,
-    height: size.height.mode === "fixed" ? `${size.height.value}px` : size.height.mode === "viewport" ? `calc(100vh - ${constraint.viewportGutter}px)` : "auto",
-    minWidth: constraint.width.min ? `min(${constraint.width.min}px,calc(100vw - ${constraint.viewportGutter}px))` : undefined,
-    maxWidth: constraint.width.max ? `min(${constraint.width.max}px,calc(100vw - ${constraint.viewportGutter}px))` : undefined,
-    maxHeight: `calc(100vh - ${Math.max(24, constraint.viewportGutter)}px)`,
+    height: size.height.mode === "fixed" ? `${size.height.value}px` : size.height.mode === "viewport" ? viewportHeight : "auto",
+    minWidth: constraint.width.min ? `min(${constraint.width.min}px,${viewportWidth})` : undefined,
+    maxWidth: constraint.width.max ? `min(${constraint.width.max}px,${viewportWidth})` : undefined,
+    maxHeight: viewportHeight,
   };
 }
 
 /** Preview-only envelope rules. The body is GrapesJS infrastructure and is not returned by editor.getHtml(). */
 export function builderPreviewSizeEnvelopeCss(widgetType: WidgetType, design: Pick<ExperienceDesign, "width" | "size">): string {
   const size = widgetSizeCss(widgetType, design); const normalized = normalizeWidgetSize(widgetType, design); const fillsHeight = normalized.height.mode !== "auto";
-  const width = normalized.width.mode === "full" ? "calc(100% - 160px)" : size.width;
-  return `body{width:${width}!important;${size.minWidth ? `min-width:${size.minWidth}!important;` : "min-width:0!important;"}${size.maxWidth ? `max-width:${size.maxWidth}!important;` : "max-width:none!important;"}height:${size.height}!important;max-height:${size.maxHeight}!important;overflow:visible!important}body>.movcues-widget{box-sizing:border-box;width:100%!important;min-width:0!important;max-width:none!important;height:${fillsHeight ? "100%" : "auto"}!important;max-height:${fillsHeight ? "100%" : "none"}!important}`;
+  const width = normalized.width.mode === "full" ? "100%" : size.width;
+  const gutter = WIDGET_SIZE_CONSTRAINTS[widgetType].viewportGutter;
+  const verticalGutter = Math.max(24, gutter);
+  return `:root{--movcues-usable-viewport-width:calc(100vw - ${gutter}px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));--movcues-usable-viewport-height:calc(100vh - ${verticalGutter}px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}@supports(width:100dvw){:root{--movcues-usable-viewport-width:calc(100dvw - ${gutter}px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))}}@supports(height:100dvh){:root{--movcues-usable-viewport-height:calc(100dvh - ${verticalGutter}px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}}body{width:${width}!important;${size.minWidth ? `min-width:${size.minWidth}!important;` : "min-width:0!important;"}${size.maxWidth ? `max-width:${size.maxWidth}!important;` : "max-width:none!important;"}height:${size.height}!important;max-height:${size.maxHeight}!important;overflow:visible!important}body>.movcues-widget{box-sizing:border-box;width:100%!important;min-width:0!important;max-width:100%!important;height:${fillsHeight ? "100%" : "auto"}!important;max-height:${size.maxHeight}!important;overflow-y:auto!important;overscroll-behavior:contain}`;
 }
 
 function legacyWidth(widgetType: WidgetType, width: LegacyExperienceWidth): number {

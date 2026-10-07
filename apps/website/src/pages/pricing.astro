@@ -76,7 +76,7 @@ const faqs = [
         <div class="pricing-list"><h4>Includes</h4><ul>{plan.features.map(item => <li>{item}</li>)}</ul></div>
       </article>)}
     </div>
-    <p class="pricing-note">All prices are monthly. Existing resources stay available after a downgrade; creating new resources or enabling newly locked capabilities requires available plan capacity.</p>
+    <p class="pricing-note">All prices are monthly. Existing resources stay available after a downgrade; creating new resources or enabling newly locked capabilities requires available plan capacity. By subscribing, you agree to our <a href="/terms">Terms</a> and <a href="/refunds">Refunds &amp; Cancellation Policy</a>.</p>
   </section>
   <section class="comparison-section" aria-labelledby="comparison-heading">
     <div class="section-shell">
@@ -88,8 +88,8 @@ const faqs = [
       <div class="comparison-table-wrap" data-reveal tabindex="0">
         <table class="comparison-table">
           <caption class="sr-only">Movcues plan comparison</caption>
-          <thead><tr><th scope="col">Plan capacity</th>{plans.map(plan => <th scope="col" class:list={plan.featured && "is-featured"}>{plan.name}{plan.featured && <small>Most popular</small>}</th>)}</tr></thead>
-          <tbody>{comparisonRows.map(row => <tr><th scope="row">{row.label}</th>{row.values.map((value, index) => <td class:list={plans[index].featured && "is-featured"}>{value}</td>)}</tr>)}</tbody>
+          <thead><tr><th scope="col">Plan capacity</th>{plans.map(plan => <th scope="col" class:list={[plan.featured && "is-featured"]}>{plan.name}{plan.featured && <small>Most popular</small>}</th>)}</tr></thead>
+          <tbody>{comparisonRows.map(row => <tr><th scope="row">{row.label}</th>{row.values.map((value, index) => <td class:list={[plans[index].featured && "is-featured"]}>{value}</td>)}</tr>)}</tbody>
         </table>
       </div>
     </div>

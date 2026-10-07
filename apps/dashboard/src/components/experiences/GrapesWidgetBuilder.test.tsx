@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRef } from "react";
-import { GrapesWidgetBuilder, type GrapesWidgetBuilderHandle } from "./GrapesWidgetBuilder";
+import { BUILDER_PREVIEW_DEVICES, GrapesWidgetBuilder, type GrapesWidgetBuilderHandle } from "./GrapesWidgetBuilder";
 
 const harness = vi.hoisted(() => ({ handlers: new Map<string, (...args: any[]) => void>(), init: vi.fn(), destroy: vi.fn(), dirty: 0 }));
 vi.mock("grapesjs", () => ({ default: { init: harness.init } }));
@@ -32,6 +32,30 @@ describe("GrapesWidgetBuilder", () => {
     expect(harness.init).toHaveBeenCalledTimes(1); const config = harness.init.mock.calls[0][0]; expect(config.storageManager).toBe(false); expect(config.selectorManager.componentFirst).toBe(true); expect(config.blockManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.traitManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.styleManager.appendTo).toBeInstanceOf(HTMLElement); expect(config.blockManager.appendTo.closest("[role=tabpanel]")?.id).toBe("movcues-builder-blocks-panel"); expect(config.traitManager.appendTo.closest("[role=tabpanel]")?.id).toBe("movcues-builder-properties-panel"); expect(config.styleManager.appendTo.closest("[role=tabpanel]")?.id).toBe("movcues-builder-properties-panel"); expect(editor.setComponents).toHaveBeenCalledWith(expect.stringContaining('data-movcues-widget-type="modal"')); expect(onChange).toHaveBeenCalledTimes(1); expect(onChange.mock.calls[0][0].builder.projectData).toEqual({}); expect(editor.getProjectData).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Undo" })); fireEvent.click(screen.getByRole("button", { name: "Redo" })); expect(editor.UndoManager.undo).toHaveBeenCalledTimes(1); expect(editor.UndoManager.redo).toHaveBeenCalledTimes(1);
     view.rerender(<GrapesWidgetBuilder {...props} content={{ heading: "Changed externally", body: "World" }} />); expect(harness.init).toHaveBeenCalledTimes(1); view.unmount(); expect(harness.destroy).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses truthful device frames and switches preview without changing canonical HTML or CSS", async () => {
+    vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn();
+    render(<GrapesWidgetBuilder experienceKey="exp:devices" widgetType="modal" content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={onChange} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
+    await act(async () => { await vi.dynamicImportSettled(); vi.runOnlyPendingTimers(); });
+    const config = harness.init.mock.calls[0][0];
+    expect(config.deviceManager.devices).toEqual(BUILDER_PREVIEW_DEVICES.map(device => ({ ...device })));
+    expect(config.canvasCss).toContain("min-width:0"); expect(config.canvasCss).not.toContain("min-width:1200px");
+    onChange.mockClear(); editor.setDevice.mockClear();
+    fireEvent.click(screen.getByRole("button", { name: "Mobile" }));
+    expect(editor.setDevice).toHaveBeenCalledWith("Mobile"); expect(onChange).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Desktop" }));
+    expect(editor.setDevice).toHaveBeenLastCalledWith("Desktop"); expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("does not leak device-fit coordinates into a previously saved canvas viewport", async () => {
+    vi.useFakeTimers(); fakeEditor(); const onChange = vi.fn(); const html = '<section class="movcues-widget"><p class="movcues-widget__body">Saved</p></section>'; const css = ".movcues-widget{color:#111}";
+    render(<GrapesWidgetBuilder experienceKey="exp:device-canvas" widgetType="modal" value={{ version: 1, projectData: {}, html, css, canvas: { zoom: 135, panX: -310, panY: 74 } }} content={{ heading: "Hello", body: "Saved" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={onChange} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
+    const canvas = document.querySelector<HTMLElement>(".movcues-builder-editor")!; Object.defineProperties(canvas, { clientWidth: { configurable: true, value: 720 }, clientHeight: { configurable: true, value: 560 } });
+    await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); }); onChange.mockClear();
+    fireEvent.click(screen.getByRole("button", { name: "Mobile" })); act(() => vi.runAllTimers());
+    harness.dirty = 1; act(() => { harness.handlers.get("update")?.(); vi.advanceTimersByTime(400); });
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it("registers only builder-contract-supported content and guide blocks", async () => {
@@ -173,28 +197,28 @@ describe("GrapesWidgetBuilder", () => {
     Object.defineProperties(canvas!, { clientWidth: { configurable: true, value: 720 }, clientHeight: { configurable: true, value: 560 } });
     await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
     const devices = harness.init.mock.calls[0][0].deviceManager.devices;
-    expect(devices.map((entry: { width: string; height: string }) => [entry.width, entry.height])).toEqual([["1200px", "900px"], ["1200px", "900px"], ["1200px", "900px"]]);
-    expect(harness.init.mock.calls[0][0].canvasCss).toContain("min-width:1200px"); expect(harness.init.mock.calls[0][0].canvasCss).toContain("min-height:900px"); expect(harness.init.mock.calls[0][0].canvasCss).toContain("button{border:0;border-radius:7px;padding:8px 12px");
-    expect(editor.Canvas.setZoom).toHaveBeenCalledWith(100);
-    expect(editor.Canvas.setCoords).toHaveBeenCalledWith(-240, 0);
+    expect(devices.map((entry: { width: string; height: string }) => [entry.width, entry.height])).toEqual([["1200px", "900px"], ["768px", "1024px"], ["390px", "844px"]]);
+    expect(harness.init.mock.calls[0][0].canvasCss).toContain("min-width:0"); expect(harness.init.mock.calls[0][0].canvasCss).toContain("min-height:0"); expect(harness.init.mock.calls[0][0].canvasCss).toContain("button{border:0;border-radius:7px;padding:8px 12px");
+    expect(editor.Canvas.setZoom).toHaveBeenCalledWith(expect.closeTo(56.67, 1));
+    expect(editor.Canvas.setCoords).toHaveBeenCalledWith(20, 25);
     const widget = editor.getWrapper().find(".movcues-widget")[0].getEl();
     Object.defineProperties(widget, { offsetWidth: { configurable: true, value: 900 }, offsetHeight: { configurable: true, value: 700 } });
     fireEvent.click(screen.getByRole("button", { name: /Mobile/ }));
     act(() => vi.runAllTimers());
     expect(editor.setDevice).toHaveBeenLastCalledWith("Mobile");
-    expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(expect.closeTo(66.29, 1));
-    expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(expect.closeTo(-37.71, 1), 0);
+    expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(expect.closeTo(61.61, 1));
+    expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(expect.closeTo(239.86, 2), 20);
   });
 
   it("pans with the Hand tool and preserves the viewport on updates", async () => {
     vi.useFakeTimers(); const editor = fakeEditor(); const onChange = vi.fn(); render(<GrapesWidgetBuilder experienceKey="exp:viewport" widgetType="modal" value={{ version: 1, projectData: { pages: [] }, html: '<section class="movcues-widget"></section>', css: ".movcues-widget{}" }} content={{ heading: "Hello", body: "World" }} design={{ width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }} onChange={onChange} onPrimaryActionChange={vi.fn()} onSizeChange={vi.fn()} />);
     const editorElement = document.querySelector<HTMLElement>(".movcues-builder-editor")!; Object.defineProperties(editorElement, { clientWidth: { configurable: true, value: 720 }, clientHeight: { configurable: true, value: 560 } });
     await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); });
-    fireEvent.click(screen.getByRole("button", { name: "Zoom in" })); expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(110); expect(screen.getByLabelText("Zoom percentage")).toHaveTextContent("110%");
+    fireEvent.click(screen.getByRole("button", { name: "Zoom in" })); expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(expect.closeTo(66.67, 1)); expect(screen.getByLabelText("Zoom percentage")).toHaveTextContent("67%");
     fireEvent.click(screen.getByRole("button", { name: "Hand tool" })); const panLayer = document.querySelector<HTMLElement>(".movcues-builder-pan-layer")!; expect(panLayer).toHaveClass("movcues-builder-pan-layer--active");
     fireEvent.pointerDown(panLayer, { button: 0, pointerId: 7, clientX: 100, clientY: 100 }); fireEvent.pointerMove(panLayer, { pointerId: 7, clientX: 140, clientY: 160 }); fireEvent.pointerUp(panLayer, { pointerId: 7 });
-    expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(-260, 32);
-    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ builder: expect.objectContaining({ canvas: { zoom: 110, panX: -260, panY: 32 } }) }));
+    expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(expect.closeTo(0, 1), expect.closeTo(40, 1));
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ builder: expect.objectContaining({ canvas: { zoom: expect.closeTo(66.67, 1), panX: expect.closeTo(0, 1), panY: expect.closeTo(40, 1) } }) }));
     editor.Canvas.setZoom.mockClear(); editor.Canvas.setCoords.mockClear(); harness.dirty = 1; act(() => harness.handlers.get("update")?.());
     expect(editor.Canvas.setZoom).not.toHaveBeenCalled(); expect(editor.Canvas.setCoords).not.toHaveBeenCalled();
   });
@@ -211,7 +235,7 @@ describe("GrapesWidgetBuilder", () => {
     const editorElement = document.querySelector<HTMLElement>(".movcues-builder-editor")!; Object.defineProperties(editorElement, { clientWidth: { configurable: true, value: 720 }, clientHeight: { configurable: true, value: 560 } });
     await act(async () => { await vi.dynamicImportSettled(); vi.runAllTimers(); }); const viewport = document.querySelector<HTMLElement>(".movcues-builder-canvas")!;
     editor.Canvas.setZoom.mockClear(); editor.Canvas.setCoords.mockClear(); fireEvent.wheel(viewport, { deltaY: -100, clientX: 100, clientY: 80 }); expect(editor.Canvas.setZoom).not.toHaveBeenCalled();
-    fireEvent.wheel(viewport, { deltaY: -100, clientX: 100, clientY: 80, ctrlKey: true }); expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(expect.closeTo(122.14, 2)); expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(expect.closeTo(-315.28, 2), expect.closeTo(-17.71, 2));
+    fireEvent.wheel(viewport, { deltaY: -100, clientX: 100, clientY: 80, ctrlKey: true }); expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(expect.closeTo(69.21, 2)); expect(editor.Canvas.setCoords).toHaveBeenLastCalledWith(expect.closeTo(2.29, 2), expect.closeTo(12.82, 2));
     for (let index = 0; index < 20; index += 1) fireEvent.click(screen.getByRole("button", { name: "Zoom in" })); expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(200); expect(screen.getByLabelText("Zoom percentage")).toHaveTextContent("200%");
     for (let index = 0; index < 30; index += 1) fireEvent.click(screen.getByRole("button", { name: "Zoom out" })); expect(editor.Canvas.setZoom).toHaveBeenLastCalledWith(25); expect(screen.getByLabelText("Zoom percentage")).toHaveTextContent("25%");
   }, 10000);

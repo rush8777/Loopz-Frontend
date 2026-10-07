@@ -16,6 +16,15 @@ interface Props {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#fcfcfc" />
     <SeoHead {...Astro.props} />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2KM8ZQB6G1"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-2KM8ZQB6G1');
+    </script>
     <slot name="head" />
   </head>
   <body>
