@@ -38,6 +38,8 @@ export function completeOnboarding(input: { workspaceName: string; siteName: str
   return apiRequest<Omit<OnboardingState, "complete">>("/auth/onboarding", { method: "POST", body: input });
 }
 
+export function skipOnboarding() { return apiRequest<void>("/auth/onboarding/skip", { method: "POST" }); }
+
 export function login(input: { email: string; password: string }) {
   return apiRequest<AuthResponse>("/auth/login", { method: "POST", body: input, skipAuthRetry: true });
 }
