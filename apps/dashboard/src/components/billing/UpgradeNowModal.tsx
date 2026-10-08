@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Alert, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movcues/ui";
 import { ArrowUpRight, Crown } from "lucide-react";
-import { createCheckout, getPlanUsage, type PlanUsage } from "../../api/billing";
+import { createCheckout, createPortalSession, getPlanUsage, type PlanUsage } from "../../api/billing";
+import { openPaddleCheckout } from "../../lib/paddleCheckout";
 import type { EntitlementErrorBody } from "../../api/client";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 
@@ -57,7 +58,13 @@ export function UpgradeNowProvider({ children }: { children: ReactNode }) {
   async function upgrade() {
     if (!currentOrg) return;
     setLoading(true); setCheckoutError(null);
-    try { const checkout = await createCheckout(currentOrg.orgId, targetPlan); window.location.assign(checkout.checkoutUrl); }
+    try {
+      if (usage?.subscription.status === "active" || usage?.subscription.status === "past_due") {
+        const portal = await createPortalSession(currentOrg.orgId); window.location.assign(portal.url);
+      } else {
+        const checkout = await createCheckout(currentOrg.orgId, targetPlan); await openPaddleCheckout(checkout.transactionId);
+      }
+    }
     catch { setCheckoutError("Couldn’t open checkout. Please try again or contact support."); setLoading(false); }
   }
   const showUpgrade = (next: EntitlementErrorBody) => setReason(next);
@@ -77,7 +84,7 @@ export function UpgradeNowProvider({ children }: { children: ReactNode }) {
           {!canBuy && <p className="text-xs leading-5 text-muted-foreground">{currentOrg?.role === "MEMBER" || currentOrg?.role === "VIEWER" ? "Ask a workspace owner or admin to upgrade this plan." : "Checkout will be available once Paddle billing is configured for this workspace."}</p>}
           {checkoutError && <Alert className="border-destructive/25 bg-red-50 text-destructive">{checkoutError}</Alert>}
         </div>
-        <DialogFooter className="border-t px-5 py-3"><Button variant="ghost" onClick={() => setReason(null)}>Not now</Button>{canBuy && <Button disabled={loading} onClick={() => void upgrade()}>{loading ? "Opening checkout…" : `Upgrade to ${targetPlan === "growth" ? "Growth" : "Scale"}`}<ArrowUpRight /></Button>}</DialogFooter>
+        <DialogFooter className="border-t px-5 py-3"><Button variant="ghost" onClick={() => setReason(null)}>Not now</Button>{canBuy && <Button disabled={loading} onClick={() => void upgrade()}>{loading ? "Opening…" : usage?.subscription.status === "active" || usage?.subscription.status === "past_due" ? "Manage billing" : `Upgrade to ${targetPlan === "growth" ? "Growth" : "Scale"}`}<ArrowUpRight /></Button>}</DialogFooter>
       </DialogContent>
     </Dialog>
   </UpgradeContext.Provider>;

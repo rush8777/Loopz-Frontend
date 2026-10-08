@@ -71,7 +71,7 @@ const faqs = [
         <h3>{plan.name}</h3>
         <p class="pricing-description">{plan.description}</p>
         <p class="pricing-price"><strong>{plan.price}</strong><span>/ month</span></p>
-        <a href={DASHBOARD_URLS.signup}>{plan.featured ? "Start free" : `Choose ${plan.name}`}</a>
+        <a href={DASHBOARD_URLS.signup}>{plan.featured ? "Start free trial" : "Upgrade now"}</a>
         <div class="pricing-list"><h4>Capacity</h4><ul>{plan.limits.map(item => <li>{item}</li>)}</ul></div>
         <div class="pricing-list"><h4>Includes</h4><ul>{plan.features.map(item => <li>{item}</li>)}</ul></div>
       </article>)}

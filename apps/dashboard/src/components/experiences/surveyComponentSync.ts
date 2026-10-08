@@ -35,6 +35,13 @@ export function syncSurveyComponents(editor: Editor, questions: SurveyQuestion[]
     const added = root.find(`[data-movcues-question-id="${cssAttributeEscape(question.id)}"]`)[0];
     if (added) { componentsById.set(question.id, added); seen.add(question.id); }
   });
+  // Question order is structured survey state. Move the existing models rather
+  // than recreating their trees so authored wrappers and styles survive a drag.
+  const orderedComponents = questions.map(question => componentsById.get(question.id)).filter((component): component is Component => Boolean(component && component.parent() === root));
+  const firstQuestion = orderedComponents.map(component => collectionIndex(root.components(), component)).filter((index): index is number => index !== undefined).sort((left, right) => left - right)[0];
+  if (firstQuestion !== undefined) orderedComponents.forEach((component, index) => {
+    if (collectionIndex(root.components(), component) !== firstQuestion + index) component.move(root, { at: firstQuestion + index });
+  });
 }
 
 export function reconcileSurveyQuestion(component: Component, question: SurveyQuestion): void {

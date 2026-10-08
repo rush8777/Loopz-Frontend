@@ -29,6 +29,9 @@ interface Props {
   onSizeChange: (size: ExperienceSize) => void;
   surveyQuestions?: SurveyQuestion[];
   onAddSurveyQuestion?: (type: SurveyQuestion["type"], placement?: number) => string | void;
+  onSurveyQuestionSelect?: (questionId: string) => void;
+  surveyInspector?: ReactNode;
+  canvasOverlay?: ReactNode;
   checklistItems?: ChecklistItem[];
   checklistCopy?: ChecklistPresentationCopy;
   checklistOrder?: "any" | "sequential";
@@ -95,6 +98,18 @@ function checklistSelection(component: Component): { type: "root" } | { type: "t
   return null;
 }
 
+// A canvas click can land on a question's label, input, or option. Walk to the
+// structural question component so the editor exposes one consistent inspector.
+function surveyQuestionSelection(component: Component): string | null {
+  let current: Component | undefined = component;
+  while (current) {
+    const questionId = current.getAttributes?.()["data-movcues-question-id"];
+    if (typeof questionId === "string" && questionId) return questionId;
+    current = current.parent?.() ?? undefined;
+  }
+  return null;
+}
+
 function applyChecklistPreview(editor: Editor, items: ChecklistItem[], order: "any" | "sequential", progress: "empty" | "progress" | "complete", view: "expanded" | "launcher" | "completion") {
   const documentValue = editor.Canvas.getDocument?.();
   if (!documentValue) return;
@@ -110,7 +125,7 @@ function applyChecklistPreview(editor: Editor, items: ChecklistItem[], order: "a
   if (remaining) remaining.textContent = String(Math.max(0, items.length - completeCount));
 }
 
-export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(function GrapesWidgetBuilder({ experienceKey, widgetType, interactionContext = widgetType === "survey" ? "survey" : "widget", value, content, design, onChange, onPrimaryActionChange, onSizeChange, surveyQuestions, onAddSurveyQuestion, checklistItems, checklistCopy, checklistOrder = "any", checklistInspector, onChecklistSelectionChange }, ref) {
+export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(function GrapesWidgetBuilder({ experienceKey, widgetType, interactionContext = widgetType === "survey" ? "survey" : "widget", value, content, design, onChange, onPrimaryActionChange, onSizeChange, surveyQuestions, onAddSurveyQuestion, onSurveyQuestionSelect, surveyInspector, canvasOverlay, checklistItems, checklistCopy, checklistOrder = "any", checklistInspector, onChecklistSelectionChange }, ref) {
   const checklistMode = interactionContext === "checklist";
   const canvasViewportRef = useRef<HTMLDivElement>(null); const canvasRef = useRef<HTMLDivElement>(null); const blocksRef = useRef<HTMLDivElement>(null); const stylesRef = useRef<HTMLDivElement>(null); const traitsRef = useRef<HTMLDivElement>(null); const editorRef = useRef<Editor | null>(null);
   const htmlHighlightRef = useRef<HTMLPreElement>(null); const cssHighlightRef = useRef<HTMLPreElement>(null);
@@ -137,9 +152,9 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
   const editorExperienceKeyRef = useRef<string | null>(null);
   const projectDataRef = useRef<Record<string, unknown>>(value?.projectData ?? {});
   const lastPersistedCssRef = useRef(value?.css ?? "");
-  const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const addSurveyQuestionRef = useRef(onAddSurveyQuestion); const checklistSelectionRef = useRef(onChecklistSelectionChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
+  const onChangeRef = useRef(onChange); const onSizeChangeRef = useRef(onSizeChange); const addSurveyQuestionRef = useRef(onAddSurveyQuestion); const surveySelectionRef = useRef(onSurveyQuestionSelect); const checklistSelectionRef = useRef(onChecklistSelectionChange); const contentRef = useRef(content); const designRef = useRef(design); const lastSignature = useRef(value ? builderSignature(value) : "");
   const [ready, setReady] = useState(false); const [positioned, setPositioned] = useState(false); const [device, setDevice] = useState("Desktop"); const [codeMode, setCodeMode] = useState(false); const [codeHtml, setCodeHtml] = useState(value?.html ?? ""); const [codeCss, setCodeCss] = useState(value?.css ?? ""); const [codeError, setCodeError] = useState<string | null>(null); const [selectedComponent, setSelectedComponent] = useState<Component | null>(null); const [selectedInteraction, setSelectedInteraction] = useState<SelectedInteraction>(null); const [styleRevision, setStyleRevision] = useState(0); const [sidebarTab, setSidebarTab] = useState<"blocks" | "properties">(checklistMode ? "properties" : "blocks"); const [zoomLabel, setZoomLabel] = useState(100); const [handTool, setHandTool] = useState(false); const [spacePressed, setSpacePressed] = useState(false); const [panning, setPanning] = useState(false); const [freeItemBox, setFreeItemBox] = useState<FreeItemBox | null>(null); const [checklistPreviewProgress, setChecklistPreviewProgress] = useState<"empty" | "progress" | "complete">("empty"); const [checklistPreviewView, setChecklistPreviewView] = useState<"expanded" | "launcher" | "completion">("expanded");
-  useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { addSurveyQuestionRef.current = onAddSurveyQuestion; }, [onAddSurveyQuestion]); useEffect(() => { checklistSelectionRef.current = onChecklistSelectionChange; }, [onChecklistSelectionChange]); useEffect(() => { contentRef.current = content; }, [content]);
+  useEffect(() => { onChangeRef.current = onChange; }, [onChange]); useEffect(() => { onSizeChangeRef.current = onSizeChange; }, [onSizeChange]); useEffect(() => { addSurveyQuestionRef.current = onAddSurveyQuestion; }, [onAddSurveyQuestion]); useEffect(() => { surveySelectionRef.current = onSurveyQuestionSelect; }, [onSurveyQuestionSelect]); useEffect(() => { checklistSelectionRef.current = onChecklistSelectionChange; }, [onChecklistSelectionChange]); useEffect(() => { contentRef.current = content; }, [content]);
   useEffect(() => { designRef.current = design; applySizeEnvelopeRef.current(design); }, [design]);
   useEffect(() => { codeModeRef.current = codeMode; }, [codeMode]);
   useEffect(() => { handToolRef.current = handTool; }, [handTool]);
@@ -394,7 +409,7 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
         resizeObserver.observe(canvasRef.current);
       }
       applySizeEnvelopeRef.current(designRef.current);
-      const selectAction = (component?: Component) => { setSelectedComponent(component ?? null); setSelectedInteraction(interactionForComponent(component)); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setStyleRevision(value => value + 1); setSidebarTab("properties"); if (checklistMode && component) { const selection = checklistSelection(component); if (selection) checklistSelectionRef.current?.(selection); } };
+      const selectAction = (component?: Component) => { setSelectedComponent(component ?? null); setSelectedInteraction(interactionForComponent(component)); interactionControllerRef.current?.select(component); selectCanonicalStyleTarget(component); setStyleRevision(value => value + 1); setSidebarTab("properties"); if (widgetType === "survey" && component) { const questionId = surveyQuestionSelection(component); if (questionId) surveySelectionRef.current?.(questionId); } if (checklistMode && component) { const selection = checklistSelection(component); if (selection) checklistSelectionRef.current?.(selection); } };
       const keepOneActionPerSlot = (component: Component) => { if (widgetType === "survey") return; const slot = component.getAttributes()?.["data-movcues-action-id"]; if (slot !== "primary" && slot !== "secondary") return; const matches = editor!.getWrapper()!.find(`[data-movcues-action-id="${slot}"]`); if (matches.length > 1) { component.remove(); editor!.select(matches[0]); } };
       editor.on("update", () => { builderDebug(experienceKey, "grapes:update", { dirtyCount: editor?.getDirtyCount() }); schedule(false, "grapes:update"); });
       editor.on("component:styleUpdate", (component: Component) => { builderDebug(experienceKey, "grapes:component-style-update", { component: debugComponent(component), css: debugCss(rawEditorCss()) }); persistComponentStyle(component); setStyleRevision(value => value + 1); });
@@ -534,6 +549,8 @@ export const GrapesWidgetBuilder = forwardRef<GrapesWidgetBuilderHandle, Props>(
           <GrapesWidgetInspector editor={editorRef.current} component={selectedComponent} isFreeItem={Boolean(selectedComponent && selectedFreeItemRef.current === selectedComponent)} styleRevision={styleRevision} readStyle={readInspectorStyle} onStyleChange={(component, patch) => applyInspectorStyleRef.current(component, patch)} onSelect={component => editorRef.current?.select(component)} traitsRef={traitsRef} stylesRef={stylesRef} widgetSize={widgetSizeInspector} freePosition={freePositionInspector} interaction={interactionInspector} />
         </div>
       </aside>
+      {canvasOverlay}
+      {widgetType === "survey" && surveyInspector && <aside className="movcues-survey-canvas-inspector" aria-label="Question properties">{surveyInspector}</aside>}
       <div ref={canvasViewportRef} className={`movcues-builder-canvas${handTool || spacePressed ? " movcues-builder-canvas--pan-ready" : ""}${panning ? " movcues-builder-canvas--panning" : ""}`}><div ref={canvasRef} className="movcues-builder-editor" /><div className={`movcues-builder-pan-layer${handTool || spacePressed || panning ? " movcues-builder-pan-layer--active" : ""}`} aria-hidden="true" onPointerDown={beginPan} onPointerMove={movePan} onPointerUp={endPan} onPointerCancel={endPan} />{(!ready || !positioned) && <div className="movcues-builder-loading">Loading builder…</div>}</div>
     </div>
     {!codeMode && <div className="movcues-builder-canvas-zoom" role="group" aria-label="Canvas zoom"><Button type="button" size="icon" variant="outline" aria-label="Zoom out" disabled={zoomLabel <= MIN_CANVAS_ZOOM} onClick={() => zoomBy(-CANVAS_ZOOM_STEP)}><Minus /></Button><output className="movcues-builder-zoom" aria-label="Zoom percentage">{zoomLabel}%</output><Button type="button" size="icon" variant="outline" aria-label="Zoom in" disabled={zoomLabel >= MAX_CANVAS_ZOOM} onClick={() => zoomBy(CANVAS_ZOOM_STEP)}><Plus /></Button></div>}

@@ -26,5 +26,5 @@ export interface PlanUsage {
 }
 
 export function getPlanUsage(orgId: string) { return apiRequest<PlanUsage>(`/orgs/${orgId}/plan-usage`); }
-export function createCheckout(orgId: string, planId: "starter" | "growth" | "scale") { return apiRequest<{ transactionId: string; checkoutUrl: string }>(`/orgs/${orgId}/billing/checkout`, { method: "POST", body: { planId } }); }
+export function createCheckout(orgId: string, planId: "starter" | "growth" | "scale") { return apiRequest<{ transactionId: string }>(`/orgs/${orgId}/billing/checkout`, { method: "POST", body: { planId } }); }
 export function createPortalSession(orgId: string) { return apiRequest<{ url: string }>(`/orgs/${orgId}/billing/portal`, { method: "POST" }); }

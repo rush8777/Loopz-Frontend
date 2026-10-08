@@ -12,7 +12,7 @@ export const DASHBOARD_URLS = {
 } as const;
 
 const EXPLORE_NAV_ITEMS = [
-  { label: "Platform overview", description: "See how the entire Movcues loop works", href: "/explore" },
+  { label: "Platform", description: "See how the entire Movcues loop works", href: "/explore" },
   { label: "Analytics", description: "Events, funnels, sessions and product insights", href: "/explore/analytics" },
   { label: "In-app experiences", description: "Guides, surveys, banners, checklists and contextual experiences", href: "/explore/experiences" },
   { label: "Targeting & segments", description: "Find and reach the users who need attention", href: "/explore/targeting" },

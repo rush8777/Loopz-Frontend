@@ -77,6 +77,14 @@ describe("non-destructive survey component synchronization", () => {
     expect(root.querySelectorAll('[data-movcues-question-id="question_new"]')).toHaveLength(1);
     expect(root.querySelector("[data-movcues-survey-question-gateway]")).toBeNull();
   });
+
+  it("reorders existing question components without losing their authored wrappers", () => {
+    const { editor, root } = fixture('<section class="movcues-widget"><div class="movcues-survey-question custom-first" data-movcues-question-id="question_1" data-movcues-question-type="single_choice"><p class="movcues-survey-question__label">First</p><div class="movcues-survey-options"><button data-movcues-option-id="a">A</button></div></div><div class="movcues-survey-question custom-second" data-movcues-question-id="question_2" data-movcues-question-type="short_text"><p class="movcues-survey-question__label">Second</p><input data-movcues-question-input></div><div data-movcues-survey-controls><button data-movcues-survey-action="next">Next</button></div></section>');
+    syncSurveyComponents(editor, [{ id: "question_2", type: "short_text", label: "Second", placeholder: "Answer" }, choices("First", [["a", "A"]])]);
+    expect([...root.querySelectorAll<HTMLElement>("[data-movcues-question-id]")].map(element => element.dataset.movcuesQuestionId)).toEqual(["question_2", "question_1"]);
+    expect(root.querySelector(".custom-first")).not.toBeNull();
+    expect(root.querySelector(".custom-second")).not.toBeNull();
+  });
 });
 
 describe("live structured-copy synchronization", () => {

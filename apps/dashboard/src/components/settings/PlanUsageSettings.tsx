@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Badge, Button } from "@movcues/ui";
 import { createCheckout, createPortalSession, getPlanUsage, type PlanUsage } from "../../api/billing";
+import { openPaddleCheckout } from "../../lib/paddleCheckout";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { SettingsGroup, SettingsHeading, SettingsRow } from "./SettingsShared";
 
@@ -21,7 +22,7 @@ export function PlanUsageSettings() {
 
   async function checkout(planId: "starter" | "growth" | "scale") {
     if (!currentOrg) return; setWorking(planId); setActionError(null);
-    try { const result = await createCheckout(currentOrg.orgId, planId); window.location.assign(result.checkoutUrl); }
+    try { const result = await createCheckout(currentOrg.orgId, planId); await openPaddleCheckout(result.transactionId); }
     catch { setActionError("Couldn't start Paddle checkout."); setWorking(null); }
   }
   async function portal() {
@@ -45,8 +46,9 @@ export function PlanUsageSettings() {
       {actionError && <Alert className="mb-4 border-destructive/25 bg-red-50 text-destructive">{actionError}</Alert>}
       {data.billingConfigured && (currentOrg?.role === "OWNER" || currentOrg?.role === "ADMIN") && <SettingsGroup title="Billing">
         <div className="flex flex-wrap gap-2 p-3.5">
-          {(["starter", "growth", "scale"] as const).map(planId => <Button key={planId} type="button" variant={data.subscription.planId === planId ? "outline" : "default"} size="sm" disabled={working !== null} onClick={() => void checkout(planId)}>{working === planId ? "Opening…" : `Choose ${planId[0].toUpperCase() + planId.slice(1)}`}</Button>)}
-          {data.subscription.status !== "trialing" && <Button type="button" variant="outline" size="sm" disabled={working !== null} onClick={() => void portal()}>{working === "portal" ? "Opening…" : "Manage billing"}</Button>}
+          {data.subscription.status === "trialing" || data.subscription.status === "expired" || data.subscription.status === "canceled"
+            ? (["starter", "growth", "scale"] as const).map(planId => <Button key={planId} type="button" variant={data.subscription.planId === planId ? "outline" : "default"} size="sm" disabled={working !== null} onClick={() => void checkout(planId)}>{working === planId ? "Opening…" : `Choose ${planId[0].toUpperCase() + planId.slice(1)}`}</Button>)
+            : <Button type="button" variant="outline" size="sm" disabled={working !== null} onClick={() => void portal()}>{working === "portal" ? "Opening…" : "Manage billing"}</Button>}
         </div>
       </SettingsGroup>}
       <SettingsGroup title="Monthly active users">

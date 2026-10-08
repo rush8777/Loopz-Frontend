@@ -1,15 +1,68 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowDown, ArrowLeft, ArrowUp, ExternalLink, MoreHorizontal, Plus, Trash2, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  ExternalLink,
+  MoreHorizontal,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useWorkspace } from "../../auth/WorkspaceContext";
-import * as experiencesApi from "../../api/experiences"; import * as pagesApi from "../../api/pages"; import * as segmentsApi from "../../api/segments"; import * as eventsApi from "../../api/events";
-import type { EventDefinitionSummary, PageDefinition, Segment } from "../../types/api";
-import type { ChecklistExperienceDefinition, Experience, ExperienceBehavior, ExperienceDefinition, ExperienceLayer, GuideAdvance, GuideStep, GuideStepPattern, SurveyQuestion, SurveyStep, WidgetType } from "../../types/experiences";
-import { getGuideStepPattern, guideStepRequiresTarget, guideStepSupportsTargetAdvance, isChecklistDefinition, isGuideDefinition, isWidgetDefinition } from "../../types/experiences";
-import { ErrorNotice } from "@/components/PageSurface"; import { Button } from "@movcues/ui"; import { Input } from "@movcues/ui"; import { Label } from "@movcues/ui"; import { Switch } from "@movcues/ui"; import { Textarea } from "@movcues/ui";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@movcues/ui";
-import { GrapesWidgetBuilder, type GrapesWidgetBuilderHandle } from "../../components/experiences/GrapesWidgetBuilder";
-import { builderDebug, summarizeBuilder, summarizeDefinition } from "../../components/experiences/builderDebug";
+import * as experiencesApi from "../../api/experiences";
+import * as pagesApi from "../../api/pages";
+import * as segmentsApi from "../../api/segments";
+import * as eventsApi from "../../api/events";
+import type {
+  EventDefinitionSummary,
+  PageDefinition,
+  Segment,
+} from "../../types/api";
+import type {
+  ChecklistExperienceDefinition,
+  Experience,
+  ExperienceBehavior,
+  ExperienceDefinition,
+  ExperienceLayer,
+  GuideAdvance,
+  GuideStep,
+  GuideStepPattern,
+  SurveyQuestion,
+  SurveyStep,
+  WidgetType,
+} from "../../types/experiences";
+import {
+  getGuideStepPattern,
+  guideStepRequiresTarget,
+  guideStepSupportsTargetAdvance,
+  isChecklistDefinition,
+  isGuideDefinition,
+  isWidgetDefinition,
+} from "../../types/experiences";
+import { ErrorNotice } from "@/components/PageSurface";
+import { Button } from "@movcues/ui";
+import { Input } from "@movcues/ui";
+import { Label } from "@movcues/ui";
+import { Switch } from "@movcues/ui";
+import { Textarea } from "@movcues/ui";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@movcues/ui";
+import {
+  GrapesWidgetBuilder,
+  type GrapesWidgetBuilderHandle,
+} from "../../components/experiences/GrapesWidgetBuilder";
+import {
+  builderDebug,
+  summarizeBuilder,
+  summarizeDefinition,
+} from "../../components/experiences/builderDebug";
 import { openLiveEditorPopup } from "./liveEditorPopup";
 import { ChecklistEditor } from "./ChecklistEditor";
 import { ReviewPublishDialog } from "../../components/experiences/publish/ReviewPublishDialog";
@@ -17,146 +70,2883 @@ import { AdvancedFrequencyControls } from "../../components/experiences/Advanced
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 export function publishErrorMessage(message: string): string {
-  if (message === "target_required") return "Select a target for every guide step that uses Anchored Card before publishing.";
-  if (message === "guide_unavailable") return "A Launch Guide action references a Draft or Paused Guide. Publish or resume that Guide, then publish this Checklist again.";
-  if (message === "invalid_guide") return "A Checklist task references a missing or incompatible Guide. Select a Guide from this site and try again.";
-  if (message === "invalid_segment") return "A selected Segment is no longer available. Review who should see this experience and its completion rules.";
-  if (message === "invalid_page_targeting") return "The selected Page rules are invalid. Review where this experience should appear.";
-  if (message === "invalid_definition") return "The Experience definition needs attention before it can be published.";
-  if (message === "invalid_widget_size") return "The Widget size is not supported for this Widget type.";
-  if (message === "navigate_url_outside_site_domain") return "A Checklist task links outside this site's configured domain.";
+  if (message === "target_required")
+    return "Select a target for every guide step that uses Anchored Card before publishing.";
+  if (message === "guide_unavailable")
+    return "A Launch Guide action references a Draft or Paused Guide. Publish or resume that Guide, then publish this Checklist again.";
+  if (message === "invalid_guide")
+    return "A Checklist task references a missing or incompatible Guide. Select a Guide from this site and try again.";
+  if (message === "invalid_segment")
+    return "A selected Segment is no longer available. Review who should see this experience and its completion rules.";
+  if (message === "invalid_page_targeting")
+    return "The selected Page rules are invalid. Review where this experience should appear.";
+  if (message === "invalid_definition")
+    return "The Experience definition needs attention before it can be published.";
+  if (message === "invalid_widget_size")
+    return "The Widget size is not supported for this Widget type.";
+  if (message === "navigate_url_outside_site_domain")
+    return "A Checklist task links outside this site's configured domain.";
   return message;
 }
-export const createGuideStep = (pattern: GuideStepPattern): GuideStep => ({ id: uniqueId("step"), pattern, content: { heading: "Next step", body: "Explain what to do next." }, advance: { type: "button" }, behavior: pattern === "anchored_card" ? { placement: "auto", alignment: "center", offset: 8, pointer: { enabled: true, size: 10 }, dismissible: true } : { dismissible: true } });
-const uniqueId = (prefix: string) => `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
-const blankSurveyStep = (): SurveyStep => ({ id: uniqueId("survey_step"), content: { heading: "Follow-up", body: "Add questions for this slide." }, questions: [] });
+export const createGuideStep = (pattern: GuideStepPattern): GuideStep => ({
+  id: uniqueId("step"),
+  pattern,
+  content: { heading: "Next step", body: "Explain what to do next." },
+  advance: { type: "button" },
+  behavior:
+    pattern === "anchored_card"
+      ? {
+          placement: "auto",
+          alignment: "center",
+          offset: 8,
+          pointer: { enabled: true, size: 10 },
+          dismissible: true,
+        }
+      : { dismissible: true },
+});
+const uniqueId = (prefix: string) =>
+  `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+const blankSurveyStep = (): SurveyStep => ({
+  id: uniqueId("survey_step"),
+  content: { heading: "Follow-up", body: "Add questions for this slide." },
+  questions: [],
+});
 
 export function ExperienceEditorPage() {
-  const { experienceId } = useParams(); const { currentOrg, currentSite } = useWorkspace(); const navigate = useNavigate();
-  const [experience, setExperience] = useState<Experience | null>(null); const [definition, setDefinition] = useState<ExperienceDefinition | null>(null); const [pages, setPages] = useState<PageDefinition[]>([]); const [segments, setSegments] = useState<Segment[]>([]); const [events, setEvents] = useState<EventDefinitionSummary[]>([]); const [guides, setGuides] = useState<Experience[]>([]); const [error, setError] = useState<string | null>(null); const [status, setStatus] = useState(""); const [selectedStep, setSelectedStep] = useState(0); const [publishing, setPublishing] = useState(false); const [preparingReview, setPreparingReview] = useState(false); const [leavingForResults, setLeavingForResults] = useState(false); const [reviewOpen, setReviewOpen] = useState(false); const [choosingGuideStep, setChoosingGuideStep] = useState(false); const [activePanel, setActivePanel] = useState<"questions" | "behavior" | "targeting" | null>(null);
-  const latest = useRef<ExperienceDefinition | null>(null); const timer = useRef<number | null>(null); const saveQueue = useRef<Promise<Experience> | null>(null); const dirty = useRef(false);
+  const { experienceId } = useParams();
+  const { currentOrg, currentSite } = useWorkspace();
+  const navigate = useNavigate();
+  const [experience, setExperience] = useState<Experience | null>(null);
+  const [definition, setDefinition] = useState<ExperienceDefinition | null>(
+    null,
+  );
+  const [pages, setPages] = useState<PageDefinition[]>([]);
+  const [segments, setSegments] = useState<Segment[]>([]);
+  const [events, setEvents] = useState<EventDefinitionSummary[]>([]);
+  const [guides, setGuides] = useState<Experience[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState("");
+  const [selectedStep, setSelectedStep] = useState(0);
+  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
+    null,
+  );
+  const [publishing, setPublishing] = useState(false);
+  const [preparingReview, setPreparingReview] = useState(false);
+  const [leavingForResults, setLeavingForResults] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [choosingGuideStep, setChoosingGuideStep] = useState(false);
+  const [activePanel, setActivePanel] = useState<
+    "questions" | "behavior" | "targeting" | null
+  >(null);
+  const latest = useRef<ExperienceDefinition | null>(null);
+  const timer = useRef<number | null>(null);
+  const saveQueue = useRef<Promise<Experience> | null>(null);
+  const dirty = useRef(false);
   const widgetBuilder = useRef<GrapesWidgetBuilderHandle | null>(null);
   const checklistBuilderFlush = useRef<(() => void) | null>(null);
-  const registerChecklistBuilderFlush = useCallback((flushBuilder: (() => void) | null) => { checklistBuilderFlush.current = flushBuilder; }, []);
-  useEffect(() => { if (!currentOrg || !currentSite || !experienceId) return; builderDebug(experienceId, "editor:load:start", { orgId: currentOrg.orgId, siteId: currentSite.id }, "info"); Promise.all([experiencesApi.getExperience(currentOrg.orgId, currentSite.id, experienceId), pagesApi.listPages(currentOrg.orgId, currentSite.id), segmentsApi.listSegments(currentOrg.orgId, currentSite.id, { limit: 100 }), eventsApi.listEvents(currentOrg.orgId, currentSite.id, { limit: 100 }), experiencesApi.listExperiences(currentOrg.orgId, currentSite.id, "guide")]).then(([item, pageResult, segmentResult, eventResult, guideResult]) => { const loaded = item.draftVersion?.definition ?? null; builderDebug(experienceId, "editor:load:success", { draftVersionId: item.draftVersion?.id, definition: loaded ? summarizeDefinition(loaded) : null }, "info"); dirty.current = false; setExperience(item); setDefinition(loaded); latest.current = loaded; setPages(pageResult.pages); setSegments(segmentResult.segments); setEvents(eventResult.events); setGuides(guideResult.experiences); }).catch(caught => { builderDebug(experienceId, "editor:load:error", { message: caught instanceof Error ? caught.message : String(caught) }, "error"); setError("Couldn't load the experience editor."); }); }, [currentOrg, currentSite, experienceId]);
-  const save = useCallback((draft: ExperienceDefinition) => { if (!currentOrg || !currentSite || !experience) return Promise.reject(new Error("The experience is no longer available.")); const summary = summarizeDefinition(draft); builderDebug(experience.id, "save:queued", { definition: summary, alreadyQueued: Boolean(saveQueue.current) }, "info"); setStatus("Saving..."); const request = (saveQueue.current?.catch(() => undefined) ?? Promise.resolve()).then(async () => { builderDebug(experience.id, "save:request:start", { definition: summary }, "info"); const item = await experiencesApi.updateExperience(currentOrg.orgId, currentSite.id, experience.id, { definition: clone(draft) }); builderDebug(experience.id, "save:request:success", { draftWasLatest: latest.current === draft, serverDefinition: item.draftVersion?.definition ? summarizeDefinition(item.draftVersion.definition) : null }, "info"); if (latest.current === draft) { dirty.current = false; setStatus("Draft saved"); } return item; }); saveQueue.current = request; request.catch(caught => { builderDebug(experience.id, "save:request:error", { message: caught instanceof Error ? caught.message : String(caught), definition: summary }, "error"); setStatus(`Autosave failed: ${caught instanceof Error ? caught.message : "request failed"}`); }); return request; }, [currentOrg, currentSite, experience]);
-  useEffect(() => { if (!definition || !experience || !dirty.current) return; latest.current = definition; if (timer.current) { builderDebug(experience.id, "save:debounce:replace"); clearTimeout(timer.current); } builderDebug(experience.id, "save:debounce:scheduled", { delayMs: 600, definition: summarizeDefinition(definition) }); timer.current = window.setTimeout(() => void save(definition), 600); return () => { if (timer.current) { builderDebug(experience.id, "save:debounce:cleanup"); clearTimeout(timer.current); } }; }, [definition, experience, save]);
-  useEffect(() => { if (!currentOrg || !currentSite || !experienceId) return; const refresh = () => { if (dirty.current) return; void experiencesApi.getExperience(currentOrg.orgId, currentSite.id, experienceId).then(item => { dirty.current = false; setExperience(item); setDefinition(item.draftVersion?.definition ?? null); latest.current = item.draftVersion?.definition ?? null; }); }; window.addEventListener("focus", refresh); return () => window.removeEventListener("focus", refresh); }, [currentOrg, currentSite, experienceId]);
-  const flush = useCallback(async () => { if (timer.current) { clearTimeout(timer.current); timer.current = null; } if (!latest.current) throw new Error("Draft is unavailable."); return save(latest.current); }, [save]);
-  const guide = definition && isGuideDefinition(definition) ? definition : null; const checklist = definition && isChecklistDefinition(definition) ? definition : null; const widget = definition && !isGuideDefinition(definition) && !isChecklistDefinition(definition) ? definition : null; const survey = widget?.survey ?? null; const step = guide?.steps[selectedStep]; const surveyStep = survey?.steps[selectedStep]; const surveyDesign = surveyStep?.size ? { ...widget!.design, size: surveyStep.size } : widget?.design; const content = !definition || checklist ? null : guide ? step?.content ?? null : survey ? surveyStep?.content ?? null : widget!.content;
-  useEffect(() => { const length = guide?.steps.length ?? survey?.steps.length; if (length && selectedStep >= length) setSelectedStep(length - 1); }, [guide, survey, selectedStep]);
-  const mutate = (fn: (draft: ExperienceDefinition) => void) => { const current = latest.current ?? definition; if (!current) return; const before = summarizeDefinition(current); const next = clone(current); fn(next); const after = summarizeDefinition(next); builderDebug(experienceId ?? "unknown-experience", "editor:mutate", { selectedStep, before, after }); dirty.current = true; latest.current = next; setDefinition(next); };
-  const mutateStep = (fn: (value: GuideStep) => void) => mutate(draft => { if (isGuideDefinition(draft)) fn(draft.steps[selectedStep]); });
+  const registerChecklistBuilderFlush = useCallback(
+    (flushBuilder: (() => void) | null) => {
+      checklistBuilderFlush.current = flushBuilder;
+    },
+    [],
+  );
+  useEffect(() => {
+    if (!currentOrg || !currentSite || !experienceId) return;
+    builderDebug(
+      experienceId,
+      "editor:load:start",
+      { orgId: currentOrg.orgId, siteId: currentSite.id },
+      "info",
+    );
+    Promise.all([
+      experiencesApi.getExperience(
+        currentOrg.orgId,
+        currentSite.id,
+        experienceId,
+      ),
+      pagesApi.listPages(currentOrg.orgId, currentSite.id),
+      segmentsApi.listSegments(currentOrg.orgId, currentSite.id, {
+        limit: 100,
+      }),
+      eventsApi.listEvents(currentOrg.orgId, currentSite.id, { limit: 100 }),
+      experiencesApi.listExperiences(currentOrg.orgId, currentSite.id, "guide"),
+    ])
+      .then(([item, pageResult, segmentResult, eventResult, guideResult]) => {
+        const loaded = item.draftVersion?.definition ?? null;
+        builderDebug(
+          experienceId,
+          "editor:load:success",
+          {
+            draftVersionId: item.draftVersion?.id,
+            definition: loaded ? summarizeDefinition(loaded) : null,
+          },
+          "info",
+        );
+        dirty.current = false;
+        setExperience(item);
+        setDefinition(loaded);
+        latest.current = loaded;
+        setPages(pageResult.pages);
+        setSegments(segmentResult.segments);
+        setEvents(eventResult.events);
+        setGuides(guideResult.experiences);
+      })
+      .catch((caught) => {
+        builderDebug(
+          experienceId,
+          "editor:load:error",
+          {
+            message: caught instanceof Error ? caught.message : String(caught),
+          },
+          "error",
+        );
+        setError("Couldn't load the experience editor.");
+      });
+  }, [currentOrg, currentSite, experienceId]);
+  const save = useCallback(
+    (draft: ExperienceDefinition) => {
+      if (!currentOrg || !currentSite || !experience)
+        return Promise.reject(
+          new Error("The experience is no longer available."),
+        );
+      const summary = summarizeDefinition(draft);
+      builderDebug(
+        experience.id,
+        "save:queued",
+        { definition: summary, alreadyQueued: Boolean(saveQueue.current) },
+        "info",
+      );
+      setStatus("Saving...");
+      const request = (
+        saveQueue.current?.catch(() => undefined) ?? Promise.resolve()
+      ).then(async () => {
+        builderDebug(
+          experience.id,
+          "save:request:start",
+          { definition: summary },
+          "info",
+        );
+        const item = await experiencesApi.updateExperience(
+          currentOrg.orgId,
+          currentSite.id,
+          experience.id,
+          { definition: clone(draft) },
+        );
+        builderDebug(
+          experience.id,
+          "save:request:success",
+          {
+            draftWasLatest: latest.current === draft,
+            serverDefinition: item.draftVersion?.definition
+              ? summarizeDefinition(item.draftVersion.definition)
+              : null,
+          },
+          "info",
+        );
+        if (latest.current === draft) {
+          dirty.current = false;
+          setStatus("Draft saved");
+        }
+        return item;
+      });
+      saveQueue.current = request;
+      request.catch((caught) => {
+        builderDebug(
+          experience.id,
+          "save:request:error",
+          {
+            message: caught instanceof Error ? caught.message : String(caught),
+            definition: summary,
+          },
+          "error",
+        );
+        setStatus(
+          `Autosave failed: ${caught instanceof Error ? caught.message : "request failed"}`,
+        );
+      });
+      return request;
+    },
+    [currentOrg, currentSite, experience],
+  );
+  useEffect(() => {
+    if (!definition || !experience || !dirty.current) return;
+    latest.current = definition;
+    if (timer.current) {
+      builderDebug(experience.id, "save:debounce:replace");
+      clearTimeout(timer.current);
+    }
+    builderDebug(experience.id, "save:debounce:scheduled", {
+      delayMs: 600,
+      definition: summarizeDefinition(definition),
+    });
+    timer.current = window.setTimeout(() => void save(definition), 600);
+    return () => {
+      if (timer.current) {
+        builderDebug(experience.id, "save:debounce:cleanup");
+        clearTimeout(timer.current);
+      }
+    };
+  }, [definition, experience, save]);
+  useEffect(() => {
+    if (!currentOrg || !currentSite || !experienceId) return;
+    const refresh = () => {
+      if (dirty.current) return;
+      void experiencesApi
+        .getExperience(currentOrg.orgId, currentSite.id, experienceId)
+        .then((item) => {
+          dirty.current = false;
+          setExperience(item);
+          setDefinition(item.draftVersion?.definition ?? null);
+          latest.current = item.draftVersion?.definition ?? null;
+        });
+    };
+    window.addEventListener("focus", refresh);
+    return () => window.removeEventListener("focus", refresh);
+  }, [currentOrg, currentSite, experienceId]);
+  const flush = useCallback(async () => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+    if (!latest.current) throw new Error("Draft is unavailable.");
+    return save(latest.current);
+  }, [save]);
+  const guide = definition && isGuideDefinition(definition) ? definition : null;
+  const checklist =
+    definition && isChecklistDefinition(definition) ? definition : null;
+  const widget =
+    definition &&
+    !isGuideDefinition(definition) &&
+    !isChecklistDefinition(definition)
+      ? definition
+      : null;
+  const survey = widget?.survey ?? null;
+  const step = guide?.steps[selectedStep];
+  const surveyStep = survey?.steps[selectedStep];
+  const surveyDesign = surveyStep?.size
+    ? { ...widget!.design, size: surveyStep.size }
+    : widget?.design;
+  const content =
+    !definition || checklist
+      ? null
+      : guide
+        ? (step?.content ?? null)
+        : survey
+          ? (surveyStep?.content ?? null)
+          : widget!.content;
+  useEffect(() => {
+    const length = guide?.steps.length ?? survey?.steps.length;
+    if (length && selectedStep >= length) setSelectedStep(length - 1);
+  }, [guide, survey, selectedStep]);
+  const mutate = (fn: (draft: ExperienceDefinition) => void) => {
+    const current = latest.current ?? definition;
+    if (!current) return;
+    const before = summarizeDefinition(current);
+    const next = clone(current);
+    fn(next);
+    const after = summarizeDefinition(next);
+    builderDebug(experienceId ?? "unknown-experience", "editor:mutate", {
+      selectedStep,
+      before,
+      after,
+    });
+    dirty.current = true;
+    latest.current = next;
+    setDefinition(next);
+  };
+  const mutateStep = (fn: (value: GuideStep) => void) =>
+    mutate((draft) => {
+      if (isGuideDefinition(draft)) fn(draft.steps[selectedStep]);
+    });
   // The builder export mutates `latest` synchronously and the normal autosave
   // effect then queues the request. Saving again here races an editor teardown
   // during a step switch, which is how one step could overwrite another.
-  const flushActiveBuilder = () => { builderDebug(experienceId ?? "unknown-experience", "editor:builder-flush", { selectedStep }, "info"); widgetBuilder.current?.flush(); };
-  const selectGuideStep = (index: number) => { if (!guide || index === selectedStep) return; builderDebug(experienceId ?? "unknown-experience", "editor:guide-step-switch", { from: selectedStep, to: index }, "info"); flushActiveBuilder(); setSelectedStep(index); };
-  const addStep = (pattern: GuideStepPattern) => { if (!guide) return; flushActiveBuilder(); const nextIndex = guide.steps.length; mutate(draft => { if (isGuideDefinition(draft)) draft.steps.push(createGuideStep(pattern)); }); setChoosingGuideStep(false); setSelectedStep(nextIndex); };
-  const move = (indexOrDelta: number, maybeDelta?: -1 | 1) => { if (!guide) return; const index = maybeDelta === undefined ? selectedStep : indexOrDelta; const delta = (maybeDelta ?? indexOrDelta) as -1 | 1; const nextIndex = index + delta; if (nextIndex < 0 || nextIndex >= guide.steps.length) return; flushActiveBuilder(); mutate(draft => { if (isGuideDefinition(draft)) [draft.steps[index], draft.steps[nextIndex]] = [draft.steps[nextIndex], draft.steps[index]]; }); setSelectedStep(current => current === index ? nextIndex : current === nextIndex ? index : current); };
-  const remove = (index = selectedStep) => { if (!guide || guide.steps.length === 1) return; flushActiveBuilder(); mutate(draft => { if (isGuideDefinition(draft)) draft.steps.splice(index, 1); }); setSelectedStep(current => current === index ? Math.min(index, guide.steps.length - 2) : current > index ? current - 1 : current); };
-  const selectSurveyStep = (index: number) => { if (!survey || index === selectedStep) return; builderDebug(experienceId ?? "unknown-experience", "editor:survey-step-switch", { from: selectedStep, to: index }, "info"); flushActiveBuilder(); setSelectedStep(index); };
-  const addSurveyStep = () => { if (!survey) return; flushActiveBuilder(); const nextIndex = survey.steps.length; mutate(draft => { if (!isGuideDefinition(draft) && !isChecklistDefinition(draft) && draft.survey) draft.survey.steps.push(blankSurveyStep()); }); setSelectedStep(nextIndex); };
-  const moveSurveyStep = (indexOrDelta: number, maybeDelta?: -1 | 1) => { if (!survey) return; const index = maybeDelta === undefined ? selectedStep : indexOrDelta; const delta = (maybeDelta ?? indexOrDelta) as -1 | 1; const nextIndex = index + delta; if (nextIndex < 0 || nextIndex >= survey.steps.length) return; flushActiveBuilder(); mutate(draft => { if (!isGuideDefinition(draft) && !isChecklistDefinition(draft) && draft.survey) [draft.survey.steps[index], draft.survey.steps[nextIndex]] = [draft.survey.steps[nextIndex], draft.survey.steps[index]]; }); setSelectedStep(current => current === index ? nextIndex : current === nextIndex ? index : current); };
-  const removeSurveyStep = (index = selectedStep) => { if (!survey || survey.steps.length === 1) return; flushActiveBuilder(); mutate(draft => { if (!isGuideDefinition(draft) && !isChecklistDefinition(draft) && draft.survey) draft.survey.steps.splice(index, 1); }); setSelectedStep(current => current === index ? Math.min(index, survey.steps.length - 2) : current > index ? current - 1 : current); };
+  const flushActiveBuilder = () => {
+    builderDebug(
+      experienceId ?? "unknown-experience",
+      "editor:builder-flush",
+      { selectedStep },
+      "info",
+    );
+    widgetBuilder.current?.flush();
+  };
+  const selectGuideStep = (index: number) => {
+    if (!guide || index === selectedStep) return;
+    builderDebug(
+      experienceId ?? "unknown-experience",
+      "editor:guide-step-switch",
+      { from: selectedStep, to: index },
+      "info",
+    );
+    flushActiveBuilder();
+    setSelectedStep(index);
+  };
+  const addStep = (pattern: GuideStepPattern) => {
+    if (!guide) return;
+    flushActiveBuilder();
+    const nextIndex = guide.steps.length;
+    mutate((draft) => {
+      if (isGuideDefinition(draft)) draft.steps.push(createGuideStep(pattern));
+    });
+    setChoosingGuideStep(false);
+    setSelectedStep(nextIndex);
+  };
+  const move = (indexOrDelta: number, maybeDelta?: -1 | 1) => {
+    if (!guide) return;
+    const index = maybeDelta === undefined ? selectedStep : indexOrDelta;
+    const delta = (maybeDelta ?? indexOrDelta) as -1 | 1;
+    const nextIndex = index + delta;
+    if (nextIndex < 0 || nextIndex >= guide.steps.length) return;
+    flushActiveBuilder();
+    mutate((draft) => {
+      if (isGuideDefinition(draft))
+        [draft.steps[index], draft.steps[nextIndex]] = [
+          draft.steps[nextIndex],
+          draft.steps[index],
+        ];
+    });
+    setSelectedStep((current) =>
+      current === index ? nextIndex : current === nextIndex ? index : current,
+    );
+  };
+  const remove = (index = selectedStep) => {
+    if (!guide || guide.steps.length === 1) return;
+    flushActiveBuilder();
+    mutate((draft) => {
+      if (isGuideDefinition(draft)) draft.steps.splice(index, 1);
+    });
+    setSelectedStep((current) =>
+      current === index
+        ? Math.min(index, guide.steps.length - 2)
+        : current > index
+          ? current - 1
+          : current,
+    );
+  };
+  const selectSurveyStep = (index: number) => {
+    if (!survey || index === selectedStep) return;
+    builderDebug(
+      experienceId ?? "unknown-experience",
+      "editor:survey-step-switch",
+      { from: selectedStep, to: index },
+      "info",
+    );
+    flushActiveBuilder();
+    setSelectedQuestionId(null);
+    setSelectedStep(index);
+  };
+  const addSurveyStep = () => {
+    if (!survey) return;
+    flushActiveBuilder();
+    const nextIndex = survey.steps.length;
+    mutate((draft) => {
+      if (
+        !isGuideDefinition(draft) &&
+        !isChecklistDefinition(draft) &&
+        draft.survey
+      )
+        draft.survey.steps.push(blankSurveyStep());
+    });
+    setSelectedQuestionId(null);
+    setSelectedStep(nextIndex);
+  };
+  const moveSurveyStep = (indexOrDelta: number, maybeDelta?: -1 | 1) => {
+    if (!survey) return;
+    const index = maybeDelta === undefined ? selectedStep : indexOrDelta;
+    const delta = (maybeDelta ?? indexOrDelta) as -1 | 1;
+    const nextIndex = index + delta;
+    if (nextIndex < 0 || nextIndex >= survey.steps.length) return;
+    flushActiveBuilder();
+    mutate((draft) => {
+      if (
+        !isGuideDefinition(draft) &&
+        !isChecklistDefinition(draft) &&
+        draft.survey
+      )
+        [draft.survey.steps[index], draft.survey.steps[nextIndex]] = [
+          draft.survey.steps[nextIndex],
+          draft.survey.steps[index],
+        ];
+    });
+    setSelectedStep((current) =>
+      current === index ? nextIndex : current === nextIndex ? index : current,
+    );
+  };
+  const removeSurveyStep = (index = selectedStep) => {
+    if (!survey || survey.steps.length === 1) return;
+    flushActiveBuilder();
+    mutate((draft) => {
+      if (
+        !isGuideDefinition(draft) &&
+        !isChecklistDefinition(draft) &&
+        draft.survey
+      )
+        draft.survey.steps.splice(index, 1);
+    });
+    setSelectedStep((current) =>
+      current === index
+        ? Math.min(index, survey.steps.length - 2)
+        : current > index
+          ? current - 1
+          : current,
+    );
+  };
   const openLive = async (guideStepIndex = selectedStep) => {
     if (!currentOrg || !currentSite || !experience) return;
     const popup = openLiveEditorPopup();
     if (!popup) {
-      setError("Your browser blocked the live editor popup. Please allow popups for Movcues and try again.");
+      setError(
+        "Your browser blocked the live editor popup. Please allow popups for Movcues and try again.",
+      );
       return;
     }
     try {
       widgetBuilder.current?.flush();
       await flush();
-      const session = await experiencesApi.createEditorSession(currentOrg.orgId, currentSite.id, experience.id);
+      const session = await experiencesApi.createEditorSession(
+        currentOrg.orgId,
+        currentSite.id,
+        experience.id,
+      );
       const launch = new URL(session.launchUrl);
       const activeGuideStep = guide?.steps[guideStepIndex];
-      const pagePath = activeGuideStep && guideStepRequiresTarget(activeGuideStep) ? activeGuideStep.target?.targetContext?.pagePath : undefined;
+      const pagePath =
+        activeGuideStep && guideStepRequiresTarget(activeGuideStep)
+          ? activeGuideStep.target?.targetContext?.pagePath
+          : undefined;
       if (pagePath) {
         const sessionParams = [...launch.searchParams.entries()];
         const savedPage = new URL(pagePath, launch.origin);
         launch.pathname = savedPage.pathname;
         launch.search = savedPage.search;
         launch.hash = savedPage.hash;
-        for (const [key, value] of sessionParams) launch.searchParams.set(key, value);
+        for (const [key, value] of sessionParams)
+          launch.searchParams.set(key, value);
       }
-      if (guide || survey) launch.searchParams.set("movcues_editor_step", String(guide ? guideStepIndex : selectedStep));
+      if (guide || survey)
+        launch.searchParams.set(
+          "movcues_editor_step",
+          String(guide ? guideStepIndex : selectedStep),
+        );
       popup.location.replace(launch.toString());
       popup.focus();
     } catch (caught) {
       popup.close();
-      setError(caught instanceof Error ? caught.message : "Couldn't open live editor.");
+      setError(
+        caught instanceof Error ? caught.message : "Couldn't open live editor.",
+      );
     }
   };
-  const flushEditor = () => { widgetBuilder.current?.flush(); checklistBuilderFlush.current?.(); };
-  const prepareReview = async () => { if (preparingReview) return; setError(null); setPreparingReview(true); try { flushEditor(); const item = await flush(); setExperience(item); setReviewOpen(true); } catch (caught) { setError(caught instanceof Error ? caught.message : "Couldn't prepare the launch review."); } finally { setPreparingReview(false); } };
-  const completeLaunchSetup = async () => { if (!currentOrg || !currentSite || !experience) return; flushEditor(); await flush(); const item = await experiencesApi.completeLaunchSetup(currentOrg.orgId, currentSite.id, experience.id); setExperience(item); };
-  const publish = async (): Promise<Experience> => { if (!currentOrg || !currentSite || !experience || publishing) throw new Error("Publish is already in progress."); setError(null); setPublishing(true); try { flushEditor(); await flush(); const item = await experiencesApi.publishExperience(currentOrg.orgId, currentSite.id, experience.id); setExperience(item); setDefinition(item.draftVersion!.definition); latest.current = item.draftVersion!.definition; setStatus("Published"); return item; } catch (caught) { const message = publishErrorMessage(caught instanceof Error ? caught.message : "Publish failed"); setError(message); throw new Error(message); } finally { setPublishing(false); } };
-  const openResults = async () => { if (!experience || leavingForResults) return; setLeavingForResults(true); setError(null); try { flushEditor(); if (dirty.current || timer.current) await flush(); navigate(`/experiences/${experience.id}/results`); } catch (caught) { setError(caught instanceof Error ? caught.message : "Couldn't save before opening results."); setLeavingForResults(false); } };
-  if (error && !experience) return <ErrorNotice>{error}</ErrorNotice>; if (!experience || !definition || !currentOrg || !currentSite) return <div className="text-sm text-muted-foreground">Loading experience...</div>;
-  if (checklist) return <><ChecklistEditor experience={experience} definition={checklist as ChecklistExperienceDefinition} orgId={currentOrg.orgId} siteId={currentSite.id} pages={pages} segments={segments} status={status} preparingReview={preparingReview} error={error} onChange={next => { dirty.current = true; latest.current = next; setDefinition(next); }} onReview={() => void prepareReview()} onRegisterBuilderFlush={registerChecklistBuilderFlush} /><ReviewPublishDialog open={reviewOpen} experience={experience} definition={definition} references={{ pages, segments, events, guides }} onOpenChange={setReviewOpen} onChange={next => { dirty.current = true; latest.current = next; setDefinition(next); }} onCompleteSetup={completeLaunchSetup} onPublish={publish} onEditExternal={target => { if (target === "analytics") navigate("/analytics"); }} /></>;
-  if (!content) return <div className="text-sm text-muted-foreground">Loading experience...</div>;
+  const flushEditor = () => {
+    widgetBuilder.current?.flush();
+    checklistBuilderFlush.current?.();
+  };
+  const prepareReview = async () => {
+    if (preparingReview) return;
+    setError(null);
+    setPreparingReview(true);
+    try {
+      flushEditor();
+      const item = await flush();
+      setExperience(item);
+      setReviewOpen(true);
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Couldn't prepare the launch review.",
+      );
+    } finally {
+      setPreparingReview(false);
+    }
+  };
+  const completeLaunchSetup = async () => {
+    if (!currentOrg || !currentSite || !experience) return;
+    flushEditor();
+    await flush();
+    const item = await experiencesApi.completeLaunchSetup(
+      currentOrg.orgId,
+      currentSite.id,
+      experience.id,
+    );
+    setExperience(item);
+  };
+  const publish = async (): Promise<Experience> => {
+    if (!currentOrg || !currentSite || !experience || publishing)
+      throw new Error("Publish is already in progress.");
+    setError(null);
+    setPublishing(true);
+    try {
+      flushEditor();
+      await flush();
+      const item = await experiencesApi.publishExperience(
+        currentOrg.orgId,
+        currentSite.id,
+        experience.id,
+      );
+      setExperience(item);
+      setDefinition(item.draftVersion!.definition);
+      latest.current = item.draftVersion!.definition;
+      setStatus("Published");
+      return item;
+    } catch (caught) {
+      const message = publishErrorMessage(
+        caught instanceof Error ? caught.message : "Publish failed",
+      );
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setPublishing(false);
+    }
+  };
+  const openResults = async () => {
+    if (!experience || leavingForResults) return;
+    setLeavingForResults(true);
+    setError(null);
+    try {
+      flushEditor();
+      if (dirty.current || timer.current) await flush();
+      navigate(`/experiences/${experience.id}/results`);
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Couldn't save before opening results.",
+      );
+      setLeavingForResults(false);
+    }
+  };
+  if (error && !experience) return <ErrorNotice>{error}</ErrorNotice>;
+  if (!experience || !definition || !currentOrg || !currentSite)
+    return (
+      <div className="text-sm text-muted-foreground">Loading experience...</div>
+    );
+  if (checklist)
+    return (
+      <>
+        <ChecklistEditor
+          experience={experience}
+          definition={checklist as ChecklistExperienceDefinition}
+          orgId={currentOrg.orgId}
+          siteId={currentSite.id}
+          pages={pages}
+          segments={segments}
+          status={status}
+          preparingReview={preparingReview}
+          error={error}
+          onChange={(next) => {
+            dirty.current = true;
+            latest.current = next;
+            setDefinition(next);
+          }}
+          onReview={() => void prepareReview()}
+          onRegisterBuilderFlush={registerChecklistBuilderFlush}
+        />
+        <ReviewPublishDialog
+          open={reviewOpen}
+          experience={experience}
+          definition={definition}
+          references={{ pages, segments, events, guides }}
+          onOpenChange={setReviewOpen}
+          onChange={(next) => {
+            dirty.current = true;
+            latest.current = next;
+            setDefinition(next);
+          }}
+          onCompleteSetup={completeLaunchSetup}
+          onPublish={publish}
+          onEditExternal={(target) => {
+            if (target === "analytics") navigate("/analytics");
+          }}
+        />
+      </>
+    );
+  if (!content)
+    return (
+      <div className="text-sm text-muted-foreground">Loading experience...</div>
+    );
   const transientTargeting = (guide ?? widget)!.targeting;
-  const togglePanel = (panel: NonNullable<typeof activePanel>) => setActivePanel(current => current === panel ? null : panel);
-  const listPath = experience.kind === "guide" ? "/experiences/guides" : experience.widgetType === "survey" ? "/experiences/surveys" : experience.widgetType === "banner" ? "/experiences/banners" : "/experiences/guides";
-  const visibleStatus = status || "Saved"; const statusClass = visibleStatus === "Published" ? "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200" : visibleStatus === "Saving..." ? "bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-200" : visibleStatus.startsWith("Autosave failed") ? "bg-destructive/10 text-destructive ring-1 ring-inset ring-destructive/20" : "bg-sky-100 text-sky-700 ring-1 ring-inset ring-sky-200";
-  return <><div className="flex min-h-[calc(100dvh-3rem)] flex-col bg-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
-    <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b bg-background px-3 sm:px-4">
-      <div className="flex min-w-0 items-center gap-3"><Button asChild variant="ghost" size="sm"><Link to={listPath} aria-label="Back to Experiences"><ArrowLeft /> <span className="hidden sm:inline">Experiences</span></Link></Button><div className="h-5 w-px bg-border" /><div className="flex min-w-0 items-center gap-2"><h1 className="truncate text-sm font-semibold">{experience.name}</h1><span className={visibleStatus === "Published" ? "shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-200" : "shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-inset ring-slate-200"}>{visibleStatus === "Published" ? "Published" : "Draft"}</span><span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusClass}`}>{visibleStatus}</span></div></div>
-      <div className="flex shrink-0 items-center gap-2"><Button aria-label="Open live editor" variant="outline" size="sm" onClick={() => void openLive()}><ExternalLink /> <span className="hidden sm:inline">Open live editor</span><span className="sm:hidden">Preview</span></Button><Button size="sm" onClick={() => void prepareReview()} disabled={preparingReview}>{preparingReview ? "Preparing…" : "Review & publish"}</Button><DropdownMenu><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" className="size-8" aria-label="Editor options"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent align="end">{survey && <DropdownMenuItem onSelect={() => togglePanel("questions")}>Questions</DropdownMenuItem>}<DropdownMenuItem onSelect={() => togglePanel("behavior")}>{guide || survey ? "How this step works" : "Behavior"}</DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem onSelect={() => togglePanel("targeting")}>Launch settings</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>
-    </header>
-    {error && <div className="shrink-0 px-3 pt-3"><ErrorNotice>{error}</ErrorNotice></div>}
-    <div className="flex min-h-0 flex-1">
-    <section className="relative flex min-w-0 flex-1 flex-col overflow-visible [&>div.mt-4]:mt-0">
-    {guide && <GuideStepCanvasChip steps={guide.steps} selectedStep={selectedStep} onSelect={selectGuideStep} onMove={move} onRemove={remove} onAdd={() => setChoosingGuideStep(true)} />}
-    {survey && <SurveyStepCanvasChip steps={survey.steps} selectedStep={selectedStep} onSelect={selectSurveyStep} onMove={moveSurveyStep} onRemove={removeSurveyStep} onAdd={addSurveyStep} />}
-    {guide && <FloatingPanel open={choosingGuideStep} title="Add step" onClose={() => setChoosingGuideStep(false)}><Button type="button" variant="outline" className="h-auto justify-start p-4 text-left" onClick={() => addStep("anchored_card")}><span><b className="block">Anchored card</b><span className="text-sm text-muted-foreground">Attach guidance to an element</span></span></Button><Button type="button" variant="outline" className="h-auto justify-start p-4 text-left" onClick={() => addStep("modal")}><span><b className="block">Modal</b><span className="text-sm text-muted-foreground">Show focused guidance on the screen</span></span></Button></FloatingPanel>}
-    <div className="mt-4">{survey ? <GrapesWidgetBuilder ref={widgetBuilder} experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}:${surveyStep!.id}`} widgetType="survey" interactionContext="survey" value={surveyStep!.builder} content={surveyStep!.content} design={surveyDesign!} surveyQuestions={surveyStep!.questions} onChange={({ builder, content: projectedContent }) => { const stepId = surveyStep!.id; builderDebug(experience.id, "editor:builder-change:survey", { stepId, selectedStep, builder: summarizeBuilder(builder) }, "info"); mutate(draft => { if (!isWidgetDefinition(draft) || !draft.survey) return; const target = draft.survey.steps.find(item => item.id === stepId); if (target) { target.builder = builder; target.content = { heading: projectedContent.heading, body: projectedContent.body }; } }); }} onPrimaryActionChange={() => void 0} onSizeChange={size => { const stepId = surveyStep!.id; mutate(draft => { if (!isWidgetDefinition(draft) || !draft.survey) return; const target = draft.survey.steps.find(item => item.id === stepId); if (target) target.size = size; }); }} /> : guide ? <GrapesWidgetBuilder ref={widgetBuilder} experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}:${step!.id}`} widgetType={getGuideStepPattern(step!)} interactionContext="guide" value={step!.builder} content={step!.content} design={step!.size ? { ...guide.design, size: step!.size } : guide.design} onChange={({ builder, content: projectedContent }) => { const stepId = step!.id; builderDebug(experience.id, "editor:builder-change:guide", { stepId, selectedStep, builder: summarizeBuilder(builder) }, "info"); mutate(draft => { if (!isGuideDefinition(draft)) return; const target = draft.steps.find(item => item.id === stepId); if (target) { target.builder = builder; target.content = projectedContent; } }); }} onPrimaryActionChange={action => { const stepId = step!.id; mutate(draft => { if (!isGuideDefinition(draft)) return; const target = draft.steps.find(item => item.id === stepId); if (target) target.content.primaryAction = action; }); }} onSizeChange={size => { const stepId = step!.id; mutate(draft => { if (!isGuideDefinition(draft)) return; const target = draft.steps.find(item => item.id === stepId); if (target) target.size = size; }); }} /> : <GrapesWidgetBuilder ref={widgetBuilder} experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}`} widgetType={experience.widgetType!} interactionContext="widget" value={widget!.builder} content={widget!.content} design={widget!.design} onChange={({ builder, content: projectedContent }) => { builderDebug(experience.id, "editor:builder-change:widget", { widgetType: experience.widgetType, builder: summarizeBuilder(builder) }, "info"); mutate(draft => { if (isWidgetDefinition(draft)) { draft.builder = builder; draft.content = projectedContent; } }); }} onPrimaryActionChange={action => mutate(draft => { if (isWidgetDefinition(draft)) draft.content.primaryAction = action; })} onSizeChange={size => mutate(draft => { if (isWidgetDefinition(draft)) draft.design.size = size; })} />}</div>
-    {survey && <FloatingPanel open={activePanel === "questions"} title="Questions" onClose={() => setActivePanel(null)}><QuestionsEditor questions={surveyStep!.questions} onChange={questions => mutate(draft => { if (isWidgetDefinition(draft) && draft.survey) draft.survey.steps[selectedStep].questions = questions; })} /><label className="flex gap-2"><Switch checked={survey.showProgress} onCheckedChange={checked => mutate(draft => { if (isWidgetDefinition(draft) && draft.survey) draft.survey.showProgress = checked; })} />Show progress</label><label className="flex gap-2"><Switch checked={survey.allowBack} onCheckedChange={checked => mutate(draft => { if (isWidgetDefinition(draft) && draft.survey) draft.survey.allowBack = checked; })} />Allow Back</label><Label>Submit button label<Input value={survey.submitLabel} onChange={event => mutate(draft => { if (isWidgetDefinition(draft) && draft.survey) draft.survey.submitLabel = event.target.value; })} /></Label></FloatingPanel>}
-    <FloatingPanel open={activePanel === "behavior"} title={guide || survey ? "How this step works" : "Behavior"} onClose={() => setActivePanel(null)}>{guide ? <><LayeringEditor layer={step!.behavior.layer ?? guide.behavior?.layer} onChange={layer => mutateStep(value => { value.behavior.layer = layer; })} onSelectInLive={openLive} /><div className="rounded-md border bg-muted/30 p-3 text-sm"><span className="text-muted-foreground">Type</span><strong className="ml-2">{getGuideStepPattern(step!) === "modal" ? "Modal" : "Anchored card"}</strong></div><GuideAdvanceEditor value={step!.advance ?? { type: "button" }} supportsTargetAdvance={guideStepSupportsTargetAdvance(step!)} events={events} pages={pages} onChange={advance => mutateStep(value => { value.advance = advance; })} />{guideStepRequiresTarget(step!) && <AnchoredCardBehaviorEditor behavior={step!.behavior} onChange={change => mutateStep(value => change(value.behavior))} />}<label className="flex gap-2"><Switch checked={step!.behavior.dismissible} onCheckedChange={checked => mutateStep(value => { value.behavior.dismissible = checked; })} />Can the user close this?</label>{guideStepRequiresTarget(step!) && <p className={`rounded-md border p-3 text-sm ${step!.target ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>{step!.target ? "✓ Element configured" : "⚠ Element missing. Use the live editor to choose what this step should point to."}</p>}</> : <WidgetBehaviorEditor type={experience.widgetType!} behavior={widget!.behavior} layer={survey ? surveyStep!.behavior?.layer ?? widget!.behavior.layer : undefined} onChange={change => mutate(draft => { if (isWidgetDefinition(draft)) change(draft.behavior); })} onLayerChange={survey ? layer => mutate(draft => { if (!isGuideDefinition(draft) && !isChecklistDefinition(draft) && draft.survey) { const target = draft.survey.steps[selectedStep]; target.behavior = { ...target.behavior, layer }; } }) : undefined} onSelectInLive={openLive} />}</FloatingPanel>
-    <FloatingPanel open={activePanel === "targeting"} title="Launch settings" onClose={() => setActivePanel(null)}><AudienceTargeting audience={transientTargeting.audience} segments={segments} onChange={audience => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.audience = audience; })} /><fieldset className="grid gap-2 rounded-md border p-3"><legend className="px-1 text-sm font-medium">What if another experience is already showing?</legend><label className="flex gap-2"><input type="radio" name="interrupt-policy" checked={(transientTargeting.interruptPolicy ?? "queue") === "queue"} onChange={() => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.interruptPolicy = "queue"; })} />Wait until it finishes</label><label className="flex gap-2"><input type="radio" name="interrupt-policy" checked={transientTargeting.interruptPolicy === "interrupt"} onChange={() => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.interruptPolicy = "interrupt"; })} />Show this instead</label></fieldset><Label>When should it start?<Input type="datetime-local" value={transientTargeting.schedule?.startsAt?.slice(0, 16) ?? ""} onChange={event => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.schedule = { ...draft.targeting.schedule, startsAt: event.target.value ? new Date(event.target.value).toISOString() : undefined }; })} /></Label><Label>When should it end?<Input type="datetime-local" value={transientTargeting.schedule?.endsAt?.slice(0, 16) ?? ""} onChange={event => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.schedule = { ...draft.targeting.schedule, endsAt: event.target.value ? new Date(event.target.value).toISOString() : undefined }; })} /></Label><Label>Allowed origins (one per line)<Textarea value={(transientTargeting.allowedOrigins ?? []).join("\n")} onChange={event => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.allowedOrigins = event.target.value.split("\n").map(value => value.trim()).filter(Boolean); })} /></Label><Label>Where should it appear?<select value={pages.find(page => JSON.stringify(page.rules) === JSON.stringify(transientTargeting.pageRules))?.id ?? "all"} onChange={event => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.pageRules = event.target.value === "all" ? [] : pages.find(page => page.id === event.target.value)?.rules ?? []; })}><option value="all">All pages</option>{pages.map(page => <option key={page.id} value={page.id}>{page.name}</option>)}</select></Label><Label>How often should someone see it?<select value={transientTargeting.frequency.mode} onChange={event => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.frequency.mode = event.target.value as typeof draft.targeting.frequency.mode; })}><option value="once">Only once</option><option value="once_per_session">Once per session</option><option value="every_time">Whenever they qualify</option></select></Label>{transientTargeting.frequency.mode === "every_time" && <AdvancedFrequencyControls frequency={transientTargeting.frequency} onChange={frequency => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.frequency = frequency; })} />}<details><summary className="cursor-pointer text-sm font-medium">Advanced</summary><Label className="mt-2">Numeric priority<Input type="number" value={transientTargeting.priority} onChange={event => mutate(draft => { if (!isChecklistDefinition(draft)) draft.targeting.priority = Number(event.target.value); })} /></Label></details></FloatingPanel>
-    </section>
-    </div>
-  </div><ReviewPublishDialog open={reviewOpen} experience={experience} definition={definition} references={{ pages, segments, events, guides }} onOpenChange={setReviewOpen} onChange={mutateDefinition => { dirty.current = true; latest.current = mutateDefinition; setDefinition(mutateDefinition); }} onCompleteSetup={completeLaunchSetup} onPublish={publish} onEditGuideTarget={index => { setSelectedStep(index); void openLive(index); }} onEditExternal={target => { if (target === "live") void openLive(); else if (target === "questions") setActivePanel("questions"); else if (target === "behavior") setActivePanel("behavior"); else if (target === "analytics") { if (survey) void openResults(); else navigate("/analytics"); } }} /></>;
+  const togglePanel = (panel: NonNullable<typeof activePanel>) =>
+    setActivePanel((current) => (current === panel ? null : panel));
+  const listPath =
+    experience.kind === "guide"
+      ? "/experiences/guides"
+      : experience.widgetType === "survey"
+        ? "/experiences/surveys"
+        : experience.widgetType === "banner"
+          ? "/experiences/banners"
+          : "/experiences/guides";
+  const visibleStatus = status || "Saved";
+  const statusClass =
+    visibleStatus === "Published"
+      ? "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200"
+      : visibleStatus === "Saving..."
+        ? "bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-200"
+        : visibleStatus.startsWith("Autosave failed")
+          ? "bg-destructive/10 text-destructive ring-1 ring-inset ring-destructive/20"
+          : "bg-sky-100 text-sky-700 ring-1 ring-inset ring-sky-200";
+  return (
+    <>
+      <div className="flex min-h-[calc(100dvh-3rem)] flex-col bg-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+        <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b bg-background px-3 sm:px-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <Button asChild variant="ghost" size="sm">
+              <Link to={listPath} aria-label="Back to Experiences">
+                <ArrowLeft />{" "}
+                <span className="hidden sm:inline">Experiences</span>
+              </Link>
+            </Button>
+            <div className="h-5 w-px bg-border" />
+            <div className="flex min-w-0 items-center gap-2">
+              <h1 className="truncate text-sm font-semibold">
+                {experience.name}
+              </h1>
+              <span
+                className={
+                  visibleStatus === "Published"
+                    ? "shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-200"
+                    : "shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-inset ring-slate-200"
+                }
+              >
+                {visibleStatus === "Published" ? "Published" : "Draft"}
+              </span>
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusClass}`}
+              >
+                {visibleStatus}
+              </span>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              aria-label="Open live editor"
+              variant="outline"
+              size="sm"
+              onClick={() => void openLive()}
+            >
+              <ExternalLink />{" "}
+              <span className="hidden sm:inline">Open live editor</span>
+              <span className="sm:hidden">Preview</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => void prepareReview()}
+              disabled={preparingReview}
+            >
+              {preparingReview ? "Preparing…" : "Review & publish"}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  aria-label="Editor options"
+                >
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {survey && (
+                  <DropdownMenuItem onSelect={() => togglePanel("questions")}>
+                    Questions
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onSelect={() => togglePanel("behavior")}>
+                  {guide || survey ? "How this step works" : "Behavior"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => togglePanel("targeting")}>
+                  Launch settings
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+        {error && (
+          <div className="shrink-0 px-3 pt-3">
+            <ErrorNotice>{error}</ErrorNotice>
+          </div>
+        )}
+        <div className="flex min-h-0 flex-1">
+          <section className="relative flex min-w-0 flex-1 flex-col overflow-visible [&>div.mt-4]:mt-0">
+            {guide && (
+              <FloatingPanel
+                open={choosingGuideStep}
+                title="Add step"
+                onClose={() => setChoosingGuideStep(false)}
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto justify-start p-4 text-left"
+                  onClick={() => addStep("anchored_card")}
+                >
+                  <span>
+                    <b className="block">Anchored card</b>
+                    <span className="text-sm text-muted-foreground">
+                      Attach guidance to an element
+                    </span>
+                  </span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto justify-start p-4 text-left"
+                  onClick={() => addStep("modal")}
+                >
+                  <span>
+                    <b className="block">Modal</b>
+                    <span className="text-sm text-muted-foreground">
+                      Show focused guidance on the screen
+                    </span>
+                  </span>
+                </Button>
+              </FloatingPanel>
+            )}
+            <div className="mt-4">
+              {survey ? (
+                <GrapesWidgetBuilder
+                  ref={widgetBuilder}
+                  experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}:${surveyStep!.id}`}
+                  widgetType="survey"
+                  interactionContext="survey"
+                  value={surveyStep!.builder}
+                  content={surveyStep!.content}
+                  design={surveyDesign!}
+                  surveyQuestions={surveyStep!.questions}
+                  canvasOverlay={
+                    <SurveyStepCanvasChip
+                      steps={survey.steps}
+                      selectedStep={selectedStep}
+                      onSelect={selectSurveyStep}
+                      onMove={moveSurveyStep}
+                      onRemove={removeSurveyStep}
+                      onAdd={addSurveyStep}
+                    />
+                  }
+                  onSurveyQuestionSelect={(questionId) => {
+                    setSelectedQuestionId(questionId);
+                    setActivePanel("questions");
+                  }}
+                  surveyInspector={
+                    activePanel === "questions" ? (
+                      <>
+                        <header className="movcues-survey-canvas-inspector__header">
+                          <h2>
+                            {selectedQuestionId ? "Question" : "Questions"}
+                          </h2>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Close question properties"
+                            onClick={() => {
+                              setActivePanel(null);
+                              setSelectedQuestionId(null);
+                            }}
+                          >
+                            <X />
+                          </Button>
+                        </header>
+                        <div className="movcues-survey-canvas-inspector__body">
+                          <SurveyQuestionPanel
+                            questions={surveyStep!.questions}
+                            selectedQuestionId={selectedQuestionId}
+                            onSelect={setSelectedQuestionId}
+                            onAdd={() => {
+                              const question = makeQuestion("short_text");
+                              mutate((draft) => {
+                                if (isWidgetDefinition(draft) && draft.survey)
+                                  draft.survey.steps[
+                                    selectedStep
+                                  ].questions.push(question);
+                              });
+                              setSelectedQuestionId(question.id);
+                            }}
+                            onChange={(questions) =>
+                              mutate((draft) => {
+                                if (isWidgetDefinition(draft) && draft.survey)
+                                  draft.survey.steps[selectedStep].questions =
+                                    questions;
+                              })
+                            }
+                          />
+                        </div>
+                      </>
+                    ) : undefined
+                  }
+                  onChange={({ builder, content: projectedContent }) => {
+                    const stepId = surveyStep!.id;
+                    builderDebug(
+                      experience.id,
+                      "editor:builder-change:survey",
+                      {
+                        stepId,
+                        selectedStep,
+                        builder: summarizeBuilder(builder),
+                      },
+                      "info",
+                    );
+                    mutate((draft) => {
+                      if (!isWidgetDefinition(draft) || !draft.survey) return;
+                      const target = draft.survey.steps.find(
+                        (item) => item.id === stepId,
+                      );
+                      if (target) {
+                        target.builder = builder;
+                        target.content = {
+                          heading: projectedContent.heading,
+                          body: projectedContent.body,
+                        };
+                      }
+                    });
+                  }}
+                  onPrimaryActionChange={() => void 0}
+                  onSizeChange={(size) => {
+                    const stepId = surveyStep!.id;
+                    mutate((draft) => {
+                      if (!isWidgetDefinition(draft) || !draft.survey) return;
+                      const target = draft.survey.steps.find(
+                        (item) => item.id === stepId,
+                      );
+                      if (target) target.size = size;
+                    });
+                  }}
+                />
+              ) : guide ? (
+                <GrapesWidgetBuilder
+                  ref={widgetBuilder}
+                  experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}:${step!.id}`}
+                  widgetType={getGuideStepPattern(step!)}
+                  interactionContext="guide"
+                  value={step!.builder}
+                  content={step!.content}
+                  design={
+                    step!.size
+                      ? { ...guide.design, size: step!.size }
+                      : guide.design
+                  }
+                  canvasOverlay={
+                    <GuideStepCanvasChip
+                      steps={guide.steps}
+                      selectedStep={selectedStep}
+                      onSelect={selectGuideStep}
+                      onMove={move}
+                      onRemove={remove}
+                      onAdd={() => setChoosingGuideStep(true)}
+                    />
+                  }
+                  onChange={({ builder, content: projectedContent }) => {
+                    const stepId = step!.id;
+                    builderDebug(
+                      experience.id,
+                      "editor:builder-change:guide",
+                      {
+                        stepId,
+                        selectedStep,
+                        builder: summarizeBuilder(builder),
+                      },
+                      "info",
+                    );
+                    mutate((draft) => {
+                      if (!isGuideDefinition(draft)) return;
+                      const target = draft.steps.find(
+                        (item) => item.id === stepId,
+                      );
+                      if (target) {
+                        target.builder = builder;
+                        target.content = projectedContent;
+                      }
+                    });
+                  }}
+                  onPrimaryActionChange={(action) => {
+                    const stepId = step!.id;
+                    mutate((draft) => {
+                      if (!isGuideDefinition(draft)) return;
+                      const target = draft.steps.find(
+                        (item) => item.id === stepId,
+                      );
+                      if (target) target.content.primaryAction = action;
+                    });
+                  }}
+                  onSizeChange={(size) => {
+                    const stepId = step!.id;
+                    mutate((draft) => {
+                      if (!isGuideDefinition(draft)) return;
+                      const target = draft.steps.find(
+                        (item) => item.id === stepId,
+                      );
+                      if (target) target.size = size;
+                    });
+                  }}
+                />
+              ) : (
+                <GrapesWidgetBuilder
+                  ref={widgetBuilder}
+                  experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}`}
+                  widgetType={experience.widgetType!}
+                  interactionContext="widget"
+                  value={widget!.builder}
+                  content={widget!.content}
+                  design={widget!.design}
+                  onChange={({ builder, content: projectedContent }) => {
+                    builderDebug(
+                      experience.id,
+                      "editor:builder-change:widget",
+                      {
+                        widgetType: experience.widgetType,
+                        builder: summarizeBuilder(builder),
+                      },
+                      "info",
+                    );
+                    mutate((draft) => {
+                      if (isWidgetDefinition(draft)) {
+                        draft.builder = builder;
+                        draft.content = projectedContent;
+                      }
+                    });
+                  }}
+                  onPrimaryActionChange={(action) =>
+                    mutate((draft) => {
+                      if (isWidgetDefinition(draft))
+                        draft.content.primaryAction = action;
+                    })
+                  }
+                  onSizeChange={(size) =>
+                    mutate((draft) => {
+                      if (isWidgetDefinition(draft)) draft.design.size = size;
+                    })
+                  }
+                />
+              )}
+            </div>
+            <FloatingPanel
+              open={activePanel === "behavior"}
+              title={guide || survey ? "How this step works" : "Behavior"}
+              onClose={() => setActivePanel(null)}
+            >
+              {guide ? (
+                <>
+                  <LayeringEditor
+                    layer={step!.behavior.layer ?? guide.behavior?.layer}
+                    onChange={(layer) =>
+                      mutateStep((value) => {
+                        value.behavior.layer = layer;
+                      })
+                    }
+                    onSelectInLive={openLive}
+                  />
+                  <div className="rounded-md border bg-muted/30 p-3 text-sm">
+                    <span className="text-muted-foreground">Type</span>
+                    <strong className="ml-2">
+                      {getGuideStepPattern(step!) === "modal"
+                        ? "Modal"
+                        : "Anchored card"}
+                    </strong>
+                  </div>
+                  <GuideAdvanceEditor
+                    value={step!.advance ?? { type: "button" }}
+                    supportsTargetAdvance={guideStepSupportsTargetAdvance(
+                      step!,
+                    )}
+                    events={events}
+                    pages={pages}
+                    onChange={(advance) =>
+                      mutateStep((value) => {
+                        value.advance = advance;
+                      })
+                    }
+                  />
+                  {guideStepRequiresTarget(step!) && (
+                    <AnchoredCardBehaviorEditor
+                      behavior={step!.behavior}
+                      onChange={(change) =>
+                        mutateStep((value) => change(value.behavior))
+                      }
+                    />
+                  )}
+                  <label className="flex gap-2">
+                    <Switch
+                      checked={step!.behavior.dismissible}
+                      onCheckedChange={(checked) =>
+                        mutateStep((value) => {
+                          value.behavior.dismissible = checked;
+                        })
+                      }
+                    />
+                    Can the user close this?
+                  </label>
+                  {guideStepRequiresTarget(step!) && (
+                    <p
+                      className={`rounded-md border p-3 text-sm ${step!.target ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}
+                    >
+                      {step!.target
+                        ? "✓ Element configured"
+                        : "⚠ Element missing. Use the live editor to choose what this step should point to."}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <WidgetBehaviorEditor
+                  type={experience.widgetType!}
+                  behavior={widget!.behavior}
+                  layer={
+                    survey
+                      ? (surveyStep!.behavior?.layer ?? widget!.behavior.layer)
+                      : undefined
+                  }
+                  onChange={(change) =>
+                    mutate((draft) => {
+                      if (isWidgetDefinition(draft)) change(draft.behavior);
+                    })
+                  }
+                  onLayerChange={
+                    survey
+                      ? (layer) =>
+                          mutate((draft) => {
+                            if (
+                              !isGuideDefinition(draft) &&
+                              !isChecklistDefinition(draft) &&
+                              draft.survey
+                            ) {
+                              const target = draft.survey.steps[selectedStep];
+                              target.behavior = { ...target.behavior, layer };
+                            }
+                          })
+                      : undefined
+                  }
+                  onSelectInLive={openLive}
+                />
+              )}
+            </FloatingPanel>
+            <FloatingPanel
+              open={activePanel === "targeting"}
+              title="Launch settings"
+              onClose={() => setActivePanel(null)}
+            >
+              <AudienceTargeting
+                audience={transientTargeting.audience}
+                segments={segments}
+                onChange={(audience) =>
+                  mutate((draft) => {
+                    if (!isChecklistDefinition(draft))
+                      draft.targeting.audience = audience;
+                  })
+                }
+              />
+              <fieldset className="grid gap-2 rounded-md border p-3">
+                <legend className="px-1 text-sm font-medium">
+                  What if another experience is already showing?
+                </legend>
+                <label className="flex gap-2">
+                  <input
+                    type="radio"
+                    name="interrupt-policy"
+                    checked={
+                      (transientTargeting.interruptPolicy ?? "queue") ===
+                      "queue"
+                    }
+                    onChange={() =>
+                      mutate((draft) => {
+                        if (!isChecklistDefinition(draft))
+                          draft.targeting.interruptPolicy = "queue";
+                      })
+                    }
+                  />
+                  Wait until it finishes
+                </label>
+                <label className="flex gap-2">
+                  <input
+                    type="radio"
+                    name="interrupt-policy"
+                    checked={transientTargeting.interruptPolicy === "interrupt"}
+                    onChange={() =>
+                      mutate((draft) => {
+                        if (!isChecklistDefinition(draft))
+                          draft.targeting.interruptPolicy = "interrupt";
+                      })
+                    }
+                  />
+                  Show this instead
+                </label>
+              </fieldset>
+              <Label>
+                When should it start?
+                <Input
+                  type="datetime-local"
+                  value={
+                    transientTargeting.schedule?.startsAt?.slice(0, 16) ?? ""
+                  }
+                  onChange={(event) =>
+                    mutate((draft) => {
+                      if (!isChecklistDefinition(draft))
+                        draft.targeting.schedule = {
+                          ...draft.targeting.schedule,
+                          startsAt: event.target.value
+                            ? new Date(event.target.value).toISOString()
+                            : undefined,
+                        };
+                    })
+                  }
+                />
+              </Label>
+              <Label>
+                When should it end?
+                <Input
+                  type="datetime-local"
+                  value={
+                    transientTargeting.schedule?.endsAt?.slice(0, 16) ?? ""
+                  }
+                  onChange={(event) =>
+                    mutate((draft) => {
+                      if (!isChecklistDefinition(draft))
+                        draft.targeting.schedule = {
+                          ...draft.targeting.schedule,
+                          endsAt: event.target.value
+                            ? new Date(event.target.value).toISOString()
+                            : undefined,
+                        };
+                    })
+                  }
+                />
+              </Label>
+              <Label>
+                Allowed origins (one per line)
+                <Textarea
+                  value={(transientTargeting.allowedOrigins ?? []).join("\n")}
+                  onChange={(event) =>
+                    mutate((draft) => {
+                      if (!isChecklistDefinition(draft))
+                        draft.targeting.allowedOrigins = event.target.value
+                          .split("\n")
+                          .map((value) => value.trim())
+                          .filter(Boolean);
+                    })
+                  }
+                />
+              </Label>
+              <Label>
+                Where should it appear?
+                <select
+                  value={
+                    pages.find(
+                      (page) =>
+                        JSON.stringify(page.rules) ===
+                        JSON.stringify(transientTargeting.pageRules),
+                    )?.id ?? "all"
+                  }
+                  onChange={(event) =>
+                    mutate((draft) => {
+                      if (!isChecklistDefinition(draft))
+                        draft.targeting.pageRules =
+                          event.target.value === "all"
+                            ? []
+                            : (pages.find(
+                                (page) => page.id === event.target.value,
+                              )?.rules ?? []);
+                    })
+                  }
+                >
+                  <option value="all">All pages</option>
+                  {pages.map((page) => (
+                    <option key={page.id} value={page.id}>
+                      {page.name}
+                    </option>
+                  ))}
+                </select>
+              </Label>
+              <Label>
+                How often should someone see it?
+                <select
+                  value={transientTargeting.frequency.mode}
+                  onChange={(event) =>
+                    mutate((draft) => {
+                      if (!isChecklistDefinition(draft))
+                        draft.targeting.frequency.mode = event.target
+                          .value as typeof draft.targeting.frequency.mode;
+                    })
+                  }
+                >
+                  <option value="once">Only once</option>
+                  <option value="once_per_session">Once per session</option>
+                  <option value="every_time">Whenever they qualify</option>
+                </select>
+              </Label>
+              {transientTargeting.frequency.mode === "every_time" && (
+                <AdvancedFrequencyControls
+                  frequency={transientTargeting.frequency}
+                  onChange={(frequency) =>
+                    mutate((draft) => {
+                      if (!isChecklistDefinition(draft))
+                        draft.targeting.frequency = frequency;
+                    })
+                  }
+                />
+              )}
+              <details>
+                <summary className="cursor-pointer text-sm font-medium">
+                  Advanced
+                </summary>
+                <Label className="mt-2">
+                  Numeric priority
+                  <Input
+                    type="number"
+                    value={transientTargeting.priority}
+                    onChange={(event) =>
+                      mutate((draft) => {
+                        if (!isChecklistDefinition(draft))
+                          draft.targeting.priority = Number(event.target.value);
+                      })
+                    }
+                  />
+                </Label>
+              </details>
+            </FloatingPanel>
+          </section>
+        </div>
+      </div>
+      <ReviewPublishDialog
+        open={reviewOpen}
+        experience={experience}
+        definition={definition}
+        references={{ pages, segments, events, guides }}
+        onOpenChange={setReviewOpen}
+        onChange={(mutateDefinition) => {
+          dirty.current = true;
+          latest.current = mutateDefinition;
+          setDefinition(mutateDefinition);
+        }}
+        onCompleteSetup={completeLaunchSetup}
+        onPublish={publish}
+        onEditGuideTarget={(index) => {
+          setSelectedStep(index);
+          void openLive(index);
+        }}
+        onEditExternal={(target) => {
+          if (target === "live") void openLive();
+          else if (target === "questions") setActivePanel("questions");
+          else if (target === "behavior") setActivePanel("behavior");
+          else if (target === "analytics") {
+            if (survey) void openResults();
+            else navigate("/analytics");
+          }
+        }}
+      />
+    </>
+  );
 }
-function GuideStepCanvasChip({ steps, selectedStep, onSelect, onMove, onRemove, onAdd }: { steps: GuideStep[]; selectedStep: number; onSelect: (index: number) => void; onMove: (index: number, delta: -1 | 1) => void; onRemove: (index: number) => void; onAdd: () => void }) {
-  const selected = steps[selectedStep]; const anchored = selected && guideStepRequiresTarget(selected); const configured = !anchored || Boolean(selected?.target);
-  return <nav className="movcues-guide-step-chip" aria-label="Guide step controls"><span className="movcues-guide-step-chip__label">Steps</span><div className="movcues-guide-step-chip__steps" role="group" aria-label="Guide steps">{steps.map((item, index) => { const targetMissing = guideStepRequiresTarget(item) && !item.target; return <button key={item.id} type="button" className={index === selectedStep ? "movcues-guide-step-chip__step movcues-guide-step-chip__step--active" : "movcues-guide-step-chip__step"} aria-current={index === selectedStep ? "step" : undefined} aria-label={`${index + 1} ${item.content.heading.trim() || `Step ${index + 1}`} · ${getGuideStepPattern(item) === "modal" ? "Modal" : "Anchored"}`} title={item.content.heading.trim() || `Step ${index + 1}`} onClick={() => onSelect(index)}>{index + 1}{targetMissing && <span className="sr-only">⚠ Target missing</span>}</button>; })}</div><span className="movcues-guide-step-chip__divider" aria-hidden="true" /><span className="movcues-guide-step-chip__title" title={selected?.content.heading}>{selected?.content.heading.trim() || `Step ${selectedStep + 1}`}</span><span className={configured ? "movcues-guide-step-chip__status movcues-guide-step-chip__status--ready" : "movcues-guide-step-chip__status movcues-guide-step-chip__status--missing"} aria-label={configured ? anchored ? "Target configured" : "Modal step" : "Target missing"} title={configured ? anchored ? "Target configured" : "Modal step" : "Target missing"} /><DropdownMenu><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" className="movcues-guide-step-chip__action" aria-label={`Actions for step ${selectedStep + 1}`}><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled={selectedStep === 0} onSelect={() => onMove(selectedStep, -1)}><ArrowUp />Move up</DropdownMenuItem><DropdownMenuItem disabled={selectedStep === steps.length - 1} onSelect={() => onMove(selectedStep, 1)}><ArrowDown />Move down</DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem className="text-destructive" disabled={steps.length === 1} onSelect={() => onRemove(selectedStep)}><Trash2 />Delete</DropdownMenuItem></DropdownMenuContent></DropdownMenu><Button type="button" variant="ghost" size="icon" className="movcues-guide-step-chip__action" aria-label="Add step" onClick={onAdd}><Plus /></Button></nav>;
-}
-function SurveyStepCanvasChip({ steps, selectedStep, onSelect, onMove, onRemove, onAdd }: { steps: SurveyStep[]; selectedStep: number; onSelect: (index: number) => void; onMove: (index: number, delta: -1 | 1) => void; onRemove: (index: number) => void; onAdd: () => void }) {
+function GuideStepCanvasChip({
+  steps,
+  selectedStep,
+  onSelect,
+  onMove,
+  onRemove,
+  onAdd,
+}: {
+  steps: GuideStep[];
+  selectedStep: number;
+  onSelect: (index: number) => void;
+  onMove: (index: number, delta: -1 | 1) => void;
+  onRemove: (index: number) => void;
+  onAdd: () => void;
+}) {
   const selected = steps[selectedStep];
-  return <nav className="movcues-guide-step-chip" aria-label="Survey step controls"><span className="movcues-guide-step-chip__label">Slides</span><div className="movcues-guide-step-chip__steps" role="group" aria-label="Survey slides">{steps.map((item, index) => <button key={item.id} type="button" className={index === selectedStep ? "movcues-guide-step-chip__step movcues-guide-step-chip__step--active" : "movcues-guide-step-chip__step"} aria-current={index === selectedStep ? "step" : undefined} aria-label={`${index + 1} ${item.content.heading.trim() || `Slide ${index + 1}`}`} title={item.content.heading.trim() || `Slide ${index + 1}`} onClick={() => onSelect(index)}>{index + 1}</button>)}</div><span className="movcues-guide-step-chip__divider" aria-hidden="true" /><span className="movcues-guide-step-chip__title" title={selected?.content.heading}>{selected?.content.heading.trim() || `Slide ${selectedStep + 1}`}</span><DropdownMenu><DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" className="movcues-guide-step-chip__action" aria-label={`Actions for slide ${selectedStep + 1}`}><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled={selectedStep === 0} onSelect={() => onMove(selectedStep, -1)}><ArrowUp />Move up</DropdownMenuItem><DropdownMenuItem disabled={selectedStep === steps.length - 1} onSelect={() => onMove(selectedStep, 1)}><ArrowDown />Move down</DropdownMenuItem><DropdownMenuSeparator /><DropdownMenuItem className="text-destructive" disabled={steps.length === 1} onSelect={() => onRemove(selectedStep)}><Trash2 />Delete</DropdownMenuItem></DropdownMenuContent></DropdownMenu><Button type="button" variant="ghost" size="icon" className="movcues-guide-step-chip__action" aria-label="Add slide" onClick={onAdd}><Plus /></Button></nav>;
+  const anchored = selected && guideStepRequiresTarget(selected);
+  const configured = !anchored || Boolean(selected?.target);
+  return (
+    <nav className="movcues-guide-step-chip" aria-label="Guide step controls">
+      <span className="movcues-guide-step-chip__label">Steps</span>
+      <div
+        className="movcues-guide-step-chip__steps"
+        role="group"
+        aria-label="Guide steps"
+      >
+        {steps.map((item, index) => {
+          const targetMissing = guideStepRequiresTarget(item) && !item.target;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={
+                index === selectedStep
+                  ? "movcues-guide-step-chip__step movcues-guide-step-chip__step--active"
+                  : "movcues-guide-step-chip__step"
+              }
+              aria-current={index === selectedStep ? "step" : undefined}
+              aria-label={`${index + 1} ${item.content.heading.trim() || `Step ${index + 1}`} · ${getGuideStepPattern(item) === "modal" ? "Modal" : "Anchored"}`}
+              title={item.content.heading.trim() || `Step ${index + 1}`}
+              onClick={() => onSelect(index)}
+            >
+              {index + 1}
+              {targetMissing && (
+                <span className="sr-only">⚠ Target missing</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <span className="movcues-guide-step-chip__divider" aria-hidden="true" />
+      <span
+        className="movcues-guide-step-chip__title"
+        title={selected?.content.heading}
+      >
+        {selected?.content.heading.trim() || `Step ${selectedStep + 1}`}
+      </span>
+      <span
+        className={
+          configured
+            ? "movcues-guide-step-chip__status movcues-guide-step-chip__status--ready"
+            : "movcues-guide-step-chip__status movcues-guide-step-chip__status--missing"
+        }
+        aria-label={
+          configured
+            ? anchored
+              ? "Target configured"
+              : "Modal step"
+            : "Target missing"
+        }
+        title={
+          configured
+            ? anchored
+              ? "Target configured"
+              : "Modal step"
+            : "Target missing"
+        }
+      />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="movcues-guide-step-chip__action"
+            aria-label={`Actions for step ${selectedStep + 1}`}
+          >
+            <MoreHorizontal />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            disabled={selectedStep === 0}
+            onSelect={() => onMove(selectedStep, -1)}
+          >
+            <ArrowUp />
+            Move up
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={selectedStep === steps.length - 1}
+            onSelect={() => onMove(selectedStep, 1)}
+          >
+            <ArrowDown />
+            Move down
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="text-destructive"
+            disabled={steps.length === 1}
+            onSelect={() => onRemove(selectedStep)}
+          >
+            <Trash2 />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="movcues-guide-step-chip__action"
+        aria-label="Add step"
+        onClick={onAdd}
+      >
+        <Plus />
+      </Button>
+    </nav>
+  );
 }
-function FloatingPanel({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: React.ReactNode }) { if (!open) return null; return <section role="dialog" aria-modal="false" aria-label={title} className="fixed bottom-3 right-3 top-[4.25rem] z-40 flex w-[min(25rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-xl border bg-card/98 text-card-foreground shadow-2xl backdrop-blur"><header className="flex h-12 shrink-0 items-center justify-between border-b px-4"><h2 className="text-sm font-semibold">{title}</h2><Button type="button" variant="ghost" size="icon" aria-label={`Close ${title}`} onClick={onClose}><X /></Button></header><div className="grid gap-4 overflow-y-auto p-4">{children}</div></section>; }
-function GuideAdvanceEditor({ value, supportsTargetAdvance, events, pages, onChange }: { value: GuideAdvance; supportsTargetAdvance: boolean; events: EventDefinitionSummary[]; pages: PageDefinition[]; onChange: (value: GuideAdvance) => void }) { const choices: Array<{ type: GuideAdvance["type"]; label: string; disabled?: boolean }> = [{ type: "button", label: "User clicks Next" }, ...(supportsTargetAdvance ? [{ type: "element_click" as const, label: "User clicks target element" }, { type: "element_hover" as const, label: "User hovers target element" }] : []), { type: "custom_event", label: "Custom event occurs", disabled: !events.length }, { type: "route", label: "User reaches page", disabled: !pages.length }]; const select = (type: GuideAdvance["type"]) => { if (type === "element_hover") onChange({ type, durationMs: 500 }); else if (type === "custom_event") onChange({ type, eventName: events[0]?.name ?? "" }); else if (type === "route") onChange({ type, pageRules: pages[0]?.rules ?? [] }); else onChange({ type }); }; return <fieldset className="grid gap-2 rounded-md border p-3"><legend className="px-1 text-sm font-medium">Advance step when</legend>{choices.map(choice => <label key={choice.type} className="flex gap-2"><input type="radio" name="guide-advance" checked={value.type === choice.type} disabled={choice.disabled && value.type !== choice.type} onChange={() => select(choice.type)} />{choice.label}</label>)}{supportsTargetAdvance && value.type === "element_hover" && <Label>Hover duration (ms)<Input type="number" min="100" max="60000" value={value.durationMs ?? 500} onChange={event => onChange({ type: "element_hover", durationMs: Number(event.target.value) })} /></Label>}{value.type === "custom_event" && <Label>Event<select value={value.eventName} onChange={event => onChange({ type: "custom_event", eventName: event.target.value })}>{!events.some(event => event.name === value.eventName) && <option value={value.eventName}>{value.eventName}</option>}{events.map(event => <option key={event.name} value={event.name}>{event.name}</option>)}</select></Label>}{value.type === "route" && <Label>Page<select value={pages.find(page => JSON.stringify(page.rules) === JSON.stringify(value.pageRules))?.id ?? ""} onChange={event => onChange({ type: "route", pageRules: pages.find(page => page.id === event.target.value)?.rules ?? value.pageRules })}><option value="" disabled>Select a page</option>{pages.map(page => <option key={page.id} value={page.id}>{page.name}</option>)}</select></Label>}</fieldset>; }
-function QuestionsEditor({ questions, onChange }: { questions: SurveyQuestion[]; onChange: (questions: SurveyQuestion[]) => void }) {
-  const update = (index: number, transform: (question: SurveyQuestion) => SurveyQuestion) => onChange(questions.map((question, current) => current === index ? transform(question) : question));
-  const moveQuestion = (index: number, delta: -1 | 1) => { const target = index + delta; if (target < 0 || target >= questions.length) return; const next = [...questions]; [next[index], next[target]] = [next[target], next[index]]; onChange(next); };
-  return <div className="grid gap-3"><div className="flex items-center justify-between"><div><h3 className="font-medium">Questions on this slide</h3><p className="text-sm text-muted-foreground">Structured question data drives validation and stored answers.</p></div><Button type="button" variant="outline" onClick={() => onChange([...questions, makeQuestion("short_text")])}><Plus />Add question</Button></div>{questions.length === 0 && <div className="rounded-md border border-dashed p-5 text-sm text-muted-foreground">No questions on this slide yet.</div>}{questions.map((question, index) => <fieldset key={question.id} className="grid gap-3 rounded-lg border p-4"><div className="flex items-center gap-2"><span className="text-xs font-medium text-muted-foreground">{index + 1}</span><select aria-label={`Question ${index + 1} type`} className="h-9 flex-1 rounded-md border bg-background px-3 text-sm" value={question.type} onChange={event => update(index, value => changeQuestionType(value, event.target.value as SurveyQuestion["type"]))}><option value="single_choice">Single choice</option><option value="multiple_choice">Multiple choice</option><option value="short_text">Short text</option><option value="long_text">Long text</option><option value="rating">Rating</option><option value="nps">NPS</option></select><Button type="button" size="icon" variant="outline" aria-label={`Move question ${index + 1} up`} disabled={index === 0} onClick={() => moveQuestion(index, -1)}><ArrowUp /></Button><Button type="button" size="icon" variant="outline" aria-label={`Move question ${index + 1} down`} disabled={index === questions.length - 1} onClick={() => moveQuestion(index, 1)}><ArrowDown /></Button><Button type="button" size="icon" variant="outline" aria-label={`Delete question ${index + 1}`} onClick={() => onChange(questions.filter((_, current) => current !== index))}><Trash2 /></Button></div><Label>Question label<Input value={question.label} maxLength={500} onChange={event => update(index, value => ({ ...value, label: event.target.value }))} /></Label><label className="flex gap-2"><Switch checked={question.required ?? false} onCheckedChange={checked => update(index, value => ({ ...value, required: checked }))} />Required</label>{(question.type === "single_choice" || question.type === "multiple_choice") && <div className="grid gap-2"><span className="text-sm font-medium">Options</span>{question.options.map((option, optionIndex) => <div key={option.id} className="flex gap-2"><Input aria-label={`Option ${optionIndex + 1}`} value={option.label} maxLength={200} onChange={event => update(index, value => "options" in value ? { ...value, options: value.options.map((item, current) => current === optionIndex ? { ...item, label: event.target.value } : item) } : value)} /><Button type="button" variant="outline" disabled={question.options.length === 1} onClick={() => update(index, value => "options" in value ? { ...value, options: value.options.filter((_, current) => current !== optionIndex) } : value)}>Remove</Button></div>)}<Button type="button" variant="outline" disabled={question.options.length >= 20} onClick={() => update(index, value => "options" in value ? { ...value, options: [...value.options, { id: uniqueId("option"), label: `Option ${value.options.length + 1}` }] } : value)}>Add option</Button></div>}{(question.type === "short_text" || question.type === "long_text") && <><Label>Placeholder<Input value={question.placeholder ?? ""} maxLength={500} onChange={event => update(index, value => value.type === "short_text" || value.type === "long_text" ? { ...value, placeholder: event.target.value } : value)} /></Label><Label>Maximum length<Input type="number" min="1" max="10000" value={question.maxLength ?? (question.type === "short_text" ? 250 : 2000)} onChange={event => update(index, value => value.type === "short_text" || value.type === "long_text" ? { ...value, maxLength: Math.max(1, Math.min(10000, Number(event.target.value))) } : value)} /></Label></>}{question.type === "rating" && <div className="grid grid-cols-2 gap-3"><Label>Minimum<Input type="number" min="0" max="99" value={question.min} onChange={event => update(index, value => value.type === "rating" ? { ...value, min: Number(event.target.value) } : value)} /></Label><Label>Maximum<Input type="number" min="1" max="100" value={question.max} onChange={event => update(index, value => value.type === "rating" ? { ...value, max: Number(event.target.value) } : value)} /></Label></div>}</fieldset>)}</div>;
+function SurveyStepCanvasChip({
+  steps,
+  selectedStep,
+  onSelect,
+  onMove,
+  onRemove,
+  onAdd,
+}: {
+  steps: SurveyStep[];
+  selectedStep: number;
+  onSelect: (index: number) => void;
+  onMove: (index: number, delta: -1 | 1) => void;
+  onRemove: (index: number) => void;
+  onAdd: () => void;
+}) {
+  const selected = steps[selectedStep];
+  return (
+    <nav className="movcues-guide-step-chip" aria-label="Survey step controls">
+      <span className="movcues-guide-step-chip__label">Slides</span>
+      <div
+        className="movcues-guide-step-chip__steps"
+        role="group"
+        aria-label="Survey slides"
+      >
+        {steps.map((item, index) => (
+          <button
+            key={item.id}
+            type="button"
+            className={
+              index === selectedStep
+                ? "movcues-guide-step-chip__step movcues-guide-step-chip__step--active"
+                : "movcues-guide-step-chip__step"
+            }
+            aria-current={index === selectedStep ? "step" : undefined}
+            aria-label={`${index + 1} ${item.content.heading.trim() || `Slide ${index + 1}`}`}
+            title={item.content.heading.trim() || `Slide ${index + 1}`}
+            onClick={() => onSelect(index)}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+      <span className="movcues-guide-step-chip__divider" aria-hidden="true" />
+      <span
+        className="movcues-guide-step-chip__title"
+        title={selected?.content.heading}
+      >
+        {selected?.content.heading.trim() || `Slide ${selectedStep + 1}`}
+      </span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="movcues-guide-step-chip__action"
+            aria-label={`Actions for slide ${selectedStep + 1}`}
+          >
+            <MoreHorizontal />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            disabled={selectedStep === 0}
+            onSelect={() => onMove(selectedStep, -1)}
+          >
+            <ArrowUp />
+            Move up
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={selectedStep === steps.length - 1}
+            onSelect={() => onMove(selectedStep, 1)}
+          >
+            <ArrowDown />
+            Move down
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="text-destructive"
+            disabled={steps.length === 1}
+            onSelect={() => onRemove(selectedStep)}
+          >
+            <Trash2 />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="movcues-guide-step-chip__action"
+        aria-label="Add slide"
+        onClick={onAdd}
+      >
+        <Plus />
+      </Button>
+    </nav>
+  );
 }
-function makeQuestion(type: SurveyQuestion["type"]): SurveyQuestion { const base = { id: uniqueId("question"), label: "New question", required: false }; if (type === "single_choice" || type === "multiple_choice") return { ...base, type, options: [{ id: uniqueId("option"), label: "Option 1" }, { id: uniqueId("option"), label: "Option 2" }] }; if (type === "short_text") return { ...base, type, placeholder: "Type your answer", maxLength: 250 }; if (type === "long_text") return { ...base, type, placeholder: "Tell us more", maxLength: 2000 }; if (type === "rating") return { ...base, type, min: 1, max: 5 }; return { ...base, type: "nps" }; }
-function changeQuestionType(question: SurveyQuestion, type: SurveyQuestion["type"]): SurveyQuestion { const next = makeQuestion(type); return { ...next, id: question.id, label: question.label, required: question.required } as SurveyQuestion; }
-function LayeringEditor({ layer, onChange, onSelectInLive }: { layer?: ExperienceLayer; onChange: (layer: ExperienceLayer) => void; onSelectInLive: () => void }) { const mode = layer?.mode ?? "always_on_top"; return <fieldset className="grid gap-3 rounded-md border p-3"><legend className="px-1 text-sm font-medium">Layering</legend><Label>Layer policy<select value={mode} onChange={event => { const next = event.target.value as ExperienceLayer["mode"]; if (next === "relative") { if (layer?.mode !== "relative") onSelectInLive(); } else if (next === "auto") onChange({ mode: "auto" }); else if (next === "always_on_top") onChange({ mode: "always_on_top" }); else onChange({ mode: "custom", zIndex: layer?.mode === "custom" ? layer.zIndex : 1000 }); }}><option value="auto">Automatic</option><option value="relative">Relative to an element</option><option value="always_on_top">Always on top</option><option value="custom">Advanced / Custom z-index</option></select></Label>{mode === "auto" && <p className="text-sm text-muted-foreground">Respect the application's UI layers.</p>}{mode === "always_on_top" && <p className="text-sm text-muted-foreground">Keep this experience above normal application UI.{!layer ? " This is the compatibility setting for this existing draft." : ""}</p>}{layer?.mode === "relative" && <><div className="rounded-md bg-muted/40 p-2 text-sm">Selected: {layer.target.label ?? layer.target.primarySelector}</div><Label>Relationship<select value={layer.relation} onChange={event => onChange({ ...layer, relation: event.target.value as "above" | "below" })}><option value="above">Above</option><option value="below">Below</option></select></Label><Button type="button" variant="outline" onClick={onSelectInLive}>Select element from page</Button></>}{layer?.mode === "custom" && <Label>Custom z-index<Input type="number" min="1" max="2147483647" value={layer.zIndex} onChange={event => onChange({ mode: "custom", zIndex: Number(event.target.value) })} /></Label>}</fieldset>; }
-type AnchoredCardBehavior = Pick<ExperienceBehavior, "placement" | "alignment" | "offset" | "pointer">;
-function AnchoredCardBehaviorEditor({ behavior, onChange }: { behavior: AnchoredCardBehavior; onChange: (change: (behavior: AnchoredCardBehavior) => void) => void }) { return <>
-  <Label>Placement<select value={behavior.placement ?? "auto"} onChange={event => onChange(value => { value.placement = event.target.value as NonNullable<ExperienceBehavior["placement"]>; })}><option value="auto">Auto</option><option value="top">Top</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="left">Left</option></select></Label>
-  <Label>Alignment<select value={behavior.alignment ?? "center"} onChange={event => onChange(value => { value.alignment = event.target.value as NonNullable<ExperienceBehavior["alignment"]>; })}><option value="start">Start</option><option value="center">Center</option><option value="end">End</option></select></Label>
-  <Label>Distance from target<Input type="number" min="0" max="100" value={behavior.offset ?? 8} onChange={event => onChange(value => { value.offset = Math.max(0, Math.min(100, Number(event.target.value))); })} /></Label>
-  <label className="flex gap-2"><Switch checked={behavior.pointer?.enabled ?? true} onCheckedChange={checked => onChange(value => { value.pointer = { ...value.pointer, enabled: checked }; })} />Show pointer</label>
-  <Label>Pointer size<Input type="number" min="4" max="30" value={behavior.pointer?.size ?? 10} disabled={behavior.pointer?.enabled === false} onChange={event => onChange(value => { value.pointer = { ...value.pointer, size: Math.max(4, Math.min(30, Number(event.target.value))) }; })} /></Label>
-</>; }
-function WidgetBehaviorEditor({ type, behavior, layer, onChange, onLayerChange, onSelectInLive }: { type: WidgetType; behavior: ExperienceBehavior; layer?: ExperienceLayer; onChange: (change: (behavior: ExperienceBehavior) => void) => void; onLayerChange?: (layer: ExperienceLayer) => void; onSelectInLive: () => void }) { const targetRelative = type === "anchored_card" || type === "hotspot"; const overlay = type === "modal" || type === "survey" || type === "slideout"; return <>
-  <LayeringEditor layer={layer ?? behavior.layer} onChange={nextLayer => onLayerChange ? onLayerChange(nextLayer) : onChange(value => { value.layer = nextLayer; })} onSelectInLive={onSelectInLive} />
-  {type === "anchored_card" && <AnchoredCardBehaviorEditor behavior={behavior} onChange={change => onChange(value => change(value))} />}
-  {targetRelative && type !== "anchored_card" && <><Label>Placement<select value={behavior.placement ?? "auto"} onChange={event => onChange(value => { value.placement = event.target.value as NonNullable<ExperienceBehavior["placement"]>; })}><option value="auto">Auto</option><option value="top">Top</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="left">Left</option></select></Label><Label>Distance from target<Input type="number" min="0" max="100" value={behavior.offset ?? 8} onChange={event => onChange(value => { value.offset = Number(event.target.value); })} /></Label></>}
-  {type === "toast" && <><Label>Position<select value={behavior.toastPosition ?? "bottom-right"} onChange={event => onChange(value => { value.toastPosition = event.target.value as NonNullable<ExperienceBehavior["toastPosition"]>; })}><option value="top-left">Top left</option><option value="top-right">Top right</option><option value="bottom-left">Bottom left</option><option value="bottom-right">Bottom right</option></select></Label><Label>Auto-dismiss milliseconds (blank disables)<Input type="number" min="500" value={behavior.autoDismissMs ?? ""} onChange={event => onChange(value => { value.autoDismissMs = event.target.value ? Number(event.target.value) : null; })} /></Label></>}
-  {type === "cursor_follow" && <div className="grid grid-cols-2 gap-3"><Label>Horizontal offset<Input type="number" value={behavior.cursorOffset?.x ?? 16} onChange={event => onChange(value => { value.cursorOffset = { x: Number(event.target.value), y: value.cursorOffset?.y ?? 16 }; })} /></Label><Label>Vertical offset<Input type="number" value={behavior.cursorOffset?.y ?? 16} onChange={event => onChange(value => { value.cursorOffset = { x: value.cursorOffset?.x ?? 16, y: Number(event.target.value) }; })} /></Label></div>}
-  {(type === "modal" || type === "survey") && <Label>Layout<select value={behavior.modalLayout ?? "center"} onChange={event => onChange(value => { value.modalLayout = event.target.value as NonNullable<ExperienceBehavior["modalLayout"]>; })}><option value="center">Centered</option><option value="fullscreen">Fullscreen</option></select></Label>}
-  {type === "slideout" && <Label>Edge position<select value={behavior.slideoutPosition ?? "bottom-right"} onChange={event => onChange(value => { value.slideoutPosition = event.target.value as NonNullable<ExperienceBehavior["slideoutPosition"]>; })}><option value="top-left">Top left</option><option value="top-right">Top right</option><option value="center-left">Center left</option><option value="center-right">Center right</option><option value="bottom-left">Bottom left</option><option value="bottom-right">Bottom right</option></select></Label>}
-  {type === "banner" && <Label>Banner position<select value={behavior.bannerPosition ?? "top"} onChange={event => onChange(value => { value.bannerPosition = event.target.value as NonNullable<ExperienceBehavior["bannerPosition"]>; })}><option value="top">Top</option><option value="bottom">Bottom</option></select></Label>}
-  {overlay && <><label className="flex gap-2"><Switch checked={behavior.backdrop ?? (type === "modal" || type === "survey")} onCheckedChange={checked => onChange(value => { value.backdrop = checked; })} />Backdrop</label>{behavior.backdrop && <><Label>Backdrop opacity<Input type="number" min="0" max="0.9" step="0.05" value={behavior.backdropOpacity ?? (type === "slideout" ? 0.35 : 0.45)} onChange={event => onChange(value => { value.backdropOpacity = Number(event.target.value); })} /></Label><label className="flex gap-2"><Switch checked={behavior.closeOnBackdrop ?? false} onCheckedChange={checked => onChange(value => { value.closeOnBackdrop = checked; })} />Dismiss when backdrop is clicked</label></>}</>}
-  {type === "hotspot" && <><Label>Beacon style<select value={behavior.hotspotStyle ?? "pulse"} onChange={event => onChange(value => { value.hotspotStyle = event.target.value as NonNullable<ExperienceBehavior["hotspotStyle"]>; })}><option value="pulse">Pulse</option><option value="dot">Dot</option><option value="question">Question mark</option></select></Label><Label>Beacon color<Input type="color" value={behavior.hotspotColor ?? "#2563eb"} onChange={event => onChange(value => { value.hotspotColor = event.target.value; })} /></Label><p className="text-sm text-muted-foreground">Select the element that this passive beacon should highlight in the live editor.</p></>}
-  <label className="flex gap-2"><Switch checked={behavior.dismissible} onCheckedChange={checked => onChange(value => { value.dismissible = checked; })} />Dismissible</label>
-</>; }
-function AudienceTargeting({ audience, segments, onChange }: { audience: ExperienceDefinition["targeting"]["audience"]; segments: Segment[]; onChange: (audience: ExperienceDefinition["targeting"]["audience"]) => void }) { const rules = audience.type === "segment_rules" ? audience : { type: "segment_rules" as const, logic: "all" as const, conditions: [] }; return <div className="grid gap-2 rounded-md border p-3"><Label>Who should see this?<select value={audience.type} onChange={event => onChange(event.target.value === "all" ? { type: "all" } : event.target.value === "segment" ? { type: "segment", segmentId: segments[0]?.id ?? "" } : rules)}><option value="all">Everyone</option><option value="segment">A saved Segment</option><option value="segment_rules">Combined Segment rules</option></select></Label>{audience.type === "segment" && <Label>Segment<select value={audience.segmentId} onChange={event => onChange({ type: "segment", segmentId: event.target.value })}>{segments.map(segment => <option key={segment.id} value={segment.id}>{segment.name}</option>)}</select></Label>}{audience.type === "segment_rules" && <><Label>Match<select value={audience.logic} onChange={event => onChange({ ...audience, logic: event.target.value as "all" | "any" })}><option value="all">All rules</option><option value="any">Any rule</option></select></Label>{audience.conditions.map((condition, index) => <div key={condition.id} className="flex gap-2"><select value={condition.operator} onChange={event => onChange({ ...audience, conditions: audience.conditions.map((item, i) => i === index ? { ...item, operator: event.target.value as typeof item.operator } : item) })}><option value="matches">is in</option><option value="not_matches">is not in</option></select><select value={condition.segmentId} onChange={event => onChange({ ...audience, conditions: audience.conditions.map((item, i) => i === index ? { ...item, segmentId: event.target.value } : item) })}>{segments.map(segment => <option key={segment.id} value={segment.id}>{segment.name}</option>)}</select><Button type="button" variant="outline" onClick={() => onChange({ ...audience, conditions: audience.conditions.filter((_, i) => i !== index) })}>Remove</Button></div>)}<Button type="button" variant="outline" disabled={!segments.length} onClick={() => onChange({ ...audience, conditions: [...audience.conditions, { id: `aud_${Date.now()}`, segmentId: segments[0]?.id ?? "", operator: "matches" }] })}>Add Segment rule</Button></>}</div>; }
+function FloatingPanel({
+  open,
+  title,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <section
+      role="dialog"
+      aria-modal="false"
+      aria-label={title}
+      className="fixed bottom-3 right-3 top-[4.25rem] z-40 flex w-[min(25rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-xl border bg-card/98 text-card-foreground shadow-2xl backdrop-blur"
+    >
+      <header className="flex h-12 shrink-0 items-center justify-between border-b px-4">
+        <h2 className="text-sm font-semibold">{title}</h2>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={`Close ${title}`}
+          onClick={onClose}
+        >
+          <X />
+        </Button>
+      </header>
+      <div className="grid gap-4 overflow-y-auto p-4">{children}</div>
+    </section>
+  );
+}
+function SurveyQuestionPanel({
+  questions,
+  selectedQuestionId,
+  onSelect,
+  onAdd,
+  onChange,
+}: {
+  questions: SurveyQuestion[];
+  selectedQuestionId: string | null;
+  onSelect: (id: string | null) => void;
+  onAdd: () => void;
+  onChange: (questions: SurveyQuestion[]) => void;
+}) {
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const selected =
+    questions.find((question) => question.id === selectedQuestionId) ??
+    questions[0];
+  const update = (transform: (question: SurveyQuestion) => SurveyQuestion) => {
+    if (!selected) return;
+    onChange(
+      questions.map((question) =>
+        question.id === selected.id ? transform(question) : question,
+      ),
+    );
+  };
+  const moveTo = (targetId: string) => {
+    if (!draggedId || draggedId === targetId) return;
+    const from = questions.findIndex((question) => question.id === draggedId);
+    const to = questions.findIndex((question) => question.id === targetId);
+    if (from < 0 || to < 0) return;
+    const next = [...questions];
+    const [question] = next.splice(from, 1);
+    next.splice(to, 0, question);
+    onChange(next);
+  };
+  if (!selected)
+    return (
+      <div className="rounded-md border border-dashed p-5 text-sm text-muted-foreground">
+        Select a question on the canvas, or add one from the Questions menu.
+      </div>
+    );
+  return (
+    <div className="grid gap-4">
+      <div className="grid gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Question order
+          </span>
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            className="size-7"
+            aria-label="Add question"
+            title="Add question"
+            onClick={onAdd}
+          >
+            <Plus />
+          </Button>
+        </div>
+        <div className="movcues-survey-question-list">
+          {questions.map((question, index) => (
+            <button
+              key={question.id}
+              type="button"
+              draggable
+              onDragStart={() => setDraggedId(question.id)}
+              onDragEnd={() => setDraggedId(null)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={() => {
+                moveTo(question.id);
+                setDraggedId(null);
+              }}
+              onClick={() => onSelect(question.id)}
+              className={`flex min-h-9 items-center gap-2 rounded-md border px-2 text-left text-sm ${question.id === selected.id ? "border-primary bg-primary/5" : "border-transparent hover:bg-muted"}`}
+              aria-label={`Question ${index + 1}: ${question.label}. Drag to reorder`}
+            >
+              <span className="text-muted-foreground" aria-hidden="true">
+                ⋮⋮
+              </span>
+              <span className="w-4 text-xs text-muted-foreground">
+                {index + 1}
+              </span>
+              <span className="truncate">
+                {question.label || "Untitled question"}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="grid gap-3 border-t pt-4">
+        <Label>
+          Type
+          <select
+            value={selected.type}
+            onChange={(event) =>
+              update((question) =>
+                changeQuestionType(
+                  question,
+                  event.target.value as SurveyQuestion["type"],
+                ),
+              )
+            }
+          >
+            <option value="single_choice">Single choice</option>
+            <option value="multiple_choice">Multiple choice</option>
+            <option value="short_text">Short text</option>
+            <option value="long_text">Long text</option>
+            <option value="rating">Rating</option>
+            <option value="nps">NPS</option>
+          </select>
+        </Label>
+        <Label>
+          Question
+          <Input
+            value={selected.label}
+            maxLength={500}
+            onChange={(event) =>
+              update((question) => ({ ...question, label: event.target.value }))
+            }
+          />
+        </Label>
+        <label className="flex gap-2">
+          <Switch
+            checked={selected.required ?? false}
+            onCheckedChange={(checked) =>
+              update((question) => ({ ...question, required: checked }))
+            }
+          />
+          Required
+        </label>
+        {(selected.type === "single_choice" ||
+          selected.type === "multiple_choice") && (
+          <div className="grid gap-2">
+            <span className="text-sm font-medium">Options</span>
+            {selected.options.map((option, optionIndex) => (
+              <Input
+                key={option.id}
+                aria-label={`Option ${optionIndex + 1}`}
+                value={option.label}
+                maxLength={200}
+                onChange={(event) =>
+                  update((question) =>
+                    "options" in question
+                      ? {
+                          ...question,
+                          options: question.options.map((item) =>
+                            item.id === option.id
+                              ? { ...item, label: event.target.value }
+                              : item,
+                          ),
+                        }
+                      : question,
+                  )
+                }
+              />
+            ))}
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                update((question) =>
+                  "options" in question
+                    ? {
+                        ...question,
+                        options: [
+                          ...question.options,
+                          {
+                            id: uniqueId("option"),
+                            label: `Option ${question.options.length + 1}`,
+                          },
+                        ],
+                      }
+                    : question,
+                )
+              }
+            >
+              Add option
+            </Button>
+          </div>
+        )}
+        {(selected.type === "short_text" || selected.type === "long_text") && (
+          <Label>
+            Placeholder
+            <Input
+              value={selected.placeholder ?? ""}
+              maxLength={500}
+              onChange={(event) =>
+                update((question) =>
+                  question.type === "short_text" ||
+                  question.type === "long_text"
+                    ? { ...question, placeholder: event.target.value }
+                    : question,
+                )
+              }
+            />
+          </Label>
+        )}
+        {selected.type === "rating" && (
+          <div className="grid grid-cols-2 gap-3">
+            <Label>
+              Minimum
+              <Input
+                type="number"
+                value={selected.min}
+                onChange={(event) =>
+                  update((question) =>
+                    question.type === "rating"
+                      ? { ...question, min: Number(event.target.value) }
+                      : question,
+                  )
+                }
+              />
+            </Label>
+            <Label>
+              Maximum
+              <Input
+                type="number"
+                value={selected.max}
+                onChange={(event) =>
+                  update((question) =>
+                    question.type === "rating"
+                      ? { ...question, max: Number(event.target.value) }
+                      : question,
+                  )
+                }
+              />
+            </Label>
+          </div>
+        )}
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="justify-start text-destructive hover:text-destructive"
+          onClick={() => {
+            const next = questions.filter(
+              (question) => question.id !== selected.id,
+            );
+            onChange(next);
+            onSelect(next[0]?.id ?? null);
+          }}
+        >
+          <Trash2 />
+          Delete question
+        </Button>
+      </div>
+    </div>
+  );
+}
+function GuideAdvanceEditor({
+  value,
+  supportsTargetAdvance,
+  events,
+  pages,
+  onChange,
+}: {
+  value: GuideAdvance;
+  supportsTargetAdvance: boolean;
+  events: EventDefinitionSummary[];
+  pages: PageDefinition[];
+  onChange: (value: GuideAdvance) => void;
+}) {
+  const choices: Array<{
+    type: GuideAdvance["type"];
+    label: string;
+    disabled?: boolean;
+  }> = [
+    { type: "button", label: "User clicks Next" },
+    ...(supportsTargetAdvance
+      ? [
+          {
+            type: "element_click" as const,
+            label: "User clicks target element",
+          },
+          {
+            type: "element_hover" as const,
+            label: "User hovers target element",
+          },
+        ]
+      : []),
+    {
+      type: "custom_event",
+      label: "Custom event occurs",
+      disabled: !events.length,
+    },
+    { type: "route", label: "User reaches page", disabled: !pages.length },
+  ];
+  const select = (type: GuideAdvance["type"]) => {
+    if (type === "element_hover") onChange({ type, durationMs: 500 });
+    else if (type === "custom_event")
+      onChange({ type, eventName: events[0]?.name ?? "" });
+    else if (type === "route")
+      onChange({ type, pageRules: pages[0]?.rules ?? [] });
+    else onChange({ type });
+  };
+  return (
+    <fieldset className="grid gap-2 rounded-md border p-3">
+      <legend className="px-1 text-sm font-medium">Advance step when</legend>
+      {choices.map((choice) => (
+        <label key={choice.type} className="flex gap-2">
+          <input
+            type="radio"
+            name="guide-advance"
+            checked={value.type === choice.type}
+            disabled={choice.disabled && value.type !== choice.type}
+            onChange={() => select(choice.type)}
+          />
+          {choice.label}
+        </label>
+      ))}
+      {supportsTargetAdvance && value.type === "element_hover" && (
+        <Label>
+          Hover duration (ms)
+          <Input
+            type="number"
+            min="100"
+            max="60000"
+            value={value.durationMs ?? 500}
+            onChange={(event) =>
+              onChange({
+                type: "element_hover",
+                durationMs: Number(event.target.value),
+              })
+            }
+          />
+        </Label>
+      )}
+      {value.type === "custom_event" && (
+        <Label>
+          Event
+          <select
+            value={value.eventName}
+            onChange={(event) =>
+              onChange({ type: "custom_event", eventName: event.target.value })
+            }
+          >
+            {!events.some((event) => event.name === value.eventName) && (
+              <option value={value.eventName}>{value.eventName}</option>
+            )}
+            {events.map((event) => (
+              <option key={event.name} value={event.name}>
+                {event.name}
+              </option>
+            ))}
+          </select>
+        </Label>
+      )}
+      {value.type === "route" && (
+        <Label>
+          Page
+          <select
+            value={
+              pages.find(
+                (page) =>
+                  JSON.stringify(page.rules) ===
+                  JSON.stringify(value.pageRules),
+              )?.id ?? ""
+            }
+            onChange={(event) =>
+              onChange({
+                type: "route",
+                pageRules:
+                  pages.find((page) => page.id === event.target.value)?.rules ??
+                  value.pageRules,
+              })
+            }
+          >
+            <option value="" disabled>
+              Select a page
+            </option>
+            {pages.map((page) => (
+              <option key={page.id} value={page.id}>
+                {page.name}
+              </option>
+            ))}
+          </select>
+        </Label>
+      )}
+    </fieldset>
+  );
+}
+export function QuestionsEditor({
+  questions,
+  onChange,
+}: {
+  questions: SurveyQuestion[];
+  onChange: (questions: SurveyQuestion[]) => void;
+}) {
+  const update = (
+    index: number,
+    transform: (question: SurveyQuestion) => SurveyQuestion,
+  ) =>
+    onChange(
+      questions.map((question, current) =>
+        current === index ? transform(question) : question,
+      ),
+    );
+  const moveQuestion = (index: number, delta: -1 | 1) => {
+    const target = index + delta;
+    if (target < 0 || target >= questions.length) return;
+    const next = [...questions];
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  };
+  return (
+    <div className="grid gap-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-medium">Questions on this slide</h3>
+          <p className="text-sm text-muted-foreground">
+            Structured question data drives validation and stored answers.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onChange([...questions, makeQuestion("short_text")])}
+        >
+          <Plus />
+          Add question
+        </Button>
+      </div>
+      {questions.length === 0 && (
+        <div className="rounded-md border border-dashed p-5 text-sm text-muted-foreground">
+          No questions on this slide yet.
+        </div>
+      )}
+      {questions.map((question, index) => (
+        <fieldset
+          key={question.id}
+          className="grid gap-3 rounded-lg border p-4"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              {index + 1}
+            </span>
+            <select
+              aria-label={`Question ${index + 1} type`}
+              className="h-9 flex-1 rounded-md border bg-background px-3 text-sm"
+              value={question.type}
+              onChange={(event) =>
+                update(index, (value) =>
+                  changeQuestionType(
+                    value,
+                    event.target.value as SurveyQuestion["type"],
+                  ),
+                )
+              }
+            >
+              <option value="single_choice">Single choice</option>
+              <option value="multiple_choice">Multiple choice</option>
+              <option value="short_text">Short text</option>
+              <option value="long_text">Long text</option>
+              <option value="rating">Rating</option>
+              <option value="nps">NPS</option>
+            </select>
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              aria-label={`Move question ${index + 1} up`}
+              disabled={index === 0}
+              onClick={() => moveQuestion(index, -1)}
+            >
+              <ArrowUp />
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              aria-label={`Move question ${index + 1} down`}
+              disabled={index === questions.length - 1}
+              onClick={() => moveQuestion(index, 1)}
+            >
+              <ArrowDown />
+            </Button>
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              aria-label={`Delete question ${index + 1}`}
+              onClick={() =>
+                onChange(questions.filter((_, current) => current !== index))
+              }
+            >
+              <Trash2 />
+            </Button>
+          </div>
+          <Label>
+            Question label
+            <Input
+              value={question.label}
+              maxLength={500}
+              onChange={(event) =>
+                update(index, (value) => ({
+                  ...value,
+                  label: event.target.value,
+                }))
+              }
+            />
+          </Label>
+          <label className="flex gap-2">
+            <Switch
+              checked={question.required ?? false}
+              onCheckedChange={(checked) =>
+                update(index, (value) => ({ ...value, required: checked }))
+              }
+            />
+            Required
+          </label>
+          {(question.type === "single_choice" ||
+            question.type === "multiple_choice") && (
+            <div className="grid gap-2">
+              <span className="text-sm font-medium">Options</span>
+              {question.options.map((option, optionIndex) => (
+                <div key={option.id} className="flex gap-2">
+                  <Input
+                    aria-label={`Option ${optionIndex + 1}`}
+                    value={option.label}
+                    maxLength={200}
+                    onChange={(event) =>
+                      update(index, (value) =>
+                        "options" in value
+                          ? {
+                              ...value,
+                              options: value.options.map((item, current) =>
+                                current === optionIndex
+                                  ? { ...item, label: event.target.value }
+                                  : item,
+                              ),
+                            }
+                          : value,
+                      )
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={question.options.length === 1}
+                    onClick={() =>
+                      update(index, (value) =>
+                        "options" in value
+                          ? {
+                              ...value,
+                              options: value.options.filter(
+                                (_, current) => current !== optionIndex,
+                              ),
+                            }
+                          : value,
+                      )
+                    }
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                disabled={question.options.length >= 20}
+                onClick={() =>
+                  update(index, (value) =>
+                    "options" in value
+                      ? {
+                          ...value,
+                          options: [
+                            ...value.options,
+                            {
+                              id: uniqueId("option"),
+                              label: `Option ${value.options.length + 1}`,
+                            },
+                          ],
+                        }
+                      : value,
+                  )
+                }
+              >
+                Add option
+              </Button>
+            </div>
+          )}
+          {(question.type === "short_text" ||
+            question.type === "long_text") && (
+            <>
+              <Label>
+                Placeholder
+                <Input
+                  value={question.placeholder ?? ""}
+                  maxLength={500}
+                  onChange={(event) =>
+                    update(index, (value) =>
+                      value.type === "short_text" || value.type === "long_text"
+                        ? { ...value, placeholder: event.target.value }
+                        : value,
+                    )
+                  }
+                />
+              </Label>
+              <Label>
+                Maximum length
+                <Input
+                  type="number"
+                  min="1"
+                  max="10000"
+                  value={
+                    question.maxLength ??
+                    (question.type === "short_text" ? 250 : 2000)
+                  }
+                  onChange={(event) =>
+                    update(index, (value) =>
+                      value.type === "short_text" || value.type === "long_text"
+                        ? {
+                            ...value,
+                            maxLength: Math.max(
+                              1,
+                              Math.min(10000, Number(event.target.value)),
+                            ),
+                          }
+                        : value,
+                    )
+                  }
+                />
+              </Label>
+            </>
+          )}
+          {question.type === "rating" && (
+            <div className="grid grid-cols-2 gap-3">
+              <Label>
+                Minimum
+                <Input
+                  type="number"
+                  min="0"
+                  max="99"
+                  value={question.min}
+                  onChange={(event) =>
+                    update(index, (value) =>
+                      value.type === "rating"
+                        ? { ...value, min: Number(event.target.value) }
+                        : value,
+                    )
+                  }
+                />
+              </Label>
+              <Label>
+                Maximum
+                <Input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={question.max}
+                  onChange={(event) =>
+                    update(index, (value) =>
+                      value.type === "rating"
+                        ? { ...value, max: Number(event.target.value) }
+                        : value,
+                    )
+                  }
+                />
+              </Label>
+            </div>
+          )}
+        </fieldset>
+      ))}
+    </div>
+  );
+}
+function makeQuestion(type: SurveyQuestion["type"]): SurveyQuestion {
+  const base = {
+    id: uniqueId("question"),
+    label: "New question",
+    required: false,
+  };
+  if (type === "single_choice" || type === "multiple_choice")
+    return {
+      ...base,
+      type,
+      options: [
+        { id: uniqueId("option"), label: "Option 1" },
+        { id: uniqueId("option"), label: "Option 2" },
+      ],
+    };
+  if (type === "short_text")
+    return { ...base, type, placeholder: "Type your answer", maxLength: 250 };
+  if (type === "long_text")
+    return { ...base, type, placeholder: "Tell us more", maxLength: 2000 };
+  if (type === "rating") return { ...base, type, min: 1, max: 5 };
+  return { ...base, type: "nps" };
+}
+function changeQuestionType(
+  question: SurveyQuestion,
+  type: SurveyQuestion["type"],
+): SurveyQuestion {
+  const next = makeQuestion(type);
+  return {
+    ...next,
+    id: question.id,
+    label: question.label,
+    required: question.required,
+  } as SurveyQuestion;
+}
+function LayeringEditor({
+  layer,
+  onChange,
+  onSelectInLive,
+}: {
+  layer?: ExperienceLayer;
+  onChange: (layer: ExperienceLayer) => void;
+  onSelectInLive: () => void;
+}) {
+  const mode = layer?.mode ?? "always_on_top";
+  return (
+    <fieldset className="grid gap-3 rounded-md border p-3">
+      <legend className="px-1 text-sm font-medium">Layering</legend>
+      <Label>
+        Layer policy
+        <select
+          value={mode}
+          onChange={(event) => {
+            const next = event.target.value as ExperienceLayer["mode"];
+            if (next === "relative") {
+              if (layer?.mode !== "relative") onSelectInLive();
+            } else if (next === "auto") onChange({ mode: "auto" });
+            else if (next === "always_on_top")
+              onChange({ mode: "always_on_top" });
+            else
+              onChange({
+                mode: "custom",
+                zIndex: layer?.mode === "custom" ? layer.zIndex : 1000,
+              });
+          }}
+        >
+          <option value="auto">Automatic</option>
+          <option value="relative">Relative to an element</option>
+          <option value="always_on_top">Always on top</option>
+          <option value="custom">Advanced / Custom z-index</option>
+        </select>
+      </Label>
+      {mode === "auto" && (
+        <p className="text-sm text-muted-foreground">
+          Respect the application's UI layers.
+        </p>
+      )}
+      {mode === "always_on_top" && (
+        <p className="text-sm text-muted-foreground">
+          Keep this experience above normal application UI.
+          {!layer
+            ? " This is the compatibility setting for this existing draft."
+            : ""}
+        </p>
+      )}
+      {layer?.mode === "relative" && (
+        <>
+          <div className="rounded-md bg-muted/40 p-2 text-sm">
+            Selected: {layer.target.label ?? layer.target.primarySelector}
+          </div>
+          <Label>
+            Relationship
+            <select
+              value={layer.relation}
+              onChange={(event) =>
+                onChange({
+                  ...layer,
+                  relation: event.target.value as "above" | "below",
+                })
+              }
+            >
+              <option value="above">Above</option>
+              <option value="below">Below</option>
+            </select>
+          </Label>
+          <Button type="button" variant="outline" onClick={onSelectInLive}>
+            Select element from page
+          </Button>
+        </>
+      )}
+      {layer?.mode === "custom" && (
+        <Label>
+          Custom z-index
+          <Input
+            type="number"
+            min="1"
+            max="2147483647"
+            value={layer.zIndex}
+            onChange={(event) =>
+              onChange({ mode: "custom", zIndex: Number(event.target.value) })
+            }
+          />
+        </Label>
+      )}
+    </fieldset>
+  );
+}
+type AnchoredCardBehavior = Pick<
+  ExperienceBehavior,
+  "placement" | "alignment" | "offset" | "pointer"
+>;
+function AnchoredCardBehaviorEditor({
+  behavior,
+  onChange,
+}: {
+  behavior: AnchoredCardBehavior;
+  onChange: (change: (behavior: AnchoredCardBehavior) => void) => void;
+}) {
+  return (
+    <>
+      <Label>
+        Placement
+        <select
+          value={behavior.placement ?? "auto"}
+          onChange={(event) =>
+            onChange((value) => {
+              value.placement = event.target.value as NonNullable<
+                ExperienceBehavior["placement"]
+              >;
+            })
+          }
+        >
+          <option value="auto">Auto</option>
+          <option value="top">Top</option>
+          <option value="right">Right</option>
+          <option value="bottom">Bottom</option>
+          <option value="left">Left</option>
+        </select>
+      </Label>
+      <Label>
+        Alignment
+        <select
+          value={behavior.alignment ?? "center"}
+          onChange={(event) =>
+            onChange((value) => {
+              value.alignment = event.target.value as NonNullable<
+                ExperienceBehavior["alignment"]
+              >;
+            })
+          }
+        >
+          <option value="start">Start</option>
+          <option value="center">Center</option>
+          <option value="end">End</option>
+        </select>
+      </Label>
+      <Label>
+        Distance from target
+        <Input
+          type="number"
+          min="0"
+          max="100"
+          value={behavior.offset ?? 8}
+          onChange={(event) =>
+            onChange((value) => {
+              value.offset = Math.max(
+                0,
+                Math.min(100, Number(event.target.value)),
+              );
+            })
+          }
+        />
+      </Label>
+      <label className="flex gap-2">
+        <Switch
+          checked={behavior.pointer?.enabled ?? true}
+          onCheckedChange={(checked) =>
+            onChange((value) => {
+              value.pointer = { ...value.pointer, enabled: checked };
+            })
+          }
+        />
+        Show pointer
+      </label>
+      <Label>
+        Pointer size
+        <Input
+          type="number"
+          min="4"
+          max="30"
+          value={behavior.pointer?.size ?? 10}
+          disabled={behavior.pointer?.enabled === false}
+          onChange={(event) =>
+            onChange((value) => {
+              value.pointer = {
+                ...value.pointer,
+                size: Math.max(4, Math.min(30, Number(event.target.value))),
+              };
+            })
+          }
+        />
+      </Label>
+    </>
+  );
+}
+function WidgetBehaviorEditor({
+  type,
+  behavior,
+  layer,
+  onChange,
+  onLayerChange,
+  onSelectInLive,
+}: {
+  type: WidgetType;
+  behavior: ExperienceBehavior;
+  layer?: ExperienceLayer;
+  onChange: (change: (behavior: ExperienceBehavior) => void) => void;
+  onLayerChange?: (layer: ExperienceLayer) => void;
+  onSelectInLive: () => void;
+}) {
+  const targetRelative = type === "anchored_card" || type === "hotspot";
+  const overlay = type === "modal" || type === "survey" || type === "slideout";
+  return (
+    <>
+      <LayeringEditor
+        layer={layer ?? behavior.layer}
+        onChange={(nextLayer) =>
+          onLayerChange
+            ? onLayerChange(nextLayer)
+            : onChange((value) => {
+                value.layer = nextLayer;
+              })
+        }
+        onSelectInLive={onSelectInLive}
+      />
+      {type === "anchored_card" && (
+        <AnchoredCardBehaviorEditor
+          behavior={behavior}
+          onChange={(change) => onChange((value) => change(value))}
+        />
+      )}
+      {targetRelative && type !== "anchored_card" && (
+        <>
+          <Label>
+            Placement
+            <select
+              value={behavior.placement ?? "auto"}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.placement = event.target.value as NonNullable<
+                    ExperienceBehavior["placement"]
+                  >;
+                })
+              }
+            >
+              <option value="auto">Auto</option>
+              <option value="top">Top</option>
+              <option value="right">Right</option>
+              <option value="bottom">Bottom</option>
+              <option value="left">Left</option>
+            </select>
+          </Label>
+          <Label>
+            Distance from target
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              value={behavior.offset ?? 8}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.offset = Number(event.target.value);
+                })
+              }
+            />
+          </Label>
+        </>
+      )}
+      {type === "toast" && (
+        <>
+          <Label>
+            Position
+            <select
+              value={behavior.toastPosition ?? "bottom-right"}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.toastPosition = event.target.value as NonNullable<
+                    ExperienceBehavior["toastPosition"]
+                  >;
+                })
+              }
+            >
+              <option value="top-left">Top left</option>
+              <option value="top-right">Top right</option>
+              <option value="bottom-left">Bottom left</option>
+              <option value="bottom-right">Bottom right</option>
+            </select>
+          </Label>
+          <Label>
+            Auto-dismiss milliseconds (blank disables)
+            <Input
+              type="number"
+              min="500"
+              value={behavior.autoDismissMs ?? ""}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.autoDismissMs = event.target.value
+                    ? Number(event.target.value)
+                    : null;
+                })
+              }
+            />
+          </Label>
+        </>
+      )}
+      {type === "cursor_follow" && (
+        <div className="grid grid-cols-2 gap-3">
+          <Label>
+            Horizontal offset
+            <Input
+              type="number"
+              value={behavior.cursorOffset?.x ?? 16}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.cursorOffset = {
+                    x: Number(event.target.value),
+                    y: value.cursorOffset?.y ?? 16,
+                  };
+                })
+              }
+            />
+          </Label>
+          <Label>
+            Vertical offset
+            <Input
+              type="number"
+              value={behavior.cursorOffset?.y ?? 16}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.cursorOffset = {
+                    x: value.cursorOffset?.x ?? 16,
+                    y: Number(event.target.value),
+                  };
+                })
+              }
+            />
+          </Label>
+        </div>
+      )}
+      {(type === "modal" || type === "survey") && (
+        <Label>
+          Layout
+          <select
+            value={behavior.modalLayout ?? "center"}
+            onChange={(event) =>
+              onChange((value) => {
+                value.modalLayout = event.target.value as NonNullable<
+                  ExperienceBehavior["modalLayout"]
+                >;
+              })
+            }
+          >
+            <option value="center">Centered</option>
+            <option value="fullscreen">Fullscreen</option>
+          </select>
+        </Label>
+      )}
+      {type === "slideout" && (
+        <Label>
+          Edge position
+          <select
+            value={behavior.slideoutPosition ?? "bottom-right"}
+            onChange={(event) =>
+              onChange((value) => {
+                value.slideoutPosition = event.target.value as NonNullable<
+                  ExperienceBehavior["slideoutPosition"]
+                >;
+              })
+            }
+          >
+            <option value="top-left">Top left</option>
+            <option value="top-right">Top right</option>
+            <option value="center-left">Center left</option>
+            <option value="center-right">Center right</option>
+            <option value="bottom-left">Bottom left</option>
+            <option value="bottom-right">Bottom right</option>
+          </select>
+        </Label>
+      )}
+      {type === "banner" && (
+        <Label>
+          Banner position
+          <select
+            value={behavior.bannerPosition ?? "top"}
+            onChange={(event) =>
+              onChange((value) => {
+                value.bannerPosition = event.target.value as NonNullable<
+                  ExperienceBehavior["bannerPosition"]
+                >;
+              })
+            }
+          >
+            <option value="top">Top</option>
+            <option value="bottom">Bottom</option>
+          </select>
+        </Label>
+      )}
+      {overlay && (
+        <>
+          <label className="flex gap-2">
+            <Switch
+              checked={
+                behavior.backdrop ?? (type === "modal" || type === "survey")
+              }
+              onCheckedChange={(checked) =>
+                onChange((value) => {
+                  value.backdrop = checked;
+                })
+              }
+            />
+            Backdrop
+          </label>
+          {behavior.backdrop && (
+            <>
+              <Label>
+                Backdrop opacity
+                <Input
+                  type="number"
+                  min="0"
+                  max="0.9"
+                  step="0.05"
+                  value={
+                    behavior.backdropOpacity ??
+                    (type === "slideout" ? 0.35 : 0.45)
+                  }
+                  onChange={(event) =>
+                    onChange((value) => {
+                      value.backdropOpacity = Number(event.target.value);
+                    })
+                  }
+                />
+              </Label>
+              <label className="flex gap-2">
+                <Switch
+                  checked={behavior.closeOnBackdrop ?? false}
+                  onCheckedChange={(checked) =>
+                    onChange((value) => {
+                      value.closeOnBackdrop = checked;
+                    })
+                  }
+                />
+                Dismiss when backdrop is clicked
+              </label>
+            </>
+          )}
+        </>
+      )}
+      {type === "hotspot" && (
+        <>
+          <Label>
+            Beacon style
+            <select
+              value={behavior.hotspotStyle ?? "pulse"}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.hotspotStyle = event.target.value as NonNullable<
+                    ExperienceBehavior["hotspotStyle"]
+                  >;
+                })
+              }
+            >
+              <option value="pulse">Pulse</option>
+              <option value="dot">Dot</option>
+              <option value="question">Question mark</option>
+            </select>
+          </Label>
+          <Label>
+            Beacon color
+            <Input
+              type="color"
+              value={behavior.hotspotColor ?? "#2563eb"}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.hotspotColor = event.target.value;
+                })
+              }
+            />
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            Select the element that this passive beacon should highlight in the
+            live editor.
+          </p>
+        </>
+      )}
+      <label className="flex gap-2">
+        <Switch
+          checked={behavior.dismissible}
+          onCheckedChange={(checked) =>
+            onChange((value) => {
+              value.dismissible = checked;
+            })
+          }
+        />
+        Dismissible
+      </label>
+    </>
+  );
+}
+function AudienceTargeting({
+  audience,
+  segments,
+  onChange,
+}: {
+  audience: ExperienceDefinition["targeting"]["audience"];
+  segments: Segment[];
+  onChange: (audience: ExperienceDefinition["targeting"]["audience"]) => void;
+}) {
+  const rules =
+    audience.type === "segment_rules"
+      ? audience
+      : {
+          type: "segment_rules" as const,
+          logic: "all" as const,
+          conditions: [],
+        };
+  return (
+    <div className="grid gap-2 rounded-md border p-3">
+      <Label>
+        Who should see this?
+        <select
+          value={audience.type}
+          onChange={(event) =>
+            onChange(
+              event.target.value === "all"
+                ? { type: "all" }
+                : event.target.value === "segment"
+                  ? { type: "segment", segmentId: segments[0]?.id ?? "" }
+                  : rules,
+            )
+          }
+        >
+          <option value="all">Everyone</option>
+          <option value="segment">A saved Segment</option>
+          <option value="segment_rules">Combined Segment rules</option>
+        </select>
+      </Label>
+      {audience.type === "segment" && (
+        <Label>
+          Segment
+          <select
+            value={audience.segmentId}
+            onChange={(event) =>
+              onChange({ type: "segment", segmentId: event.target.value })
+            }
+          >
+            {segments.map((segment) => (
+              <option key={segment.id} value={segment.id}>
+                {segment.name}
+              </option>
+            ))}
+          </select>
+        </Label>
+      )}
+      {audience.type === "segment_rules" && (
+        <>
+          <Label>
+            Match
+            <select
+              value={audience.logic}
+              onChange={(event) =>
+                onChange({
+                  ...audience,
+                  logic: event.target.value as "all" | "any",
+                })
+              }
+            >
+              <option value="all">All rules</option>
+              <option value="any">Any rule</option>
+            </select>
+          </Label>
+          {audience.conditions.map((condition, index) => (
+            <div key={condition.id} className="flex gap-2">
+              <select
+                value={condition.operator}
+                onChange={(event) =>
+                  onChange({
+                    ...audience,
+                    conditions: audience.conditions.map((item, i) =>
+                      i === index
+                        ? {
+                            ...item,
+                            operator: event.target
+                              .value as typeof item.operator,
+                          }
+                        : item,
+                    ),
+                  })
+                }
+              >
+                <option value="matches">is in</option>
+                <option value="not_matches">is not in</option>
+              </select>
+              <select
+                value={condition.segmentId}
+                onChange={(event) =>
+                  onChange({
+                    ...audience,
+                    conditions: audience.conditions.map((item, i) =>
+                      i === index
+                        ? { ...item, segmentId: event.target.value }
+                        : item,
+                    ),
+                  })
+                }
+              >
+                {segments.map((segment) => (
+                  <option key={segment.id} value={segment.id}>
+                    {segment.name}
+                  </option>
+                ))}
+              </select>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  onChange({
+                    ...audience,
+                    conditions: audience.conditions.filter(
+                      (_, i) => i !== index,
+                    ),
+                  })
+                }
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!segments.length}
+            onClick={() =>
+              onChange({
+                ...audience,
+                conditions: [
+                  ...audience.conditions,
+                  {
+                    id: `aud_${Date.now()}`,
+                    segmentId: segments[0]?.id ?? "",
+                    operator: "matches",
+                  },
+                ],
+              })
+            }
+          >
+            Add Segment rule
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}
