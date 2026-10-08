@@ -77,4 +77,6 @@ Both packages are private workspace dependencies and are not published to npm.
 
 For the dashboard Cloudflare project, use the repository root as the build context, `npm run build:dashboard` as the build command, and `apps/dashboard/dist` as the output directory.
 
+Configure `VITE_API_URL` as a Cloudflare Pages build-time variable for the Production environment (for example, `https://api.movcues.com`). Vite embeds `VITE_*` values into the static dashboard bundle during the build, so changing the variable requires a new deployment. Local `.env` files are intentionally ignored and must not be committed.
+
 For the public website Cloudflare project, use the same repository root, `npm run build:website`, and `apps/website/dist`. The website is a static Astro build and is deployed separately from the dashboard.

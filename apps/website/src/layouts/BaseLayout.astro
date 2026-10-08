@@ -24,6 +24,26 @@ interface Props {
       gtag('js', new Date());
 
       gtag('config', 'G-2KM8ZQB6G1');
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const link = target.closest('a');
+        if (!link) return;
+
+        const href = link.href;
+        const eventName = href.startsWith('https://dash.movcues.com/login')
+          ? 'login_click'
+          : href.startsWith('https://dash.movcues.com/signup')
+            ? 'get_started_click'
+            : null;
+        if (!eventName) return;
+
+        gtag('event', eventName, {
+          link_text: link.textContent?.trim() || undefined,
+          link_url: href,
+        });
+      });
     </script>
     <slot name="head" />
   </head>

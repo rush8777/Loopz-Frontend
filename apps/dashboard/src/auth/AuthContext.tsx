@@ -3,6 +3,7 @@ import * as authApi from "../api/auth";
 import * as teamApi from "../api/team";
 import { setAccessToken, setRefreshToken, ApiError } from "../api/client";
 import type { User } from "../types/api";
+import { trackEvent } from "../lib/analytics";
 
 interface AuthContextValue {
   user: User | null;
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(res.accessToken);
     setRefreshToken(res.refreshToken);
     setUser(res.user);
+    trackEvent("login", { method: "password" });
   }, []);
 
   const signup = useCallback(async (input: { email: string; password: string; name?: string }) => {
@@ -58,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(res.accessToken);
     setRefreshToken(res.refreshToken);
     setUser(res.user);
+    trackEvent("login", { method: "google" });
   }, []);
 
   const signupFromInvitation = useCallback(async (token: string, input: { name: string; password: string }) => {
@@ -73,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
+    trackEvent("logout");
     if (token) {
       try {
         await authApi.logout(token);
