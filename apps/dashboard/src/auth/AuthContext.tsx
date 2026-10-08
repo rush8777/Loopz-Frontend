@@ -9,8 +9,8 @@ interface AuthContextValue {
   /** True only during the initial silent-refresh bootstrap on page load - not for subsequent actions. */
   bootstrapping: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (input: { email: string; password: string; orgName: string; name?: string }) => Promise<void>;
-  googleLogin: (credential: string, orgName?: string) => Promise<void>;
+  signup: (input: { email: string; password: string; name?: string }) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
   signupFromInvitation: (token: string, input: { name: string; password: string }) => Promise<{ orgId: string }>;
   logout: () => Promise<void>;
 }
@@ -46,15 +46,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }, []);
 
-  const signup = useCallback(async (input: { email: string; password: string; orgName: string; name?: string }) => {
+  const signup = useCallback(async (input: { email: string; password: string; name?: string }) => {
     const res = await authApi.signup(input);
     setAccessToken(res.accessToken);
     setRefreshToken(res.refreshToken);
     setUser(res.user);
   }, []);
 
-  const googleLogin = useCallback(async (credential: string, orgName?: string) => {
-    const res = await authApi.googleLogin(credential, orgName);
+  const googleLogin = useCallback(async (credential: string) => {
+    const res = await authApi.googleLogin(credential);
     setAccessToken(res.accessToken);
     setRefreshToken(res.refreshToken);
     setUser(res.user);

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "../../api/client";
@@ -43,24 +43,19 @@ describe("Google authentication pages", () => {
     expect(googleLogin).toHaveBeenCalledWith("google-credential");
   });
 
-  it("shows the signup path without authenticating a new Google user on login", async () => {
-    googleLogin.mockRejectedValue(new ApiError(409, { error: "google_signup_required" }));
+  it("shows a Google verification error without changing the login route", async () => {
+    googleLogin.mockRejectedValue(new ApiError(401, { error: "invalid_google_credential" }));
     render(<MemoryRouter><LoginPage /></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
-    expect(await screen.findByText("No movcues account exists for this Google account yet.")).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Create an account" }).some((link) => link.getAttribute("href") === "/signup")).toBe(true);
+    expect(await screen.findByText("Google sign-in couldn't be verified. Please try again.")).toBeInTheDocument();
     expect(googleLogin).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps the credential in component state and completes Google signup with the organization name", async () => {
-    googleLogin.mockRejectedValueOnce(new ApiError(409, { error: "google_signup_required" })).mockResolvedValueOnce(undefined);
+  it("continues directly after Google account creation", async () => {
+    googleLogin.mockResolvedValueOnce(undefined);
     render(<MemoryRouter initialEntries={["/signup"]}><Routes><Route path="/signup" element={<SignupPage />} /><Route path="/" element={<p>Dashboard destination</p>} /></Routes></MemoryRouter>);
     fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
-    expect(await screen.findByText("Enter an organization name to finish creating your workspace.")).toBeInTheDocument();
-    expect(googleLogin).toHaveBeenNthCalledWith(1, "google-credential");
-    fireEvent.change(screen.getByLabelText("Organization name"), { target: { value: "Acme" } });
-    fireEvent.click(screen.getByRole("button", { name: "Create workspace with Google" }));
-    await waitFor(() => expect(googleLogin).toHaveBeenNthCalledWith(2, "google-credential", "Acme"));
+    expect(googleLogin).toHaveBeenCalledWith("google-credential");
     expect(await screen.findByText("Dashboard destination")).toBeInTheDocument();
   });
 });

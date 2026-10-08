@@ -1,9 +1,9 @@
 import { useCallback, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Alert, Button, Input, Label } from "@movcues/ui";
 import { ApiError } from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
-import { GoogleAuthButton, isGoogleAuthConfigured } from "../../components/auth/GoogleAuthButton";
+import { GoogleAuthButton } from "../../components/auth/GoogleAuthButton";
 import { AuthLayout } from "./AuthLayout";
 
 const fieldClass = "h-12 rounded-xl border-border bg-input px-4 text-[14px] shadow-none placeholder:text-muted-foreground focus-visible:ring-primary/20";
@@ -15,7 +15,7 @@ function apiErrorCode(error: unknown) {
 }
 
 export function LoginPage() {
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, user, bootstrapping } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const returnTo = (location.state as { returnTo?: string } | null)?.returnTo;
@@ -64,13 +64,18 @@ export function LoginPage() {
 
   const onGoogleError = useCallback((message: string) => setError(message), []);
 
-  return <AuthLayout mode="login" title="Welcome back" subtitle="Enter your details to access your workspace." footer={<p className="mt-7 mb-0 text-[14px] text-muted-foreground">{returnTo ? <Link to={returnTo} className="font-semibold text-primary underline decoration-primary/45 decoration-2 underline-offset-4 hover:text-[var(--primary-hover)]">Return to invitation</Link> : <>New to movcues? <Link to="/signup" className="font-semibold text-primary underline decoration-primary/45 decoration-2 underline-offset-4 hover:text-[var(--primary-hover)]">Create an account</Link></>}</p>}>
-    {isGoogleAuthConfigured && <><GoogleAuthButton onCredential={onGoogleCredential} onError={onGoogleError} disabled={submitting} /><div className="my-6 flex items-center gap-3 text-xs text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">or continue with email</div></>}
+  // Keep every hook above this guard. `bootstrapping` flips after the first
+  // render, so returning before the callbacks would change the hook order.
+  if (bootstrapping) return null;
+  if (user) return <Navigate to={returnTo ?? "/"} replace />;
+
+  return <AuthLayout mode="login" title="Welcome back" subtitle="Enter your details to access your workspace." footer={<p className="mt-7 mb-0 text-[14px] text-muted-foreground">{returnTo && <><Link to={returnTo} className="font-semibold text-primary underline decoration-primary/45 decoration-2 underline-offset-4 hover:text-[var(--primary-hover)]">Return to billing</Link><span className="mx-2 text-border">·</span></>}New to movcues? <Link to="/signup" state={{ returnTo }} className="font-semibold text-primary underline decoration-primary/45 decoration-2 underline-offset-4 hover:text-[var(--primary-hover)]">Create an account</Link></p>}>
+    <><GoogleAuthButton onCredential={onGoogleCredential} onError={onGoogleError} disabled={submitting} /><div className="my-6 flex items-center gap-3 text-xs text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">or continue with email</div></>
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
       <div className="grid gap-1.5"><Label htmlFor="email" className="text-[13px] font-medium text-foreground">Email address</Label><Input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@company.com" className={fieldClass} /></div>
       <div className="grid gap-1.5"><Label htmlFor="password" className="text-[13px] font-medium text-foreground">Password</Label><Input id="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••••" className={fieldClass} /></div>
       {error && <Alert className="border-destructive/25 bg-red-50 text-destructive">{error}</Alert>}
-      {showSignupLink && <Button asChild variant="outline" className="h-11 w-full"><Link to="/signup">Create an account</Link></Button>}
+      {showSignupLink && <Button asChild variant="outline" className="h-11 w-full"><Link to="/signup" state={{ returnTo }}>Create an account</Link></Button>}
       <Button type="submit" className="mt-2 h-12 w-full rounded-xl border-0 bg-primary text-[14px] font-semibold text-primary-foreground shadow-none hover:bg-[var(--primary-hover)]" disabled={submitting}>{submitting ? "Signing in…" : "Sign in"}</Button>
     </form>
   </AuthLayout>;

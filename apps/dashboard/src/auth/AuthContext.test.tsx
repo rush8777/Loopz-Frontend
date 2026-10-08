@@ -12,7 +12,7 @@ vi.mock("../api/client", async (importOriginal) => {
 
 function Consumer() {
   const { user, googleLogin } = useAuth();
-  return <><span>{user?.email ?? "signed out"}</span><button onClick={() => void googleLogin("credential", "Acme").catch(() => undefined)}>Google</button></>;
+  return <><span>{user?.email ?? "signed out"}</span><button onClick={() => void googleLogin("credential").catch(() => undefined)}>Google</button></>;
 }
 
 describe("AuthContext Google session", () => {
@@ -30,13 +30,13 @@ describe("AuthContext Google session", () => {
     render(<AuthProvider><Consumer /></AuthProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Google" }));
     expect(await screen.findByText("person@example.com")).toBeInTheDocument();
-    expect(authApi.googleLogin).toHaveBeenCalledWith("credential", "Acme");
+    expect(authApi.googleLogin).toHaveBeenCalledWith("credential");
     expect(client.setAccessToken).toHaveBeenCalledWith("access");
     expect(client.setRefreshToken).toHaveBeenCalledWith("refresh");
   });
 
-  it("does not authenticate when Google signup is required", async () => {
-    vi.mocked(authApi.googleLogin).mockRejectedValue(new client.ApiError(409, { error: "google_signup_required" }));
+  it("does not authenticate when Google verification fails", async () => {
+    vi.mocked(authApi.googleLogin).mockRejectedValue(new client.ApiError(401, { error: "invalid_google_credential" }));
     render(<AuthProvider><Consumer /></AuthProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Google" }));
     await waitFor(() => expect(authApi.googleLogin).toHaveBeenCalled());

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { getGoogleClientConfig } from "../../api/auth";
 
 const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim();
-export const isGoogleAuthConfigured = Boolean(googleClientId);
+const buildTimeGoogleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() || null;
 
 let scriptPromise: Promise<void> | null = null;
 let initializedClientId: string | null = null;
@@ -52,10 +52,25 @@ export function GoogleAuthButton({
   disabled?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(true);
+  const [clientId, setClientId] = useState<string | null>(buildTimeGoogleClientId);
+  const [loading, setLoading] = useState(Boolean(buildTimeGoogleClientId));
 
   useEffect(() => {
-    if (!googleClientId) return;
+    if (clientId) return;
+    let active = true;
+    void getGoogleClientConfig()
+      .then((config) => {
+        if (!active) return;
+        const configuredId = config.clientId?.trim() || null;
+        setClientId(configuredId);
+        setLoading(Boolean(configuredId));
+      })
+      .catch(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [clientId]);
+
+  useEffect(() => {
+    if (!clientId) return;
     let active = true;
     const listener = (credential: string) => {
       if (active && !disabled) void onCredential(credential);
@@ -64,7 +79,7 @@ export function GoogleAuthButton({
     void loadGoogleIdentityServices()
       .then(() => {
         if (!active || !containerRef.current) return;
-        initializeGoogle(googleClientId);
+        initializeGoogle(clientId);
         const width = Math.max(200, Math.min(400, Math.floor(containerRef.current.getBoundingClientRect().width || 400)));
         containerRef.current.replaceChildren();
         window.google!.accounts.id.renderButton(containerRef.current, {
@@ -88,9 +103,9 @@ export function GoogleAuthButton({
       credentialListeners.delete(listener);
       containerRef.current?.replaceChildren();
     };
-  }, [disabled, onCredential, onError]);
+  }, [clientId, disabled, onCredential, onError]);
 
-  if (!googleClientId) return null;
+  if (!clientId && !loading) return null;
   return (
     <div className={disabled ? "pointer-events-none opacity-60" : undefined} aria-busy={loading}>
       <div ref={containerRef} className="min-h-11 w-full overflow-hidden rounded-lg" />

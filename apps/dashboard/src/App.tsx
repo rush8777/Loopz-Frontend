@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import { WorkspaceProvider } from "./auth/WorkspaceContext";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
+import { OnboardingGate } from "./auth/OnboardingGate";
 import { AppShell } from "./components/AppShell";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { SignupPage } from "./pages/auth/SignupPage";
@@ -35,6 +36,8 @@ import { DashboardWorkspacePage } from "./pages/dashboard/DashboardWorkspacePage
 import { ExperienceAnalyticsPage } from "./pages/analytics/ExperienceAnalyticsPage";
 import { InvitationPage } from "./pages/auth/InvitationPage";
 import { UpgradeNowProvider } from "./components/billing/UpgradeNowModal";
+import { BillingPage } from "./pages/billing/BillingPage";
+import { OnboardingPage } from "./pages/auth/OnboardingPage";
 
 export default function App() {
   return (
@@ -48,12 +51,15 @@ export default function App() {
           <Route path="/invite/:token" element={<InvitationPage />} />
 
           <Route element={<ProtectedRoute />}>
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route element={<OnboardingGate />}>
             <Route
               element={
                 <AppShell />
               }
             >
               <Route index element={<Navigate to="/analytics" replace />} />
+              <Route path="billing" element={<BillingPage />} />
               <Route path="dashboard" element={<DashboardListPage />} />
               <Route path="dashboard/new" element={<DashboardWorkspacePage mode="new" />} />
               <Route path="dashboard/:dashboardId" element={<DashboardWorkspacePage mode="view" />} />
@@ -100,6 +106,7 @@ export default function App() {
               <Route path="experiences/:experienceId/results" element={<SurveyResultsPage tab="overview" />} />
               <Route path="experiences/:experienceId/results/responses" element={<SurveyResultsPage tab="responses" />} />
               <Route path="experiences/:experienceId/results/investigate" element={<SurveyResultsPage tab="investigate" />} />
+            </Route>
             </Route>
           </Route>
 

@@ -10,7 +10,7 @@ const labels = {
   funnels: "Funnels", publishedExperiences: "Published experiences",
 } as const;
 
-export function PlanUsageSettings() {
+export function PlanUsageSettings({ preferredPlan }: { preferredPlan?: "starter" | "growth" | "scale" }) {
   const { currentOrg } = useWorkspace(); const [data, setData] = useState<PlanUsage | null>(null);
   const [error, setError] = useState(false); const [actionError, setActionError] = useState<string | null>(null); const [working, setWorking] = useState<string | null>(null);
   useEffect(() => {
@@ -47,7 +47,7 @@ export function PlanUsageSettings() {
       {data.billingConfigured && (currentOrg?.role === "OWNER" || currentOrg?.role === "ADMIN") && <SettingsGroup title="Billing">
         <div className="flex flex-wrap gap-2 p-3.5">
           {data.subscription.status === "trialing" || data.subscription.status === "expired" || data.subscription.status === "canceled"
-            ? (["starter", "growth", "scale"] as const).map(planId => <Button key={planId} type="button" variant={data.subscription.planId === planId ? "outline" : "default"} size="sm" disabled={working !== null} onClick={() => void checkout(planId)}>{working === planId ? "Opening…" : `Choose ${planId[0].toUpperCase() + planId.slice(1)}`}</Button>)
+            ? (["starter", "growth", "scale"] as const).map(planId => <Button key={planId} type="button" variant={preferredPlan === planId || (!preferredPlan && data.subscription.planId === planId) ? "outline" : "default"} size="sm" disabled={working !== null} onClick={() => void checkout(planId)}>{working === planId ? "Opening…" : `Choose ${planId[0].toUpperCase() + planId.slice(1)}`}</Button>)
             : <Button type="button" variant="outline" size="sm" disabled={working !== null} onClick={() => void portal()}>{working === "portal" ? "Opening…" : "Manage billing"}</Button>}
         </div>
       </SettingsGroup>}
