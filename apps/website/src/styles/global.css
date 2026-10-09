@@ -162,6 +162,8 @@ button:focus-visible {
   background: var(--surface-hover);
   color: var(--foreground);
 }
+.waitlist-nav-button { cursor: pointer; font: inherit; }
+.login-link.waitlist-nav-button { border: 0; background: transparent; }
 
 .nav-actions {
   display: flex;
@@ -1843,9 +1845,11 @@ body.waitlist-open { overflow: hidden; }
   .menu-open .mobile-menu-button span:last-child { transform: translateY(-3px) rotate(-45deg); }
   .mobile-nav { margin-top: .55rem; padding: .65rem; display: grid; gap: .25rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-overlay); box-shadow: 0 12px 26px rgba(32,32,32,.08); }
   .mobile-nav[hidden] { display: none; }
-  .mobile-nav a { min-height: 2.75rem; padding: .6rem .7rem; display: flex; align-items: center; border-radius: .5rem; color: var(--text-secondary); font-size: .9rem; }
-  .mobile-nav a:hover { background: var(--muted); color: var(--foreground); }
-  .mobile-nav .mobile-primary-link { margin-top: .35rem; justify-content: center; background: var(--foreground); color: white; }
+  .mobile-nav a,
+  .mobile-nav button { min-height: 2.75rem; padding: .6rem .7rem; display: flex; align-items: center; border: 0; border-radius: .5rem; background: transparent; color: var(--text-secondary); cursor: pointer; font: inherit; font-size: .9rem; text-align: left; }
+  .mobile-nav a:hover,
+  .mobile-nav button:hover { background: var(--muted); color: var(--foreground); }
+  .mobile-nav .mobile-primary-link { margin-top: .35rem; justify-content: center; background: var(--foreground); color: white; text-align: center; }
   .hero-section { padding-top: 4.5rem; }
   .hero-section::before,
   .hero-section::after { inset: -4rem 0 0; }

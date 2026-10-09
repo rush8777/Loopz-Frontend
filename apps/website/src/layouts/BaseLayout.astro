@@ -1,5 +1,6 @@
 ---
 import SeoHead from "../components/layout/SeoHead.astro";
+import WaitlistModal from "../components/marketing/WaitlistModal.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -50,5 +51,6 @@ interface Props {
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <slot />
+    <WaitlistModal />
   </body>
 </html>
