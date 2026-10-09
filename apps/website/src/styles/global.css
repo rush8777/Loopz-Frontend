@@ -345,6 +345,28 @@ button:focus-visible {
   background: #f8f8f8 !important;
 }
 
+.waitlist-trigger { cursor: pointer; font-family: inherit; }
+.waitlist-modal[hidden] { display: none; }
+.waitlist-modal { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 1rem; }
+.waitlist-backdrop { position: absolute; inset: 0; background: rgba(22, 22, 24, .5); backdrop-filter: blur(4px); }
+.waitlist-dialog { position: relative; width: min(100%, 27rem); max-height: calc(100vh - 2rem); overflow: auto; padding: clamp(1.5rem, 4vw, 2.25rem); border: 1px solid rgba(32, 32, 32, .13); border-radius: 1rem; background: #fcfcfc; box-shadow: 0 24px 70px rgba(20, 20, 24, .24); }
+.waitlist-close { position: absolute; top: .75rem; right: .75rem; width: 2rem; height: 2rem; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 1.6rem; line-height: 1; }
+.waitlist-close:hover { background: var(--surface-hover); color: var(--foreground); }
+.waitlist-eyebrow { margin: 0; color: var(--primary); font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.waitlist-dialog h2 { max-width: 20rem; margin: .65rem 0 0; font-size: clamp(1.7rem, 5vw, 2.2rem); font-weight: 500; letter-spacing: -.055em; line-height: 1; }
+.waitlist-dialog > p:not(.waitlist-eyebrow) { margin: .85rem 0 0; color: var(--text-secondary); font-size: .9rem; line-height: 1.55; }
+.waitlist-form { margin-top: 1.35rem; display: grid; gap: .9rem; }
+.waitlist-form label { display: grid; gap: .38rem; color: var(--foreground); font-size: .78rem; font-weight: 650; }
+.waitlist-form label span em { color: var(--text-muted); font-style: normal; font-weight: 400; }
+.waitlist-form input { width: 100%; min-height: 2.85rem; padding: .65rem .75rem; border: 1px solid var(--border-strong); border-radius: .55rem; background: white; color: var(--foreground); font: inherit; font-size: .9rem; }
+.waitlist-form input:focus { border-color: var(--primary); outline: 3px solid color-mix(in srgb, var(--primary) 18%, transparent); outline-offset: 0; }
+.waitlist-status { min-height: 1.25rem; margin: -.2rem 0 0; color: var(--text-secondary); font-size: .78rem; line-height: 1.4; }
+.waitlist-submit { min-height: 2.9rem; border: 1px solid #202020; border-radius: .6rem; background: #202020; color: white; cursor: pointer; font: inherit; font-size: .85rem; font-weight: 650; transition: background 150ms var(--ease), opacity 150ms var(--ease); }
+.waitlist-submit:hover:not(:disabled) { background: #353535; }
+.waitlist-submit:disabled { cursor: wait; opacity: .72; }
+.waitlist-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+body.waitlist-open { overflow: hidden; }
+
 .hero-product {
   width: min(1560px, 100%);
   margin-inline: auto;

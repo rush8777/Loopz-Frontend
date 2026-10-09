@@ -1,6 +1,4 @@
 ---
-import { DASHBOARD_URLS } from "../../config/site";
-import { LinkButton } from "../react/LinkButton";
 import ProductOverview from "../product/ProductOverview.astro";
 ---
 
@@ -9,8 +7,8 @@ import ProductOverview from "../product/ProductOverview.astro";
     <h1>Turn user behavior<br />    into action.</h1>
     <div class="hero-bottom-row">
       <div class="hero-actions">
-        <LinkButton href={DASHBOARD_URLS.signup} label="Get started free" size="lg" className="hero-primary" />
-        <LinkButton href="#product" label="Explore the product" variant="outline" size="lg" className="hero-secondary" />
+        <button class="hero-primary waitlist-trigger" type="button" data-waitlist-open>Join waitlist</button>
+        <a href="#product" class="hero-secondary">Explore the product</a>
       </div>
       <p class="hero-description">
         Movcues shows where users struggle and helps you act with targeted in-app experiences that drive adoption and growth.
@@ -22,3 +20,107 @@ import ProductOverview from "../product/ProductOverview.astro";
     <ProductOverview />
   </div>
 </section>
+
+<div class="waitlist-modal" data-waitlist-modal hidden>
+  <div class="waitlist-backdrop" data-waitlist-close></div>
+  <section class="waitlist-dialog" role="dialog" aria-modal="true" aria-labelledby="waitlist-title" aria-describedby="waitlist-description" tabindex="-1">
+    <button class="waitlist-close" type="button" aria-label="Close waitlist form" data-waitlist-close>×</button>
+    <p class="waitlist-eyebrow">Early access</p>
+    <h2 id="waitlist-title">Join the Movcues waitlist</h2>
+    <p id="waitlist-description">Be among the first to hear when we open up.</p>
+    <form class="waitlist-form" data-waitlist-form novalidate>
+      <label>
+        <span>Name <em>(optional)</em></span>
+        <input name="name" type="text" autocomplete="name" maxlength="100" />
+      </label>
+      <label>
+        <span>Email</span>
+        <input name="email" type="email" autocomplete="email" inputmode="email" maxlength="254" required aria-describedby="waitlist-status" />
+      </label>
+      <div class="waitlist-honeypot" aria-hidden="true">
+        <label>Website <input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
+      </div>
+      <p class="waitlist-status" id="waitlist-status" aria-live="polite"></p>
+      <button class="waitlist-submit" type="submit">Join waitlist</button>
+    </form>
+  </section>
+</div>
+
+<script>
+  const modal = document.querySelector<HTMLElement>("[data-waitlist-modal]");
+  const form = modal?.querySelector<HTMLFormElement>("[data-waitlist-form]");
+  const email = form?.elements.namedItem("email") as HTMLInputElement | null;
+  const status = form?.querySelector<HTMLElement>("[data-waitlist-status]");
+  const submit = form?.querySelector<HTMLButtonElement>("[type=submit]");
+  const dialog = modal?.querySelector<HTMLElement>("[role=dialog]");
+  let opener: HTMLElement | null = null;
+  let openedAt = 0;
+
+  const closeModal = () => {
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    document.body.classList.remove("waitlist-open");
+    opener?.focus();
+  };
+
+  const openModal = (trigger: HTMLElement) => {
+    if (!modal || !form) return;
+    opener = trigger;
+    openedAt = Date.now();
+    form.reset();
+    if (status) status.textContent = "";
+    if (submit) {
+      submit.disabled = false;
+      submit.textContent = "Join waitlist";
+    }
+    modal.hidden = false;
+    document.body.classList.add("waitlist-open");
+    window.setTimeout(() => email?.focus(), 0);
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-waitlist-open]").forEach((trigger) => {
+    trigger.addEventListener("click", () => openModal(trigger));
+  });
+  modal?.querySelectorAll<HTMLElement>("[data-waitlist-close]").forEach((trigger) => trigger.addEventListener("click", closeModal));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeModal();
+    if (event.key === "Tab" && !modal?.hidden && dialog) {
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled])"));
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+  });
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!email || !status || !submit) return;
+    const emailValue = email.value.trim();
+    if (!emailValue || !email.validity.valid) {
+      status.textContent = "Enter a valid email address.";
+      email.focus();
+      return;
+    }
+    const data = new FormData(form);
+    submit.disabled = true;
+    submit.textContent = "Joining…";
+    status.textContent = "";
+    try {
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: data.get("name"), email: emailValue, website: data.get("website"), elapsedMs: Date.now() - openedAt }),
+      });
+      const result = await response.json().catch(() => null) as { message?: string } | null;
+      if (!response.ok) throw new Error(result?.message || "We couldn’t join you right now. Please try again.");
+      status.textContent = result?.message || "You’re on the list — thank you!";
+      form.reset();
+      submit.textContent = "You’re on the list";
+    } catch (error) {
+      status.textContent = error instanceof Error ? error.message : "We couldn’t join you right now. Please try again.";
+      submit.disabled = false;
+      submit.textContent = "Join waitlist";
+    }
+  });
+</script>
