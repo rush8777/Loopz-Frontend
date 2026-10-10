@@ -2,10 +2,19 @@
 import HeroStoryDemo from "../react/HeroStoryDemo";
 ---
 
-<div class="overview-stage hero-story-stage">
+<figure class="overview-stage hero-story-stage" aria-label="How Movcues turns user behavior into contextual onboarding">
   <HeroStoryDemo client:visible />
-</div>
+  <figcaption class="story-caption">
+    <strong>One workflow, from insight to action.</strong>
+    Find onboarding drop-offs with <a href="/product/analytics">behavior analytics</a>,
+    segment users by their actions, deliver <a href="/product/experiences">contextual experiences</a>,
+    and evaluate completion to decide what to improve next.
+  </figcaption>
+</figure>
 
 <style>
-  .hero-story-stage { display: block; min-height: 0; padding: clamp(.6rem, 1.8vw, 1.6rem); }
+  .hero-story-stage { display: block; min-height: 0; margin: 0; padding: clamp(.6rem, 1.8vw, 1.6rem); }
+  .story-caption { max-width: 730px; margin: 20px auto 4px; color: #65738c; font-size: 13px; line-height: 1.8; text-align: center; }
+  .story-caption strong { display: block; color: #273652; font-size: 15px; font-weight: 550; margin-bottom: 4px; }
+  .story-caption a { color: #3156c8; text-decoration: underline; text-underline-offset: 3px; }
 </style>
