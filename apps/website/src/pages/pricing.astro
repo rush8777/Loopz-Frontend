@@ -3,33 +3,9 @@ import MarketingLayout from "../components/marketing/MarketingLayout.astro";
 import PageHero from "../components/marketing/PageHero.astro";
 import BottomCta from "../components/marketing/BottomCta.astro";
 import { DASHBOARD_URLS } from "../config/site";
+import { PRICING_PLANS } from "../config/pricing";
 
-const plans = [
-  {
-    name: "Starter",
-    price: "$49",
-    featured: false,
-    description: "For small teams building their first connected product journey.",
-    limits: ["5,000 monthly active users", "1 site", "3 team members", "5 published experiences"],
-    features: ["Product analytics and funnels", "Basic segments and targeting", "Guides, surveys, checklists, and widgets", "Page-load triggers and experience analytics"],
-  },
-  {
-    name: "Growth",
-    price: "$129",
-    featured: true,
-    description: "For teams that need precise targeting, timing, and orchestration.",
-    limits: ["15,000 monthly active users", "3 sites", "10 team members", "25 published experiences"],
-    features: ["Everything in Starter", "Combined audiences and exclusions", "Custom-event triggers and scheduling", "Advanced frequency, progression, and priority controls"],
-  },
-  {
-    name: "Scale",
-    price: "$299",
-    featured: false,
-    description: "For larger product teams running more programs across more sites.",
-    limits: ["50,000 monthly active users", "10 sites", "30 team members", "100 published experiences"],
-    features: ["Everything in Growth", "30 dashboards", "200 segments", "50 funnels"],
-  },
-] as const;
+const plans = PRICING_PLANS;
 
 const comparisonRows = [
   { label: "Monthly active users", values: ["5,000", "15,000", "50,000"] },
@@ -66,7 +42,7 @@ const faqs = [
       <p>MAU is a soft allowance. Crossing it never stops data collection or interrupts experiences already running.</p>
     </div>
     <div class="pricing-grid">
-      {plans.map(plan => <article class:list={["pricing-card", plan.featured && "is-featured"]} data-reveal>
+      {plans.map(plan => <article id={plan.name.toLowerCase()} class:list={["pricing-card", plan.featured && "is-featured"]} data-reveal>
         {plan.featured && <p class="pricing-badge">14-day trial plan</p>}
         <h3>{plan.name}</h3>
         <p class="pricing-description">{plan.description}</p>
