@@ -1,0 +1,24 @@
+{
+  "name": "@movcues/hero-film",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "devDependencies": {
+    "@remotion/bundler": "4.0.534",
+    "@remotion/cli": "4.0.534",
+    "@remotion/renderer": "4.0.534",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.17",
+    "lucide-react": "1.33.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "remotion": "4.0.534",
+    "typescript": "~6.0.2",
+    "zod": "4.5.4"
+  },
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "render": "node scripts/render.mjs"
+  }
+}

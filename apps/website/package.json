@@ -16,8 +16,6 @@
     "@movcues/ui": "*",
     "astro": "^6.0.0",
     "lucide-astro": "^0.556.0",
-    "lucide-react": "^1.55.0",
-    "motion": "^14.1.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
