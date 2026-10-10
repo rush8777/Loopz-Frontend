@@ -37,6 +37,7 @@ import { ExperienceAnalyticsPage } from "./pages/analytics/ExperienceAnalyticsPa
 import { InvitationPage } from "./pages/auth/InvitationPage";
 import { UpgradeNowProvider } from "./components/billing/UpgradeNowModal";
 import { BillingPage } from "./pages/billing/BillingPage";
+import { CheckoutPage } from "./pages/billing/CheckoutPage";
 import { OnboardingPage } from "./pages/auth/OnboardingPage";
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
         <WorkspaceProvider>
           <UpgradeNowProvider>
           <Routes>
+          <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/invite/:token" element={<InvitationPage />} />
