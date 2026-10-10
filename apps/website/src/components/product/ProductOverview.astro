@@ -1,13 +1,11 @@
-<div class="overview-stage">
-  <div class="overview-glow overview-glow-one"></div>
-  <div class="overview-glow overview-glow-two"></div>
-  <div class="product-window overview-window">
-    <img
-      class="hero-card-image"
-      src="/images/hero-card-img.png"
-      alt="Movcues product experience dashboard with guides, surveys, and analytics"
-      loading="eager"
-      decoding="async"
-    />
-  </div>
+---
+import HeroStoryDemo from "../react/HeroStoryDemo";
+---
+
+<div class="overview-stage hero-story-stage">
+  <HeroStoryDemo client:visible />
 </div>
+
+<style>
+  .hero-story-stage { display: block; min-height: 0; padding: clamp(.6rem, 1.8vw, 1.6rem); }
+</style>
