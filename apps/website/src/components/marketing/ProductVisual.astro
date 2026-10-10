@@ -1,7 +1,7 @@
 ---
 import { DASHBOARD_URLS } from "../../config/site";
-interface Props { variant?: string; caption?: string; video?: string }
-const { variant = "platform", caption, video } = Astro.props;
+interface Props { variant?: string; caption?: string; video?: string; illustration?: boolean }
+const { variant = "platform", caption, video, illustration = false } = Astro.props;
 const labels: Record<string, { eyebrow: string; title: string }> = {
   platform: { eyebrow: "Workspace overview", title: "Product workflow" }, analytics: { eyebrow: "Funnel analysis", title: "Activation journey" }, experiences: { eyebrow: "Experience builder", title: "Guidance draft" }, targeting: { eyebrow: "Dynamic segment", title: "Setup progress" }, onboarding: { eyebrow: "Activation journey", title: "First value" }, adoption: { eyebrow: "Feature adoption", title: "Feature discovery" }, funnel: { eyebrow: "Funnel recovery", title: "Continue setup" }, survey: { eyebrow: "Survey results", title: "Contextual feedback" }, resources: { eyebrow: "Movcues resources", title: "Practical product notes" }, pricing: { eyebrow: "A plan that fits", title: "Start with your product journey" },
 };
@@ -13,6 +13,14 @@ const meta = labels[variant] ?? labels.platform;
     <video class="marketing-video" autoplay muted loop playsinline preload="metadata">
       <source src={video} type="video/mp4" />
     </video>
+  </div>
+) : illustration ? (
+  <div class:list={["marketing-visual", "is-illustration", `is-${variant}`]} role="img" aria-label={`${meta.title} illustration`}>
+    {(variant === "analytics" || variant === "funnel") && <div class="illustration-funnel"><p>Activation path</p><div class="illustration-funnel-bars"><i></i><i></i><i></i><i></i></div><div class="illustration-funnel-labels"><span>Join</span><span>Set up</span><span>Invite</span><span>Value</span></div><b>Find the moment to help</b></div>}
+    {variant === "targeting" && <div class="illustration-audience"><p>Reach the right people</p><div class="illustration-people"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="illustration-rule"><span>Matches your segment</span><b>1,248 people</b></div></div>}
+    {(variant === "experiences" || variant === "adoption" || variant === "onboarding") && <div class="illustration-guide"><div class="illustration-guide-window"><small>New feature</small><b>Ready for your next step?</b><p>Helpful guidance appears right when it matters.</p><span>Show me how →</span></div><div class="illustration-guide-dots"><i></i><i></i><i></i></div></div>}
+    {variant === "survey" && <div class="illustration-feedback"><small>How was this experience?</small><div><i>☺</i><i>○</i><i>☹</i></div><b>Your feedback shapes what comes next.</b></div>}
+    {!["analytics", "funnel", "targeting", "experiences", "adoption", "onboarding", "survey"].includes(variant) && <div class="illustration-loop"><p>One connected loop</p><div><span>Understand</span><span>Target</span><span>Engage</span><span>Improve</span></div><b>Turn evidence into a useful next step.</b></div>}
   </div>
 ) : (
 <div class:list={["marketing-visual", `is-${variant}`]} role="img" aria-label={`${meta.title} shown in a simplified Movcues product interface`}>

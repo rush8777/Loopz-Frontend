@@ -109,19 +109,27 @@ export const PRODUCT_CHAPTERS: readonly ProductChapter[] = [
 
 export const PLATFORM_GROUPS = [
   {
-    label: "Understand",
-    items: ["Events", "Pages", "Sessions", "Funnels"],
+    label: "Guides",
+    description: "Lead people through important product moments, one clear step at a time.",
+    href: "/product/guide",
+    mockup: "guide",
   },
   {
-    label: "Target",
-    items: ["Users", "Segments"],
+    label: "Surveys",
+    description: "Ask for feedback in context, while the experience is still fresh.",
+    href: "/explore/experiences#surveys",
+    mockup: "survey",
   },
   {
-    label: "Engage",
-    items: ["Guides", "Surveys", "Banners", "Checklists"],
+    label: "Modals",
+    description: "Make a focused announcement impossible to miss at the right moment.",
+    href: "/product/modals",
+    mockup: "modal",
   },
   {
-    label: "Improve",
-    items: ["Dashboards", "Experience analytics"],
+    label: "Checklists",
+    description: "Give every customer a simple, visible path to their next success.",
+    href: "/product/checklists",
+    mockup: "checklist",
   },
 ] as const;

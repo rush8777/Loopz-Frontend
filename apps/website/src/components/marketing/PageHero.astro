@@ -2,11 +2,11 @@
 import { DASHBOARD_URLS } from "../../config/site";
 import ProductVisual from "./ProductVisual.astro";
 
-interface Props { eyebrow: string; title: string; description: string; visual?: string; primaryLabel?: string; secondaryLabel?: string; secondaryHref?: string; compact?: boolean; sideBySide?: boolean }
-const { eyebrow, title, description, visual, primaryLabel = "Get started free", secondaryLabel, secondaryHref = "#explore", compact = false, sideBySide = false } = Astro.props;
+interface Props { eyebrow: string; title: string; description: string; visual?: string; primaryLabel?: string; secondaryLabel?: string; secondaryHref?: string; compact?: boolean; sideBySide?: boolean; exploreTone?: boolean }
+const { eyebrow, title, description, visual, primaryLabel = "Get started free", secondaryLabel, secondaryHref = "#explore", compact = false, sideBySide = false, exploreTone = false } = Astro.props;
 ---
 
-<section class:list={["page-hero", compact && "is-compact", sideBySide && "is-side-by-side"]}>
+<section class:list={["page-hero", compact && "is-compact", sideBySide && "is-side-by-side", exploreTone && "is-explore-tone"]}>
   <div class="page-hero-inner section-shell">
     <div class="page-hero-copy" data-reveal>
       <p class="section-kicker"><span></span>{eyebrow}</p>
@@ -17,6 +17,6 @@ const { eyebrow, title, description, visual, primaryLabel = "Get started free", 
         {secondaryLabel && <a class="hero-secondary" href={secondaryHref}>{secondaryLabel}</a>}
       </div>
     </div>
-    {visual && <div class="page-hero-visual" data-reveal><ProductVisual variant={visual} /></div>}
+    {visual && <div class="page-hero-visual" data-reveal><ProductVisual variant={visual} illustration={exploreTone} /></div>}
   </div>
 </section>

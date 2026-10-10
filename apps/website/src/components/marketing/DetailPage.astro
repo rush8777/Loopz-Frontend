@@ -13,7 +13,7 @@ const { page } = Astro.props;
 const isProductPage = page.path.startsWith("/product") || ["/explore", "/explore/analytics", "/explore/experiences", "/explore/targeting"].includes(page.path);
 ---
 <MarketingLayout title={page.metaTitle} description={page.description} canonicalPath={page.path}>
-  <PageHero eyebrow={page.eyebrow} title={page.title} description={page.description} visual={page.visual} secondaryLabel={page.secondaryLabel} sideBySide={page.path.startsWith("/product") || page.path.startsWith("/explore")} />
+  <PageHero eyebrow={page.eyebrow} title={page.title} description={page.description} visual={page.visual} secondaryLabel={page.secondaryLabel} sideBySide={page.path.startsWith("/product") || page.path.startsWith("/explore")} exploreTone={page.path.startsWith("/explore")} />
   {isProductPage && page.bridgeText && <ProductBridge text={page.bridgeText} />}
   {page.comments && <CustomerComments comments={page.comments} title={page.commentsTitle} />}
   <Workflow {...page.workflow} platformDesign={isProductPage} />

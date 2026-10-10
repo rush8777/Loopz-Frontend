@@ -15,12 +15,30 @@ import { PLATFORM_GROUPS } from "../../config/site";
       <p>Observe behavior, define the audience, deliver the experience, and learn from the result—without stitching together separate tools.</p>
     </div>
     <div class="platform-groups">
-      {PLATFORM_GROUPS.map((group, index) => (
-        <div class="platform-group">
-          <div class="group-number">0{index + 1}</div>
-          <h3>{group.label}</h3>
-          <ul>{group.items.map((item) => <li>{item}</li>)}</ul>
-        </div>
+      {PLATFORM_GROUPS.map((group) => (
+        <article class="platform-group">
+          <div class={`experience-mockup experience-mockup--${group.mockup}`} aria-hidden="true">
+            {group.mockup === "guide" && <>
+              <div class="mockup-appbar"><i></i><span></span><span></span></div>
+              <div class="mockup-guide-card"><b>Set up your workspace</b><small>Take the next step to get started.</small><div><i></i><i></i><i></i></div><em>Continue →</em></div>
+            </>}
+            {group.mockup === "survey" && <>
+              <div class="survey-orb"></div>
+              <div class="mockup-survey-card"><small>Quick question</small><b>How was your setup?</b><div><span>Great</span><span>Good</span><span>Needs work</span></div></div>
+            </>}
+            {group.mockup === "modal" && <>
+              <div class="mockup-modal-card"><i>✦</i><b>Welcome to the new workspace</b><small>A faster way to bring your work together.</small><em>Explore what’s new</em></div>
+            </>}
+            {group.mockup === "checklist" && <>
+              <div class="mockup-checklist-card"><small>Getting started</small><b>3 of 5 complete</b><div class="mockup-progress"><i></i></div><ul><li>Invite your team</li><li>Track your first event</li><li>Publish a guide</li></ul></div>
+            </>}
+          </div>
+          <div class="platform-group-copy">
+            <h3>{group.label}</h3>
+            <p>{group.description}</p>
+            <a href={group.href} aria-label={`Explore ${group.label}`}>Explore <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
       ))}
     </div>
   </div>
