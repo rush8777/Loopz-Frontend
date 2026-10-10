@@ -102,32 +102,43 @@ const snippet = '<script async src="https://cdn.movcues.com/v1.js"\n  data-site-
 </section>
 
 <style>
-  .key-capabilities { padding-block: clamp(4.5rem, 8vw, 8rem); border-top: 1px solid var(--border); background: linear-gradient(180deg, #f8f9fb, #fcfcfc 23%); }
+  .key-capabilities {
+    --capability-accent: color-mix(in srgb, var(--primary) 45%, white);
+    padding-block: clamp(4.5rem, 8vw, 8rem);
+    border-block: 1px solid #303542;
+    background:
+      radial-gradient(ellipse at 95% 0%, color-mix(in srgb, var(--primary) 24%, transparent), transparent 38%),
+      radial-gradient(ellipse at 0% 75%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 35%),
+      var(--dark-surface);
+    color: #f5f6fb;
+  }
+  .capabilities-intro .section-kicker { color: var(--capability-accent); }
   .capabilities-intro { max-width: 48rem; margin-bottom: clamp(3rem, 6vw, 5rem); }
   .capabilities-intro h2 { margin: 1.2rem 0 1rem; font-family: var(--display-serif); font-size: clamp(2.25rem, 4.2vw, 3.7rem); font-weight: 400; letter-spacing: -.045em; line-height: 1.08; }
-  .capabilities-intro h2 em { font-weight: 400; }
-  .capabilities-intro > p:last-child { color: var(--text-secondary); font-size: 1rem; }
+  .capabilities-intro h2 em { color: var(--capability-accent); font-weight: 400; }
+  .capabilities-intro > p:last-child { color: #bac2d0; font-size: 1rem; }
   .capabilities-list { display: grid; gap: clamp(3rem, 6vw, 5.5rem); }
   .capability-row { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
-  .capability-row + .capability-row { padding-top: clamp(3rem, 6vw, 5.5rem); border-top: 1px solid var(--border); }
+  .capability-row + .capability-row { padding-top: clamp(3rem, 6vw, 5.5rem); border-top: 1px solid #343a47; }
   .capability-row.is-reverse { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); }
   .is-reverse .capability-copy { order: 2; }
   .capability-copy { min-width: 0; }
-  .capability-label { display: flex; align-items: center; gap: .65rem; margin: 0 0 1rem; color: var(--text-secondary); font-size: .74rem; font-weight: 600; }
-  .capability-icon { display: grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid #dce3f4; border-radius: .55rem; background: #f0f3fc; color: var(--primary); flex-shrink: 0; }
+  .capability-label { display: flex; align-items: center; gap: .65rem; margin: 0 0 1rem; color: #c7cedb; font-size: .74rem; font-weight: 600; }
+  .capability-icon { display: grid; place-items: center; width: 2rem; height: 2rem; border: 1px solid #43516d; border-radius: .55rem; background: color-mix(in srgb, var(--primary) 18%, var(--dark-surface)); color: var(--capability-accent); flex-shrink: 0; }
   .capability-copy h3 { max-width: 25rem; margin: 0; font-size: clamp(1.8rem, 3vw, 2.55rem); font-weight: 500; letter-spacing: -.055em; line-height: 1.12; text-wrap: balance; }
-  .capability-description { margin: 1.15rem 0 0; color: var(--text-secondary); font-size: .95rem; line-height: 1.75; }
+  .capability-description { margin: 1.15rem 0 0; color: #bac2d0; font-size: .95rem; line-height: 1.75; }
   .capability-points { display: grid; gap: .8rem; margin: 1.4rem 0 1.5rem; padding: 0; list-style: none; }
-  .capability-points li { display: flex; align-items: flex-start; gap: .65rem; color: var(--text-secondary); font-size: .81rem; line-height: 1.65; }
-  .capability-points svg { margin-top: .25rem; flex-shrink: 0; color: var(--primary); }
-  .capability-link { display: inline-flex; align-items: center; gap: .5rem; padding-block: .35rem; font-size: .81rem; font-weight: 600; text-decoration: underline; text-decoration-color: #c6c6ca; text-underline-offset: .35rem; }
-  .capability-link:hover { color: var(--primary); text-decoration-color: currentColor; }
+  .capability-points li { display: flex; align-items: flex-start; gap: .65rem; color: #bac2d0; font-size: .81rem; line-height: 1.65; }
+  .capability-points svg { margin-top: .25rem; flex-shrink: 0; color: var(--capability-accent); }
+  .capability-link { display: inline-flex; align-items: center; gap: .5rem; padding-block: .35rem; color: #d5dfff; font-size: .81rem; font-weight: 600; text-decoration: underline; text-decoration-color: #61749d; text-underline-offset: .35rem; }
+  .capability-link:hover { color: white; text-decoration-color: currentColor; }
+  .capability-link:focus-visible { outline: 3px solid var(--capability-accent); outline-offset: 5px; border-radius: .2rem; }
   .capability-figure { min-width: 0; margin: 0; }
-  .mockup-frame { overflow: hidden; border: 1px solid #dce0e8; border-radius: .85rem; background: white; box-shadow: 0 18px 48px -20px rgba(36, 48, 85, .2), 0 2px 5px rgba(36, 48, 85, .03); }
-  .mockup-toolbar { display: flex; align-items: center; gap: .6rem; min-height: 3.15rem; padding: .7rem 1rem; border-bottom: 1px solid #e6e8ee; font-size: .72rem; font-weight: 600; }
-  .mockup-brand { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: .4rem; background: #202020; color: white; font-size: .95rem; }
+  .mockup-frame { overflow: hidden; border: 1px solid #bac9ee; border-radius: .85rem; background: white; color: var(--foreground); box-shadow: 0 22px 55px -22px rgba(0, 0, 0, .65), 0 0 0 5px rgba(111, 142, 232, .07); }
+  .mockup-toolbar { display: flex; align-items: center; gap: .6rem; min-height: 3.15rem; padding: .7rem 1rem; border-bottom: 1px solid #dce4f5; background: #edf2ff; font-size: .72rem; font-weight: 600; }
+  .mockup-brand { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: .4rem; background: var(--primary); color: white; font-size: .95rem; }
   .mockup-tag { margin-left: auto; padding: .25rem .5rem; border: 1px solid #e3e6ed; border-radius: .35rem; color: #626a7a; background: #f8f9fb; font-size: .6rem; font-weight: 400; }
-  figcaption { margin: .85rem .3rem 0; color: #656b76; font-size: .68rem; line-height: 1.6; }
+  figcaption { margin: .85rem .3rem 0; color: #aeb8ca; font-size: .68rem; line-height: 1.6; }
   .sdk-demo, .target-demo, .results-demo { padding: clamp(1rem, 2vw, 1.65rem); }
   .mockup-heading { display: grid; gap: .4rem; margin-bottom: 1.1rem; }
   .mockup-heading small { color: #616b80; font-size: .57rem; font-weight: 600; letter-spacing: .07em; }
@@ -203,7 +214,7 @@ const snippet = '<script async src="https://cdn.movcues.com/v1.js"\n  data-site-
   .result-step > b { font-weight: 400; }
   .result-step > strong { text-align: right; font-variant-numeric: tabular-nums; }
   .result-bar { height: .6rem; border-radius: .2rem; background: #eef1f6; }
-  .result-bar i { display: block; height: 100%; border-radius: inherit; background: #6f8ee8; }
+  .result-bar i { display: block; height: 100%; border-radius: inherit; background: var(--primary); }
   .results-insight { display: flex; align-items: flex-start; gap: .6rem; margin-top: .8rem; padding: .85rem; border-radius: .5rem; background: #f7f8fa; }
   .results-insight > svg { flex-shrink: 0; margin-top: .1rem; color: #536a9d; }
   .results-insight strong { font-size: .65rem; }
