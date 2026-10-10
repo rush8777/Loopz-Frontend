@@ -1,6 +1,6 @@
-# Movcues — From friction to action
+# Movcues — Turn user behavior into action
 
-An isolated Remotion production workspace. No Remotion or player code is shipped to the Astro homepage. The website uses a native H.264 video and WebP posters.
+A typography-led commercial built with Remotion, React, TypeScript, CSS and SVG. The public Astro page ships a native H.264 video with WebP posters; it does not ship the Remotion runtime.
 
 ## Production
 
@@ -10,38 +10,52 @@ From the repository root:
 npm ci
 npm run studio --workspace @movcues/hero-film
 npm run typecheck --workspace @movcues/hero-film
+npm run review-opening --workspace @movcues/hero-film
 npm run render --workspace @movcues/hero-film
 ```
 
-FFmpeg must be on PATH. Remotion uses Chrome Headless Shell by default; `REMOTION_BROWSER_EXECUTABLE` can point to an existing compatible browser. `REMOTION_SINGLE_PROCESS=1` is available for constrained render environments.
+FFmpeg must be on PATH. Remotion uses Chrome Headless Shell by default. `REMOTION_BROWSER_EXECUTABLE` can select a compatible installed browser, and `REMOTION_SINGLE_PROCESS=1` supports constrained environments.
 
-The renderer exports review stills first, then a master, a compressed web version, and two posters. Run `node apps/hero-film/scripts/render.mjs --stills-only` to review the composition before a full render. Generated bundles and review frames live in the ignored `out` directory.
+The opening study is a separate 120-frame, 1080p composition: the hook followed by its transformation into the investigation scene. Its script exports a four-second video and review stills before the remaining scenes are produced.
 
-## Exact timeline
+The full renderer exports 46 master review frames and 23 social review frames, posters, the master, web encode and social edit. Use `--stills-only`, `--video-only` or `--social-only` for focused iteration. Generated bundles and review images are in ignored `out/` directories.
 
-Composition `MovcuesHeroStory`: 1920 × 1080, 30 FPS, exactly 600 frames / 20 seconds. End frames are exclusive.
+## Direction and timeline
 
-| Shot | Range | Direction |
+`MovcuesHeroStory`: 1920 × 1080, 30 FPS, 600 frames / 20 seconds. Ranges below are inclusive.
+
+| Scene | Frames | Focal point and transformation |
 |---|---|---|
-| Problem | 0–84 | Two masked headline reveals; atmospheric dashboard only |
-| Understand | 84–192 | One analytics screen; proportional 1000 / 620 / 340 funnel; 280-user insight |
-| Target | 192–294 | One team-configured audience; two event rules; 280 matching users |
-| Guide | 294–450 | Acme Workspace; anchored tooltip; cursor clicks its visible CTA; project created |
-| Measure | 450–540 | One results screen; 120 viewed / 78 completed / 65% completion |
-| Closing | 540–600 | Brand and tagline; fade to the same opening background |
+| Hook | 0–89 | Oversized character reveals; users travel along a curved path and disappear; one surviving dot becomes a focus ring |
+| Understand | 90–179 | Focus ring investigates a single interruption in a simplified journey, then collapses into a user |
+| Target | 180–269 | One user expands into a geometric audience; a selected group connects and converges into an action |
+| Guide | 270–389 | An action dot becomes a button with one contextual tooltip; a deliberate click becomes a completion check |
+| Measure | 390–479 | The check transforms into an abstract progress path and a completion signal |
+| Brand | 480–599 | The endpoint reveals the original Movcues logo and tagline; a circular mask returns to the opening |
 
-All choreography derives from the current frame. There are no timers, CSS keyframes, playback history, or unseeded random values. Sequences unmount previous interfaces. There is deliberately no inferred activation lift or automatic segment publishing.
+The first and final master frames match for looping. `MovcuesSocial` is a separate 360-frame / 12-second edit with a stronger “Signed up. Then disappeared.” hook, accelerated scene clocks and a readable brand hold. It ends on the brand rather than looping.
 
-## Outputs
+All movement derives from the frame: no timers, CSS animations or unseeded randomness. `KineticType` coordinates word masks and character reveals; `ShapeLayers` supplies curved particle paths and localized five-sample camera motion blur. `VirtualCamera`, `SceneMasks`, `MorphPath` and `BrandReveal` provide reusable camera, portal, geometry and logo choreography. Only the guidance scene contains recognizable fictional product UI.
 
-- `renders/movcues-hero-master.mp4`: H.264 master, 1920 × 1080, CRF 17.
-- `../website/public/videos/hero/movcues-hero-web.mp4`: H.264, 1280 × 720, CRF 24, veryslow compression, no audio, fast-start metadata. The reviewed export is 615,953 bytes (about 602 KiB).
-- `../website/public/videos/hero/movcues-hero-poster.webp`: full guidance scene at frame 365.
-- `../website/public/videos/hero/movcues-hero-mobile.webp`: separately composed 960 × 720 static guidance illustration.
-- `renders/render-manifest.json`: timeline and review-frame metadata.
+There are no outcome percentages or claims of improved retention, revenue or conversion. The abstract measurement illustration is labeled as illustrative. Product messaging covers behavior investigation, behavioral audiences, contextual guidance and evaluating what happens next.
 
-The mobile poster is a separate close view with larger typography rather than a scaled-down collection of panels. Mobile and reduced-motion visitors do not request the MP4. JavaScript-disabled, blocked-video, unsupported-codec, and autoplay-denied states retain the still illustration and semantic caption. Video playback pauses offscreen and in hidden tabs; explicit pause is respected on return.
+## Exports
 
-The homepage renders a readable timestamped transcript, descriptive image alt text, and VideoObject JSON-LD with a title, description, thumbnail, direct MP4 URL, duration and first publication date. These remain in the server-generated HTML. Preview metadata uses the preview origin and remains noindex; a main-branch build uses the production origin. Update the publication date if the video is first published to production on a later date. Structured data helps discovery but does not guarantee a video search result, particularly on a landing page where the video is supporting content.
+- `renders/movcues-hero-master.mp4`: 1080p H.264 master, CRF 17, 20 seconds.
+- `../website/public/videos/hero/movcues-hero-web.mp4`: 720p H.264, CRF 24, veryslow compression, silent, fast start.
+- `renders/movcues-social-12s.mp4`: 1080p H.264, CRF 20, silent, fast start.
+- `../website/public/videos/hero/movcues-hero-poster.webp`: selected audience at frame 230.
+- `../website/public/videos/hero/movcues-hero-mobile.webp`: separately composed 960 × 720 brand and behavior illustration.
+- `renders/render-manifest.json`: composition contracts and review-frame lists.
 
-The film uses the existing GT Standard UI font files referenced by the website tokens, fetched into `public/fonts` to keep rendering independent of third-party network availability. Colors mirror `packages/tokens/src/index.css`. The original homepage logo is copied unchanged from `apps/dashboard/public/movcues_logo.png` into the render workspace.
+Review actual encoded videos as well as stills. Inspect scene boundaries, text holds, tooltip masking, cursor click, check-to-path continuity, logo reveal and the master loop seam. A successful TypeScript check alone does not validate the film.
+
+The film communicates silently. Optional narration can follow the scene headlines; restrained sound cues can accompany disappearing dots, focus, audience selection, the click and brand reveal. No third-party music or audio is included.
+
+## Website and assets
+
+The landing page preserves its HTML headline, waitlist CTA, descriptive caption and timestamped transcript. VideoObject metadata describes the film and links directly to its poster and MP4. Preview builds use their preview origin and remain noindex; main-branch builds use the production origin. Update the first-publication date if production publication happens later. Structured data does not guarantee a video search appearance.
+
+Mobile and reduced-motion visitors receive a poster without requesting the MP4. No-JavaScript, blocked video, unsupported codec and autoplay-denied states retain the illustration and caption. Playback pauses offscreen and when the tab is hidden; the explicit pause control remains respected.
+
+GT Standard font files, the original Movcues logo and the existing navy / blue design tokens are reused. Render assets are local, so the film does not depend on third-party requests. All work belongs on `preview/hero-story-demo`; do not commit or push it to main.

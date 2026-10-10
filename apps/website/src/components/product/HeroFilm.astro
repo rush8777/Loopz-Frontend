@@ -6,8 +6,8 @@ const origin = preview
 const videoSchema = {
   '@context': 'https://schema.org',
   '@type': 'VideoObject',
-  name: 'Movcues product walkthrough: from friction to action',
-  description: 'A 20-second illustrative walkthrough of Movcues behavior analytics, event-based audience targeting, contextual onboarding guidance, and experience completion reporting.',
+  name: 'Movcues: turn user behavior into action',
+  description: 'A 20-second motion graphics film showing how Movcues helps teams understand behavior, find users who need help, deliver contextual guidance, and evaluate what happens next.',
   thumbnailUrl: new URL('/videos/hero/movcues-hero-poster.webp', origin).href,
   contentUrl: new URL('/videos/hero/movcues-hero-web.mp4', origin).href,
   uploadDate: '2026-10-10T00:00:00Z',
@@ -22,14 +22,14 @@ const videoSchema = {
   <div class="film-stage">
     <picture class="film-poster">
       <source media="(max-width: 700px)" srcset="/videos/hero/movcues-hero-mobile.webp" width="960" height="720" />
-      <img src="/videos/hero/movcues-hero-poster.webp" width="1280" height="720" loading="lazy" decoding="async" alt="A Movcues onboarding tooltip beside Create project in Acme Workspace guides a user to create their first project." />
+      <img src="/videos/hero/movcues-hero-poster.webp" width="1280" height="720" loading="lazy" decoding="async" alt="Movcues turns user behavior into action: understand, target, guide and improve." />
     </picture>
-    <video class="film-video" width="1280" height="720" autoplay muted playsinline loop preload="none" poster="/videos/hero/movcues-hero-poster.webp" data-src="/videos/hero/movcues-hero-web.mp4" aria-label="From friction to action: a 20-second Movcues product walkthrough" aria-describedby="hero-film-caption">
+    <video class="film-video" width="1280" height="720" autoplay muted playsinline loop preload="none" poster="/videos/hero/movcues-hero-poster.webp" data-src="/videos/hero/movcues-hero-web.mp4" aria-label="Turn user behavior into action: a 20-second Movcues motion graphics film" aria-describedby="hero-film-caption">
       Your browser cannot play this video. The still image and description explain the product workflow.
     </video>
   </div>
   <div class="film-controls">
-    <span data-film-status>Illustrative product walkthrough · 20 seconds</span>
+    <span data-film-status>Movcues film · 20 seconds</span>
     <button type="button" data-film-toggle hidden>Pause video</button>
   </div>
 </div>
@@ -57,18 +57,18 @@ const videoSchema = {
         if (error instanceof DOMException && error.name === 'AbortError') return;
         if (failed) { showPoster(); button.hidden = true; return; }
         showPoster(); button.hidden = staticView(); button.textContent = 'Play video'; userPaused = true;
-        status.textContent = 'Product walkthrough · Select play, or view the still image';
+        status.textContent = 'Movcues film · Select play, or view the still image';
       }
     };
     const sync = () => {
       if (staticView()) {
         video.pause(); showPoster(); button.hidden = true;
         if (video.hasAttribute('src')) { video.removeAttribute('src'); video.load(); }
-        status.textContent = 'Illustrative product walkthrough · Static preview';
+        status.textContent = 'Movcues film · Static preview';
         return;
       }
       if (failed) return;
-      status.textContent = 'Illustrative product walkthrough · 20 seconds';
+      status.textContent = 'Movcues film · 20 seconds';
       if (!inView || document.hidden || userPaused) { video.pause(); return; }
       if (!video.hasAttribute('src')) video.src = video.dataset.src!;
       video.muted = true;
@@ -78,7 +78,7 @@ const videoSchema = {
     video.addEventListener('error', () => {
       if (!video.hasAttribute('src')) return;
       failed = true; video.pause(); showPoster(); button.hidden = true;
-      status.textContent = 'Product walkthrough · Showing a still preview';
+      status.textContent = 'Movcues film · Showing a still preview';
     });
     const observer = new IntersectionObserver(entries => { inView = entries[0].intersectionRatio >= .15; sync(); }, { threshold: [0, .15] });
     observer.observe(root);
