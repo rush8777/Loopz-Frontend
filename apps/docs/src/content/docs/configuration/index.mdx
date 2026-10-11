@@ -1,0 +1,58 @@
+---
+title: Configuration guide
+description: Configure the shipped SDK deliberately, with safe production defaults and release-aware collector settings.
+---
+
+# Configuration guide
+
+Pass configuration to `init()` for the CDN global or to `createAnalytics()` for the ES module.
+
+```js
+window.analytics.init({
+  siteId: "YOUR_SITE_ID",
+  debug: false,
+  respectDoNotTrack: true,
+  autocapture: {
+    click: true,
+    scroll: true,
+    rageClick: true,
+  },
+  scroll: {
+    milestones: [25, 50, 75, 100],
+  },
+});
+```
+
+## Required setting
+
+`siteId` is the only required value. The runtime throws if it is empty.
+
+## Recommended production settings
+
+| Setting | Recommendation | Why |
+| --- | --- | --- |
+| `debug` | Set `false` in production. | The source currently defaults it to `true`. |
+| `respectDoNotTrack` | Set `true` when your policy honors the browser preference. | It is opt-in and defaults to `false`. |
+| `autocapture` | Explicitly list the enabled current collectors. | Makes the intended data boundary reviewable. |
+| `scroll.milestones` | Keep only milestones that guide a real decision. | Fewer signals make analysis clearer. |
+
+## Experiences
+
+Published visual experiences are enabled by default and load independently from core analytics. You can disable experience evaluation without stopping automatic behavior capture:
+
+```js
+window.analytics.init({
+  siteId: "YOUR_SITE_ID",
+  experiences: { enabled: false },
+});
+```
+
+The runtime also exposes bundle URL overrides for self-hosted experience, editor, and heatmap runtime files. Treat these as deployment-level configuration: use them only when Movcues has supplied a compatible asset location.
+
+## Queue delivery
+
+The event queue batches in-memory events before sending. Current source defaults are a maximum of 50 events or 5 seconds, whichever comes first. It keeps up to 2,000 queued events and retries delivery up to three times with a 1-second base retry delay.
+
+Tune these values only after measuring a clear operational issue. Reducing the batch size or wait time increases client network activity; increasing the queue size increases the amount of behavior held in memory.
+
+See the complete [configuration reference](/reference/configuration/) for all verified fields and defaults.

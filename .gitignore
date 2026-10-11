@@ -16,6 +16,7 @@ dist
 dist-ssr
 *.local
 *.tsbuildinfo
+.astro/
 
 # Editor directories and files
 .vscode/*

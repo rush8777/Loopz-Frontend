@@ -1,0 +1,55 @@
+---
+title: React
+description: Initialize one Movcues instance in a client-side React provider and use it from your app.
+---
+
+# React
+
+Create the SDK once near the root of your client-rendered React tree. The SDK already observes browser navigation, so normal client-side route changes do not need an additional router hook.
+
+```tsx
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createAnalytics, type Analytics } from "@movcues/sdk";
+
+const AnalyticsContext = createContext<Analytics | null>(null);
+
+export function MovcuesProvider({ children }: { children: ReactNode }) {
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+
+  useEffect(() => {
+    const instance = createAnalytics({
+      siteId: "YOUR_SITE_ID",
+      debug: false,
+    });
+
+    setAnalytics(instance);
+    return () => instance.destroy();
+  }, []);
+
+  return <AnalyticsContext.Provider value={analytics}>{children}</AnalyticsContext.Provider>;
+}
+
+export function useMovcues() {
+  return useContext(AnalyticsContext);
+}
+```
+
+Use the hook where a completed user action is known:
+
+```tsx
+function CreateProjectButton() {
+  const analytics = useMovcues();
+
+  return (
+    <button onClick={() => analytics?.event("project_created")}>Create project</button>
+  );
+}
+```
+
+## Browser-only rule
+
+Do not import or create the browser SDK from a server component, loader, or API route. Use a client component/provider. If you use the CDN loader instead, access `window.analytics` only after the component runs in the browser.
+
+:::note
+The repository’s historical React example imports `movcues/sdk`. Use `@movcues/sdk` only after confirming the package is available in your approved registry; the package manifest names the module `@movcues/sdk`.
+:::

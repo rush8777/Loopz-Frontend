@@ -1,0 +1,39 @@
+---
+title: Single-page applications
+description: Understand automatic route observation and when to use a manual page call.
+---
+
+# Single-page applications
+
+Movcues observes browser-level navigation methods, so it works with common SPA routers without a framework adapter.
+
+## Observed navigation
+
+Once started, the runtime watches:
+
+- `history.pushState()`
+- `history.replaceState()`
+- `popstate` (back and forward navigation)
+- `hashchange`
+
+When the URL actually changes, the observer defers one browser tick so the framework can update the DOM, then records a page view. It restores the original history functions when the SDK stops or is destroyed.
+
+## Manual page view
+
+Call `page()` for an intentional virtual navigation that does not change the browser URL:
+
+```js
+window.analytics.page();
+```
+
+Do not call `page()` inside every route listener unless you have disabled or replaced the built-in route observation; otherwise you may create duplicate page views.
+
+## Lifecycle controls
+
+```js
+window.analytics.stop();    // pause collection and route observation
+window.analytics.start();   // resume collection
+window.analytics.destroy(); // stop and release runtime resources
+```
+
+Use these controls for explicit application lifecycle boundaries, not as a substitute for privacy markers or user consent rules.
