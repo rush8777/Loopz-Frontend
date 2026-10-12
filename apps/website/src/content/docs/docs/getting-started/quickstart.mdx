@@ -1,0 +1,70 @@
+---
+title: Quickstart
+description: Install the Movcues CDN loader, confirm initialization, and record a custom event.
+---
+
+# Quickstart
+
+Use this path when you want the fastest installation on a browser-delivered application. It takes one script tag and one verification event.
+
+## 1. Add your Site ID
+
+Copy the Site ID for the site you are instrumenting from your Movcues installation settings, then add the loader before your closing `</head>` tag.
+
+```html
+<script
+  async
+  src="https://cdn.movcues.com/v1.js"
+  data-site-id="YOUR_SITE_ID"
+></script>
+```
+
+`data-site-id` is required for automatic initialization. The loader reads it and calls `analytics.init({ siteId })` automatically. If it is missing, automatic initialization does not occur; a manual `init()` call without `siteId` throws an error.
+
+## 2. Confirm the SDK is ready
+
+Open a browser page with the script installed, then run this in DevTools:
+
+```js
+window.analytics;
+```
+
+You should see the public API object. The same object is also available as `window.__myAnalytics__` for compatibility with the loader.
+
+For a temporary diagnostic trace, turn on debug logging:
+
+```js
+window.analytics.enableDebug();
+```
+
+## 3. Send one custom event
+
+Record a meaningful product action after the user completes it.
+
+```js
+window.analytics.event("project_created", {
+  project_type: "marketing-site",
+  member_count: 3,
+});
+```
+
+Use stable event names in `snake_case` and properties that explain the action. Avoid names, email addresses, free-form form values, credentials, or any data you would not want retained in behavior analytics.
+
+## 4. Identify after authentication
+
+When your app has a stable internal user ID, attach it to the active browser session:
+
+```js
+window.analytics.identify("usr_123", {
+  plan: "pro",
+  workspace_id: "ws_456",
+});
+```
+
+Call `reset()` on logout or before a different person begins using the same browser session. See [Identity](/tracking/identify/) for the lifecycle and data-safety details.
+
+## Next steps
+
+- Use [automatic collection](/tracking/automatic/) to understand what is collected without extra code.
+- Add a [privacy marker](/privacy/) before tracking pages with sensitive UI.
+- Follow [verification](/getting-started/verify/) to diagnose a missing event.

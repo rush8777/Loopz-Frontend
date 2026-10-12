@@ -1,0 +1,45 @@
+---
+title: Vanilla JavaScript
+description: Install Movcues once in a browser-rendered application and use its global API from product code.
+---
+
+# Vanilla JavaScript
+
+For a browser-rendered application, put the CDN loader in your shared HTML shell and call the global API only after the user action occurs.
+
+```html
+<!-- index.html -->
+<head>
+  <script async src="https://cdn.movcues.com/v1.js" data-site-id="YOUR_SITE_ID"></script>
+</head>
+```
+
+```js
+// billing.js
+document.querySelector("[data-upgrade]")?.addEventListener("click", () => {
+  window.analytics.event("upgrade_clicked", { surface: "billing" });
+});
+```
+
+## Identify after your app authenticates
+
+```js
+function onSignedIn(user) {
+  window.analytics.identify(user.id, {
+    plan: user.plan,
+    workspace_id: user.workspaceId,
+  });
+}
+```
+
+Do not identify from an untrusted URL parameter or form field. Use the stable ID that your own app has already authenticated.
+
+## Clear identity on logout
+
+```js
+function onSignedOut() {
+  window.analytics.reset();
+}
+```
+
+`reset()` creates a fresh anonymous and session context. It prevents the next person using the same browser session from being associated with the previous identity.

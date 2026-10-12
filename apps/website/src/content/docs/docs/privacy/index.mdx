@@ -1,0 +1,52 @@
+---
+title: Privacy controls
+description: Mark sensitive UI, honor Do Not Track when required, and minimize the data sent from the browser.
+---
+
+# Privacy controls
+
+Privacy decisions belong in the implementation, not only in a policy document. Use the SDK’s UI markers and keep client-side properties intentionally small.
+
+## Exclude a subtree
+
+Add any one of these attributes to an element. The runtime treats the element and all of its descendants as private for supported automatic capture:
+
+```html
+<section data-private>
+  <h2>Billing details</h2>
+  <!-- Sensitive content and controls -->
+</section>
+```
+
+Supported markers:
+
+- `data-private`
+- `data-ignore`
+- `data-analytics-ignore`
+
+Use the marker on the smallest meaningful container, such as billing, health, support, or authentication UI.
+
+## Form values
+
+The current source conservatively recognizes `input` elements as sensitive and excludes them from automatic interaction capture. For textareas, selects, or sensitive surrounding UI, add a privacy marker explicitly instead of assuming a field type will be excluded.
+
+Regardless of automatic behavior, never place form values, passwords, payment information, access tokens, or personal data into `event()` or `identify()` properties.
+
+## Do Not Track
+
+The SDK honors the browser’s Do Not Track signal only when you enable it:
+
+```js
+window.analytics.init({
+  siteId: "YOUR_SITE_ID",
+  respectDoNotTrack: true,
+});
+```
+
+If the browser signal is active and this setting is true, initialization does not start collection. Decide this setting with your privacy and legal owners; it defaults to `false` in the current source.
+
+## Browser storage
+
+Movcues uses browser storage for anonymous/session context and guards storage access so blocked storage does not break the host app. The implementation does not make storage a substitute for your consent or retention policy.
+
+Review every custom event and identity attribute as if it could be visible to an analyst. Prefer opaque internal identifiers and coarse product state.
