@@ -1,0 +1,41 @@
+---
+title: Custom events
+description: Send focused product events with meaningful, privacy-safe properties.
+---
+
+# Custom events
+
+Custom events describe a business action that automatic browser behavior cannot infer: a project was created, an invite was accepted, or a workflow completed.
+
+```js
+window.analytics.event("report_exported", {
+  format: "csv",
+  source: "analytics",
+  row_count: 42,
+});
+```
+
+## Event design
+
+- Name the completed action, not the button: `report_exported`, not `export_clicked`.
+- Use a stable `snake_case` name.
+- Keep properties small and scalar when possible: strings, booleans, and numbers with clear semantics.
+- Prefer your own opaque IDs (for example `workspace_id`) over email addresses or names.
+- Do not send access tokens, passwords, payment details, free-form form input, or regulated personal data.
+
+## Product pattern
+
+Track one event after the action succeeds. If the action fails, record a distinct failure event only when it has useful diagnostic value and contains no sensitive error payload.
+
+```js
+async function createProject(input) {
+  const project = await api.createProject(input);
+  window.analytics.event("project_created", {
+    template: project.template,
+    workspace_id: project.workspaceId,
+  });
+  return project;
+}
+```
+
+Calls made before the SDK initializes are ignored by the runtime unless you used the [CDN command queue](/getting-started/cdn/#queue-calls-before-the-bundle-loads).

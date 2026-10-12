@@ -14,9 +14,12 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "dev:dashboard": "npm run dev --workspace=@movcues/dashboard",
     "dev:website": "npm run dev --workspace=@movcues/website",
+    "dev:docs": "npm run dev --workspace=@movcues/docs",
     "build:dashboard": "npm run build --workspace=@movcues/dashboard",
     "build:website": "npm run build --workspace=@movcues/website",
+    "build:docs": "npm run build --workspace=@movcues/docs",
     "check:website": "npm run check --workspace=@movcues/website",
+    "check:docs": "npm run check --workspace=@movcues/docs",
     "test:dashboard": "npm run test --workspace=@movcues/dashboard",
     "lint:dashboard": "npm run lint --workspace=@movcues/dashboard"
   }
