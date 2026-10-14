@@ -3,13 +3,34 @@ import { Alert, Badge, Button, Input, Label } from "@movcues/ui";
 import { LoaderCircle, Palette, RefreshCw } from "lucide-react";
 import * as themesApi from "../../api/themes";
 import { useWorkspace } from "../../auth/WorkspaceContext";
-import type { SiteThemeResponse, SiteThemeTokens } from "../../types/themes";
+import type { SiteThemeResponse, SiteThemeTokens, ThemeCaptureStatus } from "../../types/themes";
 import { NoSiteMessage, SettingsGroup, SettingsHeading } from "./SettingsShared";
 
 const wait = () => new Promise<void>(resolve => window.setTimeout(resolve, 1_000));
 const cloneTokens = (tokens: SiteThemeTokens) => JSON.parse(JSON.stringify(tokens)) as SiteThemeTokens;
 const safeColor = /^(#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([0-9.,%\s-]+\)|[a-z]{1,20})$/i;
-function validTokens(tokens: SiteThemeTokens) { return Object.values(tokens.colors).every(value => safeColor.test(value.trim())) && [tokens.typography.bodyFontFamily, tokens.typography.headingFontFamily].every(value => value.trim() && value.length <= 200 && !/[{};@]|url\s*\(/i.test(value)) && Object.values(tokens.radii).every(value => Number.isFinite(value) && value >= 0 && value <= 100) && Object.values(tokens.shadows).every(value => safeColor.test(value.color) && [value.x, value.y, value.blur, value.spread].every(Number.isFinite)); }
+
+const inRange = (value: number, min: number, max: number) => Number.isFinite(value) && value >= min && value <= max;
+
+export function isValidThemeTokens(tokens: SiteThemeTokens): boolean {
+  const typography = tokens.typography;
+  return Object.values(tokens.colors).every(value => safeColor.test(value.trim()))
+    && [typography.bodyFontFamily, typography.headingFontFamily].every(value => value.trim() && value.length <= 200 && !/[{};@]|url\s*\(/i.test(value))
+    && inRange(typography.bodyFontSize, 8, 72)
+    && inRange(typography.headingFontSize, 10, 160)
+    && [typography.bodyFontWeight, typography.headingFontWeight].every(value => Number.isInteger(value) && inRange(value, 100, 900))
+    && [typography.bodyLineHeight, typography.headingLineHeight].every(value => inRange(value, 0.8, 3))
+    && Object.values(tokens.radii).every(value => inRange(value, 0, 100))
+    && Object.values(tokens.shadows).every(value => safeColor.test(value.color.trim())
+      && inRange(value.x, -100, 100)
+      && inRange(value.y, -100, 100)
+      && inRange(value.blur, 0, 200)
+      && inRange(value.spread, -100, 100));
+}
+
+export function isTerminalThemeCaptureStatus(status: ThemeCaptureStatus): boolean {
+  return status === "received" || status === "expired" || status === "origin_mismatch";
+}
 
 export function colorPickerValue(value: string): string {
   const trimmed = value.trim();
@@ -54,13 +75,13 @@ export function ThemesSettings({ onOpenSites }: { onOpenSites: () => void }) {
   const { currentOrg, currentSite } = useWorkspace();
   const [data, setData] = useState<SiteThemeResponse | null>(null); const [draft, setDraft] = useState<SiteThemeTokens | null>(null); const [original, setOriginal] = useState<SiteThemeTokens | null>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState<string | null>(null); const attempt = useRef(0);
   const canManage = currentOrg?.role === "OWNER" || currentOrg?.role === "ADMIN";
-  const load = useCallback(async () => { if (!currentOrg || !currentSite) return; try { const result = await themesApi.getSiteTheme(currentOrg.orgId, currentSite.id); setData(result); if (result.candidate) { setDraft(cloneTokens(result.candidate.tokens)); setOriginal(cloneTokens(result.candidate.tokens)); } else { setDraft(null); setOriginal(null); } setError(null); } catch { setError("Couldn't load this site's theme."); } }, [currentOrg, currentSite]);
-  useEffect(() => { attempt.current += 1; setData(null); setDraft(null); void load(); return () => { attempt.current += 1; }; }, [load]);
-  async function scan() { if (!currentOrg || !currentSite || !canManage) return; const current = ++attempt.current; setBusy(true); setError(null); try { const created = await themesApi.createThemeCapture(currentOrg.orgId, currentSite.id); setData(value => value ? { ...value, capture: created.capture } : value); while (attempt.current === current) { const result = await themesApi.getThemeCapture(currentOrg.orgId, currentSite.id, created.capture.id); setData(value => value ? { ...value, capture: result.capture } : value); if (result.capture.status === "received" || result.capture.status === "expired") { await load(); break; } await wait(); } } catch { setError("The theme scan couldn't be started. Check the primary domain and try again."); } finally { if (attempt.current === current) setBusy(false); } }
-  async function activate() { if (!currentOrg || !currentSite || !draft || !data?.candidate || !canManage) return; setBusy(true); try { await themesApi.activateTheme(currentOrg.orgId, currentSite.id, data.candidate.captureId, draft); await load(); } catch { setError("Check the token values and try activating again."); } finally { setBusy(false); } }
-  async function discard() { if (!currentOrg || !currentSite || !canManage) return; setBusy(true); try { await themesApi.discardThemeCandidate(currentOrg.orgId, currentSite.id); await load(); } catch { setError("Couldn't discard the candidate theme."); } finally { setBusy(false); } }
+  const load = useCallback(async (requestId: number) => { if (!currentOrg || !currentSite) return; try { const result = await themesApi.getSiteTheme(currentOrg.orgId, currentSite.id); if (attempt.current !== requestId) return; setData(result); if (result.candidate) { setDraft(cloneTokens(result.candidate.tokens)); setOriginal(cloneTokens(result.candidate.tokens)); } else { setDraft(null); setOriginal(null); } setError(null); } catch { if (attempt.current === requestId) setError("Couldn't load this site's theme."); } }, [currentOrg, currentSite]);
+  useEffect(() => { const requestId = ++attempt.current; setBusy(false); setError(null); setData(null); setDraft(null); setOriginal(null); void load(requestId); return () => { if (attempt.current === requestId) attempt.current += 1; }; }, [load]);
+  async function scan() { if (!currentOrg || !currentSite || !canManage) return; const current = ++attempt.current; setBusy(true); setError(null); try { const created = await themesApi.createThemeCapture(currentOrg.orgId, currentSite.id); if (attempt.current !== current) return; setData(value => value ? { ...value, capture: created.capture } : value); while (attempt.current === current) { const result = await themesApi.getThemeCapture(currentOrg.orgId, currentSite.id, created.capture.id); if (attempt.current !== current) break; setData(value => value ? { ...value, capture: result.capture } : value); if (isTerminalThemeCaptureStatus(result.capture.status)) { await load(current); break; } await wait(); } } catch { if (attempt.current === current) setError("The theme scan couldn't be started. Check the primary domain and try again."); } finally { if (attempt.current === current) setBusy(false); } }
+  async function activate() { if (!currentOrg || !currentSite || !draft || !data?.candidate || !canManage) return; const current = ++attempt.current; setBusy(true); try { await themesApi.activateTheme(currentOrg.orgId, currentSite.id, data.candidate.captureId, draft); await load(current); } catch { if (attempt.current === current) setError("Check the token values and try activating again."); } finally { if (attempt.current === current) setBusy(false); } }
+  async function discard() { if (!currentOrg || !currentSite || !canManage) return; const current = ++attempt.current; setBusy(true); try { await themesApi.discardThemeCandidate(currentOrg.orgId, currentSite.id); await load(current); } catch { if (attempt.current === current) setError("Couldn't discard the candidate theme."); } finally { if (attempt.current === current) setBusy(false); } }
   const textContrast = draft ? contrast(draft.colors.text, draft.colors.background) : null; const buttonContrast = draft ? contrast(draft.colors.primaryForeground, draft.colors.primary) : null;
-  const draftValid = draft ? validTokens(draft) : false;
+  const draftValid = draft ? isValidThemeTokens(draft) : false;
   const status = data?.capture;
   return <div><SettingsHeading title="Themes" description="Import your website's visual language into movcues widgets."/>{!currentSite ? <NoSiteMessage/> : <>
     {!currentSite.domain && <Alert className="mb-4"><div className="flex items-center justify-between gap-3"><span>Add a primary domain before scanning so uploads can be verified.</span><Button variant="outline" size="sm" onClick={onOpenSites}>Open Sites</Button></div></Alert>}{error && <Alert className="mb-4 border-destructive/25 bg-red-50 text-destructive">{error}</Alert>}
