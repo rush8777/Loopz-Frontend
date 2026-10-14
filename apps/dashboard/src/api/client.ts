@@ -130,7 +130,7 @@ async function tryRefresh(): Promise<boolean> {
 }
 
 interface RequestOptions {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   query?: Record<string, string | number | undefined>;
   /** Set for the two auth endpoints that must not trigger a refresh-and-retry loop. */
