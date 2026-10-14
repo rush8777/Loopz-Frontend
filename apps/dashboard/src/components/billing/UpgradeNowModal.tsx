@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { Alert, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@movcues/ui";
 import { ArrowUpRight, Crown } from "lucide-react";
 import { createCheckout, createPortalSession, getPlanUsage, type PlanUsage } from "../../api/billing";
-import { openPaddleCheckout } from "../../lib/paddleCheckout";
+import { initializePaddleCheckout, openPaddleCheckout } from "../../lib/paddleCheckout";
 import type { EntitlementErrorBody } from "../../api/client";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 
@@ -62,10 +62,11 @@ export function UpgradeNowProvider({ children }: { children: ReactNode }) {
       if (usage?.subscription.status === "active" || usage?.subscription.status === "past_due") {
         const portal = await createPortalSession(currentOrg.orgId); window.location.assign(portal.url);
       } else {
+        await initializePaddleCheckout();
         const checkout = await createCheckout(currentOrg.orgId, targetPlan); await openPaddleCheckout(checkout.transactionId);
       }
     }
-    catch { setCheckoutError("Couldn’t open checkout. Please try again or contact support."); setLoading(false); }
+    catch (cause) { setCheckoutError(cause instanceof Error ? cause.message : "Couldn’t open checkout. Please try again or contact support."); setLoading(false); }
   }
   const showUpgrade = (next: EntitlementErrorBody) => setReason(next);
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Badge, Button } from "@movcues/ui";
 import { createCheckout, createPortalSession, getPlanUsage, type PlanUsage } from "../../api/billing";
-import { openPaddleCheckout } from "../../lib/paddleCheckout";
+import { initializePaddleCheckout, openPaddleCheckout } from "../../lib/paddleCheckout";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { SettingsGroup, SettingsHeading, SettingsRow } from "./SettingsShared";
 
@@ -22,8 +22,8 @@ export function PlanUsageSettings({ preferredPlan }: { preferredPlan?: "starter"
 
   async function checkout(planId: "starter" | "growth" | "scale") {
     if (!currentOrg) return; setWorking(planId); setActionError(null);
-    try { const result = await createCheckout(currentOrg.orgId, planId); await openPaddleCheckout(result.transactionId); }
-    catch { setActionError("Couldn't start Paddle checkout."); setWorking(null); }
+    try { await initializePaddleCheckout(); const result = await createCheckout(currentOrg.orgId, planId); await openPaddleCheckout(result.transactionId); }
+    catch (cause) { setActionError(cause instanceof Error ? cause.message : "Couldn't start Paddle checkout."); setWorking(null); }
   }
   async function portal() {
     if (!currentOrg) return; setWorking("portal"); setActionError(null);
