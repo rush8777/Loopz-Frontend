@@ -1,0 +1,36 @@
+---
+title: Implementation audit
+description: Source-backed findings that shaped the first Movcues SDK documentation release.
+---
+
+# Implementation audit
+
+The first documentation pass was grounded in the SDK source at the repository’s audited main revision, including the IIFE entry, ES module entry, public API wrapper, analytics core, configuration resolver, route observer, privacy filter, storage helpers, and bundled examples.
+
+## Verified public surface
+
+- The CDN IIFE creates both `window.analytics` and `window.__myAnalytics__`.
+- `data-site-id` triggers automatic initialization; `data-endpoint` is an optional base-endpoint override.
+- The public methods are `init`, `start`, `stop`, `destroy`, `event`, `identify`, `reset`, `page`, `defineFunnel`, `launchExperience`, `enableDebug`, and `disableDebug`.
+- The ES module source exports `createAnalytics` and the `Analytics` class. The package manifest names the package `@movcues/sdk`.
+- SPA observation patches history methods, listens for `popstate` and `hashchange`, and restores the originals on stop/destroy.
+
+## Documentation corrections
+
+| Source finding | Documentation decision |
+| --- | --- |
+| Historical React and Next examples import `movcues/sdk`. | Use the package-manifest name `@movcues/sdk`; registry publication still needs release verification. |
+| Older README language promotes move, hover, cursor, replay, and heatmap collection. | Do not represent them as active: the current `MVP1_POLICY` hard-disables those collectors. |
+| `debug` resolves to `true` by default. | Recommend explicitly setting `debug: false` for production. |
+| Do Not Track support is opt-in. | Document `respectDoNotTrack: true` as an explicit policy choice. |
+| Privacy markers work on a node and its ancestors. | Document subtree markers and require explicit markers around sensitive textarea/select regions. |
+
+## Gaps to close before broader public launch
+
+1. Verify the npm registry release and package installation workflow.
+2. Confirm the dashboard location and permission model for Site IDs.
+3. Publish a supported browser and CSP compatibility matrix.
+4. Add versioned release notes for changes to release-locked collectors.
+5. Decide whether endpoint and runtime-bundle overrides are customer-supported or deployment-only.
+
+This audit is intentionally visible so product, engineering, and support can resolve those gaps before the corresponding docs become a customer promise.

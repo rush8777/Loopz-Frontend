@@ -1,0 +1,47 @@
+---
+title: Build with Movcues
+description: Install the Movcues JavaScript SDK and turn verified user behavior into actions.
+template: splash
+---
+
+<p class="doc-kicker">Movcues JavaScript SDK</p>
+
+# Build with Movcues
+
+<p class="doc-lede">Install one lightweight client SDK to understand how users move through your product, identify who needs help, and trigger relevant experiences.</p>
+
+<div class="docs-home-grid">
+  <a href="/getting-started/quickstart/"><strong>Quickstart</strong><span>Install with the CDN loader and send a verified custom event.</span></a>
+  <a href="/integrations/react/"><strong>Framework setup</strong><span>Add the SDK once in React, Next.js, or a vanilla JavaScript app.</span></a>
+  <a href="/tracking/identify/"><strong>Identity & events</strong><span>Connect anonymous activity to your application’s stable user ID.</span></a>
+  <a href="/reference/configuration/"><strong>SDK reference</strong><span>Review supported configuration, public methods, defaults, and release limits.</span></a>
+</div>
+
+<p class="docs-label">Start here</p>
+
+```html title="Install with one script"
+<script
+  async
+  src="https://cdn.movcues.com/v1.js"
+  data-site-id="YOUR_SITE_ID"
+></script>
+```
+
+The loader exposes `window.analytics` and initializes itself from `data-site-id`. Use the [Quickstart](/getting-started/quickstart/) for a complete, verifiable path.
+
+## What the current release supports
+
+Movcues automatically records page views, intentional interactive clicks, scroll milestones, and rage-click signals. You can also send custom events, identify users, define funnels, and launch configured experiences.
+
+The SDK watches browser history, popstate, and hash changes for single-page applications. It does not need a framework-specific router integration for normal client-side navigation.
+
+:::note
+The documentation describes the shipped MVP1 runtime. Cursor movement, hover, element crawling, heatmaps, and session replay are deliberately disabled in this release—even if older README material mentions them. See [release availability](/reference/availability/) before planning around an advanced collector.
+:::
+
+## Browse by task
+
+- **Install:** [CDN installation](/getting-started/cdn/) or [ES module setup](/getting-started/npm/)
+- **Instrument behavior:** [automatic collection](/tracking/automatic/), [custom events](/tracking/custom-events/), and [page views](/tracking/pageviews/)
+- **Attach context:** [identify users](/tracking/identify/) and [configuration](/configuration/)
+- **Ship safely:** [privacy controls](/privacy/) and [troubleshooting](/troubleshooting/)

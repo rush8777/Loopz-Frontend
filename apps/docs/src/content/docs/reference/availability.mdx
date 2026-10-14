@@ -1,0 +1,40 @@
+---
+title: Release availability
+description: The current MVP1 feature boundary verified against the Movcues SDK source.
+---
+
+# Release availability
+
+This page separates what the current runtime actually enables from APIs or bundles that appear elsewhere in the repository.
+
+## Available now
+
+- CDN IIFE loader with a queued browser global
+- ES module source entry with `createAnalytics()`
+- Page views and single-page application route observation
+- Interactive click capture, scroll milestones, and rage-click detection
+- Custom events, identity, reset, and in-session funnel definitions
+- Published experience evaluation and explicit `launchExperience()` requests
+- Privacy subtree markers and optional Do Not Track behavior
+
+## Deliberately disabled in MVP1
+
+| Capability | Why it is not documented as active |
+| --- | --- |
+| Cursor collection | The release policy hard-disables it. |
+| Hover collection | The release policy hard-disables it. |
+| Movement collection | The release policy hard-disables it. |
+| Element crawling | The release policy hard-disables it. |
+| Heatmaps | The release policy hard-disables it. |
+| Session replay | The release policy hard-disables it even if configuration asks to enable it. |
+
+These are intentional release boundaries. Do not attempt to enable them through hidden flags or stale code samples.
+
+## Requires product confirmation before public documentation
+
+- Public npm registry availability for `@movcues/sdk`
+- The exact dashboard path where customers obtain a Site ID
+- Any supported self-hosted endpoint or runtime-bundle URL
+- Feedback popup availability and its production API base
+
+When one of these becomes a supported product workflow, document it with the version/release that enables it and add a verification path.

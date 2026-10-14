@@ -1,0 +1,24 @@
+---
+title: Page views
+description: Understand initial, route-change, and manual page-view behavior.
+---
+
+# Page views
+
+Movcues records a page view during initialization, then watches browser navigation for additional views in a single-page app.
+
+## Automatic behavior
+
+The initial page view is emitted when the SDK starts. Later views are emitted only after a detected URL change. The route observer supports push-state, replace-state, browser history, and hash navigation.
+
+## Manual behavior
+
+```js
+window.analytics.page();
+```
+
+Use this for a virtual screen change that keeps the same URL, or for an explicit boundary your product has defined. Avoid adding it to normal router callbacks where the SDK already detects a URL change.
+
+## Page context
+
+The runtime creates a new page-view context on navigation. For stronger analysis, pair the automatic page views with a small set of custom events that represent meaningful completion points.

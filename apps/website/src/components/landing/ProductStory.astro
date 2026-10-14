@@ -1,55 +1,67 @@
 ---
-import { PRODUCT_CHAPTERS } from "../../config/site";
+import { PRICING_PLANS } from "../../config/pricing";
 ---
 
 <section class="product-story" id="journey" aria-labelledby="product-story-title">
   <div class="story-layout section-shell">
     <div class="story-introduction" data-reveal>
-  <p class="story-kicker">
-    <span>How it works</span>
-    <span aria-hidden="true">→</span>
-  </p>
+      <p class="story-kicker">
+        <span>Pricing</span>
+        <span aria-hidden="true">→</span>
+      </p>
+      <h2 id="product-story-title">
+        Start with what you need.<br />
+        Grow at <em>your pace.</em>
+      </h2>
+      <div class="story-introduction-bottom">
+        <p>
+          From your first in-app experience to programs across multiple sites,
+          choose the capabilities and capacity that fit your team.
+          Try the complete Growth experience for 14 days, with no card required.
+        </p>
+        <a href="/pricing" class="story-link">
+          Compare all plans
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
 
-  <h2 id="product-story-title">
-    Understand users.<br />
-    Then move them <em>forward.</em>
-  </h2>
-
-  <div class="story-introduction-bottom">
-    <p>
-      Movcues connects product behavior, live audiences, in-app experiences,
-      and measurement—so you can see what users need, reach the right people,
-      and improve what happens next.
-    </p>
-
-    <a href="#platform" class="story-link">
-      Explore the platform
-      <span aria-hidden="true">↗</span>
-    </a>
-  </div>
-</div>
-
-    <div class="story-steps" aria-label="The four steps in the Movcues workflow">
-      {PRODUCT_CHAPTERS.map((chapter, index) => (
-        <article
+    <div class="story-steps" aria-label="Movcues monthly pricing plans">
+      {PRICING_PLANS.map((plan, index) => (
+        <a
           class:list={["story-step", index === 0 && "is-primary"]}
-          id={chapter.id}
+          href={`/pricing#${plan.name.toLowerCase()}`}
           data-reveal
         >
           <div class="story-step-top">
-            <span class="story-step-number" aria-hidden="true">{chapter.number}</span>
-            <span class="story-step-label">{chapter.label}</span>
+            <div class="story-plan-price">
+              <span class="story-step-number">{plan.price}</span>
+              <span class="story-plan-period">/ month</span>
+            </div>
+            <span class="story-step-label">{plan.name}</span>
           </div>
           <div class="story-step-copy">
-            <h3>{chapter.title}</h3>
-            <p>{chapter.description}</p>
+            <h3>{plan.description}</h3>
+            <p>{plan.features.join(". ")}.</p>
             <div class="story-step-detail">
               <span aria-hidden="true"></span>
-              {chapter.detail}
+              {plan.limits.join(" · ")}
             </div>
+            <span class="story-plan-link">View {plan.name} plan <span aria-hidden="true">↗</span></span>
           </div>
-        </article>
+        </a>
       ))}
     </div>
   </div>
 </section>
+
+<style>
+  .story-step { text-decoration: none; gap: 2.5rem; transition: transform 180ms var(--ease), box-shadow 180ms var(--ease); }
+  .story-step:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(24, 27, 38, .16); }
+  .story-step:focus-visible { outline: 3px solid var(--primary); outline-offset: 4px; }
+  .story-plan-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: .65rem; }
+  .story-plan-price .story-step-number { font-size: clamp(3.5rem, 6vw, 5.75rem); }
+  .story-plan-period { font-size: .8rem; }
+  .story-plan-link { display: inline-flex; align-items: center; gap: .6rem; margin-top: 1.15rem; font-size: .8rem; font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { .story-step { transition: none; } .story-step:hover { transform: none; } }
+</style>
