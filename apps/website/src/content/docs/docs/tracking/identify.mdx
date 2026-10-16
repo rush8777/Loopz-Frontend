@@ -1,0 +1,44 @@
+---
+title: Identify users
+description: Attach a stable application user ID to the active browser session and clear it safely on logout.
+---
+
+# Identify users
+
+Call `identify()` after your product has authenticated a user and you know the stable identifier used by your application.
+
+```js
+window.analytics.identify("usr_123", {
+  plan: "growth",
+  workspace_id: "ws_456",
+});
+```
+
+## When to identify
+
+- After sign-in, sign-up, or SSO completes.
+- After an account switch if the new identity is known.
+- When an anonymous user becomes a known user, before tracking the next meaningful authenticated action.
+
+Identity is scoped to the browser session. The SDK also maintains an anonymous browser identifier so activity can begin before the user authenticates.
+
+## Reset on logout
+
+```js
+window.analytics.reset();
+```
+
+Call this when a user signs out, before an account switch, or on a shared-device handoff. The runtime clears the current identity and starts a new anonymous/session context.
+
+## Attributes are not a user profile sync
+
+The optional attributes object adds context to the identify action. Send only current, product-relevant values that your organization is permitted to process.
+
+```js
+window.analytics.identify(user.id, {
+  account_role: user.role,
+  billing_plan: user.plan,
+});
+```
+
+Do not treat `identify()` as a place to upload a complete customer record. Keep sensitive data out of client-side analytics.

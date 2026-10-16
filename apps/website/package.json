@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/react": "5.0.7",
+    "@astrojs/starlight": "^0.40.0",
     "@movcues/tokens": "*",
     "@movcues/ui": "*",
     "astro": "^6.0.0",

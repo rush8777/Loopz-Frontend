@@ -1,0 +1,55 @@
+---
+title: Configuration reference
+description: Verified configuration fields and runtime defaults for the current JavaScript SDK source.
+---
+
+# Configuration reference
+
+All settings are passed to `init(config)` or `createAnalytics(config)`. `siteId` is required; all other values are optional.
+
+## Core settings
+
+| Field | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `siteId` | `string` | — | Required. An empty value throws during initialization. |
+| `endpoint` | `string` | `https://api.movcues.com` | Use an override only when Movcues provides it. |
+| `debug` | `boolean` | `true` | Set `false` for a production integration unless actively diagnosing an issue. |
+| `sessionInactivityMs` | `number` | `1800000` | 30-minute inactive-session boundary. |
+| `respectDoNotTrack` | `boolean` | `false` | Must be enabled to honor the browser signal. |
+| `experiences.enabled` | `boolean` | `true` | Enables published experience evaluation independently of core capture. |
+
+## Automatic capture
+
+| Field | Default | Release status |
+| --- | --- | --- |
+| `autocapture.click` | `true` | Enabled; limited to intentional interactive elements in MVP1. |
+| `autocapture.scroll` | `true` | Enabled. |
+| `autocapture.rageClick` | `true` | Enabled. |
+| `autocapture.move` | `false` | Release-disabled. |
+| `autocapture.hover` | `false` | Release-disabled. |
+| `autocapture.cursor` | `false` | Release-disabled. |
+| `autocapture.elementCrawler` | `false` | Release-disabled. |
+
+## Collector tuning
+
+| Field | Default |
+| --- | --- |
+| `rageClick.minClicks` | `4` |
+| `rageClick.timeWindowMs` | `1000` |
+| `rageClick.radiusPx` | `40` |
+| `rageClick.ignoreDoubleClickMs` | `250` |
+| `scroll.throttleMs` | `100` |
+| `scroll.milestones` | `[25, 50, 75, 90, 100]` |
+| `queue.maxBatchSize` | `50` |
+| `queue.maxWaitMs` | `5000` |
+| `queue.maxQueueSize` | `2000` |
+| `queue.maxRetries` | `3` |
+| `queue.retryBaseDelayMs` | `1000` |
+
+## Bundle overrides
+
+The types include `experienceRuntimeBundleUrl`, `editorRuntimeBundleUrl`, and `heatmapSnapshotBundleUrl`. They are runtime-asset location overrides, not feature toggles. Keep the defaults unless a compatible hosted asset location has been explicitly supplied.
+
+## Source-visible but not documented as production capabilities
+
+The configuration type also contains detailed `move`, `hover`, `cursor`, `sessionReplay`, and `feedback` settings. This documentation intentionally does not present them as supported customer controls: MVP1 policy forces movement, hover, cursor, replay, and heatmap collection off, and the feedback default API base is a placeholder. See [release availability](/reference/availability/).

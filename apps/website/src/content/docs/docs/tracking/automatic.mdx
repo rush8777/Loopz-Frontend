@@ -1,0 +1,40 @@
+---
+title: Automatic collection
+description: See which behavior signals the current Movcues SDK records automatically.
+---
+
+# Automatic collection
+
+After initialization, the current release begins a session and automatically records a first page view. It also observes later client-side route changes.
+
+## Enabled in the current release
+
+| Signal | Behavior |
+| --- | --- |
+| Page views | Sent on initialization and on detected SPA URL changes. |
+| Interactive clicks | Captures intentional interaction with UI elements; normal click collection is restricted to interactive elements. |
+| Scroll milestones | Records configured progress milestones, by default 25%, 50%, 75%, 90%, and 100%. |
+| Rage clicks | Detects repeated nearby clicks using the configured count, time window, and distance. |
+
+## Not enabled in MVP1
+
+The runtime deliberately disables cursor movement, hover, element crawling, heatmaps, and session replay. Configuration flags for some of these collectors may still exist in types, but the release policy prevents them from collecting.
+
+This is an intentional data-volume and privacy boundary—not a setup failure. See [release availability](/reference/availability/) for the audit finding.
+
+## Turn off automatic collectors
+
+Use the configuration object to opt out of supported automatic collectors:
+
+```js
+window.analytics.init({
+  siteId: "YOUR_SITE_ID",
+  autocapture: {
+    click: false,
+    scroll: false,
+    rageClick: false,
+  },
+});
+```
+
+Use [privacy controls](/privacy/) for specific sensitive UI regions rather than disabling collection across an entire application.
