@@ -23,6 +23,50 @@ function ready(){mockedWorkspace.useWorkspace.mockReturnValue({orgs:[],currentOr
 
 describe("Experiences dashboard",()=>{
   beforeEach(()=>{vi.clearAllMocks();ready();mockedSegments.listSegments.mockResolvedValue({segments:[],total:0,limit:100,offset:0});mockedEvents.listEvents.mockResolvedValue({events:[],total:0,limit:100,offset:0});vi.spyOn(window,"open").mockReturnValue(popupHarness as unknown as Window);});
+  it("hardening: retains and exports a dashboard conflict without a background overwrite", async () => {
+    mockedExperiences.getExperience.mockResolvedValue(onsiteExperience());
+    mockedExperiences.updateExperience.mockRejectedValue(Object.assign(new Error("draft_conflict"), { status: 409 }));
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    await screen.findByRole("button", { name: "Open on-site builder" });
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Editor options" }), { button: 0, ctrlKey: false });
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Launch settings" }));
+    fireEvent.change(screen.getByLabelText("Numeric priority"), { target: { value: "77" } });
+    fireEvent.click(await screen.findByRole("button", { name: "Export local draft" }));
+    expect((screen.getByLabelText("Local draft JSON") as HTMLTextAreaElement).value).toContain('"priority": 77');
+    const calls = mockedExperiences.getExperience.mock.calls.length; fireEvent(window, new Event("focus"));
+    expect(mockedExperiences.getExperience.mock.calls).toHaveLength(calls); expect(screen.getByLabelText("Numeric priority")).toHaveValue(77);
+  });
+
+  it("hardening: opens a clean on-site builder without a no-op save", async () => {
+    mockedExperiences.getExperience.mockResolvedValue(onsiteExperience());
+    mockedExperiences.createEditorSession.mockResolvedValue({ sessionId: "session", launchUrl: "https://app.example.com?token=launch", expiresAt: "2027-01-01" });
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    fireEvent.click(await screen.findByRole("button", { name: "Open on-site builder" }));
+    await waitFor(() => expect(mockedExperiences.createEditorSession).toHaveBeenCalled());
+    expect(mockedExperiences.updateExperience).not.toHaveBeenCalled();
+  });
+  it("hardening: a focus refresh cannot replace edits made while its GET is pending", async () => {
+    const onsite = onsiteExperience(); let resolveRefresh!: (value: Experience) => void;
+    mockedExperiences.getExperience.mockResolvedValueOnce(onsite).mockImplementationOnce(() => new Promise(resolve => { resolveRefresh = resolve; }));
+    mockedExperiences.updateExperience.mockImplementation(() => new Promise(() => undefined));
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    await screen.findByRole("button", { name: "Open on-site builder" }); fireEvent(window, new Event("focus"));
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Editor options" }), { button: 0, ctrlKey: false });
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Launch settings" }));
+    fireEvent.change(screen.getByLabelText("Numeric priority"), { target: { value: "42" } });
+    resolveRefresh(onsite); await waitFor(() => expect(screen.getByLabelText("Numeric priority")).toHaveValue(42));
+    await waitFor(() => expect(mockedExperiences.updateExperience).toHaveBeenCalled());
+    expect(mockedExperiences.updateExperience.mock.calls.at(-1)![3]).toMatchObject({ settings: { targeting: { priority: 42 } } });
+  });
+  it("hardening: publish sends the exact reviewed version without saving an unchanged draft", async () => {
+    const onsite = onsiteExperience(); mockedExperiences.getExperience.mockResolvedValue(onsite); mockedExperiences.publishExperience.mockResolvedValue(onsite);
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    fireEvent.click(await screen.findByRole("button", { name: "Review & publish" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Publish now" }));
+    await waitFor(() => expect(mockedExperiences.publishExperience).toHaveBeenCalledWith("org_1", "site_1", "exp_1", { draftVersionId: "v1", revision: 1 }));
+    expect(mockedExperiences.updateExperience).not.toHaveBeenCalled();
+  });
+
   it("renders only the supported standalone experience collections",()=>{render(<MemoryRouter><Sidebar onOpenSettings={vi.fn()}/></MemoryRouter>);expect(screen.getByRole("link",{name:"Guides"})).toHaveAttribute("href","/experiences/guides");expect(screen.getByRole("link",{name:"Surveys"})).toHaveAttribute("href","/experiences/surveys");expect(screen.getByRole("link",{name:"Banners"})).toHaveAttribute("href","/experiences/banners");expect(screen.getByRole("link",{name:"Checklists"})).toHaveAttribute("href","/experiences/checklists");expect(screen.queryByRole("link",{name:"Modals"})).not.toBeInTheDocument();expect(screen.queryByRole("link",{name:"Tooltips"})).not.toBeInTheDocument();expect(screen.queryByRole("link",{name:"Widgets"})).not.toBeInTheDocument();expect(screen.queryByRole("link",{name:"Visual Builder"})).not.toBeInTheDocument();});
   it("filters each supported collection and isolates unsupported checklists",async()=>{mockedExperiences.listExperiences.mockResolvedValue({experiences:[]});const {rerender}=render(<MemoryRouter><ExperienceListPage kind="guide"/></MemoryRouter>);expect(await screen.findByText("Create your first guide.")).toBeInTheDocument();expect(mockedExperiences.listExperiences).toHaveBeenLastCalledWith("org_1","site_1","guide",undefined);rerender(<MemoryRouter><ExperienceListPage kind="widget" widgetType="survey" singularLabel="survey" pluralLabel="Surveys"/></MemoryRouter>);expect(await screen.findByText("Create your first survey.")).toBeInTheDocument();expect(mockedExperiences.listExperiences).toHaveBeenLastCalledWith("org_1","site_1","widget","survey");rerender(<MemoryRouter><ExperienceListPage kind="widget" singularLabel="checklist" pluralLabel="Checklists" unsupported/></MemoryRouter>);expect(await screen.findByText("Checklists are not available yet.")).toBeInTheDocument();});
   it("deletes a listed guide and does not expose a preview action",async()=>{mockedExperiences.listExperiences.mockResolvedValue({experiences:[guideExperience()]});mockedExperiences.deleteExperience.mockResolvedValue(undefined);vi.spyOn(window,"confirm").mockReturnValue(true);render(<MemoryRouter><ExperienceListPage kind="guide"/></MemoryRouter>);expect((await screen.findAllByText("Guide")).length).toBeGreaterThan(0);expect(screen.queryByRole("button",{name:"Preview"})).not.toBeInTheDocument();fireEvent.click(screen.getAllByRole("button",{name:"Delete Guide"})[0]);await waitFor(()=>expect(mockedExperiences.deleteExperience).toHaveBeenCalledWith("org_1","site_1","exp_1"));expect(window.confirm).toHaveBeenCalledWith('Delete "Guide"? This cannot be undone.');});

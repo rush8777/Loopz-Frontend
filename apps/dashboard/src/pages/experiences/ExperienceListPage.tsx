@@ -58,7 +58,7 @@ export function ExperienceListPage({ kind, widgetType, singularLabel = kind, plu
     if (!currentOrg || !currentSite) return;
     try {
       if (item.status === "published") await experiencesApi.pauseExperience(currentOrg.orgId, currentSite.id, item.id);
-      else await experiencesApi.publishExperience(currentOrg.orgId, currentSite.id, item.id);
+      else { navigate(`/experiences/${item.id}/edit`); return; }
       load();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Action failed.");
@@ -91,7 +91,7 @@ export function ExperienceListPage({ kind, widgetType, singularLabel = kind, plu
           <div className="space-y-3 p-3 md:hidden">{items.map(item => <MobileExperienceCard key={item.id} item={item} analytics={analyticsById.get(item.id)} deleting={deletingId === item.id} onEdit={() => navigate(`/experiences/${item.id}/edit`)} onResults={item.widgetType === "survey" ? () => navigate(`/experiences/${item.id}/results`) : undefined} onToggle={() => void toggle(item)} onRemove={() => void remove(item)} />)}</div>
           {widgetType === "survey" ? <table className={`${dataTableClass} hidden min-w-[920px] md:table`}>
             <thead><tr><th className="w-[152px]">Preview</th><th>Name</th><th>Status</th><th className="text-right">Responses</th><th className="text-right">Response rate</th><th>Updated</th><th>Actions</th></tr></thead>
-            <tbody>{items.map(item => { const analytics = analyticsById.get(item.id)?.survey; return <tr key={item.id}><td className="py-2!"><WidgetPreview item={item} /></td><td><button type="button" className="font-medium text-foreground hover:text-primary" onClick={() => navigate(`/experiences/${item.id}/edit`)}>{item.name}</button><div className="mt-2"><BuilderBadge item={item} /></div></td><td><StatusBadge status={item.status} /></td><td className="text-right font-mono">{(analytics?.responseCount ?? analytics?.submitted ?? 0).toLocaleString()}</td><td className="text-right font-mono">{analytics ? `${analytics.responseRate}%` : "—"}</td><td className="whitespace-nowrap text-muted-foreground">{formatRelativeTime(item.updatedAt)}</td><td><div className="flex gap-1"><Button size="sm" onClick={() => navigate(`/experiences/${item.id}/results`)}>View Results</Button><Button variant="ghost" size="sm" onClick={() => navigate(`/experiences/${item.id}/edit`)}>Build</Button><Button variant="ghost" size="sm" onClick={() => void toggle(item)}>{item.status === "published" ? "Pause" : "Publish"}</Button><Button variant="ghost" size="icon" className="text-destructive" aria-label={`Delete ${item.name}`} disabled={deletingId === item.id} onClick={() => void remove(item)}><Trash2 /></Button></div></td></tr>; })}</tbody>
+            <tbody>{items.map(item => { const analytics = analyticsById.get(item.id)?.survey; return <tr key={item.id}><td className="py-2!"><WidgetPreview item={item} /></td><td><button type="button" className="font-medium text-foreground hover:text-primary" onClick={() => navigate(`/experiences/${item.id}/edit`)}>{item.name}</button><div className="mt-2"><BuilderBadge item={item} /></div></td><td><StatusBadge status={item.status} /></td><td className="text-right font-mono">{(analytics?.responseCount ?? analytics?.submitted ?? 0).toLocaleString()}</td><td className="text-right font-mono">{analytics ? `${analytics.responseRate}%` : "—"}</td><td className="whitespace-nowrap text-muted-foreground">{formatRelativeTime(item.updatedAt)}</td><td><div className="flex gap-1"><Button size="sm" onClick={() => navigate(`/experiences/${item.id}/results`)}>View Results</Button><Button variant="ghost" size="sm" onClick={() => navigate(`/experiences/${item.id}/edit`)}>Build</Button><Button variant="ghost" size="sm" onClick={() => void toggle(item)}>{item.status === "published" ? "Pause" : "Review & publish"}</Button><Button variant="ghost" size="icon" className="text-destructive" aria-label={`Delete ${item.name}`} disabled={deletingId === item.id} onClick={() => void remove(item)}><Trash2 /></Button></div></td></tr>; })}</tbody>
           </table> : <table className={`${dataTableClass} hidden min-w-[930px] md:table`}>
           <thead><tr><th className="w-[152px]">Preview</th><th>Experience</th><th className="w-[250px]">Performance</th><th>Targeting</th><th>Updated</th><th>Actions</th></tr></thead>
           <tbody>{items.map(item => <tr key={item.id}>
@@ -106,7 +106,7 @@ export function ExperienceListPage({ kind, widgetType, singularLabel = kind, plu
             <td><PerformanceMetrics analytics={analyticsById.get(item.id)} item={item} /></td>
             <td className="text-muted-foreground">{targetingLabel(item)}</td>
             <td className="whitespace-nowrap text-muted-foreground">{formatRelativeTime(item.updatedAt)}</td>
-            <td><div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => navigate(`/experiences/${item.id}/edit`)}>Edit</Button><Button variant="ghost" size="sm" onClick={() => void toggle(item)}>{item.status === "published" ? "Pause" : "Publish"}</Button><Button variant="ghost" size="icon" className="text-destructive" aria-label={`Delete ${item.name}`} disabled={deletingId === item.id} onClick={() => void remove(item)}><Trash2 /></Button></div></td>
+            <td><div className="flex gap-1"><Button variant="ghost" size="sm" onClick={() => navigate(`/experiences/${item.id}/edit`)}>Edit</Button><Button variant="ghost" size="sm" onClick={() => void toggle(item)}>{item.status === "published" ? "Pause" : "Review & publish"}</Button><Button variant="ghost" size="icon" className="text-destructive" aria-label={`Delete ${item.name}`} disabled={deletingId === item.id} onClick={() => void remove(item)}><Trash2 /></Button></div></td>
           </tr>)}</tbody>
           </table>}
         </>}
@@ -151,7 +151,7 @@ function MobileExperienceCard({ item, analytics, deleting, onEdit, onResults, on
     <div className="mt-3 flex items-center justify-end gap-1 border-t pt-2">
       {onResults && <Button size="sm" onClick={onResults}>View Results</Button>}
       <Button variant="ghost" size="sm" onClick={onEdit}>Edit</Button>
-      <Button variant="ghost" size="sm" onClick={onToggle}>{item.status === "published" ? "Pause" : "Publish"}</Button>
+      <Button variant="ghost" size="sm" onClick={onToggle}>{item.status === "published" ? "Pause" : "Review & publish"}</Button>
       <Button variant="ghost" size="icon" className="text-destructive" aria-label={`Delete ${item.name}`} disabled={deleting} onClick={onRemove}><Trash2 /></Button>
     </div>
   </article>;

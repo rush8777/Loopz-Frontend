@@ -70,6 +70,7 @@ import { AdvancedFrequencyControls } from "../../components/experiences/Advanced
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 export function publishErrorMessage(message: string): string {
+  if (message === "reviewed_draft_changed" || message === "reviewed_revision_required") return "This draft changed after review. Close the review and review the latest saved draft before publishing.";
   if (message === "target_required")
     return "Select a target for every guide step that uses Anchored Card before publishing.";
   if (message === "guide_unavailable")
@@ -129,6 +130,8 @@ export function ExperienceEditorPage() {
     () => (location.state as { onsiteLaunchError?: string } | null)?.onsiteLaunchError ?? null,
   );
   const [status, setStatus] = useState("");
+  const [saveProblem, setSaveProblem] = useState<"failed" | "conflict" | null>(null);
+  const [localExport, setLocalExport] = useState<string | null>(null);
   const [selectedStep, setSelectedStep] = useState(0);
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
     null,
@@ -145,6 +148,10 @@ export function ExperienceEditorPage() {
   const timer = useRef<number | null>(null);
   const saveQueue = useRef<Promise<Experience> | null>(null);
   const revision = useRef(1);
+  const lastServer = useRef<Experience | null>(null);
+  const pendingDraft = useRef<ExperienceDefinition | null>(null);
+  const saveFailure = useRef<unknown>(null);
+  const reviewed = useRef<{ draftVersionId: string; revision: number } | null>(null);
   const dirty = useRef(false);
   const widgetBuilder = useRef<GrapesWidgetBuilderHandle | null>(null);
   const checklistBuilderFlush = useRef<(() => void) | null>(null);
@@ -186,6 +193,7 @@ export function ExperienceEditorPage() {
           },
           "info",
         );
+        lastServer.current = item;
         dirty.current = false;
         revision.current = item.draftVersion?.revision ?? 1;
         setExperience(item);
@@ -214,7 +222,11 @@ export function ExperienceEditorPage() {
         return Promise.reject(
           new Error("The experience is no longer available."),
         );
-      const summary = summarizeDefinition(draft);
+      if (saveQueue.current && pendingDraft.current === draft) return saveQueue.current;
+      if (!dirty.current && lastServer.current) return saveQueue.current ?? Promise.resolve(lastServer.current);
+      if (saveFailure.current && typeof saveFailure.current === "object" && "status" in saveFailure.current && saveFailure.current.status === 409) return Promise.reject(saveFailure.current);
+      const snapshot = clone(draft);
+      const summary = summarizeDefinition(snapshot);
       builderDebug(
         experience.id,
         "save:queued",
@@ -225,6 +237,7 @@ export function ExperienceEditorPage() {
       const request = (
         saveQueue.current?.catch(() => undefined) ?? Promise.resolve()
       ).then(async () => {
+        if (saveFailure.current && typeof saveFailure.current === "object" && "status" in saveFailure.current && saveFailure.current.status === 409) throw saveFailure.current;
         builderDebug(
           experience.id,
           "save:request:start",
@@ -234,19 +247,23 @@ export function ExperienceEditorPage() {
         const expectedRevision = revision.current;
         const input =
           experience.builderMode === "onsite" &&
-          !isChecklistDefinition(draft)
+          !isChecklistDefinition(snapshot)
             ? {
                 revision: expectedRevision,
-                settings: { targeting: clone(draft.targeting) },
+                settings: { targeting: snapshot.targeting },
               }
-            : { revision: expectedRevision, definition: clone(draft) };
+            : { revision: expectedRevision, definition: snapshot };
         const item = await experiencesApi.updateExperience(
           currentOrg.orgId,
           currentSite.id,
           experience.id,
           input,
         );
-        revision.current = item.draftVersion?.revision ?? expectedRevision + 1;
+        lastServer.current = item;
+        saveFailure.current = null;
+        setSaveProblem(null); setLocalExport(null);
+        revision.current = item.draftVersion?.revision ?? expectedRevision;
+        if (reviewed.current && reviewed.current.draftVersionId === item.draftVersion?.id && reviewed.current.revision === expectedRevision) reviewed.current.revision = revision.current;
         builderDebug(
           experience.id,
           "save:request:success",
@@ -265,7 +282,10 @@ export function ExperienceEditorPage() {
         return item;
       });
       saveQueue.current = request;
+      pendingDraft.current = draft;
       request.catch((caught) => {
+        saveFailure.current = caught;
+        dirty.current = true;
         builderDebug(
           experience.id,
           "save:request:error",
@@ -280,6 +300,7 @@ export function ExperienceEditorPage() {
           caught !== null &&
           "status" in caught &&
           caught.status === 409;
+        setSaveProblem(conflict ? "conflict" : "failed");
         setStatus(
           conflict
             ? "Save conflict"
@@ -290,6 +311,7 @@ export function ExperienceEditorPage() {
             "This draft changed in another editor. Your local edits are still here; reload when you're ready to review the latest saved version.",
           );
       });
+      void request.finally(() => { if (saveQueue.current === request) { saveQueue.current = null; pendingDraft.current = null; } }).catch(() => undefined);
       return request;
     },
     [currentOrg, currentSite, experience],
@@ -305,7 +327,7 @@ export function ExperienceEditorPage() {
       delayMs: 600,
       definition: summarizeDefinition(definition),
     });
-    timer.current = window.setTimeout(() => void save(definition), 600);
+    timer.current = window.setTimeout(() => { void save(definition).catch(() => undefined); }, 600);
     return () => {
       if (timer.current) {
         builderDebug(experience.id, "save:debounce:cleanup");
@@ -316,16 +338,19 @@ export function ExperienceEditorPage() {
   useEffect(() => {
     if (!currentOrg || !currentSite || !experienceId) return;
     const refresh = () => {
-      if (dirty.current) return;
+      if (dirty.current || saveQueue.current || reviewed.current) return;
+      const startingRevision = revision.current; const startingDraft = latest.current;
       void experiencesApi
         .getExperience(currentOrg.orgId, currentSite.id, experienceId)
         .then((item) => {
+          if (dirty.current || saveQueue.current || reviewed.current || startingRevision !== revision.current || startingDraft !== latest.current) return;
+          lastServer.current = item;
           dirty.current = false;
           revision.current = item.draftVersion?.revision ?? 1;
           setExperience(item);
           setDefinition(item.draftVersion?.definition ?? null);
           latest.current = item.draftVersion?.definition ?? null;
-        });
+        }).catch(() => { /* Retain current draft on a failed background refresh. */ });
     };
     window.addEventListener("focus", refresh);
     return () => window.removeEventListener("focus", refresh);
@@ -336,8 +361,39 @@ export function ExperienceEditorPage() {
       timer.current = null;
     }
     if (!latest.current) throw new Error("Draft is unavailable.");
-    return save(latest.current);
+    if (saveQueue.current) await saveQueue.current;
+    if (dirty.current) return save(latest.current);
+    if (saveFailure.current) throw saveFailure.current;
+    if (!lastServer.current) throw new Error("Draft is unavailable.");
+    return lastServer.current;
   }, [save]);
+  useEffect(() => {
+    const protect = (event: BeforeUnloadEvent) => { if (!dirty.current && !saveQueue.current) return; event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", protect);
+    return () => window.removeEventListener("beforeunload", protect);
+  }, []);
+  const reloadLatest = async () => {
+    if (!currentOrg || !currentSite || !experience || !window.confirm("Discard local edits and load the latest saved draft? Export first if you need a copy.")) return;
+    const starting = latest.current;
+    try {
+      if (saveQueue.current) await saveQueue.current.catch(() => undefined);
+      const item = await experiencesApi.getExperience(currentOrg.orgId, currentSite.id, experience.id);
+      if (starting !== latest.current || saveQueue.current) throw new Error("Local edits changed while loading. They are preserved; try reload again when ready.");
+      lastServer.current = item; revision.current = item.draftVersion?.revision ?? 1;
+      dirty.current = false; saveFailure.current = null; reviewed.current = null;
+      latest.current = item.draftVersion?.definition ?? null; setDefinition(latest.current); setExperience(item);
+      setSaveProblem(null); setLocalExport(null); setError(null); setStatus("Draft saved"); setReviewOpen(false);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Latest draft could not be loaded."); }
+  };
+  const recoveryControls = saveProblem ? <div role="status" className="space-y-2 p-3">
+    <p className="text-sm">Local edits are preserved in this tab. Export before reloading or leaving.</p>
+    <div className="flex flex-wrap gap-2">
+      {saveProblem === "failed" && <Button variant="outline" onClick={() => { void flush().catch(() => undefined); }}>Retry save</Button>}
+      <Button variant="outline" onClick={() => setLocalExport(JSON.stringify({ experienceId: experience?.id, revision: revision.current, definition: latest.current }, null, 2))}>Export local draft</Button>
+      <Button variant="outline" onClick={() => void reloadLatest()}>Reload latest draft</Button>
+    </div>
+    {localExport && <textarea aria-label="Local draft JSON" className="h-40 w-full font-mono text-xs" readOnly value={localExport}/>}
+  </div> : null;
   const guide = definition && isGuideDefinition(definition) ? definition : null;
   const checklist =
     definition && isChecklistDefinition(definition) ? definition : null;
@@ -371,6 +427,7 @@ export function ExperienceEditorPage() {
     const before = summarizeDefinition(current);
     const next = clone(current);
     fn(next);
+    if (JSON.stringify(current) === JSON.stringify(next)) return;
     const after = summarizeDefinition(next);
     builderDebug(experienceId ?? "unknown-experience", "editor:mutate", {
       selectedStep,
@@ -574,7 +631,15 @@ export function ExperienceEditorPage() {
     setPreparingReview(true);
     try {
       flushEditor();
-      const item = await flush();
+      await flush();
+      const startingDraft = latest.current;
+      const item = await experiencesApi.getExperience(currentOrg!.orgId, currentSite!.id, experience!.id);
+      if (dirty.current || saveQueue.current || startingDraft !== latest.current) throw new Error("The draft changed while preparing review. Try again.");
+      const version = item.draftVersion;
+      if (!version) throw new Error("Draft is unavailable.");
+      reviewed.current = { draftVersionId: version.id, revision: version.revision ?? 1 };
+      lastServer.current = item; revision.current = version.revision ?? 1;
+      latest.current = version.definition; setDefinition(version.definition);
       setExperience(item);
       setReviewOpen(true);
     } catch (caught) {
@@ -610,7 +675,9 @@ export function ExperienceEditorPage() {
         currentOrg.orgId,
         currentSite.id,
         experience.id,
+        reviewed.current ?? { draftVersionId: "", revision: -1 },
       );
+      reviewed.current = null; lastServer.current = item;
       setExperience(item);
       setDefinition(item.draftVersion!.definition);
       latest.current = item.draftVersion!.definition;
@@ -652,6 +719,7 @@ export function ExperienceEditorPage() {
   if (checklist)
     return (
       <>
+        {recoveryControls}
         <ChecklistEditor
           experience={experience}
           definition={checklist as ChecklistExperienceDefinition}
@@ -675,7 +743,7 @@ export function ExperienceEditorPage() {
           experience={experience}
           definition={definition}
           references={{ pages, segments, events, guides }}
-          onOpenChange={setReviewOpen}
+          onOpenChange={(open) => { setReviewOpen(open); if (!open) reviewed.current = null; }}
           onChange={(next) => {
             dirty.current = true;
             latest.current = next;
@@ -820,6 +888,7 @@ export function ExperienceEditorPage() {
             <ErrorNotice>{error}</ErrorNotice>
           </div>
         )}
+        {recoveryControls}
         <div className="flex min-h-0 flex-1">
           <section className="relative flex min-w-0 flex-1 flex-col overflow-visible [&>div.mt-4]:mt-0">
             {guide && experience.builderMode === "grapesjs" && (
@@ -1371,7 +1440,7 @@ export function ExperienceEditorPage() {
         experience={experience}
         definition={definition}
         references={{ pages, segments, events, guides }}
-        onOpenChange={setReviewOpen}
+        onOpenChange={(open) => { setReviewOpen(open); if (!open) reviewed.current = null; }}
         onChange={(mutateDefinition) => {
           dirty.current = true;
           latest.current = mutateDefinition;

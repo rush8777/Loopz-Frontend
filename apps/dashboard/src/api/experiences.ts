@@ -7,7 +7,7 @@ export function createExperience(orgId: string, siteId: string, input: CreateExp
 export function getExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`); }
 export function updateExperience(orgId: string, siteId: string, id: string, input: { name?: string; definition?: ExperienceDefinition; settings?: { targeting: ExperienceTargeting }; revision?: number }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`, { method: "PATCH", body: input }); }
 export function deleteExperience(orgId: string, siteId: string, id: string) { return apiRequest<void>(`${base(orgId, siteId)}/${id}`, { method: "DELETE" }); }
-export function publishExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/publish`, { method: "POST" }); }
+export function publishExperience(orgId: string, siteId: string, id: string, reviewed: { draftVersionId: string; revision: number }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/publish`, { method: "POST", body: reviewed }); }
 export function completeLaunchSetup(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/launch-setup/complete`, { method: "POST" }); }
 export function pauseExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/pause`, { method: "POST" }); }
 export function createEditorSession(orgId: string, siteId: string, id: string) { return apiRequest<{ sessionId: string; launchUrl: string; expiresAt: string }>(`${base(orgId, siteId)}/${id}/editor-sessions`, { method: "POST" }); }
