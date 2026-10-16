@@ -5,7 +5,7 @@ import { ReviewPublishDialog } from "./ReviewPublishDialog";
 
 const page = { id: "page_1", siteId: "site_1", name: "Pricing", description: null, area: null, pageType: "pricing" as const, rules: [{ id: "rule_1", kind: "include" as const, operator: "starts_with" as const, value: "/pricing" }], heatmapEnabled: false, views: 0, uniqueVisitors: 0, uniqueSessions: 0, lastSeenAt: null, createdAt: "2026-01-01", updatedAt: "2026-01-01" };
 const definition: ExperienceDefinition = { content: { heading: "Welcome", body: "Hello" }, design: { width: "md", theme: { background: "#fff", foreground: "#111", primary: "#2563eb", borderRadius: "md" } }, behavior: { dismissible: true, modalLayout: "center" }, targeting: { pageRules: page.rules, audience: { type: "all" }, trigger: { type: "page_load" }, frequency: { mode: "once" }, priority: 0 } };
-const experience: Experience = { id: "exp_1", siteId: "site_1", kind: "widget", widgetType: "modal", name: "Welcome", status: "draft", buildPageId: null, buildUrl: "https://app.test", publishedVersionId: null, launchSetupCompletedAt: null, createdBy: "user_1", createdAt: "2026-01-01", updatedAt: "2026-01-01", draftVersion: null, publishedVersion: null };
+const experience: Experience = { id: "exp_1", siteId: "site_1", kind: "widget", widgetType: "modal", builderMode: "grapesjs", name: "Welcome", status: "draft", buildPageId: null, buildUrl: "https://app.test", publishedVersionId: null, launchSetupCompletedAt: null, createdBy: "user_1", createdAt: "2026-01-01", updatedAt: "2026-01-01", draftVersion: null, publishedVersion: null };
 const references = { pages: [page], segments: [], events: [], guides: [] };
 
 function renderDialog(overrides: Partial<React.ComponentProps<typeof ReviewPublishDialog>> = {}) {

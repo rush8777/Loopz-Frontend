@@ -91,7 +91,7 @@ export function ExperienceListPage({ kind, widgetType, singularLabel = kind, plu
           <div className="space-y-3 p-3 md:hidden">{items.map(item => <MobileExperienceCard key={item.id} item={item} analytics={analyticsById.get(item.id)} deleting={deletingId === item.id} onEdit={() => navigate(`/experiences/${item.id}/edit`)} onResults={item.widgetType === "survey" ? () => navigate(`/experiences/${item.id}/results`) : undefined} onToggle={() => void toggle(item)} onRemove={() => void remove(item)} />)}</div>
           {widgetType === "survey" ? <table className={`${dataTableClass} hidden min-w-[920px] md:table`}>
             <thead><tr><th className="w-[152px]">Preview</th><th>Name</th><th>Status</th><th className="text-right">Responses</th><th className="text-right">Response rate</th><th>Updated</th><th>Actions</th></tr></thead>
-            <tbody>{items.map(item => { const analytics = analyticsById.get(item.id)?.survey; return <tr key={item.id}><td className="py-2!"><WidgetPreview item={item} /></td><td><button type="button" className="font-medium text-foreground hover:text-primary" onClick={() => navigate(`/experiences/${item.id}/edit`)}>{item.name}</button></td><td><StatusBadge status={item.status} /></td><td className="text-right font-mono">{(analytics?.responseCount ?? analytics?.submitted ?? 0).toLocaleString()}</td><td className="text-right font-mono">{analytics ? `${analytics.responseRate}%` : "—"}</td><td className="whitespace-nowrap text-muted-foreground">{formatRelativeTime(item.updatedAt)}</td><td><div className="flex gap-1"><Button size="sm" onClick={() => navigate(`/experiences/${item.id}/results`)}>View Results</Button><Button variant="ghost" size="sm" onClick={() => navigate(`/experiences/${item.id}/edit`)}>Build</Button><Button variant="ghost" size="sm" onClick={() => void toggle(item)}>{item.status === "published" ? "Pause" : "Publish"}</Button><Button variant="ghost" size="icon" className="text-destructive" aria-label={`Delete ${item.name}`} disabled={deletingId === item.id} onClick={() => void remove(item)}><Trash2 /></Button></div></td></tr>; })}</tbody>
+            <tbody>{items.map(item => { const analytics = analyticsById.get(item.id)?.survey; return <tr key={item.id}><td className="py-2!"><WidgetPreview item={item} /></td><td><button type="button" className="font-medium text-foreground hover:text-primary" onClick={() => navigate(`/experiences/${item.id}/edit`)}>{item.name}</button><div className="mt-2"><BuilderBadge item={item} /></div></td><td><StatusBadge status={item.status} /></td><td className="text-right font-mono">{(analytics?.responseCount ?? analytics?.submitted ?? 0).toLocaleString()}</td><td className="text-right font-mono">{analytics ? `${analytics.responseRate}%` : "—"}</td><td className="whitespace-nowrap text-muted-foreground">{formatRelativeTime(item.updatedAt)}</td><td><div className="flex gap-1"><Button size="sm" onClick={() => navigate(`/experiences/${item.id}/results`)}>View Results</Button><Button variant="ghost" size="sm" onClick={() => navigate(`/experiences/${item.id}/edit`)}>Build</Button><Button variant="ghost" size="sm" onClick={() => void toggle(item)}>{item.status === "published" ? "Pause" : "Publish"}</Button><Button variant="ghost" size="icon" className="text-destructive" aria-label={`Delete ${item.name}`} disabled={deletingId === item.id} onClick={() => void remove(item)}><Trash2 /></Button></div></td></tr>; })}</tbody>
           </table> : <table className={`${dataTableClass} hidden min-w-[930px] md:table`}>
           <thead><tr><th className="w-[152px]">Preview</th><th>Experience</th><th className="w-[250px]">Performance</th><th>Targeting</th><th>Updated</th><th>Actions</th></tr></thead>
           <tbody>{items.map(item => <tr key={item.id}>
@@ -101,7 +101,7 @@ export function ExperienceListPage({ kind, widgetType, singularLabel = kind, plu
                 <span className="block font-medium text-foreground group-hover:text-primary">{item.name}</span>
                 <span className="mt-1 block text-xs capitalize text-muted-foreground">{experienceType(item)}</span>
               </button>
-              <div className="mt-2"><StatusBadge status={item.status} /></div>
+              <div className="mt-2 flex gap-2"><StatusBadge status={item.status} /><BuilderBadge item={item} /></div>
             </td>
             <td><PerformanceMetrics analytics={analyticsById.get(item.id)} item={item} /></td>
             <td className="text-muted-foreground">{targetingLabel(item)}</td>
@@ -121,6 +121,21 @@ function StatusBadge({ status }: { status: Experience["status"] }) {
   return <Badge variant="outline" className={status === "published" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : status === "paused" ? "border-amber-200 bg-amber-50 text-amber-700" : ""}>{label}</Badge>;
 }
 
+function BuilderBadge({ item }: { item: Experience }) {
+  return (
+    <Badge
+      variant="outline"
+      className={
+        item.builderMode === "onsite"
+          ? "border-violet-200 bg-violet-50 text-violet-700"
+          : "border-slate-200 bg-slate-50 text-slate-600"
+      }
+    >
+      {item.builderMode === "onsite" ? "On-site" : "Dashboard"}
+    </Badge>
+  );
+}
+
 function MobileExperienceCard({ item, analytics, deleting, onEdit, onResults, onToggle, onRemove }: { item: Experience; analytics?: ExperienceAnalytics; deleting: boolean; onEdit: () => void; onResults?: () => void; onToggle: () => void; onRemove: () => void }) {
   return <article className="rounded-lg border bg-card p-3 shadow-sm">
     <div className="flex gap-3">
@@ -128,7 +143,7 @@ function MobileExperienceCard({ item, analytics, deleting, onEdit, onResults, on
       <div className="min-w-0 flex-1">
         <button type="button" className="block max-w-full truncate text-left font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={onEdit}>{item.name}</button>
         <p className="mt-0.5 text-xs capitalize text-muted-foreground">{experienceType(item)}</p>
-        <div className="mt-2"><StatusBadge status={item.status} /></div>
+        <div className="mt-2 flex gap-2"><StatusBadge status={item.status} /><BuilderBadge item={item} /></div>
         <p className="mt-2 text-xs text-muted-foreground">{targetingLabel(item)} · Updated {formatRelativeTime(item.updatedAt)}</p>
       </div>
     </div>

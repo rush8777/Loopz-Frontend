@@ -1,6 +1,7 @@
 import type { PageRule } from "./api";
 export type ExperienceKind = "guide" | "widget" | "checklist";
 export type WidgetType = "anchored_card" | "toast" | "cursor_follow" | "modal" | "slideout" | "hotspot" | "banner" | "survey";
+export type BuilderMode = "grapesjs" | "onsite";
 export type ExperienceStatus = "draft" | "published" | "paused" | "archived";
 export interface ExperienceAction { label: string; type: "dismiss" | "next_step" | "open_url" | "track_event"; url?: string; eventName?: string }
 export interface ExperienceContent { heading: string; body: string; primaryAction?: ExperienceAction; secondaryAction?: { label: string; type: "dismiss" } }
@@ -38,8 +39,8 @@ export type ExperienceDefinition =
   | { content: ExperienceContent; design: ExperienceDesign; behavior: ExperienceBehavior; builder?: WidgetBuilderState; target?: ExperienceTarget; targeting: ExperienceTargeting; survey?: SurveyConfig }
   | { steps: GuideStep[]; design: ExperienceDesign; behavior?: { layer?: ExperienceLayer }; targeting: ExperienceTargeting }
   | ChecklistExperienceDefinition;
-export interface ExperienceVersion { id: string; experienceId: string; versionNumber: number; state: "draft" | "published"; definition: ExperienceDefinition; createdBy: string; createdAt: string; publishedAt: string | null }
-export interface Experience { id: string; siteId: string; kind: ExperienceKind; widgetType: WidgetType | null; name: string; status: ExperienceStatus; buildPageId: string | null; buildUrl: string | null; publishedVersionId: string | null; launchSetupCompletedAt?: string | null; createdBy: string; createdAt: string; updatedAt: string; draftVersion: ExperienceVersion | null; publishedVersion: ExperienceVersion | null }
+export interface ExperienceVersion { id: string; experienceId: string; versionNumber: number; revision: number; state: "draft" | "published"; definition: ExperienceDefinition; createdBy: string; createdAt: string; publishedAt: string | null }
+export interface Experience { id: string; siteId: string; kind: ExperienceKind; widgetType: WidgetType | null; builderMode: BuilderMode; name: string; status: ExperienceStatus; buildPageId: string | null; buildUrl: string | null; publishedVersionId: string | null; launchSetupCompletedAt?: string | null; createdBy: string; createdAt: string; updatedAt: string; draftVersion: ExperienceVersion | null; publishedVersion: ExperienceVersion | null }
 export interface ExperienceAnalytics {
   experience: { id: string; name: string; kind: ExperienceKind; widgetType: WidgetType | null };
   summary: { usersSeen: number; usersStarted: number; completed: number; dismissed: number; completionRate: number };

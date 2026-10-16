@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowDown,
   ArrowLeft,
@@ -116,6 +116,7 @@ export function ExperienceEditorPage() {
   const { experienceId } = useParams();
   const { currentOrg, currentSite } = useWorkspace();
   const navigate = useNavigate();
+  const location = useLocation();
   const [experience, setExperience] = useState<Experience | null>(null);
   const [definition, setDefinition] = useState<ExperienceDefinition | null>(
     null,
@@ -124,7 +125,9 @@ export function ExperienceEditorPage() {
   const [segments, setSegments] = useState<Segment[]>([]);
   const [events, setEvents] = useState<EventDefinitionSummary[]>([]);
   const [guides, setGuides] = useState<Experience[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    () => (location.state as { onsiteLaunchError?: string } | null)?.onsiteLaunchError ?? null,
+  );
   const [status, setStatus] = useState("");
   const [selectedStep, setSelectedStep] = useState(0);
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
@@ -141,6 +144,7 @@ export function ExperienceEditorPage() {
   const latest = useRef<ExperienceDefinition | null>(null);
   const timer = useRef<number | null>(null);
   const saveQueue = useRef<Promise<Experience> | null>(null);
+  const revision = useRef(1);
   const dirty = useRef(false);
   const widgetBuilder = useRef<GrapesWidgetBuilderHandle | null>(null);
   const checklistBuilderFlush = useRef<(() => void) | null>(null);
@@ -183,6 +187,7 @@ export function ExperienceEditorPage() {
           "info",
         );
         dirty.current = false;
+        revision.current = item.draftVersion?.revision ?? 1;
         setExperience(item);
         setDefinition(loaded);
         latest.current = loaded;
@@ -226,12 +231,22 @@ export function ExperienceEditorPage() {
           { definition: summary },
           "info",
         );
+        const expectedRevision = revision.current;
+        const input =
+          experience.builderMode === "onsite" &&
+          !isChecklistDefinition(draft)
+            ? {
+                revision: expectedRevision,
+                settings: { targeting: clone(draft.targeting) },
+              }
+            : { revision: expectedRevision, definition: clone(draft) };
         const item = await experiencesApi.updateExperience(
           currentOrg.orgId,
           currentSite.id,
           experience.id,
-          { definition: clone(draft) },
+          input,
         );
+        revision.current = item.draftVersion?.revision ?? expectedRevision + 1;
         builderDebug(
           experience.id,
           "save:request:success",
@@ -260,9 +275,20 @@ export function ExperienceEditorPage() {
           },
           "error",
         );
+        const conflict =
+          typeof caught === "object" &&
+          caught !== null &&
+          "status" in caught &&
+          caught.status === 409;
         setStatus(
-          `Autosave failed: ${caught instanceof Error ? caught.message : "request failed"}`,
+          conflict
+            ? "Save conflict"
+            : `Autosave failed: ${caught instanceof Error ? caught.message : "request failed"}`,
         );
+        if (conflict)
+          setError(
+            "This draft changed in another editor. Your local edits are still here; reload when you're ready to review the latest saved version.",
+          );
       });
       return request;
     },
@@ -295,6 +321,7 @@ export function ExperienceEditorPage() {
         .getExperience(currentOrg.orgId, currentSite.id, experienceId)
         .then((item) => {
           dirty.current = false;
+          revision.current = item.draftVersion?.revision ?? 1;
           setExperience(item);
           setDefinition(item.draftVersion?.definition ?? null);
           latest.current = item.draftVersion?.definition ?? null;
@@ -587,6 +614,7 @@ export function ExperienceEditorPage() {
       setExperience(item);
       setDefinition(item.draftVersion!.definition);
       latest.current = item.draftVersion!.definition;
+      revision.current = item.draftVersion?.revision ?? 1;
       setStatus("Published");
       return item;
     } catch (caught) {
@@ -715,17 +743,38 @@ export function ExperienceEditorPage() {
               >
                 {visibleStatus}
               </span>
+              <span className="hidden shrink-0 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700 ring-1 ring-inset ring-violet-200 sm:inline">
+                {experience.builderMode === "onsite" ? "On-site" : "Dashboard"}
+              </span>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            {status === "Save conflict" && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}
+              >
+                Reload latest
+              </Button>
+            )}
             <Button
-              aria-label="Open live editor"
+              aria-label={
+                experience.builderMode === "onsite"
+                  ? "Open on-site builder"
+                  : "Open live editor"
+              }
               variant="outline"
               size="sm"
               onClick={() => void openLive()}
             >
               <ExternalLink />{" "}
-              <span className="hidden sm:inline">Open live editor</span>
+              <span className="hidden sm:inline">
+                {experience.builderMode === "onsite"
+                  ? "Open on-site builder"
+                  : "Open live editor"}
+              </span>
               <span className="sm:hidden">Preview</span>
             </Button>
             <Button
@@ -753,9 +802,11 @@ export function ExperienceEditorPage() {
                     Questions
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onSelect={() => togglePanel("behavior")}>
-                  {guide || survey ? "How this step works" : "Behavior"}
-                </DropdownMenuItem>
+                {experience.builderMode === "grapesjs" && (
+                  <DropdownMenuItem onSelect={() => togglePanel("behavior")}>
+                    {guide || survey ? "How this step works" : "Behavior"}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => togglePanel("targeting")}>
                   Launch settings
@@ -771,7 +822,7 @@ export function ExperienceEditorPage() {
         )}
         <div className="flex min-h-0 flex-1">
           <section className="relative flex min-w-0 flex-1 flex-col overflow-visible [&>div.mt-4]:mt-0">
-            {guide && (
+            {guide && experience.builderMode === "grapesjs" && (
               <FloatingPanel
                 open={choosingGuideStep}
                 title="Add step"
@@ -806,7 +857,12 @@ export function ExperienceEditorPage() {
               </FloatingPanel>
             )}
             <div className="mt-4">
-              {survey ? (
+              {experience.builderMode === "onsite" ? (
+                <OnsiteBuilderLaunchCard
+                  experience={experience}
+                  onOpen={() => void openLive()}
+                />
+              ) : survey ? (
                 <GrapesWidgetBuilder
                   ref={widgetBuilder}
                   experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}:${surveyStep!.id}`}
@@ -1023,7 +1079,10 @@ export function ExperienceEditorPage() {
               )}
             </div>
             <FloatingPanel
-              open={activePanel === "behavior"}
+              open={
+                experience.builderMode === "grapesjs" &&
+                activePanel === "behavior"
+              }
               title={guide || survey ? "How this step works" : "Behavior"}
               onClose={() => setActivePanel(null)}
             >
@@ -1327,7 +1386,10 @@ export function ExperienceEditorPage() {
         onEditExternal={(target) => {
           if (target === "live") void openLive();
           else if (target === "questions") setActivePanel("questions");
-          else if (target === "behavior") setActivePanel("behavior");
+          else if (target === "behavior") {
+            if (experience.builderMode === "onsite") void openLive();
+            else setActivePanel("behavior");
+          }
           else if (target === "analytics") {
             if (survey) void openResults();
             else navigate("/analytics");
@@ -1337,6 +1399,40 @@ export function ExperienceEditorPage() {
     </>
   );
 }
+
+function OnsiteBuilderLaunchCard({
+  experience,
+  onOpen,
+}: {
+  experience: Experience;
+  onOpen: () => void;
+}) {
+  return (
+    <div className="grid min-h-[calc(100dvh-6rem)] place-items-center bg-gradient-to-b from-slate-50 to-background p-6">
+      <section className="w-full max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
+        <span className="mx-auto grid size-12 place-items-center rounded-xl bg-violet-100 text-violet-700">
+          <ExternalLink className="size-5" />
+        </span>
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-violet-700">
+          On-site visual builder
+        </p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight">
+          Design this {experience.kind === "guide" ? "guide" : "widget"} in
+          your product
+        </h2>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+          Content, placement, and preview controls open on the selected build
+          page so you can edit against the real interface. Launch settings and
+          publishing stay here.
+        </p>
+        <Button aria-label="Launch on-site builder" className="mt-6" onClick={onOpen}>
+          <ExternalLink /> Open on-site builder
+        </Button>
+      </section>
+    </div>
+  );
+}
+
 function GuideStepCanvasChip({
   steps,
   selectedStep,
