@@ -3,7 +3,7 @@ export type ExperienceKind = "guide" | "widget" | "checklist";
 export type WidgetType = "anchored_card" | "toast" | "cursor_follow" | "modal" | "slideout" | "hotspot" | "banner" | "survey";
 export type BuilderMode = "grapesjs" | "onsite";
 export type ExperienceStatus = "draft" | "published" | "paused" | "archived";
-export interface ExperienceAction { label: string; type: "dismiss" | "next_step" | "open_url" | "track_event"; url?: string; eventName?: string }
+export interface ExperienceAction { id?: string; label: string; type: "dismiss" | "next_step" | "previous_step" | "open_url" | "track_event"; url?: string; eventName?: string }
 export interface ExperienceContent { heading: string; body: string; primaryAction?: ExperienceAction; secondaryAction?: { label: string; type: "dismiss" } }
 export interface ExperienceTarget { primarySelector: string; fallbackSelectors: string[]; label?: string; role?: string; tagName?: string; reliability: "reliable" | "moderate" | "fragile"; targetContext?: { pagePath: string } }
 export type LegacyExperienceWidth = "sm" | "md" | "lg";
@@ -11,6 +11,18 @@ export interface ExperienceSize { width: { mode: "auto" | "fixed" | "full"; valu
 export interface ExperienceDesign { width: LegacyExperienceWidth; size?: ExperienceSize; theme: { background: string; foreground: string; primary: string; borderRadius: "sm" | "md" | "lg" } }
 export interface BuilderCanvasViewport { zoom: number; panX: number; panY: number }
 export interface WidgetBuilderState { version: 1; projectData: Record<string, unknown>; html: string; css: string; canvas?: BuilderCanvasViewport }
+export type OnsiteCellSizing = { mode: "flexible"; weight: number } | { mode: "hug" } | { mode: "fixed"; value: number };
+export type OnsiteButtonAction = { id: string; type: "next_step" | "previous_step" | "dismiss" } | { id: string; type: "open_url"; url: string } | { id: string; type: "track_event"; eventName: string };
+export type OnsiteBlock =
+  | { id: string; type: "heading"; html: string; level: 1 | 2 | 3 | 4; fontSize: number; weight: 400 | 500 | 600 | 700; color?: string; lineHeight?: number; align?: "left" | "center" | "right" }
+  | { id: string; type: "text"; html: string; fontSize: number; weight: 400 | 500 | 600 | 700; color?: string; lineHeight?: number; align?: "left" | "center" | "right" }
+  | { id: string; type: "button"; label: string; action: OnsiteButtonAction; variant: "primary" | "secondary" | "outline"; radius: number; paddingX: number; paddingY: number; width: "hug" | "full"; align?: "left" | "center" | "right" }
+  | { id: string; type: "image"; src: string; alt: string; fit: "contain" | "cover"; width: number; height?: number; radius: number; align?: "left" | "center" | "right" }
+  | { id: string; type: "divider"; orientation: "horizontal" | "vertical"; thickness: number; color: string }
+  | { id: string; type: "spacer"; size: number }
+  | { id: string; type: "icon"; icon: "check" | "star" | "info" | "warning" | "sparkles" | "arrow" | "heart" | "rocket"; size: number; color?: string; align?: "left" | "center" | "right" };
+export interface OnsiteCell { type: "cell"; id: string; direction: "row" | "column"; sizing: OnsiteCellSizing; align: "start" | "center" | "end" | "stretch"; justify: "start" | "center" | "end" | "space-between"; gap: number; padding: { top: number; right: number; bottom: number; left: number }; responsiveStack?: boolean; style?: { background?: string; borderColor?: string; borderWidth?: number; borderRadius?: number }; children?: OnsiteCell[]; block?: OnsiteBlock }
+export interface OnsiteDocument { schemaVersion: 2; id: string; root: OnsiteCell }
 export type ExperienceLayer = { mode: "auto" } | { mode: "relative"; relation: "above" | "below"; target: ExperienceTarget } | { mode: "always_on_top" } | { mode: "custom"; zIndex: number };
 export interface ExperienceBehavior { dismissible: boolean; layer?: ExperienceLayer; zIndex?: number; placement?: "auto" | "top" | "right" | "bottom" | "left"; alignment?: "start" | "center" | "end"; offset?: number; pointer?: { enabled?: boolean; size?: number }; toastPosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right"; autoDismissMs?: number | null; cursorOffset?: { x: number; y: number }; modalLayout?: "center" | "fullscreen"; backdrop?: boolean; backdropOpacity?: number; closeOnBackdrop?: boolean; slideoutPosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center-left" | "center-right"; bannerPosition?: "top" | "bottom"; hotspotStyle?: "pulse" | "dot" | "question"; hotspotColor?: string }
 export interface ExperienceTargeting { pageRules: PageRule[]; audience: { type: "all" } | { type: "segment"; segmentId: string } | { type: "segment_rules"; logic: "all" | "any"; conditions: Array<{ id: string; segmentId: string; operator: "matches" | "not_matches" }> }; trigger: { type: "page_load" } | { type: "custom_event"; eventName: string } | { type: "manual" }; frequency: { mode: "once" | "once_per_session" | "every_time"; cooldownHours?: number; maxImpressions?: number }; priority: number; interruptPolicy?: "queue" | "interrupt"; schedule?: { startsAt?: string; endsAt?: string }; allowedOrigins?: string[] }
@@ -21,7 +33,7 @@ export interface ChecklistItem { id: string; title: string; description?: string
 export interface ChecklistExperienceDefinition { title: string; description?: string; items: ChecklistItem[]; behavior: { position: "bottom-left" | "bottom-right"; order: "any" | "sequential"; dismissible: boolean; initialState: "expanded" | "collapsed"; showRemainingCount: boolean }; completionMessage: { title: string; description?: string; acknowledgeLabel: string }; targeting: ChecklistTargeting; builder: WidgetBuilderState }
 export type GuideAdvance = { type: "button" } | { type: "element_click" } | { type: "element_hover"; durationMs?: number } | { type: "custom_event"; eventName: string } | { type: "route"; pageRules: PageRule[] };
 export type GuideStepPattern = "anchored_card" | "modal";
-export interface GuideStep { id: string; pattern?: GuideStepPattern; content: ExperienceContent; builder?: WidgetBuilderState; size?: ExperienceSize; advance?: GuideAdvance; target?: ExperienceTarget; behavior: Pick<ExperienceBehavior, "placement" | "alignment" | "offset" | "pointer" | "dismissible" | "layer"> }
+export interface GuideStep { id: string; label?: string; pattern?: GuideStepPattern; content: ExperienceContent; builder?: WidgetBuilderState; size?: ExperienceSize; advance?: GuideAdvance; target?: ExperienceTarget; behavior: Pick<ExperienceBehavior, "placement" | "alignment" | "offset" | "pointer" | "dismissible" | "layer"> }
 export function getGuideStepPattern(step: Pick<GuideStep, "pattern">): GuideStepPattern { return step.pattern ?? "anchored_card"; }
 export function guideStepRequiresTarget(step: Pick<GuideStep, "pattern">): boolean { return getGuideStepPattern(step) === "anchored_card"; }
 export function guideStepSupportsTargetAdvance(step: Pick<GuideStep, "pattern">): boolean { return guideStepRequiresTarget(step); }

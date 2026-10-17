@@ -1540,8 +1540,8 @@ function GuideStepCanvasChip({
                   : "movcues-guide-step-chip__step"
               }
               aria-current={index === selectedStep ? "step" : undefined}
-              aria-label={`${index + 1} ${item.content.heading.trim() || `Step ${index + 1}`} · ${getGuideStepPattern(item) === "modal" ? "Modal" : "Anchored"}`}
-              title={item.content.heading.trim() || `Step ${index + 1}`}
+              aria-label={`${index + 1} ${item.label?.trim() || item.content.heading.trim() || `Step ${index + 1}`} · ${getGuideStepPattern(item) === "modal" ? "Modal" : "Anchored"}`}
+              title={item.label?.trim() || item.content.heading.trim() || `Step ${index + 1}`}
               onClick={() => onSelect(index)}
             >
               {index + 1}
@@ -1555,9 +1555,9 @@ function GuideStepCanvasChip({
       <span className="movcues-guide-step-chip__divider" aria-hidden="true" />
       <span
         className="movcues-guide-step-chip__title"
-        title={selected?.content.heading}
+        title={selected?.label || selected?.content.heading}
       >
-        {selected?.content.heading.trim() || `Step ${selectedStep + 1}`}
+        {selected?.label?.trim() || selected?.content.heading.trim() || `Step ${selectedStep + 1}`}
       </span>
       <span
         className={
