@@ -1,0 +1,15 @@
+---
+import Search from "@astrojs/starlight/components/Search.astro";
+import ThemeSelect from "@astrojs/starlight/components/ThemeSelect.astro";
+import DocsSiteTitle from "./DocsSiteTitle.astro";
+---
+
+<div class="docs-header">
+  <DocsSiteTitle />
+  <Search />
+  <nav class="docs-header-links" aria-label="Website navigation">
+    <a class="docs-website-link" href="/">Website <span aria-hidden="true">↗</span></a>
+    <a class="docs-dashboard-link" href="https://dash.movcues.com/login">Open dashboard <span aria-hidden="true">↗</span></a>
+  </nav>
+  <div class="docs-theme-select"><ThemeSelect /></div>
+</div>

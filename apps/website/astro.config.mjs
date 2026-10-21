@@ -11,6 +11,10 @@ export default defineConfig({
       title: "Movcues Docs",
       description: "Technical documentation for the Movcues JavaScript SDK.",
       favicon: "/favicon.svg",
+      components: {
+        Header: "./src/components/docs/DocsHeader.astro",
+        SiteTitle: "./src/components/docs/DocsSiteTitle.astro",
+      },
       customCss: ["./src/styles/docs.css"],
       sidebar: [
         { label: "Introduction", items: [{ label: "Build with Movcues", slug: "docs" }] },

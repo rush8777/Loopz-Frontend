@@ -1,20 +1,25 @@
 ---
 title: Build with Movcues
 description: Install the Movcues JavaScript SDK and turn verified user behavior into actions.
-template: splash
 ---
 
-<p class="doc-kicker">Movcues JavaScript SDK</p>
+<div class="docs-intro">
+  <p class="doc-kicker"><span aria-hidden="true"></span> JavaScript SDK · Documentation</p>
+  <p class="docs-intro-title">One installation.<br /><em>A clearer next step.</em></p>
+  <p class="doc-lede">Connect your product to Movcues. Understand user behavior, find the people who need help, and guide them at the right moment.</p>
+  <div class="docs-intro-actions">
+    <a class="docs-start-link" href="/docs/getting-started/quickstart/">Start building <span aria-hidden="true">↗</span></a>
+    <a class="docs-reference-link" href="/docs/api/">Explore the API <span aria-hidden="true">→</span></a>
+  </div>
+</div>
 
-# Build with Movcues
-
-<p class="doc-lede">Install one lightweight client SDK to understand how users move through your product, identify who needs help, and trigger relevant experiences.</p>
+<p class="docs-label">Choose your next step</p>
 
 <div class="docs-home-grid">
-  <a href="/getting-started/quickstart/"><strong>Quickstart</strong><span>Install with the CDN loader and send a verified custom event.</span></a>
-  <a href="/integrations/react/"><strong>Framework setup</strong><span>Add the SDK once in React, Next.js, or a vanilla JavaScript app.</span></a>
-  <a href="/tracking/identify/"><strong>Identity & events</strong><span>Connect anonymous activity to your application’s stable user ID.</span></a>
-  <a href="/reference/configuration/"><strong>SDK reference</strong><span>Review supported configuration, public methods, defaults, and release limits.</span></a>
+  <a href="/docs/getting-started/quickstart/"><span class="docs-card-number">01 / INSTALL <span aria-hidden="true">↗</span></span><strong>From snippet to first event.</strong><span>Install the CDN loader and verify your first custom event.</span></a>
+  <a href="/docs/integrations/react/"><span class="docs-card-number">02 / INTEGRATE <span aria-hidden="true">↗</span></span><strong>Works with your stack.</strong><span>Set up React, Next.js, or a vanilla JavaScript application.</span></a>
+  <a href="/docs/tracking/identify/"><span class="docs-card-number">03 / UNDERSTAND <span aria-hidden="true">↗</span></span><strong>Give behavior context.</strong><span>Connect anonymous activity to your application’s stable user ID.</span></a>
+  <a href="/docs/reference/configuration/"><span class="docs-card-number">04 / REFERENCE <span aria-hidden="true">↗</span></span><strong>The details, all in one place.</strong><span>Find supported configuration, defaults, and release limits.</span></a>
 </div>
 
 <p class="docs-label">Start here</p>
@@ -27,7 +32,7 @@ template: splash
 ></script>
 ```
 
-The loader exposes `window.analytics` and initializes itself from `data-site-id`. Use the [Quickstart](/getting-started/quickstart/) for a complete, verifiable path.
+The loader exposes `window.analytics` and initializes itself from `data-site-id`. Use the [Quickstart](/docs/getting-started/quickstart/) for a complete, verifiable path.
 
 ## What the current release supports
 
@@ -36,12 +41,12 @@ Movcues automatically records page views, intentional interactive clicks, scroll
 The SDK watches browser history, popstate, and hash changes for single-page applications. It does not need a framework-specific router integration for normal client-side navigation.
 
 :::note
-The documentation describes the shipped MVP1 runtime. Cursor movement, hover, element crawling, heatmaps, and session replay are deliberately disabled in this release—even if older README material mentions them. See [release availability](/reference/availability/) before planning around an advanced collector.
+The documentation describes the shipped MVP1 runtime. Cursor movement, hover, element crawling, heatmaps, and session replay are deliberately disabled in this release—even if older README material mentions them. See [release availability](/docs/reference/availability/) before planning around an advanced collector.
 :::
 
 ## Browse by task
 
-- **Install:** [CDN installation](/getting-started/cdn/) or [ES module setup](/getting-started/npm/)
-- **Instrument behavior:** [automatic collection](/tracking/automatic/), [custom events](/tracking/custom-events/), and [page views](/tracking/pageviews/)
-- **Attach context:** [identify users](/tracking/identify/) and [configuration](/configuration/)
-- **Ship safely:** [privacy controls](/privacy/) and [troubleshooting](/troubleshooting/)
+- **Install:** [CDN installation](/docs/getting-started/cdn/) or [ES module setup](/docs/getting-started/npm/)
+- **Instrument behavior:** [automatic collection](/docs/tracking/automatic/), [custom events](/docs/tracking/custom-events/), and [page views](/docs/tracking/pageviews/)
+- **Attach context:** [identify users](/docs/tracking/identify/) and [configuration](/docs/configuration/)
+- **Ship safely:** [privacy controls](/docs/privacy/) and [troubleshooting](/docs/troubleshooting/)
