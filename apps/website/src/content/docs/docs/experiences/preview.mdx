@@ -1,0 +1,40 @@
+---
+title: "Preview and select page targets"
+description: "Open the real product safely, select reliable elements, and distinguish draft preview from normal delivery."
+---
+
+Use the dashboard canvas to edit your message, then the live editor to check it on your product. Previewing a draft is different from proving that normal visitors meet its published targeting rules.
+
+## Before opening
+
+The site needs a configured **Primary domain**, the SDK installed on that product, and a build URL on the same origin. Sign in to your product if the target is behind login. Allow the live-editor popup for Movcues.
+
+## Use the live editor
+
+1. Open the draft and choose **Open live editor**. On a small dashboard screen, the button is labeled **Preview**.
+2. Wait for **Movcues Live Editor** and its connected status on your real product.
+3. Use **Navigate** to interact normally with the product and open the right screen or menu.
+4. Use **Select** to choose an element for an anchored card, hotspot, or anchored guide step. Use **Reselect target** to change it.
+5. Check **Live status**, including **Found on current page** or the missing-target message.
+6. Review **Placement** and the visible preview, then wait for **Draft saved**.
+7. For a guide or survey, select each numbered step and inspect it on its intended page.
+
+Choose a stable, visible product control. A temporary loading placeholder or an element available only to an administrator may not exist for your audience. Ask a developer for a stable target attribute if selection is fragile.
+
+## Layering
+
+**Automatic** is the starting policy. **Relative to an element** lets you place guidance above or below a selected element’s layer. **Always on top** and **Advanced / Custom** are available for specific cases; check that the result does not cover navigation or close controls.
+
+## Preview check and delivery check
+
+| Check | What it proves |
+| --- | --- |
+| Dashboard canvas/device preview | Content fits the chosen editing viewport. |
+| Live editor | The draft can render in the actual product context and find its target. |
+| Normal visit after publishing | A real visitor meets audience, page, trigger, timing, and frequency rules. |
+
+Checklists use their own canvas **Progress** and **View** preview controls; they do not open in this live editor.
+
+If the connection expires, close it and launch a fresh editor session from the dashboard. Never share its editor-session URL.
+
+**Next:** [Review and publish](/docs/experiences/publishing/).

@@ -1,0 +1,34 @@
+---
+title: "Find users and understand their activity"
+description: "Browse identified accounts and anonymous visitors, inspect properties, and follow activity into sessions."
+---
+
+**People → Users** helps you investigate who is using your product. These are product visitors, not the teammates invited to your Movcues workspace.
+
+## Choose the right list
+
+| List | Meaning | Available narrowing |
+| --- | --- | --- |
+| Identified | Your app has sent an internal account ID using the SDK. | **Search users...**, **Last active**, **Segment**, and sort controls. |
+| Anonymous | Recorded visitors without a known account identity in this directory. | **Search by anonymous id...** and pagination. |
+
+The anonymous list does not have the identified list’s date and Segment filters.
+
+## Inspect a profile
+
+1. Select the right site and open **People → Users**.
+2. Choose **Identified** or **Anonymous**.
+3. Search or browse, then open a person.
+4. Review **Overview** for the recorded summary and environment.
+5. Use **Activity** to inspect recorded actions and **Sessions** to open a visit’s timeline.
+6. For an identified account, use **Properties** to inspect values your app supplied, such as plan or role.
+
+Example: a trial customer reports trouble exporting. Find their account, inspect the recorded activity and latest session, then check whether `report_exported` occurred. The absence of an event is only useful if you know the event is implemented correctly.
+
+## Understand identity
+
+Movcues cannot infer an account from a page visit. Your developer supplies it after sign-in through [Identify users](/docs/tracking/identify/). Properties here are recorded account context, not an editable CRM record.
+
+Anonymous activity and identified activity can remain separate. Do not assume that identifying a browser retroactively transfers all its earlier activity to the account. Logging out or switching accounts must clear identity appropriately in the product integration.
+
+**Related:** [Sessions](/docs/observe/sessions/) · [Segment conditions](/docs/segments/conditions/) · [Workspace team access](/docs/workspace/team/).

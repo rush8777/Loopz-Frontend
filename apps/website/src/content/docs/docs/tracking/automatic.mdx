@@ -1,0 +1,19 @@
+---
+title: Automatic collection
+description: See which behavior signals the current Movcues SDK records automatically.
+---
+
+After initialization, the current release begins a session and automatically records a first page view. It also observes later client-side route changes.
+
+## Enabled in the current release
+
+| Signal | Behavior |
+| --- | --- |
+| Page views | Sent on initialization and on detected SPA URL changes. |
+| Interactive clicks | Captures intentional interaction with UI elements; normal click collection is restricted to interactive elements. |
+| Scroll milestones | Records configured progress milestones, by default 25%, 50%, 75%, 90%, and 100%. |
+| Rage clicks | Detects repeated nearby clicks using the configured count, time window, and distance. |
+
+## Turn off automatic tracking
+
+If you don’t want Movcues to record clicks, scroll progress, or repeated clicks, ask your developer to switch off those options in the SDK configuration. See the [Configuration guide](/docs/configuration/) for details. For sensitive parts of a page, use [privacy controls](/docs/privacy/).

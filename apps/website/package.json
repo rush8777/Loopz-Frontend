@@ -5,13 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/check-docs-links.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "typecheck": "astro check"
   },
   "dependencies": {
     "@astrojs/react": "5.0.7",
+    "@astrojs/starlight": "^0.40.0",
     "@movcues/tokens": "*",
     "@movcues/ui": "*",
     "astro": "^6.0.0",

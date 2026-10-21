@@ -1,0 +1,30 @@
+---
+title: "Combine segment conditions"
+description: "Understand ALL, ANY, nested groups, time windows, and the differences between event, property, and page rules."
+---
+
+Conditions describe who should belong to a segment. Choose **ALL** when every condition must hold, or **ANY** when one is enough. Use **+ Add group** to combine these choices without flattening their meaning.
+
+## Example: trial users exploring a feature
+
+Use an outer **ALL** group with a **User property → plan → equals → trial** condition. Add an inner **ANY** group containing **Event → report_exported → performed** and **Page → Reports → visited**. This means trial users who did at least one of those two things.
+
+## Condition types
+
+| Type | Use it for | Important detail |
+| --- | --- | --- |
+| Event | A custom action was **performed** or **not performed**. | Uses custom event names, not button labels or automatic click names. |
+| User property | An account value such as plan or role. | Matches identified users with recorded properties. Anonymous visitors do not gain account properties automatically. |
+| Page | A saved Page was **visited** or **not visited**. | Uses that Page’s matching rules and recorded page views. |
+
+For event and page conditions, **within last** limits the lookback to a number of days. Without it, matching uses the available recorded history. “Not performed” means no matching record for a person already known to this site; it cannot include people Movcues has never observed.
+
+## Compare properties
+
+Use **equals** for an exact value, **contains** for part of a value, and **is set / is not set** for whether the property exists. Numeric comparisons such as **is greater than** require a property stored as a number. A developer may need to correct how your app sends it.
+
+## Check the logic
+
+An empty or unfinished group cannot be saved. Read the definition aloud and verify the **Estimated audience** after each change. With **ALL**, adding a condition narrows the group; with **ANY**, it can broaden it.
+
+[Funnel result cohorts](/docs/funnels/cohorts/) and [survey response groups](/docs/experiences/survey-results/) are created from their respective results screens, rather than added as ordinary condition types here.

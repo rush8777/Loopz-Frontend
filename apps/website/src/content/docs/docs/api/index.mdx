@@ -1,0 +1,71 @@
+---
+title: Public API
+description: The verified browser-global and ES module methods exposed by the Movcues SDK.
+---
+
+The CDN bundle exposes these methods on `window.analytics`. The ES module instance returned by `createAnalytics()` exposes the same operational methods.
+
+## Initialization and lifecycle
+
+| Method | Purpose |
+| --- | --- |
+| `init(config)` | Initialize with a required `siteId`. Duplicate calls are ignored. |
+| `start()` | Resume automatic collection and route observation. |
+| `stop()` | Pause automatic collection and route observation. |
+| `destroy()` | Stop the runtime, clear in-memory pending events, and release resources. |
+
+```js
+window.analytics.init({ siteId: "YOUR_SITE_ID", debug: false });
+window.analytics.stop();
+window.analytics.start();
+```
+
+## Tracking and identity
+
+| Method | Purpose |
+| --- | --- |
+| `event(name, properties?)` | Record a developer-defined custom event. |
+| `identify(userId, attributes?)` | Attach a stable user ID and optional contextual traits. |
+| `reset()` | Clear the current identity and start a new anonymous/session context. |
+| `page()` | Record an explicit page view. |
+
+```js
+window.analytics.event("checkout_completed", { payment_method: "card" });
+window.analytics.identify("usr_123", { plan: "pro" });
+```
+
+## Funnels and experiences
+
+| Method | Purpose |
+| --- | --- |
+| `defineFunnel(name, steps)` | Define an in-session funnel using either page paths or custom event names. |
+| `launchExperience(experienceId)` | Explicitly ask the loaded experiences runtime to launch a published experience. |
+
+```js
+window.analytics.defineFunnel("activation", [
+  "/welcome",
+  "/projects/new",
+  "/projects/*",
+]);
+
+window.analytics.defineFunnel("invite_flow", [
+  { event: "invite_opened" },
+  { event: "invite_sent" },
+]);
+```
+
+A funnel has one step type: page-path steps or custom-event steps. Page paths may use a trailing `/*` prefix wildcard. Progress is tracked for the current runtime session and a completed funnel does not restart mid-session.
+
+## Diagnostics
+
+```js
+window.analytics.enableDebug();
+// Reproduce the issue.
+window.analytics.disableDebug();
+```
+
+Use debug logging for a focused installation check, then turn it back off. It is not a replacement for consent, privacy controls, or server-side observability.
+
+:::note
+Calls made before initialization normally warn and do nothing. The exception is a call placed into the documented CDN command queue before the bundle loads.
+:::
