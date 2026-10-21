@@ -1,0 +1,34 @@
+---
+title: "Choose when an experience starts"
+description: "Use page arrival, a custom event, or an explicit launch action without inventing a separate workflow builder."
+---
+
+A trigger is the moment Movcues checks whether an experience should appear. Audience, page, timing, and frequency conditions still apply to automatic delivery.
+
+## Choose the launch moment
+
+Open **Review & publish** and find **What should make this experience appear?**
+
+| Choice | Meaning | Example |
+| --- | --- | --- |
+| When the user reaches the page | Starts on a matching page for an eligible visitor. | Introduce project setup when a new user reaches `/projects`. |
+| When something happens | Starts after the selected custom Event occurs. | Ask about export quality after `report_exported`. |
+| Only when another action launches it | Does not appear automatically. Requires a launch action. | A checklist task launches a published Guide. |
+
+Event-triggered and explicit launch settings can depend on plan access. Checklists do not have this trigger stage; their visibility is based on eligibility and persistent progress.
+
+## Example: feedback after an export
+
+1. Confirm `report_exported` appears in **Observe → Events**.
+2. Build a survey and set an appropriate audience and page.
+3. Choose **When something happens** and select that **Event**.
+4. Review timing and frequency, then publish.
+5. Perform a new export as a qualifying visitor outside the editor. Old events in a report do not replay themselves as new launch triggers.
+
+The event must actually be sent at the intended moment. Selecting an event does not add tracking to your product. Give your developer the [custom event instructions](/docs/tracking/custom-events/) if it is missing.
+
+## More complex journeys
+
+The current dashboard configures launch conditions inside each experience; it has no separate active Workflows page for building arbitrary event sequences. Use a [Segment](/docs/segments/create/) or [ordered Funnel cohort](/docs/funnels/cohorts/) for historical behavior, then use an experience trigger for the launch moment.
+
+For multistep guidance, [step advancement](/docs/experiences/guides/) is separate from the trigger that starts the whole guide. Developers can also explicitly request a published experience through the SDK’s [Public API](/docs/api/).

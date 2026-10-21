@@ -3,11 +3,53 @@
   <div class="overview-glow overview-glow-two"></div>
   <div class="product-window overview-window">
     <img
-      class="hero-card-image"
+      class="hero-card-image hero-video-poster"
       src="/images/hero-card-img.png"
       alt="Movcues product experience dashboard with guides, surveys, and analytics"
       loading="eager"
       decoding="async"
+      data-deferred-hero-video
+      data-video-src="/videos/movcues-hero-video.mp4"
     />
   </div>
 </div>
+
+<script>
+  const poster = document.querySelector<HTMLImageElement>("[data-deferred-hero-video]");
+
+  const mountHeroVideo = () => {
+    if (!poster || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const source = poster.dataset.videoSrc;
+    if (!source) return;
+
+    const video = document.createElement("video");
+    video.className = "hero-card-image hero-card-video";
+    video.src = source;
+    video.poster = poster.currentSrc || poster.src;
+    video.muted = true;
+    video.autoplay = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.preload = "metadata";
+    video.setAttribute("aria-label", "Movcues product experience demonstration");
+
+    video.addEventListener("loadeddata", () => {
+      poster.replaceWith(video);
+      void video.play().catch(() => {
+        // The poster remains a usable fallback if autoplay is unavailable.
+      });
+    }, { once: true });
+
+    video.load();
+
+  };
+
+  // Keep the HTML and primary poster available first; only fetch the video after
+  // the document has finished loading so it cannot delay the initial page render.
+  if (document.readyState === "complete") {
+    mountHeroVideo();
+  } else {
+    window.addEventListener("load", mountHeroVideo, { once: true });
+  }
+</script>

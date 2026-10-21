@@ -435,6 +435,7 @@ body.waitlist-open { overflow: hidden; }
 }
 
 .hero-card-image {
+  display: block;
   width: 100%;
   height: auto;
 }
@@ -1250,17 +1251,6 @@ body.waitlist-open { overflow: hidden; }
   font-weight: 500;
   letter-spacing: -.025em;
   line-height: 1.15;
-}
-
-.story-step-copy > p {
-  margin: 0;
-  color: rgba(255, 255, 255, .68);
-  font-size: .96rem;
-  line-height: 1.7;
-}
-
-.story-step:nth-child(3) .story-step-copy > p {
-  color: var(--text-secondary);
 }
 
 .story-step-detail {

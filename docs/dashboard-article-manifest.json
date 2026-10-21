@@ -1,0 +1,1129 @@
+[
+  {
+    "path": "/docs/getting-started/welcome/",
+    "title": "Start using Movcues",
+    "frontend": [
+      "apps/dashboard/src/pages/auth/OnboardingPage.tsx",
+      "apps/dashboard/src/pages/auth/SignupPage.tsx",
+      "apps/dashboard/src/pages/auth/LoginPage.tsx",
+      "apps/dashboard/src/components/Sidebar.tsx",
+      "apps/dashboard/src/auth/OnboardingGate.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/getting-started/welcome.mdx",
+    "backend": [
+      "src/routes/auth.ts",
+      "src/routes/orgs.ts",
+      "src/routes/sdk-verifications.ts",
+      "src/routes/experiences.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Set up your workspace and site, then follow a path to your first published experience.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "No new account created; onboarding verified in UI handlers and API contracts."
+  },
+  {
+    "path": "/docs/getting-started/connect/",
+    "title": "Connect and verify your site",
+    "frontend": [
+      "apps/dashboard/src/components/settings/InstallationSettings.tsx",
+      "apps/dashboard/src/components/settings/SitesSettings.tsx",
+      "apps/dashboard/src/pages/observe/EventsPage.tsx",
+      "apps/dashboard/src/api/sites.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/getting-started/connect.mdx",
+    "backend": [
+      "src/routes/auth.ts",
+      "src/routes/orgs.ts",
+      "src/routes/sdk-verifications.ts",
+      "src/routes/experiences.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Find your installation snippet and confirm the SDK is running without opening developer tools.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Events explorer is custom-event-only; existing SDK Installation page retains an older page-view verification instruction (not rewritten in this task)."
+  },
+  {
+    "path": "/docs/getting-started/first-experience/",
+    "title": "Build your first experience",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-experience.mdx",
+    "backend": [
+      "src/routes/auth.ts",
+      "src/routes/orgs.ts",
+      "src/routes/sdk-verifications.ts",
+      "src/routes/experiences.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Create a focused onboarding guide, choose its audience, and prepare it for a controlled launch.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "No signed-in end-to-end publish; product example and product button are explicitly fictional."
+  },
+  {
+    "path": "/docs/getting-started/first-results/",
+    "title": "Understand your first results",
+    "frontend": [
+      "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx",
+      "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
+      "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-results.mdx",
+    "backend": [
+      "src/routes/auth.ts",
+      "src/routes/orgs.ts",
+      "src/routes/sdk-verifications.ts",
+      "src/routes/experiences.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Check delivery and engagement, then connect experience results to a meaningful product milestone.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "No configured goal conversion; no causal claim from observed changes."
+  },
+  {
+    "path": "/docs/analytics/overview/",
+    "title": "Read experience performance",
+    "frontend": [
+      "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx",
+      "apps/dashboard/src/components/experiences/ExperienceAnalyticsView.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/analytics/overview.mdx",
+    "backend": [
+      "src/routes/dashboards.ts",
+      "src/routes/analytics.ts",
+      "src/lib/analytics/catalog.ts",
+      "src/lib/analytics/queryService.ts",
+      "src/lib/analytics/retention.ts",
+      "src/lib/analytics/identity.ts",
+      "src/lib/experiences/analytics.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Understand the Experience Overview and the differences between viewers, engagement, and completion.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Top totals add per-experience counts; table filters do not scope top summary/trend. Goal conversion unavailable."
+  },
+  {
+    "path": "/docs/analytics/dashboards/",
+    "title": "Create and manage a dashboard",
+    "frontend": [
+      "apps/dashboard/src/pages/dashboard/DashboardListPage.tsx",
+      "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx",
+      "apps/dashboard/src/components/dashboard/DashboardCardChrome.tsx",
+      "apps/dashboard/src/api/dashboards.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/analytics/dashboards.mdx",
+    "backend": [
+      "src/routes/dashboards.ts",
+      "src/routes/analytics.ts",
+      "src/lib/analytics/catalog.ts",
+      "src/lib/analytics/queryService.ts",
+      "src/lib/analytics/retention.ts",
+      "src/lib/analytics/identity.ts",
+      "src/lib/experiences/analytics.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Save a reusable set of analytics cards for your site and keep its layout organized.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Cards require Save dashboard after Save card; viewing filters are not persisted as defaults."
+  },
+  {
+    "path": "/docs/analytics/cards/",
+    "title": "Add and configure analytics cards",
+    "frontend": [
+      "apps/dashboard/src/components/dashboard/CardEditorDialog.tsx",
+      "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
+      "apps/dashboard/src/api/analytics.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/analytics/cards.mdx",
+    "backend": [
+      "src/routes/dashboards.ts",
+      "src/routes/analytics.ts",
+      "src/lib/analytics/catalog.ts",
+      "src/lib/analytics/queryService.ts",
+      "src/lib/analytics/retention.ts",
+      "src/lib/analytics/identity.ts",
+      "src/lib/experiences/analytics.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Choose Metrics, Funnel, Retention, or Experiences cards and preview the question each one answers.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Match ALL varies by metric and time bucket; no ordered-event meaning. Experience card breakdown metrics are type-dependent."
+  },
+  {
+    "path": "/docs/analytics/metrics/",
+    "title": "Understand metrics and retention",
+    "frontend": [
+      "apps/dashboard/src/components/dashboard/CardEditorDialog.tsx",
+      "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
+      "apps/dashboard/src/lib/dateRange.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/analytics/metrics.mdx",
+    "backend": [
+      "src/routes/dashboards.ts",
+      "src/routes/analytics.ts",
+      "src/lib/analytics/catalog.ts",
+      "src/lib/analytics/queryService.ts",
+      "src/lib/analytics/retention.ts",
+      "src/lib/analytics/identity.ts",
+      "src/lib/experiences/analytics.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Read unique users, session duration, conversion rates, and retention with the right definitions.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Historical identity uses event snapshot; retention first start is within selected period; current-segment comparisons are not historical membership. D0 may include starting event."
+  },
+  {
+    "path": "/docs/analytics/filters/",
+    "title": "Apply dashboard filters",
+    "frontend": [
+      "apps/dashboard/src/components/dashboard/DashboardFilterBar.tsx",
+      "apps/dashboard/src/components/filters/AnalyticsFilterBar.tsx",
+      "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/analytics/filters.mdx",
+    "backend": [
+      "src/routes/dashboards.ts",
+      "src/routes/analytics.ts",
+      "src/lib/analytics/catalog.ts",
+      "src/lib/analytics/queryService.ts",
+      "src/lib/analytics/retention.ts",
+      "src/lib/analytics/identity.ts",
+      "src/lib/experiences/analytics.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Change date range, granularity, audience, and excluded events without changing the saved analysis.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Experience cards apply only date range; Funnel cards apply date range/audience, not granularity or exclusions."
+  },
+  {
+    "path": "/docs/segments/create/",
+    "title": "Create a segment",
+    "frontend": [
+      "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+      "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+      "apps/dashboard/src/lib/segmentDefinition.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/segments/create.mdx",
+    "backend": [
+      "src/routes/segments.ts",
+      "src/lib/segments/evaluator.ts",
+      "src/lib/segments/validation.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Group users by recorded actions, page visits, or account properties and verify the matching audience.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Owner/Admin required despite ungated frontend create button. Requires recorded custom events or existing properties."
+  },
+  {
+    "path": "/docs/segments/conditions/",
+    "title": "Combine segment conditions",
+    "frontend": [
+      "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+      "apps/dashboard/src/lib/segmentDefinition.ts",
+      "apps/dashboard/src/types/api.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/segments/conditions.mdx",
+    "backend": [
+      "src/routes/segments.ts",
+      "src/lib/segments/evaluator.ts",
+      "src/lib/segments/validation.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Understand ALL, ANY, nested groups, time windows, and the differences between event, property, and page rules.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Property conditions use identified users; numeric comparison requires numeric stored type. Negative conditions use site-known identities."
+  },
+  {
+    "path": "/docs/segments/membership/",
+    "title": "Review and manage segment membership",
+    "frontend": [
+      "apps/dashboard/src/pages/segments/SegmentsPage.tsx",
+      "apps/dashboard/src/pages/segments/SegmentDetailPage.tsx",
+      "apps/dashboard/src/api/segments.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/segments/membership.mdx",
+    "backend": [
+      "src/routes/segments.ts",
+      "src/lib/segments/evaluator.ts",
+      "src/lib/segments/validation.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Inspect matching users, change a segment safely, and understand why its audience changes.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Membership is evaluated from current data and rolling windows, not stored as a historical list."
+  },
+  {
+    "path": "/docs/funnels/create/",
+    "title": "Create an ordered funnel",
+    "frontend": [
+      "apps/dashboard/src/pages/funnels/FunnelsPage.tsx",
+      "apps/dashboard/src/pages/funnels/FunnelBuilderPage.tsx",
+      "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+      "apps/dashboard/src/api/funnels.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/funnels/create.mdx",
+    "backend": [
+      "src/routes/funnels.ts",
+      "src/lib/funnels/progression.ts",
+      "src/lib/funnels/evaluator.ts",
+      "src/lib/segments/evaluator.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Choose meaningful event or page steps and a conversion window for a real product journey.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Saved dashboard funnels differ from SDK defineFunnel; UI and backend step validation checked."
+  },
+  {
+    "path": "/docs/funnels/results/",
+    "title": "Read conversion and drop-off",
+    "frontend": [
+      "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+      "apps/dashboard/src/types/api.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/funnels/results.mdx",
+    "backend": [
+      "src/routes/funnels.ts",
+      "src/lib/funnels/progression.ts",
+      "src/lib/funnels/evaluator.ts",
+      "src/lib/segments/evaluator.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Understand the funnel denominator, step order, conversion window, and analysis period.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Earliest entry anchors one progression; strict increasing timestamps; later steps can extend beyond entry period. Backend caps event rows per step at 50,000 (internal performance gap)."
+  },
+  {
+    "path": "/docs/funnels/cohorts/",
+    "title": "Create a segment from funnel results",
+    "frontend": [
+      "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+      "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+      "apps/dashboard/src/api/segments.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/funnels/cohorts.mdx",
+    "backend": [
+      "src/routes/funnels.ts",
+      "src/lib/funnels/progression.ts",
+      "src/lib/funnels/evaluator.ts",
+      "src/lib/segments/evaluator.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Turn reached-step, completed-funnel, or dropped-after-step results into a reusable audience.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Relative vs absolute scope and selected Segment definition copied; current referenced funnel edits can affect membership."
+  },
+  {
+    "path": "/docs/observe/pages/",
+    "title": "Define pages and matching rules",
+    "frontend": [
+      "apps/dashboard/src/pages/observe/PagesPage.tsx",
+      "apps/dashboard/src/pages/observe/PageEditorPage.tsx",
+      "apps/dashboard/src/pages/observe/PageDetailPage.tsx",
+      "apps/dashboard/src/api/pages.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/observe/pages.mdx",
+    "backend": [
+      "src/routes/pages.ts",
+      "src/lib/pages/pageMatcher.ts",
+      "src/routes/events.ts",
+      "src/routes/sessions.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Group recorded URL paths into named Pages, test rules, and reuse them for funnels and targeting.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Area is a free-form classification, not a selectable DOM region; experience page rules are copied, while segments/funnels reference Pages. Heatmaps unavailable."
+  },
+  {
+    "path": "/docs/observe/events/",
+    "title": "Explore product events",
+    "frontend": [
+      "apps/dashboard/src/pages/observe/EventsPage.tsx",
+      "apps/dashboard/src/pages/observe/EventDetailPage.tsx",
+      "apps/dashboard/src/api/events.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/observe/events.mdx",
+    "backend": [
+      "src/routes/pages.ts",
+      "src/lib/pages/pageMatcher.ts",
+      "src/routes/events.ts",
+      "src/routes/sessions.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Find custom actions, inspect their properties and occurrences, and follow them to users or sessions.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Custom events only; no event property editing/reprocessing or automatic-click event listing claimed."
+  },
+  {
+    "path": "/docs/observe/sessions/",
+    "title": "Inspect a visitor session",
+    "frontend": [
+      "apps/dashboard/src/pages/observe/SessionsPage.tsx",
+      "apps/dashboard/src/pages/observe/SessionDetailPage.tsx",
+      "apps/dashboard/src/pages/observe/session-detail/sessionTimeline.ts",
+      "apps/dashboard/src/api/sessions.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/observe/sessions.mdx",
+    "backend": [
+      "src/routes/pages.ts",
+      "src/lib/pages/pageMatcher.ts",
+      "src/routes/events.ts",
+      "src/routes/sessions.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Follow recorded page visits and actions in a session timeline without assuming a replay is available.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Session timeline supported; active replay route absent. Multi-select page/device UI sends only first selection, documented use-one guidance."
+  },
+  {
+    "path": "/docs/people/users/",
+    "title": "Find users and understand their activity",
+    "frontend": [
+      "apps/dashboard/src/pages/users/UsersPage.tsx",
+      "apps/dashboard/src/pages/users/UserProfilePage.tsx",
+      "apps/dashboard/src/pages/users/AnonymousVisitorPage.tsx",
+      "apps/dashboard/src/api/trackedUsers.ts",
+      "apps/dashboard/src/api/anonymousUsers.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/people/users.mdx",
+    "backend": [
+      "src/routes/tracked-users.ts",
+      "src/routes/anonymous-users.ts",
+      "src/lib/analytics/identity.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Browse identified accounts and anonymous visitors, inspect properties, and follow activity into sessions.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Anonymous list has no Segment/date filters. No retroactive identity merge guarantee or editable CRM claim."
+  },
+  {
+    "path": "/docs/experiences/overview/",
+    "title": "Choose and manage experiences",
+    "frontend": [
+      "apps/dashboard/src/components/Sidebar.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+      "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx",
+      "apps/dashboard/src/types/experiences.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/overview.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Choose an appropriate guide, survey, checklist, or widget and understand Draft, Live, and Paused states.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Collection supports creation; dormant unsupported prop is not enabled. Archived status exists without an authored archive action; no archive workflow advertised."
+  },
+  {
+    "path": "/docs/experiences/editor/",
+    "title": "Edit content, layout, and buttons",
+    "frontend": [
+      "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx",
+      "apps/dashboard/src/components/experiences/GrapesWidgetInspector.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/components/experiences/widgetBuilder.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/editor.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Use the current dashboard builder to arrange blocks, change properties, configure actions, and save a draft.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Dashboard block editing verified. On-site cell-composition branches are not main. Checklist/survey structured controls preserved; no claim of general on-site block authoring."
+  },
+  {
+    "path": "/docs/experiences/guides/",
+    "title": "Build a multistep guide",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/types/experiences.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/guides.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Combine anchored and modal steps and choose how users advance through a product task.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Only anchored steps get element click/hover. Advanced progression requires entitlements. Preview/normal-delivery distinction explicit."
+  },
+  {
+    "path": "/docs/experiences/widgets/",
+    "title": "Configure contextual widgets",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+      "apps/dashboard/src/components/experiences/widgetSizing.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Create anchored cards, toasts, modals, banners, slideouts, hotspots, and cursor followers with the right behavior.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "All routed renderer types verified. Hotspot renderer actually opens card on click despite an editor hint calling it passive. Pointer follower not presented as mobile guidance."
+  },
+  {
+    "path": "/docs/experiences/preview/",
+    "title": "Preview and select page targets",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/pages/experiences/liveEditorPopup.ts",
+      "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/preview.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Open the real product safely, select reliable elements, and distinguish draft preview from normal delivery.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "SDK main live editor is placement/target/layer selection; no real screenshot or signed-in test captured. Checklist live editor endpoint is unsupported."
+  },
+  {
+    "path": "/docs/experiences/publishing/",
+    "title": "Save, review, and publish",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+      "apps/dashboard/src/components/experiences/publish/launchReadiness.ts",
+      "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/publishing.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Review the actual launch conditions, publish a saved draft, and manage later revisions.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Review uses saved draft; draft editing keeps published version separate. No archive/rollback UI promised."
+  },
+  {
+    "path": "/docs/experiences/surveys/",
+    "title": "Create a feedback survey",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/components/experiences/surveyQuestions.ts",
+      "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx",
+      "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/surveys.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Build slides and questions, configure required answers and navigation, and launch a contextual survey.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Linear steps, six question types, required validation and button actions; answer branching unavailable."
+  },
+  {
+    "path": "/docs/experiences/survey-results/",
+    "title": "Read and investigate survey responses",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
+      "apps/dashboard/src/api/experiences.ts",
+      "apps/dashboard/src/types/experiences.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/survey-results.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts",
+      "src/lib/experiences/analytics.ts",
+      "src/lib/segments/evaluator.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Review survey participation, inspect submissions, and turn a structured answer group into a segment.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Structured response grouping only. NPS Segment groups by category, not selected exact score. Direct response-event comparison unavailable."
+  },
+  {
+    "path": "/docs/experiences/checklists/",
+    "title": "Build an onboarding checklist",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/ChecklistEditor.tsx",
+      "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx",
+      "apps/dashboard/src/components/experiences/checklistBuilder.ts",
+      "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/experiences/checklists.mdx",
+    "backend": [
+      "src/routes/experiences.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/validation.ts",
+      "src/routes/public-checklists.ts",
+      "src/lib/experiences/checklistProgress.ts"
+    ],
+    "sdk": [
+      "src/experiences/editor/EditorModeController.ts",
+      "src/experiences/runtime/ExperienceRenderer.ts",
+      "src/experiences/runtime/ExperienceLoader.ts",
+      "src/experiences/runtime/ChecklistManager.ts",
+      "src/experiences/runtime/ChecklistRenderer.ts"
+    ],
+    "supportedFunctionality": "Create persistent tasks, choose task actions and completion rules, and preview the checklist states.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Stateful runtime verified separately; no ordinary trigger/frequency controls. No-action is click-to-complete, published Guide prerequisite, completion acknowledgement persists."
+  },
+  {
+    "path": "/docs/targeting/audience/",
+    "title": "Choose who sees an experience and where",
+    "frontend": [
+      "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/targeting/audience.mdx",
+    "backend": [
+      "src/routes/public-experiences.ts",
+      "src/routes/public-checklists.ts",
+      "src/lib/entitlements/experienceFeatures.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/EligibilityEngine.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Combine saved audiences with page rules and verify eligibility using real product context.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Page rules copied into definition; runtime origin guard. No historical audience snapshot guarantee."
+  },
+  {
+    "path": "/docs/targeting/triggers/",
+    "title": "Choose when an experience starts",
+    "frontend": [
+      "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/App.tsx",
+      "apps/dashboard/src/api/experiences.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/targeting/triggers.mdx",
+    "backend": [
+      "src/routes/public-experiences.ts",
+      "src/routes/public-checklists.ts",
+      "src/lib/entitlements/experienceFeatures.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/EligibilityEngine.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Use page arrival, a custom event, or an explicit launch action without inventing a separate workflow builder.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "No standalone Workflows route or arbitrary ordered event-workflow UI. Manual launch documented only through explicit supported actions."
+  },
+  {
+    "path": "/docs/targeting/timing/",
+    "title": "Control repeats, scheduling, and priority",
+    "frontend": [
+      "apps/dashboard/src/components/experiences/AdvancedFrequencyControls.tsx",
+      "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/targeting/timing.mdx",
+    "backend": [
+      "src/routes/public-experiences.ts",
+      "src/routes/public-checklists.ts",
+      "src/lib/entitlements/experienceFeatures.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/EligibilityEngine.ts",
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Choose how often an experience appears and understand the checks that can delay delivery.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Interrupt behavior applies to active guide, not arbitrary widget replacement. Frequency across experience history; advanced entitlement gates."
+  },
+  {
+    "path": "/docs/workspace/sites/",
+    "title": "Manage workspaces and sites",
+    "frontend": [
+      "apps/dashboard/src/components/settings/WorkspaceSettings.tsx",
+      "apps/dashboard/src/components/settings/SitesSettings.tsx",
+      "apps/dashboard/src/components/settings/AccountSettings.tsx",
+      "apps/dashboard/src/components/settings/DataPrivacySettings.tsx",
+      "apps/dashboard/src/components/settings/DeveloperSettings.tsx",
+      "apps/dashboard/src/auth/WorkspaceContext.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/workspace/sites.mdx",
+    "backend": [
+      "src/routes/orgs.ts",
+      "src/routes/invitations.ts",
+      "src/routes/billing.ts",
+      "src/lib/usage/usage.ts",
+      "src/middleware/requireOrgRole.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Switch the active context, edit a site\u2019s domain, and understand the effect of deletion.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Account settings read-only except sign-out; Data & Privacy informational, not operational controls. Site deletion destructive."
+  },
+  {
+    "path": "/docs/workspace/team/",
+    "title": "Invite teammates and manage access",
+    "frontend": [
+      "apps/dashboard/src/components/settings/TeamSettings.tsx",
+      "apps/dashboard/src/pages/auth/InvitationPage.tsx",
+      "apps/dashboard/src/api/team.ts",
+      "apps/dashboard/src/types/api.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/workspace/team.mdx",
+    "backend": [
+      "src/routes/orgs.ts",
+      "src/routes/invitations.ts",
+      "src/routes/billing.ts",
+      "src/lib/usage/usage.ts",
+      "src/middleware/requireOrgRole.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Create a private invitation link, choose a role, and maintain pending invitations.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Private invite links, not automatic email delivery. Owner/self locked; pending valid invitations occupy seats."
+  },
+  {
+    "path": "/docs/workspace/billing/",
+    "title": "Manage your plan and usage",
+    "frontend": [
+      "apps/dashboard/src/components/settings/PlanUsageSettings.tsx",
+      "apps/dashboard/src/pages/billing/BillingPage.tsx",
+      "apps/dashboard/src/components/billing/UpgradeNowModal.tsx",
+      "apps/dashboard/src/api/billing.ts",
+      "apps/dashboard/src/lib/paddleCheckout.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/workspace/billing.mdx",
+    "backend": [
+      "src/routes/orgs.ts",
+      "src/routes/invitations.ts",
+      "src/routes/billing.ts",
+      "src/lib/usage/usage.ts",
+      "src/middleware/requireOrgRole.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Review subscription status and capacity, open Paddle billing, and understand the MAU allowance.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "No payment executed. UI, API, Paddle error path and billing-origin MAU verified in source; no price/limit table duplicated."
+  },
+  {
+    "path": "/docs/workspace/themes/",
+    "title": "Import and review your website theme",
+    "frontend": [
+      "apps/dashboard/src/components/settings/ThemesSettings.tsx",
+      "apps/dashboard/src/api/themes.ts",
+      "apps/dashboard/src/types/themes.ts"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/workspace/themes.mdx",
+    "backend": [
+      "src/routes/themes.ts",
+      "src/lib/themes/validation.ts",
+      "src/routes/experiences.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Scan your connected site for visual tokens, review the candidate, and activate a theme for new experiences.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Import on next SDK load; candidate approval; existing definitions are not retroactively restyled. No live theme scan performed."
+  },
+  {
+    "path": "/docs/guides/improve-activation/",
+    "title": "Find an onboarding gap and guide users",
+    "frontend": [
+      "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+      "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+      "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+      "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/guides/improve-activation.mdx",
+    "backend": [
+      "src/lib/segments/evaluator.ts",
+      "src/lib/funnels/progression.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/analytics.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Connect events, an ordered funnel, a drop-off segment, and a targeted experience in one activation workflow.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Requires existing event implementation and suitable observation window. No causal/retention promise."
+  },
+  {
+    "path": "/docs/guides/feature-adoption/",
+    "title": "Introduce a feature to relevant users",
+    "frontend": [
+      "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/pages/observe/EventDetailPage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/guides/feature-adoption.mdx",
+    "backend": [
+      "src/lib/segments/evaluator.ts",
+      "src/lib/funnels/progression.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/analytics.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Use a non-adopter segment and contextual guidance to help people try a feature at an appropriate moment.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Non-adoption depends on correct tracking. Current-membership reports can change after adoption."
+  },
+  {
+    "path": "/docs/guides/collect-feedback/",
+    "title": "Collect feedback after a product task",
+    "frontend": [
+      "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/guides/collect-feedback.mdx",
+    "backend": [
+      "src/lib/segments/evaluator.ts",
+      "src/lib/funnels/progression.ts",
+      "src/routes/public-experiences.ts",
+      "src/lib/experiences/analytics.ts"
+    ],
+    "sdk": [],
+    "supportedFunctionality": "Connect a successful action to a short survey, inspect real responses, and create a follow-up audience.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Requires custom-event-trigger plan feature and actual export event. No text-response condition or causal diagnosis."
+  },
+  {
+    "path": "/docs/help/missing-data/",
+    "title": "Troubleshoot missing data",
+    "frontend": [
+      "apps/dashboard/src/components/settings/InstallationSettings.tsx",
+      "apps/dashboard/src/pages/observe/EventsPage.tsx",
+      "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+      "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+      "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/help/missing-data.mdx",
+    "backend": [
+      "src/routes/sdk-verifications.ts",
+      "src/routes/public-experiences.ts",
+      "src/routes/public-checklists.ts",
+      "src/lib/entitlements/experienceFeatures.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Check the site, connection, event meaning, filters, permissions, and report definitions before changing tracking.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Diagnostic instructions source checked; no live outage or production account claims."
+  },
+  {
+    "path": "/docs/help/experience-delivery/",
+    "title": "Troubleshoot an experience that does not appear",
+    "frontend": [
+      "apps/dashboard/src/components/experiences/publish/launchReadiness.ts",
+      "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+      "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx",
+      "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx"
+    ],
+    "sourceFile": "apps/website/src/content/docs/docs/help/experience-delivery.mdx",
+    "backend": [
+      "src/routes/sdk-verifications.ts",
+      "src/routes/public-experiences.ts",
+      "src/routes/public-checklists.ts",
+      "src/lib/entitlements/experienceFeatures.ts"
+    ],
+    "sdk": [
+      "src/experiences/runtime/ExperienceLoader.ts"
+    ],
+    "supportedFunctionality": "Check publication, audience, page, trigger, timing, frequency, and targets in a deliberate order.",
+    "verification": {
+      "sourceReview": "verified against frontend and applicable backend/SDK snapshots",
+      "productionDocsBuild": "passed",
+      "linksAndAnchors": "passed",
+      "liveAccountWalkthrough": "not performed",
+      "realScreenshots": "unavailable"
+    },
+    "limitations": "Preview is not eligibility verification; persistent frequency/checklist history matters; no production mutation performed."
+  }
+]
