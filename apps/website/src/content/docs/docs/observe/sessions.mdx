@@ -1,0 +1,30 @@
+---
+title: "Inspect a visitor session"
+description: "Follow recorded page visits and actions in a session timeline without assuming a replay is available."
+---
+
+A session groups a visitor’s recorded activity during a visit. Use the timeline to investigate the context behind a funnel drop-off or feedback response.
+
+## Find the visit
+
+1. Open **Observe → Sessions**.
+2. Search using **Search session or visitor…**, or open **Filter**.
+3. Narrow by **Date range**, **Segment**, **Visitor type**, **Visited page**, or **Device** as needed.
+4. Choose a sorting option such as **Newest**, **Longest**, or **Most activity**.
+5. Open a row or choose **View session →**.
+
+For reliable narrowing, choose one page and one device at a time. The current request uses one selected value for each of those controls.
+
+## Read Session activity
+
+The detail page groups recorded evidence into page visits. Expand a page episode to inspect its actions, or use the side navigator to jump through the visit. Under **Show**, toggle **Clicks** and **Application events** to focus on the evidence you need. Other signal filters only help if that data exists in your release and session.
+
+Example: a user visits the project screen, clicks a control several times, and leaves. This is a reason to investigate, not proof that the control failed. Compare it with the product’s own success event or ask for feedback.
+
+## Interpret the limits
+
+Duration describes observed activity between recorded events. It is not continuous attention or a recording of everything on screen. A session can be short because there are few persisted events.
+
+Session replay and Heatmaps are not active documented features in this release. A replay-related label or filter does not mean new recordings are being collected. Use the available activity timeline.
+
+**Related:** [User profiles](/docs/people/users/) · [Missing data](/docs/help/missing-data/).

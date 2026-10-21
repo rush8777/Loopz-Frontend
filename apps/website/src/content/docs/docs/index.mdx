@@ -1,52 +1,37 @@
 ---
-title: Build with Movcues
-description: Install the Movcues JavaScript SDK and turn verified user behavior into actions.
+title: Movcues documentation
+description: Learn the Movcues dashboard, connect your site, build targeted experiences, and understand product activity.
 ---
 
 <div class="docs-intro">
-  <p class="doc-kicker"><span aria-hidden="true"></span> JavaScript SDK · Documentation</p>
-  <p class="docs-intro-title">One installation.<br /><em>A clearer next step.</em></p>
-  <p class="doc-lede">Connect your product to Movcues. Understand user behavior, find the people who need help, and guide them at the right moment.</p>
+  <p class="doc-kicker"><span aria-hidden="true"></span> Product guides · SDK reference</p>
+  <p class="docs-intro-title">Learn Movcues.<br /><em>One task at a time.</em></p>
+  <p class="doc-lede">Set up your site, understand recorded activity, and create guidance or feedback requests for the people who need them.</p>
   <div class="docs-intro-actions">
-    <a class="docs-start-link" href="/docs/getting-started/quickstart/">Start building <span aria-hidden="true">↗</span></a>
-    <a class="docs-reference-link" href="/docs/api/">Explore the API <span aria-hidden="true">→</span></a>
+    <a class="docs-start-link" href="/docs/getting-started/welcome/">Get started <span aria-hidden="true">↗</span></a>
+    <a class="docs-reference-link" href="/docs/getting-started/installation/">Install the SDK <span aria-hidden="true">→</span></a>
   </div>
 </div>
 
-<p class="docs-label">Choose your next step</p>
+## Choose your next task
 
 <div class="docs-home-grid">
-  <a href="/docs/getting-started/quickstart/"><span class="docs-card-number">01 / INSTALL <span aria-hidden="true">↗</span></span><strong>From snippet to first event.</strong><span>Install the CDN loader and verify your first custom event.</span></a>
-  <a href="/docs/integrations/react/"><span class="docs-card-number">02 / INTEGRATE <span aria-hidden="true">↗</span></span><strong>Works with your stack.</strong><span>Set up React, Next.js, or a vanilla JavaScript application.</span></a>
-  <a href="/docs/tracking/identify/"><span class="docs-card-number">03 / UNDERSTAND <span aria-hidden="true">↗</span></span><strong>Give behavior context.</strong><span>Connect anonymous activity to your application’s stable user ID.</span></a>
-  <a href="/docs/reference/configuration/"><span class="docs-card-number">04 / REFERENCE <span aria-hidden="true">↗</span></span><strong>The details, all in one place.</strong><span>Find supported configuration, defaults, and release limits.</span></a>
+  <a href="/docs/getting-started/welcome/"><span class="docs-card-number">01 / GETTING STARTED <span aria-hidden="true">↗</span></span><strong>Set up Movcues.</strong><span>Connect a site and follow the path to your first published experience.</span></a>
+  <a href="/docs/analytics/dashboards/"><span class="docs-card-number">02 / USE THE DASHBOARD <span aria-hidden="true">↗</span></span><strong>Understand product activity.</strong><span>Explore events, users, segments, funnels, and custom analytics.</span></a>
+  <a href="/docs/experiences/overview/"><span class="docs-card-number">03 / BUILD EXPERIENCES <span aria-hidden="true">↗</span></span><strong>Create useful guidance.</strong><span>Choose, build, preview, and publish guides, widgets, checklists, or surveys.</span></a>
+  <a href="/docs/targeting/audience/"><span class="docs-card-number">04 / TARGET YOUR USERS <span aria-hidden="true">↗</span></span><strong>Choose the right audience and moment.</strong><span>Combine saved segments, page conditions, triggers, and display timing.</span></a>
+  <a href="/docs/getting-started/installation/"><span class="docs-card-number">05 / DEVELOPER DOCUMENTATION <span aria-hidden="true">↗</span></span><strong>Connect your product.</strong><span>Install the SDK, track events, identify users, and configure integrations.</span></a>
 </div>
 
-<p class="docs-label">Start here</p>
+## Follow a complete journey
 
-```html title="Install with one script"
-<script
-  async
-  src="https://cdn.movcues.com/v1.js"
-  data-site-id="YOUR_SITE_ID"
-></script>
-```
+- [Launch your first experience](/docs/getting-started/first-experience/): connect your site, create a draft, preview, and publish.
+- [Improve onboarding](/docs/guides/improve-activation/): inspect a funnel, save a drop-off audience, and target relevant guidance.
+- [Introduce a feature](/docs/guides/feature-adoption/): find non-adopters and explain the next action in context.
+- [Collect feedback](/docs/guides/collect-feedback/): ask after a real task and investigate the responses.
 
-The loader exposes `window.analytics` and initializes itself from `data-site-id`. Use the [Quickstart](/docs/getting-started/quickstart/) for a complete, verifiable path.
+## Find an answer
 
-## What the current release supports
+Use search for a task, event, setting, or question. The sidebar separates dashboard operation from SDK implementation; existing developer article URLs remain available.
 
-Movcues automatically records page views, intentional interactive clicks, scroll milestones, and rage-click signals. You can also send custom events, identify users, define funnels, and launch configured experiences.
-
-The SDK watches browser history, popstate, and hash changes for single-page applications. It does not need a framework-specific router integration for normal client-side navigation.
-
-:::note
-The documentation describes the shipped MVP1 runtime. Cursor movement, hover, element crawling, heatmaps, and session replay are deliberately disabled in this release—even if older README material mentions them. See [release availability](/docs/reference/availability/) before planning around an advanced collector.
-:::
-
-## Browse by task
-
-- **Install:** choose the [CDN or ES module installation](/docs/getting-started/installation/).
-- **Instrument behavior:** [automatic collection](/docs/tracking/automatic/), [custom events](/docs/tracking/custom-events/), and [page views](/docs/tracking/pageviews/)
-- **Attach context:** [identify users](/docs/tracking/identify/) and [configuration](/docs/configuration/)
-- **Ship safely:** [privacy controls](/docs/privacy/) and [troubleshooting](/docs/troubleshooting/)
+For a setup problem, start with [Connect and verify your site](/docs/getting-started/connect/). For missing activity, read [Missing data](/docs/help/missing-data/). For launch problems, read [Experience delivery](/docs/help/experience-delivery/).

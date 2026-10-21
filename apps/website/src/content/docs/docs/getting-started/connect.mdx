@@ -1,0 +1,34 @@
+---
+title: "Connect and verify your site"
+description: "Find your installation snippet and confirm the SDK is running without opening developer tools."
+---
+
+Connecting your site lets Movcues receive activity and display published experiences. A developer installs the SDK, the small browser script that connects your product to Movcues. You can check the connection yourself in the dashboard.
+
+## Example
+
+Your app runs at `https://app.example.com`. Install Movcues there before building guidance for `/projects`. Installing only on your marketing website will not connect the app.
+
+## Install once
+
+1. Select the correct site from **Settings → Sites**.
+2. Open **Settings → Installation**.
+3. Copy the **Installation snippet** and send it to your developer. It already contains this site’s **Site ID**.
+4. Ask them to install it once across the product and publish the change. The [SDK Installation guide](/docs/getting-started/installation/) contains the implementation options.
+
+## Check the live connection
+
+1. Keep **Settings → Installation** open.
+2. Choose **Test SDK connection** under **Live SDK test**.
+3. Open or refresh your product in another tab while the test runs.
+4. Wait for **SDK connected**. If it expires, refresh the correct product URL and choose **Try again**.
+
+**Receiving data** and **Last event** show previously received activity. The live test answers a different question: is the SDK running now? **Refresh status** updates the activity summary.
+
+## Confirm a product outcome
+
+Visit **Observe → Sessions** to inspect recorded visits. **Observe → Events** lists custom product events, such as `project_created`; it is not the list of all automatic page views and clicks. Ask a developer to add [custom events](/docs/tracking/custom-events/) for the outcomes your team wants to measure.
+
+If nothing appears, check the selected site, the published installation, and the product’s domain. See [Missing data](/docs/help/missing-data/).
+
+**Next:** [Build your first experience](/docs/getting-started/first-experience/).
