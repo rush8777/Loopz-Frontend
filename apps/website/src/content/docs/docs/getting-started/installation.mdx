@@ -3,15 +3,11 @@ title: Installation
 description: Install the Movcues browser SDK with a CDN script or ES module, then verify your setup and first event.
 ---
 
-Installation connects your website to Movcues so your team can see product activity. For a simple site, use the CDN script. For an app built with React, Next.js, Vue, Svelte, or another build tool, use the ES module. Choose one method and install it once in the shared part of your site.
-
-## Example: measure a new-user journey
-
-Suppose your team wants to understand whether new users reach their first project. After installation, Movcues can record visits and supported interactions automatically. A developer can add a `project_created` event when the project is successfully saved. You can then review the journey in Movcues without adding the installation snippet to every page.
+Install Movcues with a script tag for the quickest setup, or use the ES module in a bundled application. Both methods expose the same core tracking API. After installing, use the verification steps below to confirm the SDK is running.
 
 ## Install with the CDN
 
-Ask a developer to add this once to the shared page template, before `</head>`. Replace `YOUR_SITE_ID` with the ID for your Movcues site. This ID connects the activity to the right site in your dashboard.
+Add the loader once to your HTML document, before the closing `</head>` tag. The `data-site-id` attribute lets the SDK initialize automatically.
 
 ```html
 <script
@@ -21,11 +17,11 @@ Ask a developer to add this once to the shared page template, before `</head>`. 
 ></script>
 ```
 
-The Site ID is public and safe to include in browser code. Do not add passwords, secret keys, or server credentials to the page.
+The Site ID is required. The browser SDK uses this public identifier; do not put secret keys, private API URLs, or server credentials in the script tag.
 
-### If your app sends an event before the script loads
+### Queue calls before the bundle loads
 
-Most teams can skip this. A developer only needs a command queue if the app might send an event before the asynchronous script is ready. The queue holds that event briefly and sends it when Movcues finishes loading:
+If code needs to call Movcues before the asynchronous script has loaded, create the command queue first:
 
 ```html
 <script>
@@ -38,11 +34,11 @@ Most teams can skip this. A developer only needs a command queue if the app migh
 <script async src="https://cdn.movcues.com/v1.js" data-site-id="YOUR_SITE_ID"></script>
 ```
 
-The loader sends queued commands after it loads. If the queue includes its own `init` command, that setup is used instead of the `data-site-id` initialization.
+The loader drains queued commands when it installs. A queued `init` command takes precedence over automatic initialization from the script tag.
 
-### If your app receives its Site ID later
+### Initialize manually
 
-For example, if your app only knows which site to use after sign-in, a developer can initialize Movcues when that value becomes available. Use this in place of automatic setup with `data-site-id`:
+If your app receives the Site ID after it starts, initialize the browser global when the value is available:
 
 ```js
 analytics.init({
@@ -51,11 +47,11 @@ analytics.init({
 });
 ```
 
-Initialize once. Additional initialization calls are ignored.
+Call `init()` once. The runtime ignores duplicate initialization.
 
 ## Install as an ES module
 
-For an app assembled with React, Next.js, Vue, Svelte, or another build tool, a developer can install the package and create one Movcues instance where the app starts:
+For a React, Next.js, Vue, Svelte, or other bundled application, import the package and create one SDK instance at the application level:
 
 ```bash
 npm install @movcues/sdk
@@ -72,15 +68,15 @@ const analytics = createAnalytics({
 analytics.event("app_started");
 ```
 
-`createAnalytics()` starts the SDK. `app_started` is only a sample event; in a real product, track a meaningful action such as `project_created` only after saving succeeds. Keep the SDK instance in one shared place so it is not started repeatedly by individual screens.
+`createAnalytics()` initializes the instance immediately and registers page-lifecycle cleanup. Keep it in a shared application module or provider instead of creating one instance per component.
 
 :::caution
-Before using this method, confirm that `@movcues/sdk` is available in your package registry. The repository contains this package name, but its public npm availability has not been confirmed. Older examples may show the incorrect name `movcues/sdk`.
+The SDK source and package manifest confirm the package name and ES module entry, but public registry availability has not been independently verified. Confirm that `@movcues/sdk` is published to your approved registry before installing it. Use the package name shown above; older examples may use the mismatched `movcues/sdk` import.
 :::
 
-### Use and stop the instance
+### Use and clean up the instance
 
-The instance can recognize users, record outcomes, and record an explicit page view, just like the CDN version:
+The returned instance provides the same core methods as the CDN global:
 
 ```ts
 analytics.identify("usr_123", { plan: "pro" });
@@ -88,17 +84,17 @@ analytics.event("invite_sent", { method: "email" });
 analytics.page();
 ```
 
-When the app is shut down or replaced, a developer can call `destroy()` to stop collection and release its browser listeners.
+Call `destroy()` when the application is torn down. It stops collection, clears in-memory pending events, removes route observers, and releases the module singleton for a later initialization.
 
-Movcues runs in the visitor’s browser. In apps that also render pages on a server, create the instance only on the browser side. See the [Next.js integration](/docs/integrations/nextjs/) for an example.
+This is a browser SDK. Create the instance only in client-side code, not during server rendering. See the [Next.js integration](/docs/integrations/nextjs/) for a client-side example.
 
 ## Verify the installation
 
-1. Publish the website with the Movcues installation in place.
-2. Visit the website and open a page as a normal visitor would.
-3. In the Movcues dashboard, choose the same site and open **Observe → Events**. Look for the page view from your visit.
+1. Publish your website with the Movcues script added.
+2. Visit your website in a browser and open a page.
+3. In your Movcues dashboard, select the same site and open **Observe → Events**. Look for a page view from your visit.
 
-If you don’t see it after a short wait, ask your developer to confirm that the published site contains the script and uses the same Site ID as the dashboard. For more help, see [troubleshooting](/docs/troubleshooting/).
+If you don’t see it after a short wait, check that the script is on the published website and that its Site ID matches the site you selected in the dashboard. For more help, see [troubleshooting](/docs/troubleshooting/).
 
 ## Next steps
 

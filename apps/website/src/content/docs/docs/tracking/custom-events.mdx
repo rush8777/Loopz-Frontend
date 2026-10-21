@@ -1,33 +1,39 @@
 ---
 title: Custom events
-description: Mark important product outcomes, such as a project being created or an invitation being accepted.
+description: Send focused product events with meaningful, privacy-safe properties.
 ---
 
-Automatic tracking can show that someone clicked a button. A custom event tells Movcues what the product actually accomplished. Product teams use these events to measure milestones such as creating a first project, accepting an invitation, or completing checkout.
-
-## Example: measure a successful export
-
-A click on **Export** only tells you that someone pressed the button. Record `report_exported` after the report has been created successfully, so your team can measure completed exports rather than button clicks:
+Custom events describe a business action that automatic browser behavior cannot infer: a project was created, an invite was accepted, or a workflow completed.
 
 ```js
-async function exportReport() {
-  const report = await createReportExport();
-  window.analytics.event("report_exported", {
-    format: report.format,
-    source: "analytics",
+window.analytics.event("report_exported", {
+  format: "csv",
+  source: "analytics",
+  row_count: 42,
+});
+```
+
+## Event design
+
+- Name the completed action, not the button: `report_exported`, not `export_clicked`.
+- Use a stable `snake_case` name.
+- Keep properties small and scalar when possible: strings, booleans, and numbers with clear semantics.
+- Prefer your own opaque IDs (for example `workspace_id`) over email addresses or names.
+- Do not send access tokens, passwords, payment details, free-form form input, or regulated personal data.
+
+## Product pattern
+
+Track one event after the action succeeds. If the action fails, record a distinct failure event only when it has useful diagnostic value and contains no sensitive error payload.
+
+```js
+async function createProject(input) {
+  const project = await api.createProject(input);
+  window.analytics.event("project_created", {
+    template: project.template,
+    workspace_id: project.workspaceId,
   });
+  return project;
 }
 ```
 
-The example is illustrative: your developer connects the event to the function that finishes the export in your product.
-
-## Choose useful details
-
-- Name the result, not the button: use `report_exported`, not `export_clicked`.
-- Keep the name consistent so the team can compare the same action over time.
-- Add only details that help answer a product question. For example, `format: "csv"` can help show which export format people use.
-- Never include passwords, payment details, email addresses, or private text entered by a user.
-
-## When to record it
-
-Record an event only after the action succeeds. For example, send `project_created` after the app confirms that it saved the project, not as soon as someone clicks **Create project**. Events sent before the SDK is ready may be missed; the [Installation guide](/docs/getting-started/installation/) explains how developers can handle that case.
+Calls made before the SDK initializes are ignored by the runtime unless you used the [CDN command queue](/docs/getting-started/installation/#queue-calls-before-the-bundle-loads).

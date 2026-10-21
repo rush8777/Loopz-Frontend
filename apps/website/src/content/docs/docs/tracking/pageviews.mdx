@@ -1,24 +1,22 @@
 ---
 title: Page views
-description: See how Movcues records pages and app screens people visit, including single-page apps.
+description: Understand initial, route-change, and manual page-view behavior.
 ---
 
-Page views tell your team which pages or app screens people visit. Movcues records the first page when it starts and detects later URL changes automatically.
+Movcues records a page view during initialization, then watches browser navigation for additional views in a single-page app.
 
-## Example: follow a signup journey
+## Automatic behavior
 
-Imagine your app has a signup page, an onboarding screen, and a project dashboard. When a user moves between those URLs, Movcues records each page view. A product manager can see whether people reach the dashboard after signup, then pair that information with a `project_created` event to measure who completes setup.
+The initial page view is emitted when the SDK starts. Later views are emitted only after a detected URL change. The route observer supports push-state, replace-state, browser history, and hash navigation.
 
-## When page views are automatic
-
-The initial page is recorded when the SDK starts. Movcues also recognizes common in-app navigation, including browser history changes. Your team usually does not need to add a page-view call to every screen.
-
-## When to record one manually
-
-Use a manual page view only when the visible screen changes but the URL stays the same. For example, if an onboarding wizard changes from “Choose a template” to “Invite your team” without changing the address in the browser, a developer can mark that change:
+## Manual behavior
 
 ```js
 window.analytics.page();
 ```
 
-Do not add this call for normal navigation where the URL changes; Movcues already detects those changes. For a clearer product journey, pair page views with a few [custom events](/docs/tracking/custom-events/) that describe completed actions.
+Use this for a virtual screen change that keeps the same URL, or for an explicit boundary your product has defined. Avoid adding it to normal router callbacks where the SDK already detects a URL change.
+
+## Page context
+
+The runtime creates a new page-view context on navigation. For stronger analysis, pair the automatic page views with a small set of custom events that represent meaningful completion points.
