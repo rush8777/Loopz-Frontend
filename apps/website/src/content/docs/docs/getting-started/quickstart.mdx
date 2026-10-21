@@ -1,13 +1,17 @@
 ---
 title: Quickstart
-description: Install the Movcues CDN loader, confirm initialization, and record a custom event.
+description: Connect Movcues to your product, see the first activity, and track a meaningful user action.
 ---
 
-Use this path when you want the fastest installation on a browser-delivered application. It takes one script tag and one verification event.
+Use this guide to get a first view of what people do in your product. The SDK starts collecting basic activity after it is installed. Your team can then add named events for important outcomes, such as creating a project or inviting a teammate.
 
-## 1. Add your Site ID
+## Example: check whether onboarding works
 
-Copy the Site ID for the site you are instrumenting from your Movcues installation settings, then add the loader before your closing `</head>` tag.
+Imagine your team wants to know how many new users create their first project. Movcues can record visits and clicks automatically. A developer adds one `project_created` event after a project is successfully created. In the dashboard, your team can then review the journey from visiting the app to reaching that milestone.
+
+## 1. Connect your site
+
+Ask a developer to add the Movcues loader to your website and replace `YOUR_SITE_ID` with the ID for the site you want to measure. The Site ID tells Movcues where this activity belongs.
 
 ```html
 <script
@@ -17,52 +21,42 @@ Copy the Site ID for the site you are instrumenting from your Movcues installati
 ></script>
 ```
 
-`data-site-id` is required for automatic initialization. The loader reads it and calls `analytics.init({ siteId })` automatically. If it is missing, automatic initialization does not occur; a manual `init()` call without `siteId` throws an error.
+The Site ID is available in your Movcues installation settings. It is safe to use in browser code; never put passwords or secret keys in the page.
 
-## 2. Confirm the SDK is ready
+## 2. Check for activity
 
-Open a browser page with the script installed, then run this in DevTools:
+After the updated website is published, visit a page yourself. In Movcues, choose the matching site and open **Observe → Events**. You should see a page view from your visit. The [Installation guide](/docs/getting-started/installation/#verify-the-installation) has simple troubleshooting steps if it does not appear.
 
-```js
-window.analytics;
-```
+## 3. Name an important product outcome
 
-You should see the public API object. The same object is also available as `window.__myAnalytics__` for compatibility with the loader.
+Automatic activity can show that someone clicked a button. It cannot tell you whether the action succeeded. Ask your developer to add an event after an important action completes.
 
-For a temporary diagnostic trace, turn on debug logging:
-
-```js
-window.analytics.enableDebug();
-```
-
-## 3. Send one custom event
-
-Record a meaningful product action after the user completes it.
+For example, after a user creates a project:
 
 ```js
 window.analytics.event("project_created", {
-  project_type: "marketing-site",
-  member_count: 3,
+  project_type: "marketing_site",
+  team_size: 3,
 });
 ```
 
-Use stable event names in `snake_case` and properties that explain the action. Avoid names, email addresses, free-form form values, credentials, or any data you would not want retained in behavior analytics.
+The event name describes the result, not the button. The extra details help answer questions such as whether a template or team size affects project creation. Use non-sensitive values only.
 
-## 4. Identify after authentication
+## 4. Recognize signed-in users
 
-When your app has a stable internal user ID, attach it to the active browser session:
+If you need to understand activity by account, your developer can attach the product’s internal user ID after sign-in:
 
 ```js
 window.analytics.identify("usr_123", {
-  plan: "pro",
+  plan: "growth",
   workspace_id: "ws_456",
 });
 ```
 
-Call `reset()` on logout or before a different person begins using the same browser session. See [Identity](/docs/tracking/identify/) for the lifecycle and data-safety details.
+Use an internal ID rather than a name or email. On sign-out, the app should clear the identity so activity from the next person using that browser is not assigned to the previous account. See [Identify users](/docs/tracking/identify/) for more detail.
 
 ## Next steps
 
-- Use [automatic collection](/docs/tracking/automatic/) to understand what is collected without extra code.
-- Add a [privacy marker](/docs/privacy/) before tracking pages with sensitive UI.
-- Follow [installation verification](/docs/getting-started/installation/#verify-the-installation) to diagnose a missing event.
+- See what Movcues records automatically in [Automatic collection](/docs/tracking/automatic/).
+- Learn when to add an outcome in [Custom events](/docs/tracking/custom-events/).
+- Review [privacy controls](/docs/privacy/) before collecting activity from sensitive pages.

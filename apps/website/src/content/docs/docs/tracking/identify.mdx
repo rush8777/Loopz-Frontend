@@ -1,9 +1,13 @@
 ---
 title: Identify users
-description: Attach a stable application user ID to the active browser session and clear it safely on logout.
+description: Connect product activity to a signed-in account using a safe internal ID.
 ---
 
-Call `identify()` after your product has authenticated a user and you know the stable identifier used by your application.
+Before someone signs in, Movcues can record their activity under an anonymous browser ID. After sign-in, your app can tell Movcues which internal account is using the browser. This helps a product team understand activity by account without sending a person’s email or name.
+
+## Example: understand a trial user’s journey
+
+Your team wants to see whether trial users create a project after signing in. The app can send its own account ID and a small amount of useful context, such as the plan:
 
 ```js
 window.analytics.identify("usr_123", {
@@ -12,25 +16,27 @@ window.analytics.identify("usr_123", {
 });
 ```
 
-## When to identify
+Here, `usr_123` is an example of an internal ID from your product. Your developer connects the call to the point where sign-in succeeds.
 
-- After sign-in, sign-up, or SSO completes.
-- After an account switch if the new identity is known.
-- When an anonymous user becomes a known user, before tracking the next meaningful authenticated action.
+## When to use it
 
-Identity is scoped to the browser session. The SDK also maintains an anonymous browser identifier so activity can begin before the user authenticates.
+- After a user signs in or creates an account.
+- After the user switches to a different account.
+- Before recording the next important action as a signed-in user.
 
-## Reset on logout
+Movcues keeps the identity for the active browser session. Activity before sign-in starts under an anonymous browser ID; do not assume it is automatically attached to a named account. The SDK’s anonymous ID allows activity to be recorded before login.
+
+## Clear identity when the user signs out
 
 ```js
 window.analytics.reset();
 ```
 
-Call this when a user signs out, before an account switch, or on a shared-device handoff. The runtime clears the current identity and starts a new anonymous/session context.
+Your developer should call `reset()` on sign-out or before another person uses the same browser. This prevents activity from the next session from being attributed to the previous account.
 
-## Attributes are not a user profile sync
+## Keep account details limited
 
-The optional attributes object adds context to the identify action. Send only current, product-relevant values that your organization is permitted to process.
+The optional details can help answer questions such as whether people on a trial or paid plan use a feature. Keep them limited to current, product-related information your team is allowed to collect:
 
 ```js
 window.analytics.identify(user.id, {
@@ -39,4 +45,4 @@ window.analytics.identify(user.id, {
 });
 ```
 
-Do not treat `identify()` as a place to upload a complete customer record. Keep sensitive data out of client-side analytics.
+Do not use `identify()` to upload a full customer record. Avoid email addresses, names, payment details, and other sensitive information.

@@ -1,19 +1,21 @@
 ---
 title: Automatic collection
-description: See which behavior signals the current Movcues SDK records automatically.
+description: Learn what Movcues records for you and what those signals can tell your product team.
 ---
 
-After initialization, the current release begins a session and automatically records a first page view. It also observes later client-side route changes.
+Automatic collection means Movcues records some product activity as soon as the SDK is installed. Your team can get an initial picture of how people move through the product before a developer adds custom events.
 
-## Enabled in the current release
+## What Movcues records
 
-| Signal | Behavior |
-| --- | --- |
-| Page views | Sent on initialization and on detected SPA URL changes. |
-| Interactive clicks | Captures intentional interaction with UI elements; normal click collection is restricted to interactive elements. |
-| Scroll milestones | Records configured progress milestones, by default 25%, 50%, 75%, 90%, and 100%. |
-| Rage clicks | Detects repeated nearby clicks using the configured count, time window, and distance. |
+| Activity | What it can help you understand | Example |
+| --- | --- | --- |
+| Page views | Which pages or app screens people visit. | See whether new users reach the project setup screen after signing up. |
+| Interactive clicks | Which buttons, links, or other controls people use. | See whether visitors choose “Create project” or leave the page. |
+| Scroll progress | How far people move down a page. Movcues records milestones such as 25%, 50%, and 75%. | Check whether people reach the plan comparison or setup instructions. |
+| Repeated clicks | When someone clicks the same area several times in a short period. This can be a clue that a control is confusing or unresponsive. | Look for repeated clicks on “Invite teammate” when users try to finish setup. |
+
+These signals show what happened in the interface; they do not explain a user’s intention or prove that a task succeeded. For outcomes such as “project created” or “invite accepted,” add a [custom event](/docs/tracking/custom-events/).
 
 ## Turn off automatic tracking
 
-If you don’t want Movcues to record clicks, scroll progress, or repeated clicks, ask your developer to switch off those options in the SDK configuration. See the [Configuration guide](/docs/configuration/) for details. For sensitive parts of a page, use [privacy controls](/docs/privacy/).
+If a signal is not useful to your team, ask your developer to switch off automatic clicks, scroll progress, or repeated-click tracking in the SDK settings. For example, a team focused on button use may not need scroll progress. The [Configuration guide](/docs/configuration/) explains the settings. For sensitive areas, use [privacy controls](/docs/privacy/).
