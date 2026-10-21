@@ -23,9 +23,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { label: "Quickstart", slug: "docs/getting-started/quickstart" },
-            { label: "CDN installation", slug: "docs/getting-started/cdn" },
-            { label: "ES module setup", slug: "docs/getting-started/npm" },
-            { label: "Verify your installation", slug: "docs/getting-started/verify" },
+            { label: "Installation", slug: "docs/getting-started/installation" },
           ],
         },
         {
