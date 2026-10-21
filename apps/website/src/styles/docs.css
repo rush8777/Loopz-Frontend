@@ -64,6 +64,11 @@ site-search button[data-open-modal] { border-radius: 999px; background: var(--sl
 .sidebar-content a[aria-current='page'] { background: var(--sl-color-accent-low); color: var(--sl-color-accent-high); font-weight: 600; }
 .sidebar-content a:hover { color: var(--sl-color-accent); }
 .content-panel { border-color: var(--sl-color-gray-5); }
+@media (min-width: 72rem) {
+  .right-sidebar-container,
+  [data-has-sidebar][data-has-toc] .main-pane { --sl-sidebar-width: 15rem; }
+  .right-sidebar-panel .sl-container { margin-inline-start: auto; }
+}
 main { min-width: 0; }
 h1#_top { font-family: var(--sl-font); font-size: clamp(2.1rem, 4vw, 3.1rem); font-weight: 400; letter-spacing: -.055em; line-height: 1.1; }
 .sl-markdown-content { font-size: 1rem; line-height: 1.8; }

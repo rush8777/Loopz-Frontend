@@ -27,6 +27,16 @@ export default defineConfig({
           ],
         },
         {
+          label: "Tracking & identity",
+          collapsed: true,
+          items: [
+            { label: "Automatic collection", slug: "docs/tracking/automatic" },
+            { label: "Custom events", slug: "docs/tracking/custom-events" },
+            { label: "Identify users", slug: "docs/tracking/identify" },
+            { label: "Page views", slug: "docs/tracking/pageviews" },
+          ],
+        },
+        {
           label: "SDK References",
           collapsed: false,
           items: [
@@ -38,16 +48,6 @@ export default defineConfig({
                 { label: "React", slug: "docs/integrations/react" },
                 { label: "Next.js", slug: "docs/integrations/nextjs" },
                 { label: "Single-page applications", slug: "docs/integrations/spa" },
-              ],
-            },
-            {
-              label: "Tracking & identity",
-              collapsed: true,
-              items: [
-                { label: "Automatic collection", slug: "docs/tracking/automatic" },
-                { label: "Custom events", slug: "docs/tracking/custom-events" },
-                { label: "Identify users", slug: "docs/tracking/identify" },
-                { label: "Page views", slug: "docs/tracking/pageviews" },
               ],
             },
             { label: "Configuration guide", slug: "docs/configuration" },
