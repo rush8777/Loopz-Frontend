@@ -14,25 +14,6 @@ After initialization, the current release begins a session and automatically rec
 | Scroll milestones | Records configured progress milestones, by default 25%, 50%, 75%, 90%, and 100%. |
 | Rage clicks | Detects repeated nearby clicks using the configured count, time window, and distance. |
 
-## Not enabled in MVP1
+## Turn off automatic tracking
 
-The runtime deliberately disables cursor movement, hover, element crawling, heatmaps, and session replay. Configuration flags for some of these collectors may still exist in types, but the release policy prevents them from collecting.
-
-This is an intentional data-volume and privacy boundary—not a setup failure. See [release availability](/docs/reference/availability/) for the audit finding.
-
-## Turn off automatic collectors
-
-Use the configuration object to opt out of supported automatic collectors:
-
-```js
-window.analytics.init({
-  siteId: "YOUR_SITE_ID",
-  autocapture: {
-    click: false,
-    scroll: false,
-    rageClick: false,
-  },
-});
-```
-
-Use [privacy controls](/docs/privacy/) for specific sensitive UI regions rather than disabling collection across an entire application.
+If you don’t want Movcues to record clicks, scroll progress, or repeated clicks, ask your developer to switch off those options in the SDK configuration. See the [Configuration guide](/docs/configuration/) for details. For sensitive parts of a page, use [privacy controls](/docs/privacy/).

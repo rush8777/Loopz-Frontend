@@ -19,19 +19,6 @@ Add the loader once to your HTML document, before the closing `</head>` tag. The
 
 The Site ID is required. The browser SDK uses this public identifier; do not put secret keys, private API URLs, or server credentials in the script tag.
 
-### Optional endpoint
-
-The SDK normally uses its configured production endpoint. Set `data-endpoint` only when Movcues has provided a compatible endpoint for your environment.
-
-```html
-<script
-  async
-  src="https://cdn.movcues.com/v1.js"
-  data-site-id="YOUR_SITE_ID"
-  data-endpoint="https://your-approved-endpoint.example"
-></script>
-```
-
 ### Queue calls before the bundle loads
 
 If code needs to call Movcues before the asynchronous script has loaded, create the command queue first:
@@ -103,38 +90,11 @@ This is a browser SDK. Create the instance only in client-side code, not during 
 
 ## Verify the installation
 
-### Check the CDN global
+1. Publish your website with the Movcues script added.
+2. Visit your website in a browser and open a page.
+3. In your Movcues dashboard, select the same site and open **Observe → Events**. Look for a page view from your visit.
 
-After the page loads, open DevTools and check that the public API is available:
-
-```js
-typeof analytics !== "undefined" && typeof analytics.event === "function";
-```
-
-The expression should return `true`. If it returns `false`, check the script URL, Site ID, Content Security Policy, and browser network errors. The CDN runtime attaches the global to `window`; use the bare `analytics.*` API in application code.
-
-### Send a test event
-
-Enable temporary debug logging and record a test event:
-
-```js
-analytics.enableDebug();
-analytics.event("movcues_install_verified");
-```
-
-Inspect the console and browser network panel to confirm the event is sent. Disable debug logging when you are done:
-
-```js
-analytics.disableDebug();
-```
-
-| Symptom | Likely cause | Next step |
-| --- | --- | --- |
-| `init() requires a siteId` | The script has no `data-site-id`, or manual `init()` is missing `siteId`. | Add the Site ID and reload. |
-| The API is available but no data appears | The Site ID is wrong, delivery is blocked, or Do Not Track is respected. | Check the active Site ID, network/CSP policy, and [privacy controls](/docs/privacy/). |
-| Two SDK copies appear | The loader was added to both the app shell and a page. | Keep one installation point. |
-
-If the issue persists, follow the [troubleshooting checklist](/docs/troubleshooting/).
+If you don’t see it after a short wait, check that the script is on the published website and that its Site ID matches the site you selected in the dashboard. For more help, see [troubleshooting](/docs/troubleshooting/).
 
 ## Next steps
 
