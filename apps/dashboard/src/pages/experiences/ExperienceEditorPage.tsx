@@ -1188,12 +1188,20 @@ export function ExperienceEditorPage() {
                     }
                   />
                   {guideStepRequiresTarget(step!) && (
-                    <AnchoredCardBehaviorEditor
-                      behavior={step!.behavior}
-                      onChange={(change) =>
-                        mutateStep((value) => change(value.behavior))
-                      }
-                    />
+                    <>
+                      <AnchoredCardBehaviorEditor
+                        behavior={step!.behavior}
+                        onChange={(change) =>
+                          mutateStep((value) => change(value.behavior))
+                        }
+                      />
+                      <BackdropBehaviorEditor
+                        behavior={step!.behavior}
+                        onChange={(change) =>
+                          mutateStep((value) => change(value.behavior))
+                        }
+                      />
+                    </>
                   )}
                   <label className="flex gap-2">
                     <Switch
@@ -2674,7 +2682,11 @@ function WidgetBehaviorEditor({
   onSelectInLive: () => void;
 }) {
   const targetRelative = type === "anchored_card" || type === "hotspot";
-  const overlay = type === "modal" || type === "survey" || type === "slideout";
+  const overlay =
+    type === "anchored_card" ||
+    type === "modal" ||
+    type === "survey" ||
+    type === "slideout";
   return (
     <>
       <LayeringEditor
@@ -2861,54 +2873,12 @@ function WidgetBehaviorEditor({
         </Label>
       )}
       {overlay && (
-        <>
-          <label className="flex gap-2">
-            <Switch
-              checked={
-                behavior.backdrop ?? (type === "modal" || type === "survey")
-              }
-              onCheckedChange={(checked) =>
-                onChange((value) => {
-                  value.backdrop = checked;
-                })
-              }
-            />
-            Backdrop
-          </label>
-          {behavior.backdrop && (
-            <>
-              <Label>
-                Backdrop opacity
-                <Input
-                  type="number"
-                  min="0"
-                  max="0.9"
-                  step="0.05"
-                  value={
-                    behavior.backdropOpacity ??
-                    (type === "slideout" ? 0.35 : 0.45)
-                  }
-                  onChange={(event) =>
-                    onChange((value) => {
-                      value.backdropOpacity = Number(event.target.value);
-                    })
-                  }
-                />
-              </Label>
-              <label className="flex gap-2">
-                <Switch
-                  checked={behavior.closeOnBackdrop ?? false}
-                  onCheckedChange={(checked) =>
-                    onChange((value) => {
-                      value.closeOnBackdrop = checked;
-                    })
-                  }
-                />
-                Dismiss when backdrop is clicked
-              </label>
-            </>
-          )}
-        </>
+        <BackdropBehaviorEditor
+          behavior={behavior}
+          defaultEnabled={type === "modal" || type === "survey"}
+          defaultOpacity={type === "slideout" ? 0.35 : 0.45}
+          onChange={onChange}
+        />
       )}
       {type === "hotspot" && (
         <>
@@ -2958,6 +2928,69 @@ function WidgetBehaviorEditor({
         />
         Dismissible
       </label>
+    </>
+  );
+}
+
+type BackdropBehavior = Pick<
+  ExperienceBehavior,
+  "backdrop" | "backdropOpacity" | "closeOnBackdrop"
+>;
+function BackdropBehaviorEditor({
+  behavior,
+  onChange,
+  defaultEnabled = false,
+  defaultOpacity = 0.45,
+}: {
+  behavior: BackdropBehavior;
+  onChange: (change: (behavior: BackdropBehavior) => void) => void;
+  defaultEnabled?: boolean;
+  defaultOpacity?: number;
+}) {
+  const enabled = behavior.backdrop ?? defaultEnabled;
+  return (
+    <>
+      <label className="flex gap-2">
+        <Switch
+          checked={enabled}
+          onCheckedChange={(checked) =>
+            onChange((value) => {
+              value.backdrop = checked;
+            })
+          }
+        />
+        Backdrop
+      </label>
+      {enabled && (
+        <>
+          <Label>
+            Backdrop opacity
+            <Input
+              type="number"
+              min="0"
+              max="0.9"
+              step="0.05"
+              value={behavior.backdropOpacity ?? defaultOpacity}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.backdropOpacity = Number(event.target.value);
+                })
+              }
+            />
+          </Label>
+          <label className="flex gap-2">
+            <Switch
+              checked={behavior.closeOnBackdrop ?? false}
+              onCheckedChange={(checked) =>
+                onChange((value) => {
+                  value.closeOnBackdrop = checked;
+                })
+              }
+            />
+            Dismiss when backdrop is clicked
+          </label>
+        </>
+      )}
     </>
   );
 }

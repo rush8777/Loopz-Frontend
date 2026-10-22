@@ -23,6 +23,35 @@ function ready(){mockedWorkspace.useWorkspace.mockReturnValue({orgs:[],currentOr
 
 describe("Experiences dashboard",()=>{
   beforeEach(()=>{vi.clearAllMocks();ready();mockedSegments.listSegments.mockResolvedValue({segments:[],total:0,limit:100,offset:0});mockedEvents.listEvents.mockResolvedValue({events:[],total:0,limit:100,offset:0});vi.spyOn(window,"open").mockReturnValue(popupHarness as unknown as Window);});
+  it("offers backdrop controls for anchored Tooltip widgets", async () => {
+    mockedExperiences.getExperience.mockResolvedValue(structuredClone(experience));
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    await screen.findByLabelText("Builder experience key");
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Editor options" }), { button: 0, ctrlKey: false });
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Behavior" }));
+
+    const backdrop = screen.getByRole("switch", { name: "Backdrop" });
+    expect(backdrop).not.toBeChecked();
+    expect(screen.queryByLabelText("Backdrop opacity")).not.toBeInTheDocument();
+    fireEvent.click(backdrop);
+    expect(screen.getByLabelText("Backdrop opacity")).toHaveValue(0.45);
+    expect(screen.getByRole("switch", { name: "Dismiss when backdrop is clicked" })).toBeInTheDocument();
+  });
+  it("offers independent backdrop controls for anchored Guide steps", async () => {
+    const guide = guideExperience(); mockedExperiences.getExperience.mockResolvedValue(guide); mockedExperiences.updateExperience.mockResolvedValue(guide);
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    await screen.findByLabelText("Builder experience key");
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Editor options" }), { button: 0, ctrlKey: false });
+    fireEvent.click(await screen.findByRole("menuitem", { name: "How this step works" }));
+    const backdrop = screen.getByRole("switch", { name: "Backdrop" });
+    expect(backdrop).not.toBeChecked();
+    fireEvent.click(backdrop);
+    expect(screen.getByLabelText("Backdrop opacity")).toHaveValue(0.45);
+    await waitFor(() => expect(mockedExperiences.updateExperience).toHaveBeenCalled());
+    const saved = mockedExperiences.updateExperience.mock.calls.at(-1)![3].definition!;
+    expect("steps" in saved && saved.steps[0].behavior.backdrop).toBe(true);
+    expect("steps" in saved && saved.steps[1].behavior.backdrop).toBeUndefined();
+  });
   it("hardening: retains and exports a dashboard conflict without a background overwrite", async () => {
     mockedExperiences.getExperience.mockResolvedValue(onsiteExperience());
     mockedExperiences.updateExperience.mockRejectedValue(Object.assign(new Error("draft_conflict"), { status: 409 }));
