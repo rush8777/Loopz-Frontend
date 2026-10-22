@@ -3,6 +3,9 @@ title: "Define pages and matching rules"
 description: "Group recorded URL paths into named Pages, test rules, and reuse them for funnels and targeting."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_create_page_definition from "../../../../assets/dashboard/pages/movcues-create-page-definition.webp";
+
 A **Page** is a named group of URL paths. It organizes recorded visits and gives your team a reusable page choice in segments, funnels, and experience setup. Creating a Page does not add a new page to your website.
 
 ## Create a Page
@@ -28,6 +31,8 @@ Include paths that **starts with** `/projects/`, but exclude the path that **is 
 | ends with | `/settings` |
 | contains | `/reports` |
 | matches pattern (use * as wildcard) | `/projects/*/settings` |
+
+<DocScreenshot src={shot_create_page_definition} alt="Movcues Create Page form naming Projects and matching URLs whose path starts with /projects." caption="Group project screens with a starts-with rule instead of defining every project URL separately. Demo workspace; synthetic data only." />
 
 ## Review and maintain
 

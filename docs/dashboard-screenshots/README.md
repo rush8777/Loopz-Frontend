@@ -1,59 +1,64 @@
-# Dashboard documentation screenshot inventory
+# Dashboard documentation screenshots
 
-Status: **capture blocked by authentication**. No dashboard screenshots have been captured or added to public articles. This directory prepares the source mapping and optimizer; it is not evidence that screenshot collection or visual QA is complete.
+## Delivered batch (2026-10-22)
 
-## Source and deployment findings
+- **39 authentic dashboard captures**, integrated as **50 figures across 35 dashboard articles** on `docs/dashboard-screenshots`.
+- WebP masters total **1,005,988 bytes** (about 1 MB), down **66.4%** from the accepted source JPEGs. The largest is 58,482 bytes.
+- Captured from the signed-in **Demo / Demo Site** workspace using the cloud browser on 2026-10-21. Actual source sizes are recorded per image; no assumed viewport dimensions are reported as measurements.
+- Original JPEGs remain outside the repository. Only reviewed WebP assets, documentation figure references, the docs-only image component, and this inventory/optimizer are committed.
+- Existing article prose, SDK articles, navigation, branded styles, package files, and application code are preserved. `main` is unchanged.
 
-- Work branch: `docs/dashboard-screenshots`, based on `chore/consolidate-docs` at `ef9808b568df2de652e3cfce9252512e56043d97`.
-- The maintained Astro/Starlight app is **`apps/website`**, not the older `apps/docs` folder. Assets belong under `apps/website/src/assets/dashboard/`; articles are under `apps/website/src/content/docs/docs/`.
-- Reviewed the recent consolidation, docs design, installation, sidebar, SDK revert, and dashboard-guide commits. The existing article manifest and audit retain the precise source evidence and known limitations.
-- The requested `https://dashboard.movcues.com/` returned an upstream connection failure in the cloud browser, including after one reload. The real dashboard address configured by `apps/website/src/config/site.ts` and the docs header is **`https://dash.movcues.com`**. Its login form loads.
-- No authenticated session was present. The secure sign-in request timed out; navigating back to the canonical dashboard still showed the login page. No successful login is claimed.
-- No isolated database connector or configured database connection is available in this environment. No database writes were attempted. `https://api.movcues.com/health` returned `200` and `{"ok":true}`; this proves reachability only, not permission to access a database.
-- The backend's current `src/routes/auth.ts` was also checked through GitHub (`85cce4f100e7fda87e75a07088403c756f63791f` blob). Email/password signup and Google authentication are supported. There is no demo-login route.
+## Capture authenticity and data
 
-## Legitimate account setup
+The canonical dashboard is `https://dash.movcues.com`. After the user completed supported sign-in, captures used the existing demo workspace. No authentication records, passwords, OAuth identities, browser tokens, or database records were edited to obtain access.
 
-The supported `POST /auth/signup` flow creates a user and session. It does not create a workspace. `POST /auth/onboarding` validates workspace/site/domain input, creates an organization, its `OWNER` membership, a site with a generated public ID, and a Growth trial. The UI has an optional installation skip; `POST /auth/onboarding/skip` requires an existing membership and marks that organization onboarded. These are documented source findings, not actions performed during this task.
+Synthetic product activity was sent through the supported public analytics ingestion API: 16 identified demo users with `example.test` addresses, four documentation anonymous visitors, and events for signup, project creation, onboarding, dashboard visits, and feature exploration. Funnel results are computed by the running backend: 16 starters, 10 project creators, six completions, and 37.5% completion. These are illustrative documentation results, not evidence of a customer performance improvement.
 
-Dashboard authentication (`users`, `memberships`, `organizations`, `user_auth_identities`) and the tracked product-user analytics identities are separate namespaces. Creating an analytics user cannot provide dashboard login. Password hashes and OAuth identities must never be altered to make captures work.
+Demo segments, a three-step funnel, a custom dashboard, and experience examples were created through the real dashboard. The published guide uses manual-only launch and a synthetic audience. The demo survey uses a synthetic audience, Projects page, and event trigger. Other captured widget/checklist examples remain drafts. No paid subscription was purchased. Screenshots exclude account email, invitation links, credentials, payment details, and real visitor records. Site/workspace IDs visible in settings are public context identifiers.
 
-To resume, complete the supported signup/sign-in in the cloud browser with a dedicated documentation demo identity. Use only its own workspace/site and synthetic records. The secure browser authentication flow collects existing sign-in credentials; new-account creation requires the user to complete the signup. No credentials, refresh tokens, invitation URLs, or private customer data belong in this repository or inventory.
+Images are genuine product UI. Cropping removes unrelated canvas, obscuring panels, unused space, and navigation where it does not help the instruction. No UI, numbers, or results were painted into screenshots. The selected Typography, button interaction, Questions, launch settings, publishing forms, modal, banner, and slideout have focused crops so important controls remain readable. Larger views retain context where the relationship between controls matters.
 
-## Capture coverage
+## Coverage and limitations
 
-`inventory.json` maps **56 planned captures to all 40 frontend/dashboard articles**. Entries contain the intended filename, asset location, article URLs/source paths, frontend source evidence, feature, and navigation. Dynamic route placeholders identify route patterns only; resolve actual IDs through the signed-in UI. Settings are modal navigation paths, not invented URLs. Website theme capture is conditional on its presence in the deployed product.
+`inventory.json` retains the original 56 planned entries plus the captured publication confirmation. It records accepted captures, reused coverage, rejected images, and missing views separately. Each accepted entry includes actual source/output dimensions, crop coordinates, file bytes, alt text, caption, source provenance, article mappings, and review flags.
 
-Each entry starts with no actual alt text, image metrics, provenance, or verification. Fill those fields only after observing the capture. The dashboard article manifest remains unchanged; it correctly states that live screenshots were not available when the articles were authored.
+Five articles retain their original text without screenshots:
 
-No dedicated documentation screenshots exist in the current repository. Marketing graphics and the dashboard onboarding illustrations are not current authenticated dashboard captures and have not been reused as such. Workflow editors, heatmaps, session replay, and legacy pattern-analysis pages are excluded because source routing/navigation does not establish them as available features.
+- Experience performance: Experience Overview was not captured; a custom product dashboard is not an equivalent view.
+- Inspect sessions: no verified session timeline capture.
+- Preview and select targets: no verified live target-selection capture.
+- Survey results and respondents: no completed survey response capture; no invented responses.
+- Website themes: controls were unavailable in the deployed demo dashboard.
 
-## Capture and optimize
+Toast and anchored-card captures were rejected because the editor palette obscured the message. They are not published. The widgets article uses the reviewed banner, modal, and slideout instead. No hotspot or cursor-follower screenshot is claimed. Workflow editors, heatmaps, session replay, and legacy pattern-analysis screens remain excluded by the original source audit.
 
-1. Use the cloud browser, preferably at 1440 × 900. Record actual screenshot dimensions if that viewport is unavailable. Capture finished UI with navigation context and synthetic records only. Avoid any page containing keys, tokens, invitation links, payment details, or real personal information.
-2. Store original browser PNGs in a separate cloud capture directory **outside the git repository**. Do not manufacture images from rendered source, screenshot a mocked dashboard, intercept API responses to invent results, or seed a production database directly. Record `captureSource: "cloud-browser"`, capture timestamp, and the relative `originalFile` in the inventory.
-3. Review each original for authenticity, synthetic-only data, and sensitive information. Then mark the three corresponding verification fields true and `status: "captured"`. Write alt text and optional caption describing the actual UI shown. Do not include imaginary events or example totals in alt text.
-4. Run `python docs/dashboard-screenshots/optimize.py --captures /absolute/path/to/cloud-captures`. The script needs Pillow in the cloud Python environment. It creates metadata-free WebP at quality 92, caps the master at 1440 pixels without upscaling, and creates 720/1080 variants where appropriate. Use `--lossless` if text clarity needs it. Existing `captured` entries can be reprocessed after restoring that status; no authentication or application code is touched.
-5. Inspect the outputs at normal and mobile viewing sizes. Prefer legibility over file-size targets. Review captures larger than 250 KB; smaller crops should generally be 50–100 KB. Optimizer completion does not automatically approve readability or publication.
+The existing `dashboard-article-manifest.json` and `dashboard-documentation-audit.md` are unchanged historical source audits. Their original screenshot-unavailable findings describe article authoring, not the later capture batch; this inventory is the current image record.
 
-## Integrate only completed captures
+## Responsive images and accessibility
 
-Import each optimized image in the relevant MDX article with `Image` from `astro:assets`. Give it descriptive alt text, intrinsic dimensions, responsive sizing, `decoding="async"`, and `loading="lazy"` below the fold. Use the generated width variants with native `srcset` or let Astro generate variants from the imported master; do not serve both variant sets redundantly. Keep full-resolution access available for fine UI text on mobile. Place the image beside the exact steps it explains and add a short factual caption when helpful.
+`apps/website/src/components/docs/DocScreenshot.astro` uses Astro's supported `Image` pipeline. Imported masters generate responsive widths at build time without adding runtime JavaScript. Intrinsic dimensions reserve space; every figure has descriptive alt text, a factual visible caption, lazy loading, asynchronous decoding, and keyboard-accessible access to the full-size master. Full-size access lets mobile readers inspect small controls. Figure borders and captions use existing docs theme tokens; captured product UI retains its original colors.
 
-Preserve existing article prose, SDK pages, branded styles, heading hierarchy, and navigation. Do not add placeholder image references to pages while captures are missing. Check both docs themes with real rendered images before marking `lightAndDarkThemeReview` true. Mark `integrated` only after visual review and successful build/path verification; update the summary counts accordingly.
+Existing HTML headings, article copy, descriptions, canonical URLs, sidebar navigation, and sitemap URLs remain crawlable. Screenshots supplement the instructions rather than replacing them. No performance score, production indexing result, or Core Web Vitals improvement is claimed.
 
-## Crawlability and QA
+## Reproduce optimization
 
-- `site` is already `https://movcues.com`; Starlight supplies its sitemap integration when no explicit sitemap integration is present. The current app's `robots.txt` allows crawling. No new SEO dependency or custom image sitemap is required.
-- Verify generated documentation URLs in the built sitemap, descriptive titles/descriptions, canonical URLs, and image URLs after integration. Preview crawlers may behave differently from production; no production indexing claim is made.
-- `python docs/dashboard-screenshots/optimize.py --check` validates article mappings, filenames, asset boundaries, and actual optimized image sizes/formats when assets exist. It reports pending captures honestly.
-- Run `npm run build:website` and `npm run check:website` after image integration. Review rendered desktop/mobile pages, loading behavior, theme contrast, and reserved image space. A successful build alone does not verify screenshot quality or Core Web Vitals.
-- Commit only completed documentation image assets, relevant article image references, and these supporting files. Leave SDK/application code and `main` untouched.
+Requires Pillow in the tooling environment; no website dependency was added.
 
-## Preparation verification (2026-10-21)
+```sh
+python docs/dashboard-screenshots/optimize.py --captures /absolute/path/to/cloud-captures --no-variants
+python docs/dashboard-screenshots/optimize.py --check
+npm run build:website
+npm run check:website
+```
 
-- Inventory validation passed: 56 planned screenshots map to all 40 dashboard articles; 0 captures and 0 image integrations are claimed.
-- `npm run build:website` passed: 86 generated pages; 59 documentation pages and 4,756 internal links/anchors checked.
-- `npm run check:website` passed: 0 errors, warnings, or hints across 67 files.
-- All 40 dashboard article URLs appear in the generated sitemap.
-- Existing SDK/dashboard MDX, application source, website styles/configuration, and package files are unchanged from the base commit. No live screenshot rendering, image quality, responsive-image loading, or performance score has been verified yet.
+To reprocess a capture, provide its original JPEG outside the repository and change only its inventory status to `captured`. Confirm authenticity, synthetic-only content, and sensitive-data review before running the optimizer. `crop` contains `[left, top, right, bottom]` in source pixels and must fit inside the image. The optimizer strips metadata, caps width at 1440 without upscaling, and writes quality-92 WebP atomically. `--no-variants` delegates responsive variants to Astro; do not commit redundant variant sets. `--lossless` is available if a later capture requires it for text clarity. Inspect the output before marking readability/integration complete.
+
+## Verification
+
+- Production website build passed: **86 pages**, including **59 documentation pages**; **4,806 internal links and anchors** passed the existing checker.
+- Astro check passed: **68 files**, **0 errors, warnings, or hints**.
+- All 50 generated figure instances verified for actual image/full-size/srcset file existence, intrinsic dimensions, alt text, captions, responsive sizes, lazy loading, and asynchronous decoding.
+- All 35 illustrated article canonical URLs/descriptions/headings and all 40 dashboard article sitemap URLs verified.
+- Original article prose compared against base commit `ef9808b568df2de652e3cfce9252512e56043d97`; only screenshot imports/figures and surrounding whitespace were added. All 24 other documentation files, including SDK articles, remain byte-identical.
+- Optimized images reviewed at native size and through contact sheets; crops corrected where chart labels or relevant controls needed more space.
+- A browser-level visual review of the finished docs in both themes/mobile widths and Core Web Vitals measurement was **not performed**. Corresponding `lightAndDarkThemeReview` flags remain false; build/HTML checks are not reported as browser visual QA.

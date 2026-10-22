@@ -55,7 +55,7 @@ def validate(inventory):
                     raise ValueError(f"Variant byte count mismatch: {entry['id']}")
 
 
-def optimize(entry, capture_root, lossless):
+def optimize(entry, capture_root, lossless, variants=True):
     original = (capture_root / entry['originalFile']).resolve()
     if not original.is_relative_to(capture_root) or original.is_relative_to(ROOT):
         raise ValueError('Original captures must stay inside the external capture directory, outside the repository.')
@@ -64,15 +64,22 @@ def optimize(entry, capture_root, lossless):
         source.load()
         clean = ImageOps.exif_transpose(source).convert('RGB')
     entry['originalDimensions'] = list(clean.size)
+    if entry.get('crop'):
+        left, top, right, bottom = entry['crop']
+        if not (0 <= left < right <= clean.width and 0 <= top < bottom <= clean.height):
+            raise ValueError(f"Crop outside source bounds: {entry['id']}")
+        clean = clean.crop((left, top, right, bottom))
     width = min(clean.width, 1440)
     master = clean if width == clean.width else clean.resize((width, round(clean.height * width / clean.width)), Image.Resampling.LANCZOS)
     target.parent.mkdir(parents=True, exist_ok=True)
     # Do not carry EXIF/ICC or other source metadata into public screenshots.
-    master.save(target, 'WEBP', quality=92, method=6, lossless=lossless, exact=True)
+    temporary = target.with_suffix('.webp.tmp')
+    master.save(temporary, 'WEBP', quality=92, method=6, lossless=lossless, exact=True)
+    temporary.replace(target)
     entry['optimizedDimensions'] = list(master.size)
     entry['finalFileSizeBytes'] = target.stat().st_size
     entry['responsiveVariants'] = []
-    for variant_width in (720, 1080):
+    for variant_width in ((720, 1080) if variants else ()):
         if variant_width >= master.width:
             continue
         variant = master.resize((variant_width, round(master.height * variant_width / master.width)), Image.Resampling.LANCZOS)
@@ -94,6 +101,7 @@ def main():
     parser.add_argument('--captures', type=Path, help='Cloud screenshot directory outside the repository')
     parser.add_argument('--check', action='store_true', help='Validate inventory and existing optimized assets without writing')
     parser.add_argument('--lossless', action='store_true', help='Use lossless WebP when lossy compression makes UI text less readable')
+    parser.add_argument('--no-variants', action='store_true', help='Let the Astro Image component generate responsive variants at build time')
     args = parser.parse_args()
     inventory = json.loads(args.inventory.read_text())
     validate(inventory)
@@ -104,13 +112,13 @@ def main():
         for entry in pending:
             if not entry['originalFile']:
                 raise ValueError(f"Missing originalFile: {entry['id']}")
-            optimize(entry, args.captures.resolve(), args.lossless)
+            optimize(entry, args.captures.resolve(), args.lossless, not args.no_variants)
         inventory['capturedScreenshotCount'] = sum(entry['captureSource'] == 'cloud-browser' for entry in inventory['screenshots'])
         inventory['integratedArticleCount'] = len({article['path'] for entry in inventory['screenshots'] if entry['verification']['integrated'] for article in entry['articles']})
         validate(inventory)
         args.inventory.write_text(json.dumps(inventory, indent=2) + '\n')
     complete = sum(entry['status'] in ('optimized', 'integrated') for entry in inventory['screenshots'])
-    print(f"Inventory valid: {len(inventory['screenshots'])} planned, {complete} optimized/integrated. Pending screenshots are not verified captures.")
+    print(f"Inventory valid: {len(inventory['screenshots'])} entries, {complete} optimized/integrated. Pending screenshots are not verified captures.")
 
 
 if __name__ == '__main__':

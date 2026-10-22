@@ -3,6 +3,10 @@ title: "Save, review, and publish"
 description: "Review the actual launch conditions, publish a saved draft, and manage later revisions."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_publish_review from "../../../../assets/dashboard/builder/movcues-publish-review.webp";
+import shot_publish_success from "../../../../assets/dashboard/builder/movcues-publish-success.webp";
+
 Saving a draft preserves your work. Publishing makes a saved version available to eligible visitors. Use the review to check the intended audience and moment before launching.
 
 ## Before publishing
@@ -25,9 +29,13 @@ Use an Owner or Admin account. Wait for **Saved**, verify any anchored targets, 
 
 Returning experiences open on the review summary. Checklists omit the trigger and repeat-frequency stages because they use persistent task state.
 
+<DocScreenshot src={shot_publish_review} alt="Movcues launch review summarizing a saved Segment, Projects page, manual-only trigger, once-only display, and two steps." caption="Review the complete delivery boundary before publishing. This demo guide uses manual-only launch. Demo workspace; synthetic data only." />
+
 ## Verify the launch
 
 Use a normal product visit with a qualifying test user, outside the live editor. Check appearance and actions. Then review [experience performance](/docs/analytics/overview/). **Published** confirms the saved release, not that everyone will see it immediately.
+
+<DocScreenshot src={shot_publish_success} alt="Movcues Published confirmation for the demo guide with View results, Preview, and Done controls." caption="Publishing confirms availability; the configured audience, page, and trigger still govern delivery. Demo workspace; synthetic data only." />
 
 ## Edit a live experience
 

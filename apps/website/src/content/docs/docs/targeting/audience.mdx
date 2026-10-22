@@ -3,6 +3,9 @@ title: "Choose who sees an experience and where"
 description: "Combine saved audiences with page rules and verify eligibility using real product context."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_audience_targeting from "../../../../assets/dashboard/targeting/movcues-audience-targeting.webp";
+
 Audience targeting chooses the people. Page targeting chooses where the experience can start. A visitor must meet the relevant conditions together; choosing a Segment does not bypass the page rule.
 
 ## Example
@@ -31,6 +34,8 @@ The experience copies the selected Page’s rules. After editing a Page definiti
 The product’s origin must match the site configuration. Optional **Allowed origins (one per line)** in **Editor options → Launch settings** can narrow delivery further. Origin means scheme plus host and optional port, such as `https://app.example.com`.
 
 An anchored experience also needs its target element on that page. A matching path alone cannot make a missing element appear.
+
+<DocScreenshot src={shot_audience_targeting} alt="Movcues Launch settings showing the Signed up without a project Segment, Projects page, allowed origin, and once-only display." caption="The Segment selects people; the Projects page and allowed origin constrain where delivery can occur. Demo workspace; synthetic data only." />
 
 ## Verify
 

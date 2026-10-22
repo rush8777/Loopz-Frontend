@@ -3,6 +3,10 @@ title: "Manage workspaces and sites"
 description: "Switch the active context, edit a site\u2019s domain, and understand the effect of deletion."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_workspace_settings from "../../../../assets/dashboard/settings/movcues-workspace-settings.webp";
+import shot_project_sites from "../../../../assets/dashboard/settings/movcues-project-sites.webp";
+
 A workspace holds your team and subscription. A site holds the product activity, saved audiences, funnels, and experiences for one connected product context.
 
 ## Select the right context
@@ -10,6 +14,8 @@ A workspace holds your team and subscription. A site holds the product activity,
 Open **Settings → Workspace**. If you belong to more than one workspace, choose **Current workspace**. The page shows **Workspace name**, **Workspace ID**, and **Your role**. Owners and Admins can rename the workspace and choose **Save**.
 
 Open **Settings → Sites**, or click the site name at the top of the main sidebar. Select a site; **Current** marks the active choice. Close settings and verify that the dashboard now shows the intended site.
+
+<DocScreenshot src={shot_workspace_settings} alt="Movcues Workspace settings showing the Demo workspace and Owner role." caption="Workspace settings identify the active workspace and your role. Demo workspace; synthetic data only." />
 
 ## Create or edit a site
 
@@ -21,6 +27,8 @@ Owners and Admins can:
 4. For an existing site, choose **Rename** under **Selected site** to edit its name and **Primary domain**, then **Save changes**.
 
 Example: marketing pages on `https://example.com` and the app on `https://app.example.com` are different origins. Use the site’s own snippet on the product it represents. See [Connect your site](/docs/getting-started/connect/).
+
+<DocScreenshot src={shot_project_sites} alt="Movcues Sites settings with Demo Site, its domain, and public site ID." caption="Check the selected site and product domain before installing or publishing. Demo workspace; synthetic data only." />
 
 ## Delete carefully
 

@@ -3,6 +3,9 @@ title: "Create a segment from funnel results"
 description: "Turn reached-step, completed-funnel, or dropped-after-step results into a reusable audience."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_funnel_result_segment from "../../../../assets/dashboard/funnels/movcues-funnel-result-segment.webp";
+
 A funnel cohort is a segment defined by ordered funnel progress. Use it when “did one event but not another” would miss the order or conversion window of the journey.
 
 ## Example
@@ -18,6 +21,8 @@ You want guidance for people who signed up but did not create a project within t
 5. Review the new Segment’s definition and members.
 
 An Owner or Admin is needed to save the segment. “Dropped after” means the person reached that step but did not reach the next one in the funnel’s allowed window.
+
+<DocScreenshot src={shot_funnel_result_segment} alt="Movcues funnel drop-off segment showing four synthetic users who dropped off after step two." caption="A saved drop-off audience retains the funnel step being investigated. Demo workspace; synthetic data only." />
 
 ## What the segment keeps
 

@@ -3,6 +3,9 @@ title: "Create a feedback survey"
 description: "Build slides and questions, configure required answers and navigation, and launch a contextual survey."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_survey_builder from "../../../../assets/dashboard/builder/movcues-survey-builder.webp";
+
 A survey collects feedback inside your product. Ask about a specific experience while it is still fresh, such as how easy it was to export a report.
 
 ## Create the survey
@@ -25,6 +28,8 @@ A survey collects feedback inside your product. Ask about a specific experience 
 | NPS | A recommendation question on the standard 0–10 scale. |
 
 For choice questions, use **Add option** and keep labels distinct. For text questions, a **Placeholder** can suggest what kind of answer is useful. Avoid requesting credentials or sensitive personal details.
+
+<DocScreenshot src={shot_survey_builder} alt="Movcues Questions inspector editing a required one-to-five rating about creating a first project, plus an optional long-text question." caption="Use the Questions inspector to set wording, scale, and required answers. Demo workspace; synthetic data only." />
 
 ## Make navigation work
 

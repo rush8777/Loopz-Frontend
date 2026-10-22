@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-10-21",
+  "reviewedOn": "2026-10-22",
   "baseCommit": "ef9808b568df2de652e3cfce9252512e56043d97",
   "branch": "docs/dashboard-screenshots",
   "documentationApp": "apps/website",
@@ -10,8 +10,8 @@
     "width": 1440,
     "height": 900
   },
-  "capturedScreenshotCount": 0,
-  "integratedArticleCount": 0,
+  "capturedScreenshotCount": 39,
+  "integratedArticleCount": 35,
   "existingAssets": {
     "dedicatedDocumentationScreenshots": [],
     "excludedMarketingImages": [
@@ -71,8 +71,8 @@
         "apps/dashboard/src/components/experiences/ExperienceAnalyticsView.tsx",
         "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "Experience Overview was not captured; a custom dashboard is not an equivalent view.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -111,8 +111,8 @@
         "apps/dashboard/src/components/Sidebar.tsx",
         "apps/dashboard/src/auth/OnboardingGate.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "reused",
+      "missingReason": "Covered by the authentic workspace-settings capture; no duplicate asset.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -130,7 +130,8 @@
         "readabilityReview": false,
         "lightAndDarkThemeReview": false,
         "integrated": false
-      }
+      },
+      "reusedCaptureId": "workspace-settings"
     },
     {
       "id": "installation-verification",
@@ -157,26 +158,38 @@
         "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
         "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "installation-verification.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        860,
+        452
+      ],
+      "finalFileSizeBytes": 25438,
+      "alt": "Movcues Installation settings showing Receiving data as Active and a Test SDK connection control.",
+      "caption": "An Active receiving-data status confirms that the selected site has sent data. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        252,
+        158,
+        1112,
+        610
+      ]
     },
     {
       "id": "experience-creation",
@@ -184,12 +197,12 @@
       "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-experience-creation.webp",
       "articles": [
         {
-          "path": "/docs/getting-started/first-experience/",
-          "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-experience.mdx"
-        },
-        {
           "path": "/docs/experiences/overview/",
           "sourceFile": "apps/website/src/content/docs/docs/experiences/overview.mdx"
+        },
+        {
+          "path": "/docs/getting-started/first-experience/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-experience.mdx"
         }
       ],
       "plannedFeature": "Create experience dialog with format choices",
@@ -202,26 +215,38 @@
         "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
         "apps/dashboard/src/types/experiences.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "experience-creation.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        448,
+        517
+      ],
+      "finalFileSizeBytes": 16520,
+      "alt": "Movcues Create guide form with a demo name, manually entered build URL, and Start blank template.",
+      "caption": "Name the draft and choose the product page used to build it. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        458,
+        210,
+        906,
+        727
+      ]
     },
     {
       "id": "dashboard-list",
@@ -241,8 +266,8 @@
         "apps/dashboard/src/components/dashboard/DashboardCardChrome.tsx",
         "apps/dashboard/src/api/dashboards.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "No reviewed capture in this batch; existing article text is preserved.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -280,8 +305,8 @@
         "apps/dashboard/src/components/dashboard/DashboardCardChrome.tsx",
         "apps/dashboard/src/api/dashboards.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "reused",
+      "missingReason": "Covered by the authentic dashboard-editor capture; no duplicate asset.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -299,7 +324,8 @@
         "readabilityReview": false,
         "lightAndDarkThemeReview": false,
         "integrated": false
-      }
+      },
+      "reusedCaptureId": "dashboard-editor"
     },
     {
       "id": "dashboard-editor",
@@ -309,10 +335,6 @@
         {
           "path": "/docs/analytics/dashboards/",
           "sourceFile": "apps/website/src/content/docs/docs/analytics/dashboards.mdx"
-        },
-        {
-          "path": "/docs/analytics/cards/",
-          "sourceFile": "apps/website/src/content/docs/docs/analytics/cards.mdx"
         }
       ],
       "plannedFeature": "Dashboard edit layout with saved cards",
@@ -326,26 +348,38 @@
         "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
         "apps/dashboard/src/api/analytics.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "dashboard-editor.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        755
+      ],
+      "finalFileSizeBytes": 32052,
+      "alt": "Movcues dashboard editor with signup, onboarding funnel, and retention cards and visible edit controls.",
+      "caption": "Arrange product metrics together in an editable custom dashboard. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        820
+      ]
     },
     {
       "id": "analytics-card-configuration",
@@ -364,26 +398,38 @@
         "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
         "apps/dashboard/src/api/analytics.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "analytics-card-configuration.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        920,
+        850
+      ],
+      "finalFileSizeBytes": 34242,
+      "alt": "Movcues Add card panel counting unique users who performed signup_completed, with a single-value preview of 16.",
+      "caption": "Configure a metric from the event and aggregation you actually want to measure. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        443,
+        0,
+        1363,
+        850
+      ]
     },
     {
       "id": "retention-card",
@@ -402,26 +448,38 @@
         "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
         "apps/dashboard/src/lib/dateRange.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "retention-card.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        920,
+        640
+      ],
+      "finalFileSizeBytes": 29202,
+      "alt": "Movcues retention card configuration using signup_completed as the start event and feature_explored as the return event.",
+      "caption": "Choose a start and return event to define retention. The preview uses synthetic activity. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        443,
+        0,
+        1363,
+        640
+      ]
     },
     {
       "id": "dashboard-filters",
@@ -440,26 +498,38 @@
         "apps/dashboard/src/components/filters/AnalyticsFilterBar.tsx",
         "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "dashboard-filters.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        576,
+        508
+      ],
+      "finalFileSizeBytes": 19810,
+      "alt": "Movcues dashboard Filters dialog offering date range, granularity, audience, and excluded events.",
+      "caption": "Apply filters deliberately, then check which cards support each selection. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        394,
+        214,
+        970,
+        722
+      ]
     },
     {
       "id": "dashboard-results",
@@ -478,26 +548,38 @@
         "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
         "apps/dashboard/src/lib/dateRange.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "dashboard-results.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        755
+      ],
+      "finalFileSizeBytes": 29368,
+      "alt": "Movcues saved Demo activation overview dashboard with a signup count, onboarding funnel, and retention trend.",
+      "caption": "A saved custom dashboard combines three views of the synthetic product journey. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        820
+      ]
     },
     {
       "id": "segment-list",
@@ -516,26 +598,38 @@
         "apps/dashboard/src/pages/segments/SegmentDetailPage.tsx",
         "apps/dashboard/src/api/segments.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "segment-list.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        315
+      ],
+      "finalFileSizeBytes": 17422,
+      "alt": "Movcues Segments list showing the saved Signed up without a project audience with six users.",
+      "caption": "The saved audience appears in the Segments list with its current membership. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        380
+      ]
     },
     {
       "id": "create-user-segment",
@@ -545,6 +639,10 @@
         {
           "path": "/docs/segments/create/",
           "sourceFile": "apps/website/src/content/docs/docs/segments/create.mdx"
+        },
+        {
+          "path": "/docs/segments/conditions/",
+          "sourceFile": "apps/website/src/content/docs/docs/segments/conditions.mdx"
         },
         {
           "path": "/docs/guides/feature-adoption/",
@@ -560,26 +658,38 @@
         "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
         "apps/dashboard/src/pages/observe/EventDetailPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "create-user-segment.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1100,
+        750
+      ],
+      "finalFileSizeBytes": 23372,
+      "alt": "Movcues segment builder combining signup_completed within 14 days with project_created not performed using ALL rules.",
+      "caption": "Example audience: signed up recently, but have not created a project. The estimate reflects the moment of capture. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        160,
+        1325,
+        910
+      ]
     },
     {
       "id": "segment-conditions",
@@ -598,8 +708,8 @@
         "apps/dashboard/src/lib/segmentDefinition.ts",
         "apps/dashboard/src/types/api.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "reused",
+      "missingReason": "Covered by the authentic create-user-segment capture; no duplicate asset.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -617,7 +727,8 @@
         "readabilityReview": false,
         "lightAndDarkThemeReview": false,
         "integrated": false
-      }
+      },
+      "reusedCaptureId": "create-user-segment"
     },
     {
       "id": "segment-membership",
@@ -636,26 +747,38 @@
         "apps/dashboard/src/pages/segments/SegmentDetailPage.tsx",
         "apps/dashboard/src/api/segments.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "segment-membership.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        800
+      ],
+      "finalFileSizeBytes": 30576,
+      "alt": "Movcues segment details showing signup and project rules and six synthetic members.",
+      "caption": "Review the definition and matching users before using a Segment for targeting. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        865
+      ]
     },
     {
       "id": "funnel-list",
@@ -675,26 +798,38 @@
         "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
         "apps/dashboard/src/api/funnels.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "funnel-list.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        270
+      ],
+      "finalFileSizeBytes": 16022,
+      "alt": "Movcues Funnels list showing Demo onboarding activation with three steps and 37.5 percent conversion.",
+      "caption": "The saved demo funnel is available from the Funnels list. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        335
+      ]
     },
     {
       "id": "funnel-builder",
@@ -721,26 +856,38 @@
         "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
         "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "funnel-builder.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1100,
+        855
+      ],
+      "finalFileSizeBytes": 26904,
+      "alt": "Movcues funnel builder with Signed up, Created a project, and Finished onboarding steps and a 24-hour conversion window.",
+      "caption": "A three-step activation funnel built from recorded product events. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1325,
+        920
+      ]
     },
     {
       "id": "funnel-step-configuration",
@@ -760,8 +907,8 @@
         "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
         "apps/dashboard/src/api/funnels.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "reused",
+      "missingReason": "Covered by the authentic funnel-builder capture; no duplicate asset.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -779,7 +926,8 @@
         "readabilityReview": false,
         "lightAndDarkThemeReview": false,
         "integrated": false
-      }
+      },
+      "reusedCaptureId": "funnel-builder"
     },
     {
       "id": "funnel-analysis",
@@ -793,10 +941,6 @@
         {
           "path": "/docs/getting-started/first-results/",
           "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-results.mdx"
-        },
-        {
-          "path": "/docs/guides/improve-activation/",
-          "sourceFile": "apps/website/src/content/docs/docs/guides/improve-activation.mdx"
         }
       ],
       "plannedFeature": "Computed funnel conversion and drop-off",
@@ -809,26 +953,38 @@
         "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
         "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "funnel-analysis.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1105,
+        815
+      ],
+      "finalFileSizeBytes": 39706,
+      "alt": "Movcues onboarding funnel report showing 16 starters, 10 project creators, and six completions.",
+      "caption": "Synthetic demo events produce 16 \u2192 10 \u2192 6 users and 37.5% completion; these are illustrative results, not a customer outcome. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        20,
+        1330,
+        835
+      ]
     },
     {
       "id": "funnel-result-segment",
@@ -847,26 +1003,38 @@
         "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
         "apps/dashboard/src/api/segments.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "funnel-result-segment.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        740
+      ],
+      "finalFileSizeBytes": 24704,
+      "alt": "Movcues funnel drop-off segment showing four synthetic users who dropped off after step two.",
+      "caption": "A saved drop-off audience retains the funnel step being investigated. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        805
+      ]
     },
     {
       "id": "page-definitions",
@@ -886,8 +1054,8 @@
         "apps/dashboard/src/pages/observe/PageDetailPage.tsx",
         "apps/dashboard/src/api/pages.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "reused",
+      "missingReason": "Covered by the authentic create-page-definition capture; no duplicate asset.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -905,7 +1073,8 @@
         "readabilityReview": false,
         "lightAndDarkThemeReview": false,
         "integrated": false
-      }
+      },
+      "reusedCaptureId": "create-page-definition"
     },
     {
       "id": "create-page-definition",
@@ -925,26 +1094,38 @@
         "apps/dashboard/src/pages/observe/PageDetailPage.tsx",
         "apps/dashboard/src/api/pages.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "create-page-definition.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        855
+      ],
+      "finalFileSizeBytes": 35052,
+      "alt": "Movcues Create Page form naming Projects and matching URLs whose path starts with /projects.",
+      "caption": "Group project screens with a starts-with rule instead of defining every project URL separately. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        920
+      ]
     },
     {
       "id": "events-list",
@@ -954,10 +1135,6 @@
         {
           "path": "/docs/observe/events/",
           "sourceFile": "apps/website/src/content/docs/docs/observe/events.mdx"
-        },
-        {
-          "path": "/docs/help/missing-data/",
-          "sourceFile": "apps/website/src/content/docs/docs/help/missing-data.mdx"
         }
       ],
       "plannedFeature": "Recorded custom events explorer",
@@ -971,26 +1148,38 @@
         "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
         "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "events-list.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        515
+      ],
+      "finalFileSizeBytes": 32398,
+      "alt": "Movcues Events list with dashboard_viewed, feature_explored, signup_completed, project_created, and onboarding_completed.",
+      "caption": "Real event names recorded for the synthetic documentation users. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        580
+      ]
     },
     {
       "id": "event-properties",
@@ -1009,26 +1198,38 @@
         "apps/dashboard/src/pages/observe/EventDetailPage.tsx",
         "apps/dashboard/src/api/events.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "event-properties.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        810
+      ],
+      "finalFileSizeBytes": 34338,
+      "alt": "Movcues project_created event detail with occurrences, user counts, and demo, project_name, and template properties.",
+      "caption": "Open a recorded event to inspect the properties available for analysis and targeting. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        875
+      ]
     },
     {
       "id": "user-directory",
@@ -1049,26 +1250,38 @@
         "apps/dashboard/src/api/trackedUsers.ts",
         "apps/dashboard/src/api/anonymousUsers.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "user-directory.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1110,
+        845
+      ],
+      "finalFileSizeBytes": 56260,
+      "alt": "Movcues identified user directory listing synthetic Demo users with example.test email addresses.",
+      "caption": "Identified profiles connect product activity to the identity your product supplies. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        910
+      ]
     },
     {
       "id": "user-activity",
@@ -1089,26 +1302,38 @@
         "apps/dashboard/src/api/trackedUsers.ts",
         "apps/dashboard/src/api/anonymousUsers.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "user-activity.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1110,
+        845
+      ],
+      "finalFileSizeBytes": 40914,
+      "alt": "Movcues Demo user 06 Activity tab listing recorded product events in time order.",
+      "caption": "A profile\u2019s Activity tab helps you inspect what one person did. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        910
+      ]
     },
     {
       "id": "anonymous-visitors",
@@ -1129,26 +1354,38 @@
         "apps/dashboard/src/api/trackedUsers.ts",
         "apps/dashboard/src/api/anonymousUsers.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "anonymous-visitors.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        735
+      ],
+      "finalFileSizeBytes": 24916,
+      "alt": "Movcues anonymous visitor profile for docs-demo-anonymous-04 with visit and browser information.",
+      "caption": "Anonymous activity remains available before your product identifies a visitor. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        800
+      ]
     },
     {
       "id": "session-timeline",
@@ -1168,8 +1405,8 @@
         "apps/dashboard/src/pages/observe/session-detail/sessionTimeline.ts",
         "apps/dashboard/src/api/sessions.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "No verified session timeline capture in this batch.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -1207,8 +1444,8 @@
         "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx",
         "apps/dashboard/src/types/experiences.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "No reviewed capture in this batch; existing article text is preserved.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -1236,10 +1473,6 @@
         {
           "path": "/docs/experiences/editor/",
           "sourceFile": "apps/website/src/content/docs/docs/experiences/editor.mdx"
-        },
-        {
-          "path": "/docs/getting-started/first-experience/",
-          "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-experience.mdx"
         }
       ],
       "plannedFeature": "Visual editor canvas, block palette, and properties",
@@ -1252,26 +1485,38 @@
         "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx",
         "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "experience-builder.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1293,
+        490
+      ],
+      "finalFileSizeBytes": 58482,
+      "alt": "Movcues guide editor with the Blocks palette, a centered modal message, and two guide steps.",
+      "caption": "The real editor keeps content blocks and the guide sequence next to the canvas. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        70,
+        0,
+        1363,
+        490
+      ]
     },
     {
       "id": "builder-block-properties",
@@ -1291,26 +1536,38 @@
         "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
         "apps/dashboard/src/components/experiences/widgetBuilder.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "builder-block-properties.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        260,
+        426
+      ],
+      "finalFileSizeBytes": 8294,
+      "alt": "Movcues Typography inspector with font, weight, size, line height, text color, and alignment controls.",
+      "caption": "Select a block to edit its typography and appearance in Properties. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        88,
+        325,
+        348,
+        751
+      ]
     },
     {
       "id": "builder-button-action",
@@ -1330,26 +1587,38 @@
         "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
         "apps/dashboard/src/components/experiences/widgetBuilder.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "builder-button-action.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        260,
+        130
+      ],
+      "finalFileSizeBytes": 2806,
+      "alt": "Movcues button Properties inspector with Interaction set to Next step.",
+      "caption": "A guide button needs a Next step action to advance the sequence. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        88,
+        723,
+        348,
+        853
+      ]
     },
     {
       "id": "multistep-guide",
@@ -1375,26 +1644,38 @@
         "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
         "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "multistep-guide.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        403,
+        370
+      ],
+      "finalFileSizeBytes": 11668,
+      "alt": "Movcues How this step works panel with modal type and user-click, custom-event, and page-reached advancement options.",
+      "caption": "Choose the condition that advances a guide step. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        950,
+        65,
+        1353,
+        435
+      ]
     },
     {
       "id": "anchored-card",
@@ -1413,11 +1694,11 @@
         "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
         "apps/dashboard/src/components/experiences/widgetSizing.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "rejected",
+      "missingReason": "Rejected: the Blocks panel obscures part of the widget.",
       "captureSource": null,
       "capturedAt": null,
-      "originalFile": null,
+      "originalFile": "anchored-card.jpg",
       "originalDimensions": null,
       "optimizedDimensions": null,
       "finalFileSizeBytes": null,
@@ -1451,11 +1732,11 @@
         "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
         "apps/dashboard/src/components/experiences/widgetSizing.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "rejected",
+      "missingReason": "Rejected: the Blocks panel obscures part of the widget.",
       "captureSource": null,
       "capturedAt": null,
-      "originalFile": null,
+      "originalFile": "toast.jpg",
       "originalDimensions": null,
       "optimizedDimensions": null,
       "finalFileSizeBytes": null,
@@ -1489,26 +1770,38 @@
         "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
         "apps/dashboard/src/components/experiences/widgetSizing.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "modal.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        630,
+        335
+      ],
+      "finalFileSizeBytes": 16316,
+      "alt": "Movcues modal editor with A clearer view of your work message and a Got it button.",
+      "caption": "A modal gives one focused announcement a distinct reading space. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        490,
+        150,
+        1120,
+        485
+      ]
     },
     {
       "id": "banner",
@@ -1518,10 +1811,6 @@
         {
           "path": "/docs/experiences/widgets/",
           "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx"
-        },
-        {
-          "path": "/docs/guides/feature-adoption/",
-          "sourceFile": "apps/website/src/content/docs/docs/guides/feature-adoption.mdx"
         }
       ],
       "plannedFeature": "Full-width banner experience",
@@ -1533,26 +1822,38 @@
         "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
         "apps/dashboard/src/pages/observe/EventDetailPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "banner.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        973,
+        150
+      ],
+      "finalFileSizeBytes": 13398,
+      "alt": "Movcues banner editor in Tablet preview with Reports are easier to find text and a Got it button.",
+      "caption": "A banner places a short product announcement across the available width. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        390,
+        180,
+        1363,
+        330
+      ]
     },
     {
       "id": "slideout",
@@ -1571,26 +1872,38 @@
         "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
         "apps/dashboard/src/components/experiences/widgetSizing.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "slideout.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        450,
+        510
+      ],
+      "finalFileSizeBytes": 16614,
+      "alt": "Movcues slideout editor with Your reports, in one place message and a Got it button.",
+      "caption": "A slideout supports a longer introduction while preserving space around the message. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        680,
+        225,
+        1130,
+        735
+      ]
     },
     {
       "id": "hotspot",
@@ -1609,8 +1922,8 @@
         "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
         "apps/dashboard/src/components/experiences/widgetSizing.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "No reviewed capture in this batch; existing article text is preserved.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -1647,8 +1960,8 @@
         "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
         "apps/dashboard/src/components/experiences/widgetSizing.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "No reviewed capture in this batch; existing article text is preserved.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -1692,26 +2005,38 @@
         "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
         "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "survey-builder.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        340,
+        438
+      ],
+      "finalFileSizeBytes": 15116,
+      "alt": "Movcues Questions inspector editing a required one-to-five rating about creating a first project, plus an optional long-text question.",
+      "caption": "Use the Questions inspector to set wording, scale, and required answers. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        1008,
+        117,
+        1348,
+        555
+      ]
     },
     {
       "id": "survey-results",
@@ -1736,8 +2061,8 @@
         "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
         "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "No completed survey response capture in this batch; no invented results.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -1774,8 +2099,8 @@
         "apps/dashboard/src/api/experiences.ts",
         "apps/dashboard/src/types/experiences.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "No completed individual survey response capture in this batch.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -1813,26 +2138,38 @@
         "apps/dashboard/src/components/experiences/checklistBuilder.ts",
         "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "onboarding-checklist.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        722,
+        600
+      ],
+      "finalFileSizeBytes": 41938,
+      "alt": "Movcues checklist editor showing Create your first project, Launch Guide, and Guide is completed task settings.",
+      "caption": "The task action opens the demo guide; the completion condition checks that the guide was completed. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        88,
+        115,
+        810,
+        715
+      ]
     },
     {
       "id": "responsive-preview",
@@ -1852,26 +2189,38 @@
         "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
         "apps/dashboard/src/components/experiences/widgetBuilder.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "responsive-preview.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        703,
+        535
+      ],
+      "finalFileSizeBytes": 36616,
+      "alt": "Movcues editor with Mobile preview selected and the guide message laid out at a narrow width.",
+      "caption": "Check narrow layouts in the editor as well as testing delivery in the product. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        650,
+        0,
+        1353,
+        535
+      ]
     },
     {
       "id": "live-editor-target-selection",
@@ -1890,8 +2239,8 @@
         "apps/dashboard/src/pages/experiences/liveEditorPopup.ts",
         "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "not-captured",
+      "missingReason": "No verified live target-selection capture in this batch.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -1935,26 +2284,38 @@
         "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx",
         "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "publish-review.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        672,
+        720
+      ],
+      "finalFileSizeBytes": 33990,
+      "alt": "Movcues launch review summarizing a saved Segment, Projects page, manual-only trigger, once-only display, and two steps.",
+      "caption": "Review the complete delivery boundary before publishing. This demo guide uses manual-only launch. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        346,
+        108,
+        1018,
+        828
+      ]
     },
     {
       "id": "audience-targeting",
@@ -1964,10 +2325,6 @@
         {
           "path": "/docs/targeting/audience/",
           "sourceFile": "apps/website/src/content/docs/docs/targeting/audience.mdx"
-        },
-        {
-          "path": "/docs/guides/feature-adoption/",
-          "sourceFile": "apps/website/src/content/docs/docs/guides/feature-adoption.mdx"
         }
       ],
       "plannedFeature": "Audience and page selection",
@@ -1979,26 +2336,38 @@
         "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
         "apps/dashboard/src/pages/observe/EventDetailPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "audience-targeting.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        403,
+        615
+      ],
+      "finalFileSizeBytes": 23116,
+      "alt": "Movcues Launch settings showing the Signed up without a project Segment, Projects page, allowed origin, and once-only display.",
+      "caption": "The Segment selects people; the Projects page and allowed origin constrain where delivery can occur. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        950,
+        65,
+        1353,
+        680
+      ]
     },
     {
       "id": "configure-event-trigger",
@@ -2023,26 +2392,38 @@
         "apps/dashboard/src/api/experiences.ts",
         "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "configure-event-trigger.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        672,
+        720
+      ],
+      "finalFileSizeBytes": 27106,
+      "alt": "Movcues launch setup with When something happens selected and dashboard_viewed chosen as the event.",
+      "caption": "An event trigger waits for the selected recorded event. This screenshot shows the setup control, not the final launch choice for the demo guide. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        346,
+        108,
+        1018,
+        828
+      ]
     },
     {
       "id": "experience-frequency",
@@ -2061,26 +2442,38 @@
         "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
         "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "experience-frequency.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        403,
+        670
+      ],
+      "finalFileSizeBytes": 23494,
+      "alt": "Movcues Launch settings with once-only display, start and end controls, and expanded priority settings.",
+      "caption": "Review repeat behavior, the active window, and priority together. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        950,
+        65,
+        1353,
+        735
+      ]
     },
     {
       "id": "workspace-settings",
@@ -2090,6 +2483,10 @@
         {
           "path": "/docs/workspace/sites/",
           "sourceFile": "apps/website/src/content/docs/docs/workspace/sites.mdx"
+        },
+        {
+          "path": "/docs/getting-started/welcome/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/welcome.mdx"
         }
       ],
       "plannedFeature": "Workspace configuration",
@@ -2102,26 +2499,38 @@
         "apps/dashboard/src/components/settings/DeveloperSettings.tsx",
         "apps/dashboard/src/auth/WorkspaceContext.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "workspace-settings.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        860,
+        387
+      ],
+      "finalFileSizeBytes": 17534,
+      "alt": "Movcues Workspace settings showing the Demo workspace and Owner role.",
+      "caption": "Workspace settings identify the active workspace and your role. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        252,
+        158,
+        1112,
+        545
+      ]
     },
     {
       "id": "project-sites",
@@ -2143,26 +2552,38 @@
         "apps/dashboard/src/components/settings/DeveloperSettings.tsx",
         "apps/dashboard/src/auth/WorkspaceContext.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "project-sites.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        860,
+        620
+      ],
+      "finalFileSizeBytes": 28898,
+      "alt": "Movcues Sites settings with Demo Site, its domain, and public site ID.",
+      "caption": "Check the selected site and product domain before installing or publishing. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        252,
+        158,
+        1112,
+        778
+      ]
     },
     {
       "id": "team-roles",
@@ -2182,26 +2603,33 @@
         "apps/dashboard/src/api/team.ts",
         "apps/dashboard/src/types/api.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "team-roles.jpg",
+      "originalDimensions": [
+        448,
+        327
+      ],
+      "optimizedDimensions": [
+        448,
+        327
+      ],
+      "finalFileSizeBytes": 6996,
+      "alt": "Movcues Invite member form with an empty email field and the Member role selected.",
+      "caption": "Choose the intended role before creating an invitation. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": null
     },
     {
       "id": "plan-and-usage",
@@ -2222,26 +2650,38 @@
         "apps/dashboard/src/api/billing.ts",
         "apps/dashboard/src/lib/paddleCheckout.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "plan-and-usage.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        860,
+        620
+      ],
+      "finalFileSizeBytes": 23798,
+      "alt": "Movcues Plan and Usage settings showing a Growth trial, plan controls, and MAU usage.",
+      "caption": "The demo account\u2019s plan and usage controls; this trial is not a pricing quotation. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        252,
+        158,
+        1112,
+        778
+      ]
     },
     {
       "id": "subscription-management",
@@ -2262,8 +2702,47 @@
         "apps/dashboard/src/api/billing.ts",
         "apps/dashboard/src/lib/paddleCheckout.ts"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
+      "status": "reused",
+      "missingReason": "Covered by the authentic plan-and-usage capture; no duplicate asset.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      },
+      "reusedCaptureId": "plan-and-usage"
+    },
+    {
+      "id": "website-theme",
+      "filename": "movcues-website-theme.webp",
+      "assetPath": "apps/website/src/assets/dashboard/settings/movcues-website-theme.webp",
+      "articles": [
+        {
+          "path": "/docs/workspace/themes/",
+          "sourceFile": "apps/website/src/content/docs/docs/workspace/themes.mdx"
+        }
+      ],
+      "plannedFeature": "Website theme import and approval if present in deployed UI",
+      "navigation": "Settings \u2192 Website themes (verify availability)",
+      "frontendSources": [
+        "apps/dashboard/src/components/settings/ThemesSettings.tsx",
+        "apps/dashboard/src/api/themes.ts",
+        "apps/dashboard/src/types/themes.ts"
+      ],
+      "status": "not-captured",
+      "missingReason": "Website theme controls are not available in the deployed demo dashboard.",
       "captureSource": null,
       "capturedAt": null,
       "originalFile": null,
@@ -2284,43 +2763,92 @@
       }
     },
     {
-      "id": "website-theme",
-      "filename": "movcues-website-theme.webp",
-      "assetPath": "apps/website/src/assets/dashboard/settings/movcues-website-theme.webp",
+      "id": "publish-success",
+      "filename": "movcues-publish-success.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-publish-success.webp",
       "articles": [
         {
-          "path": "/docs/workspace/themes/",
-          "sourceFile": "apps/website/src/content/docs/docs/workspace/themes.mdx"
+          "path": "/docs/experiences/publishing/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/publishing.mdx"
         }
       ],
-      "plannedFeature": "Website theme import and approval if present in deployed UI",
-      "navigation": "Settings \u2192 Website themes (verify availability)",
+      "plannedFeature": "Publication confirmation",
+      "navigation": "Experience editor \u2192 Review and publish",
       "frontendSources": [
-        "apps/dashboard/src/components/settings/ThemesSettings.tsx",
-        "apps/dashboard/src/api/themes.ts",
-        "apps/dashboard/src/types/themes.ts"
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/components/experiences/publish/launchReadiness.ts",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx",
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx"
       ],
-      "status": "awaiting-authenticated-demo-workspace",
-      "missingReason": "No authenticated cloud dashboard session; secure sign-in request timed out. No authorized isolated database connection is available.",
-      "captureSource": null,
-      "capturedAt": null,
-      "originalFile": null,
-      "originalDimensions": null,
-      "optimizedDimensions": null,
-      "finalFileSizeBytes": null,
-      "alt": null,
-      "caption": null,
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "publish-success.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        448,
+        322
+      ],
+      "finalFileSizeBytes": 10592,
+      "alt": "Movcues Published confirmation for the demo guide with View results, Preview, and Done controls.",
+      "caption": "Publishing confirms availability; the configured audience, page, and trigger still govern delivery. Demo workspace; synthetic data only.",
       "format": "webp",
       "responsiveVariants": [],
       "verification": {
-        "authenticCloudCapture": false,
-        "syntheticDataOnly": false,
-        "sensitiveDataReview": false,
-        "readabilityReview": false,
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
         "lightAndDarkThemeReview": false,
-        "integrated": false
-      }
+        "integrated": true
+      },
+      "crop": [
+        458,
+        307,
+        906,
+        629
+      ]
     }
   ],
-  "articlesWithoutDedicatedScreenshot": []
+  "articlesWithoutDedicatedScreenshot": [
+    {
+      "path": "/docs/analytics/overview/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    },
+    {
+      "path": "/docs/observe/sessions/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    },
+    {
+      "path": "/docs/experiences/preview/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    },
+    {
+      "path": "/docs/experiences/survey-results/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    },
+    {
+      "path": "/docs/workspace/themes/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    }
+  ],
+  "plannedScreenshotCount": 56,
+  "captureNotes": "Authentic cloud-browser JPEG captures, reviewed and cropped only. CapturedAt records the session date; exact per-frame timestamps are not retained. Astro generates responsive WebP variants from the committed masters.",
+  "renderedFigureCount": 50,
+  "qa": {
+    "build": "passed: 86 pages, 59 docs, 4806 links/anchors",
+    "astroCheck": "passed: 68 files; 0 errors, warnings or hints",
+    "htmlImageChecks": "passed for all integrated figures",
+    "originalArticleProse": "preserved",
+    "sdkArticles": "unchanged",
+    "optimizedImageReadability": "reviewed at native size and in contact sheets",
+    "responsiveThemeVisualReview": "not performed in a browser; lightAndDarkThemeReview remains false",
+    "coreWebVitals": "not measured"
+  }
 }

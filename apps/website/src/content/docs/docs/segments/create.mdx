@@ -3,6 +3,9 @@ title: "Create a segment"
 description: "Group users by recorded actions, page visits, or account properties and verify the matching audience."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_create_user_segment from "../../../../assets/dashboard/segments/movcues-create-user-segment.webp";
+
 A segment is a saved set of conditions that finds people matching a product situation. Membership is recalculated from current data; it is not a fixed mailing list.
 
 ## Example: users who have not created a project
@@ -22,6 +25,8 @@ Select the right site and use an Owner or Admin account. Confirm that the event 
 5. Choose **+ Add condition**. Set **Event → project_created → not performed**. Leave its time window off if you mean no recorded project creation at any time.
 6. Review **Estimated audience**. Finish every condition before expecting an estimate.
 7. Choose **Save segment**.
+
+<DocScreenshot src={shot_create_user_segment} alt="Movcues segment builder combining signup_completed within 14 days with project_created not performed using ALL rules." caption="Example audience: signed up recently, but have not created a project. The estimate reflects the moment of capture. Demo workspace; synthetic data only." />
 
 ## Verify the result
 

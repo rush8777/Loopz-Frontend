@@ -3,6 +3,10 @@ title: "Review and manage segment membership"
 description: "Inspect matching users, change a segment safely, and understand why its audience changes."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_segment_list from "../../../../assets/dashboard/segments/movcues-segment-list.webp";
+import shot_segment_membership from "../../../../assets/dashboard/segments/movcues-segment-membership.webp";
+
 The **Audience** count is the number of people currently matching a segment. **Last updated** refers to a definition change, not the last time someone joined.
 
 ## Inspect a segment
@@ -13,6 +17,8 @@ The **Audience** count is the number of people currently matching a segment. **L
 4. Use **Previous** and **Next** when there are more members.
 
 Example: a “Signup without project” audience should lose a member after their `project_created` event is recorded, provided the conditions describe that missing action.
+
+<DocScreenshot src={shot_segment_list} alt="Movcues Segments list showing the saved Signed up without a project audience with six users." caption="The saved audience appears in the Segments list with its current membership. Demo workspace; synthetic data only." />
 
 ## Edit or delete
 
@@ -27,3 +33,5 @@ New activity, updated user properties, rolling time windows, and changes to Page
 If the audience is unexpectedly empty, simplify the conditions one at a time and confirm the inputs under [Events](/docs/observe/events/) and [Users](/docs/people/users/).
 
 **Related:** [Audience targeting](/docs/targeting/audience/) · [Funnel cohorts](/docs/funnels/cohorts/).
+
+<DocScreenshot src={shot_segment_membership} alt="Movcues segment details showing signup and project rules and six synthetic members." caption="Review the definition and matching users before using a Segment for targeting. Demo workspace; synthetic data only." />
