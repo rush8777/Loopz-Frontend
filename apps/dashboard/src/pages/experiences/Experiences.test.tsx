@@ -74,6 +74,30 @@ describe("Experiences dashboard",()=>{
     await waitFor(() => expect(mockedExperiences.createEditorSession).toHaveBeenCalled());
     expect(mockedExperiences.updateExperience).not.toHaveBeenCalled();
   });
+  it("ux hardening: does not launch a live editor when pending settings cannot be saved", async () => {
+    mockedExperiences.getExperience.mockResolvedValue(onsiteExperience());
+    mockedExperiences.updateExperience.mockRejectedValue(new Error("Connection lost"));
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    await screen.findByRole("button", { name: "Open on-site builder" });
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Editor options" }), { button: 0, ctrlKey: false });
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Launch settings" }));
+    fireEvent.change(screen.getByLabelText("Numeric priority"), { target: { value: "41" } });
+    fireEvent.click(screen.getByRole("button", { name: "Open on-site builder" }));
+    await waitFor(() => expect(popupHarness.close).toHaveBeenCalled());
+    expect(mockedExperiences.createEditorSession).not.toHaveBeenCalled(); expect(popupHarness.location.replace).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Numeric priority")).toHaveValue(41);
+  });
+
+  it("ux hardening: reviews the latest on-site revision saved by the live editor", async () => {
+    const old = onsiteExperience(); const fresh = structuredClone(old); fresh.draftVersion!.revision = 7;
+    const value = fresh.draftVersion!.definition; if (!("builder" in value) || !value.builder) throw new Error("Expected widget");
+    value.builder.html = '<section class="movcues-widget"><h2>Live editor revision seven</h2></section>';
+    mockedExperiences.getExperience.mockResolvedValueOnce(old).mockResolvedValue(fresh); mockedExperiences.publishExperience.mockResolvedValue(fresh);
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    fireEvent.click(await screen.findByRole("button", { name: "Review & publish" })); fireEvent.click(await screen.findByRole("button", { name: "Publish now" }));
+    await waitFor(() => expect(mockedExperiences.publishExperience).toHaveBeenCalledWith("org_1", "site_1", "exp_1", { draftVersionId: "v1", revision: 7 }));
+    expect(mockedExperiences.updateExperience).not.toHaveBeenCalled();
+  });
   it("hardening: a focus refresh cannot replace edits made while its GET is pending", async () => {
     const onsite = onsiteExperience(); let resolveRefresh!: (value: Experience) => void;
     mockedExperiences.getExperience.mockResolvedValueOnce(onsite).mockImplementationOnce(() => new Promise(resolve => { resolveRefresh = resolve; }));

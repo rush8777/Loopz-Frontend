@@ -843,7 +843,7 @@ export function ExperienceEditorPage() {
                   ? "Open on-site builder"
                   : "Open live editor"}
               </span>
-              <span className="sm:hidden">Preview</span>
+              <span className="sm:hidden">Edit</span>
             </Button>
             <Button
               size="sm"
