@@ -121,6 +121,8 @@ function OtherExperiencesMenu({ compact, onNavigate }: { compact: boolean; onNav
   >
     <button
       type="button"
+      onClick={() => setOpen(true)}
+      onKeyDown={event => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); setOpen(false); } }}
       aria-haspopup="menu"
       aria-expanded={open}
       aria-label={compact ? "Other experiences" : undefined}

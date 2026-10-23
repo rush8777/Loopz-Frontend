@@ -88,9 +88,15 @@ describe("InvitationPage", () => {
     expect(await screen.findByText("Dashboard destination")).toBeInTheDocument();
   });
 
-  it("keeps organization name on normal signup", () => {
-    render(<MemoryRouter><SignupPage /></MemoryRouter>);
-    expect(screen.getByLabelText("Organization name")).toBeRequired();
+  it("collects account credentials before the separate workspace onboarding", async () => {
+    signup.mockResolvedValue(undefined);
+    render(<MemoryRouter initialEntries={["/signup"]}><Routes><Route path="/signup" element={<SignupPage />} /><Route path="/" element={<p>Signed in for onboarding</p>} /></Routes></MemoryRouter>);
+    expect(screen.queryByLabelText("Organization name")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Email address")).toBeRequired(); expect(screen.getByLabelText("Create password")).toBeRequired();
+    fireEvent.change(screen.getByLabelText("Email address"), { target: { value: "new@example.com" } }); fireEvent.change(screen.getByLabelText("Create password"), { target: { value: "correct-horse-battery-staple" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    await waitFor(() => expect(signup).toHaveBeenCalledWith({ email: "new@example.com", password: "correct-horse-battery-staple" }));
+    expect(await screen.findByText("Signed in for onboarding")).toBeInTheDocument();
   });
 
   it("returns to the invitation after sign in", async () => {

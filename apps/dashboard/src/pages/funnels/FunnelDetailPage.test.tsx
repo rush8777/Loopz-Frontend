@@ -85,12 +85,14 @@ describe("FunnelDetailPage", () => {
     renderDetail();
 
     expect(await screen.findByText("Signup Activation")).toBeInTheDocument();
-    expect(screen.getAllByText("75%").length).toBeGreaterThan(0);
+    expect((await screen.findAllByText("75%")).length).toBeGreaterThan(0);
     expect(screen.getAllByText("10,000").length).toBeGreaterThan(0);
     expect(screen.getAllByText("7,500").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Signup Started").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Signup Completed").length).toBeGreaterThan(0);
-    expect(screen.getByText(/2,500 dropped/)).toBeInTheDocument();
+    const completionRow = screen.getByRole("button", { name: "Signup Completedsignup_completed" }).closest("tr")!;
+    expect(within(completionRow).getByRole("cell", { name: "25% · 2,500" })).toBeInTheDocument();
+    expect(screen.getByText(/Largest drop/).parentElement).toHaveTextContent("25% · 2,500 users");
   });
 
   it("re-requests analysis with an updated range when the date range changes", async () => {

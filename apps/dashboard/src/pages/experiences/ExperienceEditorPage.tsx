@@ -845,6 +845,7 @@ export function ExperienceEditorPage() {
               </span>
               <span className="sm:hidden">Edit</span>
             </Button>
+            {survey && <Button variant="outline" size="sm" onClick={() => void openResults()} disabled={leavingForResults}>{leavingForResults ? "Saving…" : "Results"}</Button>}
             <Button
               size="sm"
               onClick={() => void prepareReview()}
