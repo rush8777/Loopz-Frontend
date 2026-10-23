@@ -21,7 +21,7 @@ export function CreateExperienceModal({ kind, widgetType: fixedWidgetType, singu
   const [guidePattern, setGuidePattern] = useState<"anchored_card" | "modal">("anchored_card");
   const [preset, setPreset] = useState<"default" | "minimal" | "soft" | "compact">("default");
   const [source, setSource] = useState("manual"); const [manualUrl, setManualUrl] = useState(""); const [targetPage, setTargetPage] = useState(false); const [error, setError] = useState<string | null>(null); const [saving, setSaving] = useState(false);
-  const onsiteAvailable = kind === "guide" || (kind === "widget" && !!fixedWidgetType && !["survey", "hotspot"].includes(fixedWidgetType));
+  const onsiteAvailable = kind === "guide" || (kind === "widget" && !!fixedWidgetType && fixedWidgetType !== "hotspot");
   useEffect(() => { if (open && currentOrg && currentSite) { setBuilderMode("grapesjs"); setGuidePattern("anchored_card"); setTargetPage(false); pagesApi.listPages(currentOrg.orgId, currentSite.id).then((r) => { setPages(r.pages); if (r.pages[0]) setSource(r.pages[0].id); else { setSource("manual"); setTargetPage(false); } }).catch(() => { setPages([]); setSource("manual"); setTargetPage(false); }); } }, [open, currentOrg, currentSite]);
 
   async function submit() {
