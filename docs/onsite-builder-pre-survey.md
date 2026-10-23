@@ -10,4 +10,4 @@ Baseline `codex/onsite-builder-guide-logic` at `835957f`; feature branch `codex/
 
 Verification: all 295 dashboard tests pass (44 files); production build passes. The initial 14 failures are resolved. Existing large-chunk build warnings remain.
 
-The SDK repository's `docs/onsite-builder-pre-survey.md` contains the shared failure classification, 150-test cross-browser matrix, actual dashboard/API/database/published-SDK integration results, bundle comparison and environment limitations. Its `docs/phase-9-survey-handoff.md` describes reuse of the existing Survey model, persistence, analytics and renderer. No Survey authoring functionality is added.
+The SDK repository's `docs/onsite-builder-pre-survey.md` contains the shared failure classification, 153-test cross-browser matrix, six passing actual dashboard/API/database/published-SDK integration runs (two per browser), bundle comparison and environment limitations. Its `docs/phase-9-survey-handoff.md` describes reuse of the existing Survey model, persistence, analytics and renderer. No Survey authoring functionality is added.
