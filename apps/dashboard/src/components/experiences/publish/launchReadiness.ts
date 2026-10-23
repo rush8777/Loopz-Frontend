@@ -43,7 +43,21 @@ export function getLaunchChecks(experience: Pick<Experience, "kind" | "widgetTyp
   if (targeting.schedule?.startsAt && targeting.schedule.endsAt && targeting.schedule.startsAt >= targeting.schedule.endsAt) add({ id: "schedule-invalid", status: "blocking", section: "timing", title: "End time must be after the start time" });
 
   if (isGuideDefinition(definition)) {
+    if (!definition.steps.length) add({ id: "guide-empty", status: "blocking", section: "steps", title: "Add at least one Guide step" });
+    const ids = new Set<string>();
     definition.steps.forEach((step, index) => {
+      const problem = (key: string, message: string) => add({ id: `guide-${key}-${step.id}-${index}`, status: "blocking", section: "steps", title: `Step ${index + 1}: ${message}` });
+      if (ids.has(step.id)) problem("id", "step IDs must be unique"); ids.add(step.id);
+      const advance = step.advance; const bounded = (value: number | undefined, min: number, max: number) => value === undefined || Number.isInteger(value) && value >= min && value <= max;
+      if (!bounded(step.presentation?.delayMs, 0, 30000)) problem("delay", "choose a delay from 0 to 30,000 ms");
+      if (step.presentation?.missingTarget && (!guideStepRequiresTarget(step) || !bounded(step.presentation.missingTarget.timeoutMs, 100, 60000) || step.presentation.missingTarget.action === "skip" && index === definition.steps.length - 1)) problem("fallback", "choose a valid timeout and a fallback with a following step");
+      if (advance?.type === "element_click" || advance?.type === "element_hover") {
+        if (!guideStepRequiresTarget(step)) problem("trigger", "website click/hover requires an Anchored Card");
+        if (!(advance.target ?? step.target)) problem("interaction", "select the website interaction element");
+        if (advance.type === "element_hover" && !bounded(advance.durationMs, 100, 60000)) problem("hover", "choose a hover duration from 100 to 60,000 ms");
+      }
+      if (advance?.type === "custom_event" && (!advance.eventName.trim() || advance.eventName.length > 200 || /[\u0000-\u001f\u007f]/.test(advance.eventName))) problem("event", "enter a valid custom event name");
+      if (advance?.type === "route" && (!advance.pageRules.some(rule => rule.kind === "include") || advance.pageRules.some(rule => !rule.value.trim() || rule.value.length > 500))) problem("route", "configure a valid matching page rule");
       if (guideStepRequiresTarget(step) && !step.target) add({ id: `guide-target-${step.id}`, status: "blocking", section: "steps", title: `Step ${index + 1} needs an element`, description: step.content.heading });
       else if (step.target?.reliability === "fragile") add({ id: `guide-fragile-${step.id}`, status: "warning", section: "steps", title: `Step ${index + 1} has a fragile target`, description: step.content.heading });
     });
