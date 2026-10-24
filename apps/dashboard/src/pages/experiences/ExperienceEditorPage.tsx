@@ -246,8 +246,7 @@ export function ExperienceEditorPage() {
         );
         const expectedRevision = revision.current;
         const input =
-          experience.builderMode === "onsite" &&
-          !isChecklistDefinition(snapshot)
+          experience.builderMode === "onsite"
             ? {
                 revision: expectedRevision,
                 settings: { targeting: snapshot.targeting },
@@ -735,6 +734,7 @@ export function ExperienceEditorPage() {
             latest.current = next;
             setDefinition(next);
           }}
+          onOpenLive={() => void openLive()}
           onReview={() => void prepareReview()}
           onRegisterBuilderFlush={registerChecklistBuilderFlush}
         />
@@ -753,6 +753,7 @@ export function ExperienceEditorPage() {
           onPublish={publish}
           onEditExternal={(target) => {
             if (target === "analytics") navigate("/analytics");
+            else if(experience.builderMode === "onsite") void openLive();
           }}
         />
       </>

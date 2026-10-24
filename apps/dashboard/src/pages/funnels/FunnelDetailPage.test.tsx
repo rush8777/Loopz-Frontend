@@ -147,7 +147,7 @@ describe("FunnelDetailPage", () => {
     renderDetail();
     await screen.findByText("Signup Activation");
 
-    fireEvent.click(screen.getAllByText("10,000")[1]);
+    fireEvent.click((await screen.findAllByText("10,000"))[1]);
     const row = await screen.findByText("user_42");
     fireEvent.click(row.closest("tr")!);
 
@@ -167,7 +167,7 @@ describe("FunnelDetailPage", () => {
     renderDetail();
     await screen.findByText("Signup Activation");
 
-    fireEvent.click(screen.getAllByText("10,000")[1]);
+    fireEvent.click((await screen.findAllByText("10,000"))[1]);
     const row = await screen.findByText("anon_99");
     fireEvent.click(row.closest("tr")!);
 

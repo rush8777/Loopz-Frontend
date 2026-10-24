@@ -46,6 +46,7 @@ interface ChecklistEditorProps {
   error: string | null;
   onChange(definition: ChecklistExperienceDefinition): void;
   onReview(): void;
+  onOpenLive?(): void;
   onRegisterBuilderFlush(flush: (() => void) | null): void;
 }
 
@@ -61,6 +62,7 @@ export function ChecklistEditor({
   error,
   onChange,
   onReview,
+  onOpenLive,
   onRegisterBuilderFlush,
 }: ChecklistEditorProps) {
   const [guides, setGuides] = useState<Experience[]>([]);
@@ -107,7 +109,7 @@ export function ChecklistEditor({
   ) => {
     const next = structuredClone(definition);
     update(next);
-    next.builder = syncChecklistBuilder(next.builder, next);
+    if(experience.builderMode !== "onsite") next.builder = syncChecklistBuilder(next.builder, next);
     onChange(next);
   };
   const select = (next: ChecklistSelection) => {
@@ -132,6 +134,7 @@ export function ChecklistEditor({
   const visibleStatus = status || "Saved";
   const statusClass = visibleStatus === "Published" ? "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200" : visibleStatus === "Saving..." ? "bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-200" : visibleStatus.startsWith("Autosave failed") ? "bg-destructive/10 text-destructive ring-1 ring-inset ring-destructive/20" : "bg-sky-100 text-sky-700 ring-1 ring-inset ring-sky-200";
 
+  if(experience.builderMode === "onsite") return <div className="flex min-h-dvh flex-col gap-5 p-5"><header className="flex flex-wrap items-center justify-between gap-3"><div><Link to="/experiences/checklists">Checklists</Link><h1 className="text-lg font-semibold">{experience.name}</h1><span className="text-xs">On-site · {visibleStatus}</span></div><div className="flex gap-2"><Button onClick={onOpenLive}>Open on-site builder</Button><Button disabled={preparingReview} onClick={onReview}>Review & publish</Button></div></header>{error&&<ErrorNotice>{error}</ErrorNotice>}<section className="rounded-xl border p-6"><h2 className="font-medium">Design this Checklist in your product</h2><p className="mt-2 text-sm text-muted-foreground">Edit tasks and the expanded, collapsed and completed views on your website.</p><Button className="mt-4" variant="outline" onClick={onOpenLive}>Launch on-site builder</Button></section><section className="max-w-xl"><ChecklistInspector definition={definition} selection={{type:"targeting"}} guides={guides} segments={segments} pages={pages} orgId={orgId} siteId={siteId} experienceId={experience.id} onChange={structured}/></section></div>;
   return (
     <div className="flex h-dvh min-h-[620px] flex-col overflow-hidden bg-background">
       <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b bg-background px-3 sm:px-4">
