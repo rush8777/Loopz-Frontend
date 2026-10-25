@@ -30,4 +30,8 @@ describe("Sidebar Heatmaps navigation", () => {
     expect(screen.getByRole("menuitem", { name: "Slideouts" })).toHaveAttribute("href", "/experiences/slideouts");
     expect(screen.getByRole("menuitem", { name: "Hotspots" })).toHaveAttribute("href", "/experiences/hotspots");
   });
+  it("links to the authenticated Movcues AI workspace", () => {
+    render(<MemoryRouter><Sidebar onOpenSettings={vi.fn()} /></MemoryRouter>);
+    expect(screen.getByRole("link", { name: "Movcues AI" })).toHaveAttribute("href", "/ai");
+  });
 });

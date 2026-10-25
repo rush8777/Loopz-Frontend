@@ -362,3 +362,21 @@
   .settings-row { grid-template-columns: 1fr auto; gap: 5px 10px; }
   .settings-row-label { grid-column: 1 / -1; }
 }
+
+/* Movcues AI response typography stays inside the existing neutral system. */
+.ai-markdown > :first-child { margin-top: 0; }
+.ai-markdown > :last-child { margin-bottom: 0; }
+.ai-markdown p { margin: 0 0 0.75rem; }
+.ai-markdown h1, .ai-markdown h2, .ai-markdown h3 { margin: 1.1rem 0 0.45rem; color: var(--foreground); font-weight: 600; }
+.ai-markdown h1 { font-size: 1.125rem; }
+.ai-markdown h2 { font-size: 1rem; }
+.ai-markdown h3 { font-size: 0.925rem; }
+.ai-markdown ul, .ai-markdown ol { margin: 0.5rem 0 0.85rem; padding-left: 1.25rem; }
+.ai-markdown ul { list-style: disc; }
+.ai-markdown ol { list-style: decimal; }
+.ai-markdown li { margin: 0.2rem 0; }
+.ai-markdown code { border: 1px solid var(--border); border-radius: 4px; background: var(--muted); padding: 0.1rem 0.3rem; font-family: var(--font-data); font-size: 0.82em; }
+.ai-markdown pre { margin: 0.75rem 0; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--muted); padding: 0.8rem; }
+.ai-markdown table { width: 100%; margin: 0.75rem 0; border-collapse: collapse; font-size: 0.82rem; }
+.ai-markdown th, .ai-markdown td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; }
+.ai-markdown th { background: color-mix(in srgb, var(--muted) 60%, transparent); font-weight: 600; }

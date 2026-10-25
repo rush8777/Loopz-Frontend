@@ -39,6 +39,7 @@ import { UpgradeNowProvider } from "./components/billing/UpgradeNowModal";
 import { BillingPage } from "./pages/billing/BillingPage";
 import { CheckoutPage } from "./pages/billing/CheckoutPage";
 import { OnboardingPage } from "./pages/auth/OnboardingPage";
+import { MovcuesAiPage } from "./pages/ai/MovcuesAiPage";
 
 export default function App() {
   return (
@@ -62,6 +63,7 @@ export default function App() {
             >
               <Route index element={<Navigate to="/analytics" replace />} />
               <Route path="billing" element={<BillingPage />} />
+              <Route path="ai" element={<MovcuesAiPage />} />
               <Route path="dashboard" element={<DashboardListPage />} />
               <Route path="dashboard/new" element={<DashboardWorkspacePage mode="new" />} />
               <Route path="dashboard/:dashboardId" element={<DashboardWorkspacePage mode="view" />} />
