@@ -3,6 +3,9 @@ title: "Build an onboarding checklist"
 description: "Create persistent tasks, choose task actions and completion rules, and preview the checklist states."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_onboarding_checklist from "../../../../assets/dashboard/builder/movcues-onboarding-checklist.webp";
+
 A checklist gives users a persistent set of onboarding tasks. Each task has an action and a separate completion rule: where it takes someone is not always what proves they finished.
 
 ## Create and organize tasks
@@ -23,6 +26,8 @@ A checklist gives users a persistent set of onboarding tasks. Each task has an a
 Example: “Create a project” can navigate to `/projects/new`, while completion uses a Segment whose users performed `project_created`. Marking it complete **When clicked** would only prove that the task was selected.
 
 **Launch Guide** requires a published, available guide. Publish or resume it before publishing the checklist. **Navigate in this tab** stays within the configured site; **Open URL in new tab** is the separate link action. **No action** is a click-to-complete task and disables the completion selector.
+
+<DocScreenshot src={shot_onboarding_checklist} alt="Movcues checklist editor showing Create your first project, Launch Guide, and Guide is completed task settings." caption="The task action opens the demo guide; the completion condition checks that the guide was completed. Demo workspace; synthetic data only." />
 
 ## Configure behavior
 

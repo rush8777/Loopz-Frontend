@@ -3,6 +3,9 @@ title: "Build a multistep guide"
 description: "Combine anchored and modal steps and choose how users advance through a product task."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_multistep_guide from "../../../../assets/dashboard/builder/movcues-multistep-guide.webp";
+
 A guide connects several pieces of guidance into one sequence. Use it for a task that needs ordered help, such as creating a first project and inviting a teammate.
 
 ## Build the sequence
@@ -25,6 +28,8 @@ A guide connects several pieces of guidance into one sequence. Use it for a task
 | User reaches page | The next stage begins at a saved Page’s matching paths. |
 
 For example, a click on **Create project** can open a form without saving it. Use the outcome event `project_created` when successful creation matters. Custom-event and route choices need recorded events or saved Pages and can require an advanced plan.
+
+<DocScreenshot src={shot_multistep_guide} alt="Movcues How this step works panel with modal type and user-click, custom-event, and page-reached advancement options." caption="Choose the condition that advances a guide step. Demo workspace; synthetic data only." />
 
 ## Placement and navigation
 

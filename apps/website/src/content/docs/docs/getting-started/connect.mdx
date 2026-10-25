@@ -3,6 +3,9 @@ title: "Connect and verify your site"
 description: "Find your installation snippet and confirm the SDK is running without opening developer tools."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_installation_verification from "../../../../assets/dashboard/getting-started/movcues-installation-verification.webp";
+
 Connecting your site lets Movcues receive activity and display published experiences. A developer installs the SDK, the small browser script that connects your product to Movcues. You can check the connection yourself in the dashboard.
 
 ## Example
@@ -24,6 +27,8 @@ Your app runs at `https://app.example.com`. Install Movcues there before buildin
 4. Wait for **SDK connected**. If it expires, refresh the correct product URL and choose **Try again**.
 
 **Receiving data** and **Last event** show previously received activity. The live test answers a different question: is the SDK running now? **Refresh status** updates the activity summary.
+
+<DocScreenshot src={shot_installation_verification} alt="Movcues Installation settings showing Receiving data as Active and a Test SDK connection control." caption="An Active receiving-data status confirms that the selected site has sent data. Demo workspace; synthetic data only." />
 
 ## Confirm a product outcome
 

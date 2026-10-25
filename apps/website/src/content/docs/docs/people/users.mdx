@@ -3,6 +3,11 @@ title: "Find users and understand their activity"
 description: "Browse identified accounts and anonymous visitors, inspect properties, and follow activity into sessions."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_user_directory from "../../../../assets/dashboard/users/movcues-user-directory.webp";
+import shot_user_activity from "../../../../assets/dashboard/users/movcues-user-activity.webp";
+import shot_anonymous_visitors from "../../../../assets/dashboard/users/movcues-anonymous-visitors.webp";
+
 **People → Users** helps you investigate who is using your product. These are product visitors, not the teammates invited to your Movcues workspace.
 
 ## Choose the right list
@@ -13,6 +18,8 @@ description: "Browse identified accounts and anonymous visitors, inspect propert
 | Anonymous | Recorded visitors without a known account identity in this directory. | **Search by anonymous id...** and pagination. |
 
 The anonymous list does not have the identified list’s date and Segment filters.
+
+<DocScreenshot src={shot_user_directory} alt="Movcues identified user directory listing synthetic Demo users with example.test email addresses." caption="Identified profiles connect product activity to the identity your product supplies. Demo workspace; synthetic data only." />
 
 ## Inspect a profile
 
@@ -25,6 +32,8 @@ The anonymous list does not have the identified list’s date and Segment filter
 
 Example: a trial customer reports trouble exporting. Find their account, inspect the recorded activity and latest session, then check whether `report_exported` occurred. The absence of an event is only useful if you know the event is implemented correctly.
 
+<DocScreenshot src={shot_user_activity} alt="Movcues Demo user 06 Activity tab listing recorded product events in time order." caption="A profile\u2019s Activity tab helps you inspect what one person did. Demo workspace; synthetic data only." />
+
 ## Understand identity
 
 Movcues cannot infer an account from a page visit. Your developer supplies it after sign-in through [Identify users](/docs/tracking/identify/). Properties here are recorded account context, not an editable CRM record.
@@ -32,3 +41,5 @@ Movcues cannot infer an account from a page visit. Your developer supplies it af
 Anonymous activity and identified activity can remain separate. Do not assume that identifying a browser retroactively transfers all its earlier activity to the account. Logging out or switching accounts must clear identity appropriately in the product integration.
 
 **Related:** [Sessions](/docs/observe/sessions/) · [Segment conditions](/docs/segments/conditions/) · [Workspace team access](/docs/workspace/team/).
+
+<DocScreenshot src={shot_anonymous_visitors} alt="Movcues anonymous visitor profile for docs-demo-anonymous-04 with visit and browser information." caption="Anonymous activity remains available before your product identifies a visitor. Demo workspace; synthetic data only." />

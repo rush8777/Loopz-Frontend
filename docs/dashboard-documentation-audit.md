@@ -136,3 +136,14 @@ Initial production build: 86 site pages, including 59 docs pages. All 4,750 rend
 - Visual/live limitation: connected Browser setup did not finish; cloud browser could not reach the container’s localhost preview. No desktop/mobile visual pass or production workflow success is claimed. Existing responsive CSS and Starlight navigation implementation remain unchanged.
 
 Final rebuild after the homepage heading adjustment: passed, 86 site routes / 59 docs routes, 4,756 internal links and anchors valid.
+
+## Documentation branch integration — 2026-10-25
+
+- Inspected `main` at `06b64b68cb623cfcff1edc27ca84e56ee4d69de6`. The original `docs/sdk-documentation` branch was already in main's history.
+- Combined `docs/dashboard-documentation` (`82e618f`), `chore/consolidate-docs` (`ef9808b`), and `docs/dashboard-screenshots` (`558ec4f`) through the existing consolidation pull request. Retained the consolidation history and SDK revert.
+- Resolved 35 add/add article conflicts only after stripping screenshot imports/figures and verifying that both versions had identical prose. Kept the screenshot version of those articles. Retained this branch's audit notes describing inherited main changes.
+- Preserved all 102 screenshot-branch documentation, component, style, and image files byte-for-byte. Dashboard source, shared packages, landing/product components, global marketing CSS, and hero video are unchanged from inspected main.
+- Clean `npm ci --no-audit --no-fund` passed. `npm run build:website` passed: 86 pages, 59 docs pages, and 4,806 internal links/anchors. `npm run check:website` passed with 0 errors, warnings, or hints across 68 files. The existing docs-link regression test passed.
+- Validated all 39 optimized captures, all 50 rendered figures and responsive/full-size image paths, article canonical URLs, and all 40 dashboard article sitemap URLs.
+- Dashboard regression comparison: the integrated branch and an isolated worktree of inspected main both have the same 14 failing test cases across InvitationPage, Experiences, and FunnelDetailPage (262 tests pass). Main was tested using the same installed dependencies to isolate source changes. These failures predate the documentation merge; no dashboard behavior or tests were changed.
+- No additional screenshot coverage, live dashboard workflow verification, browser theme/mobile visual QA, or deployment success is claimed by this integration.

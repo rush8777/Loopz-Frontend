@@ -3,6 +3,9 @@ title: "Choose when an experience starts"
 description: "Use page arrival, a custom event, or an explicit launch action without inventing a separate workflow builder."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_configure_event_trigger from "../../../../assets/dashboard/targeting/movcues-configure-event-trigger.webp";
+
 A trigger is the moment Movcues checks whether an experience should appear. Audience, page, timing, and frequency conditions still apply to automatic delivery.
 
 ## Choose the launch moment
@@ -16,6 +19,8 @@ Open **Review & publish** and find **What should make this experience appear?**
 | Only when another action launches it | Does not appear automatically. Requires a launch action. | A checklist task launches a published Guide. |
 
 Event-triggered and explicit launch settings can depend on plan access. Checklists do not have this trigger stage; their visibility is based on eligibility and persistent progress.
+
+<DocScreenshot src={shot_configure_event_trigger} alt="Movcues launch setup with When something happens selected and dashboard_viewed chosen as the event." caption="An event trigger waits for the selected recorded event. This screenshot shows the setup control, not the final launch choice for the demo guide. Demo workspace; synthetic data only." />
 
 ## Example: feedback after an export
 

@@ -3,6 +3,9 @@ title: "Introduce a feature to relevant users"
 description: "Use a non-adopter segment and contextual guidance to help people try a feature at an appropriate moment."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_create_user_segment from "../../../../assets/dashboard/segments/movcues-create-user-segment.webp";
+
 A feature announcement is more useful when it reaches someone who can benefit from it and has not already used it. This example introduces CSV exports to trial users visiting Reports.
 
 ## Before you start
@@ -17,6 +20,8 @@ The app sends `report_exported` after successful export and supplies an identifi
 4. Inspect the estimated audience and a few members, then save.
 
 This finds known matching users, not everyone who has ever signed up in another system. Missing tracking can make someone look like a non-adopter.
+
+<DocScreenshot src={shot_create_user_segment} alt="Movcues segment builder combining signup_completed within 14 days with project_created not performed using ALL rules." caption="Example audience: signed up recently, but have not created a project. The estimate reflects the moment of capture. Demo workspace; synthetic data only." />
 
 ## Add contextual guidance
 

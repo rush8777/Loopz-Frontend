@@ -3,6 +3,12 @@ title: "Edit content, layout, and buttons"
 description: "Use the current dashboard builder to arrange blocks, change properties, configure actions, and save a draft."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_experience_builder from "../../../../assets/dashboard/builder/movcues-experience-builder.webp";
+import shot_builder_block_properties from "../../../../assets/dashboard/builder/movcues-builder-block-properties.webp";
+import shot_builder_button_action from "../../../../assets/dashboard/builder/movcues-builder-button-action.webp";
+import shot_responsive_preview from "../../../../assets/dashboard/builder/movcues-responsive-preview.webp";
+
 The dashboard editor controls your experience’s content and appearance. The [live editor](/docs/experiences/preview/) checks that content against your real product and selects page elements.
 
 ## Example: a report announcement
@@ -20,6 +26,10 @@ Create a short message with a heading, a sentence explaining the report, and one
 
 **Free Area** supports free placement; ordinary rows and columns provide a more predictable structure for compact messages. Test any freely positioned content at smaller widths.
 
+<DocScreenshot src={shot_experience_builder} alt="Movcues guide editor with the Blocks palette, a centered modal message, and two guide steps." caption="The real editor keeps content blocks and the guide sequence next to the canvas. Demo workspace; synthetic data only." />
+
+<DocScreenshot src={shot_builder_block_properties} alt="Movcues Typography inspector with font, weight, size, line height, text color, and alignment controls." caption="Select a block to edit its typography and appearance in Properties. Demo workspace; synthetic data only." />
+
 ## Configure a button
 
 Select the primary button and open **Properties → Interaction → On click**.
@@ -31,8 +41,12 @@ Select the primary button and open **Properties → Interaction → On click**.
 
 A **Track event** action records the configured event when selected. It does not prove a separate product task succeeded. For example, use `announcement_clicked` for the button, and let the product send `report_exported` after an actual export.
 
+<DocScreenshot src={shot_builder_button_action} alt="Movcues button Properties inspector with Interaction set to Next step." caption="A guide button needs a Next step action to advance the sequence. Demo workspace; synthetic data only." />
+
 ## Save and check
 
 Changes autosave. Wait for **Saved**, and resolve any **Autosave failed** message before leaving. For advanced authored markup, **Toggle HTML and CSS editor** opens code fields; **Apply HTML and CSS** validates and applies changes. Keep this for a developer and preserve survey/checklist controls.
 
 Autosave updates the draft. [Review and publish](/docs/experiences/publishing/) makes it live.
+
+<DocScreenshot src={shot_responsive_preview} alt="Movcues editor with Mobile preview selected and the guide message laid out at a narrow width." caption="Check narrow layouts in the editor as well as testing delivery in the product. Demo workspace; synthetic data only." />

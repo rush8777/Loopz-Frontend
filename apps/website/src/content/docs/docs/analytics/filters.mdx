@@ -3,6 +3,9 @@ title: "Apply dashboard filters"
 description: "Change date range, granularity, audience, and excluded events without changing the saved analysis."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_dashboard_filters from "../../../../assets/dashboard/analytics/movcues-dashboard-filters.webp";
+
 Dashboard filters change the data you are viewing. They do not change the saved event definitions, segment rules, or funnel steps.
 
 ## Example
@@ -19,6 +22,8 @@ You want last week’s project-creation activity for trial users. Open the saved
 The available date presets are **Today**, **Last 7 days**, **Last 30 days**, and **Last 90 days**. **Granularity** groups results as **Daily**, **Weekly**, or **Monthly**. **Audience** uses a saved Segment’s current membership. **Exclude events** removes selected custom events from applicable calculations; it does not delete them.
 
 Filters are viewing controls and are not saved as dashboard defaults. Reopening the dashboard starts with its normal viewing defaults.
+
+<DocScreenshot src={shot_dashboard_filters} alt="Movcues dashboard Filters dialog offering date range, granularity, audience, and excluded events." caption="Apply filters deliberately, then check which cards support each selection. Demo workspace; synthetic data only." />
 
 ## Which cards use each filter?
 

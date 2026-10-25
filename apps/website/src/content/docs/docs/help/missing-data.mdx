@@ -3,6 +3,9 @@ title: "Troubleshoot missing data"
 description: "Check the site, connection, event meaning, filters, permissions, and report definitions before changing tracking."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_installation_verification from "../../../../assets/dashboard/getting-started/movcues-installation-verification.webp";
+
 Start with the simplest check that matches the symptom. Empty results can mean the wrong context or a valid zero, rather than a broken installation.
 
 | Symptom | What to check first |
@@ -20,6 +23,8 @@ Start with the simplest check that matches the symptom. Empty results can mean t
 ## Example: “we have page visits but no exports”
 
 A connected SDK can receive automatic visits without any `report_exported` custom event. Ask your developer to add that event at export success. It will not appear simply because a visitor clicked a button labeled Export.
+
+<DocScreenshot src={shot_installation_verification} alt="Movcues Installation settings showing Receiving data as Active and a Test SDK connection control." caption="An Active receiving-data status confirms that the selected site has sent data. Demo workspace; synthetic data only." />
 
 ## If the dashboard will not load
 

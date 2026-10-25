@@ -3,6 +3,9 @@ title: "Add and configure analytics cards"
 description: "Choose Metrics, Funnel, Retention, or Experiences cards and preview the question each one answers."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_analytics_card_configuration from "../../../../assets/dashboard/analytics/movcues-analytics-card-configuration.webp";
+
 Each card answers one question. Add cards while creating or editing a [dashboard](/docs/analytics/dashboards/). Use **Preview** to check the result before choosing **Save card**, then save the dashboard.
 
 ## Choose the analysis
@@ -25,6 +28,8 @@ Set a useful **Title** and **Width** for every card.
 5. Choose **Save card**, then **Save dashboard**.
 
 With several events, **Match** offers the modes supported by the selected metric: **Each** separates event series, **Any** accepts any selected event, and **All** requires the user/session to perform all selected events. For a trend, matching is evaluated inside each displayed time bucket. This does not impose event order; use a funnel for that.
+
+<DocScreenshot src={shot_analytics_card_configuration} alt="Movcues Add card panel counting unique users who performed signup_completed, with a single-value preview of 16." caption="Configure a metric from the event and aggregation you actually want to measure. Demo workspace; synthetic data only." />
 
 ## Other presentations
 

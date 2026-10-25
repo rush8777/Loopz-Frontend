@@ -3,6 +3,9 @@ title: "Control repeats, scheduling, and priority"
 description: "Choose how often an experience appears and understand the checks that can delay delivery."
 ---
 
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_experience_frequency from "../../../../assets/dashboard/targeting/movcues-experience-frequency.webp";
+
 Timing limits when eligible users can see an experience. Start with the least repetition that serves the task, such as showing first-run guidance only once.
 
 ## Choose repeat behavior
@@ -28,6 +31,8 @@ In the review, **Start time** and **End time** are optional. Outside that window
 Under **Advanced**, **Wait until it finishes** avoids interrupting an active experience. **Show this instead** permits supported higher-priority interruption. **Numeric priority** orders competing eligible experiences: higher numbers take precedence.
 
 The current runtime supports interruption of a lower-priority active guide; do not assume every widget type can be replaced midway. Keep the default waiting behavior unless you have tested the intended overlap. Checklists are handled separately as a persistent companion rather than ordinary transient widgets.
+
+<DocScreenshot src={shot_experience_frequency} alt="Movcues Launch settings with once-only display, start and end controls, and expanded priority settings." caption="Review repeat behavior, the active window, and priority together. Demo workspace; synthetic data only." />
 
 ## Verify
 
