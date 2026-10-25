@@ -1,0 +1,46 @@
+---
+title: "Save, review, and publish"
+description: "Review the actual launch conditions, publish a saved draft, and manage later revisions."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_publish_review from "../../../../assets/dashboard/builder/movcues-publish-review.webp";
+import shot_publish_success from "../../../../assets/dashboard/builder/movcues-publish-success.webp";
+
+Saving a draft preserves your work. Publishing makes a saved version available to eligible visitors. Use the review to check the intended audience and moment before launching.
+
+## Before publishing
+
+Use an Owner or Admin account. Wait for **Saved**, verify any anchored targets, and confirm your plan supports the selected settings. A publish error may concern permissions, capacity, targeting, or content rather than design.
+
+## Complete the launch review
+
+1. Choose **Review & publish** in the editor.
+2. On first launch, follow **Launch setup** using **Continue**:
+   - Choose **Who should see this experience?**
+   - Choose **Where should this experience appear?**
+   - For guides/widgets, choose **What should make this experience appear?**
+   - Choose frequency and the optional active window.
+   - Review the guide steps, survey questions, checklist tasks, or widget behavior.
+3. On **Review and publish**, read the **Launch summary** and each condition. Use its **Edit** action to correct it.
+4. Resolve every item in **Needs attention**. Review warnings too.
+5. If an automatic experience can appear to everyone across all pages, confirm **I intend to show this experience this broadly.** only when that is deliberate.
+6. Choose **Publish now** and wait for **Published**.
+
+Returning experiences open on the review summary. Checklists omit the trigger and repeat-frequency stages because they use persistent task state.
+
+<DocScreenshot src={shot_publish_review} alt="Movcues launch review summarizing a saved Segment, Projects page, manual-only trigger, once-only display, and two steps." caption="Review the complete delivery boundary before publishing. This demo guide uses manual-only launch. Demo workspace; synthetic data only." />
+
+## Verify the launch
+
+Use a normal product visit with a qualifying test user, outside the live editor. Check appearance and actions. Then review [experience performance](/docs/analytics/overview/). **Published** confirms the saved release, not that everyone will see it immediately.
+
+<DocScreenshot src={shot_publish_success} alt="Movcues Published confirmation for the demo guide with View results, Preview, and Done controls." caption="Publishing confirms availability; the configured audience, page, and trigger still govern delivery. Demo workspace; synthetic data only." />
+
+## Edit a live experience
+
+Open **Edit** and make changes. Autosave updates the draft; the current live version continues until you publish the revised draft. Reopen **Review & publish** and recheck targeting as well as visuals.
+
+Use **Pause** from the collection when you need delivery stopped. A later **Publish** makes the experience available again if the configuration remains valid; it is not a fresh-user reset for frequency or checklist progress.
+
+**Related:** [Delivery troubleshooting](/docs/help/experience-delivery/) · [Audience](/docs/targeting/audience/) · [Usage limits](/docs/workspace/billing/).

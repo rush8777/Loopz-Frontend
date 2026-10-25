@@ -1,0 +1,47 @@
+---
+title: Event reference
+description: Understand the supported event categories and use custom events as the stable application contract.
+---
+
+The runtime generates a mix of automatic behavior events and developer-defined custom events. Treat your custom events as the durable contract you own.
+
+## Automatic categories
+
+| Category | Produced when |
+| --- | --- |
+| `session_start` | A new browser session begins. |
+| `page_view` | The SDK initializes, a supported SPA route changes, or `page()` is called. |
+| `click` | An eligible interactive click is captured. |
+| `scroll` | An enabled scroll milestone is reached. |
+| `rage_click` | Repeated nearby clicks meet the rage-click configuration. |
+| `funnel` | A defined funnel advances or completes. |
+| `identify` | `identify()` runs. |
+
+## Custom events
+
+Calling `event(name, properties?)` produces the `custom` category with your event name and JSON-serializable property object.
+
+```js
+window.analytics.event("onboarding_completed", {
+  flow: "self_serve",
+  elapsed_seconds: 87,
+});
+```
+
+## Funnel events
+
+Funnel definitions advance automatically when matching page views or custom events occur. A page funnel uses exact paths or a trailing `/*` wildcard; an event funnel uses custom-event names.
+
+```js
+window.analytics.defineFunnel("trial_activation", [
+  { event: "workspace_created" },
+  { event: "teammate_invited" },
+  { event: "first_project_created" },
+]);
+```
+
+The public API does not expose a manual per-step function. Define the funnel once, then emit the application events that represent its steps.
+
+## Privacy reminder
+
+Event properties reach behavior analytics. Do not put free-form user input, credentials, payment data, or unnecessary personal data in them.

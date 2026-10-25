@@ -1,0 +1,49 @@
+---
+title: "Understand metrics and retention"
+description: "Read unique users, session duration, conversion rates, and retention with the right definitions."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_retention_card from "../../../../assets/dashboard/analytics/movcues-retention-card.webp";
+import shot_dashboard_results from "../../../../assets/dashboard/analytics/movcues-dashboard-results.webp";
+
+Choose a metric that matches your product question. Counting actions, people, and visits produces different answers even when you select the same event.
+
+## Product metrics
+
+| Metric | What it counts or calculates |
+| --- | --- |
+| Unique users | Distinct recorded identities with qualifying activity during the period. |
+| Conversion rate | People in the denominator who also perform the numerator event, divided by people with meaningful activity or the explicit denominator event. This is not an ordered funnel. |
+| Stickiness | Daily active users divided by active users in a trailing 30-day period. |
+| Session count | Distinct visits with qualifying activity. |
+| Session conversion rate | Sessions with the numerator event divided by meaningful sessions, or denominator-event sessions. |
+| Observed session duration | Average time between the first and last recorded events in qualifying sessions. It is not a measurement of continuous attention. |
+| Event occurrence count | Number of recorded custom-event occurrences. |
+| Occurrences per unique user / per session | Custom-event count divided by the people or sessions containing those events. |
+
+For example, five exports by one person can mean **5 occurrences**, **1 unique user**, and several or one session. Counts depend on what your app actually sends.
+
+<DocScreenshot src={shot_dashboard_results} alt="Movcues saved Demo activation overview dashboard with a signup count, onboarding funnel, and retention trend." caption="A saved custom dashboard combines three views of the synthetic product journey. Demo workspace; synthetic data only." />
+
+## Retention
+
+A retention card groups people by their first matching **Start event** in the selected period and checks for the **Return event** in later time buckets. You can choose a specific custom event or **Any meaningful event**.
+
+- **Cohorts → Start-event date** groups people by when they started.
+- **Current Segment comparisons** uses membership now, not membership at the time of the original event.
+- **Cohort grid** shows bucket-by-bucket results; **Retention trend** compares the return pattern.
+- Daily, weekly, or monthly granularity changes the bucket size. Analytics buckets use UTC. The starting bucket (D0/W0/M0) can include the initial action when it also matches the return-event choice.
+- Incomplete periods have not had enough observation time. Small cohorts can change sharply after a few visits.
+
+Example: start with `project_created` and return with `report_exported`. This measures observed later use, rather than assuming any subsequent page visit represents value.
+
+<DocScreenshot src={shot_retention_card} alt="Movcues retention card configuration using signup_completed as the start event and feature_explored as the return event." caption="Choose a start and return event to define retention. The preview uses synthetic activity. Demo workspace; synthetic data only." />
+
+## Identity and comparisons
+
+Anonymous browser identities and identified accounts are not interchangeable. Historical activity keeps the identity recorded with it; do not assume all pre-login activity is reassigned to an account. See [Users](/docs/people/users/).
+
+Use the same filters and time buckets when comparing periods. A dashboard comparison is evidence of a difference, not proof of its cause.
+
+**Related:** [Configure cards](/docs/analytics/cards/) · [Funnels](/docs/funnels/results/).

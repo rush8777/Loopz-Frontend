@@ -1,0 +1,40 @@
+---
+title: "Find an onboarding gap and guide users"
+description: "Connect events, an ordered funnel, a drop-off segment, and a targeted experience in one activation workflow."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_funnel_builder from "../../../../assets/dashboard/funnels/movcues-funnel-builder.webp";
+import shot_multistep_guide from "../../../../assets/dashboard/builder/movcues-multistep-guide.webp";
+
+Use this journey when people sign up but do not reach the first useful outcome. The goal is to understand a specific gap and test relevant help.
+
+## Example and prerequisites
+
+In this fictional product, the first useful outcome is creating a project. The app already sends `signup_completed` and `project_created`. You need Admin or Owner access, recorded data, and a connected product.
+
+## 1. Check the milestone
+
+Open [Events](/docs/observe/events/) and verify `project_created` records successful saves, not just clicks. Inspect a few occurrences and their user/session context.
+
+## 2. Measure the sequence
+
+[Create a funnel](/docs/funnels/create/) from `signup_completed` to `project_created`. Choose a realistic conversion window. Read the conversion and inspect a few users in the [step breakdown](/docs/funnels/results/). Recent starters may still be within their completion window.
+
+<DocScreenshot src={shot_funnel_builder} alt="Movcues funnel builder with Signed up, Created a project, and Finished onboarding steps and a 24-hour conversion window." caption="A three-step activation funnel built from recorded product events. Demo workspace; synthetic data only." />
+
+## 3. Save the relevant audience
+
+From the signup step’s **Create segment** menu, choose **Dropped after this step**. Name and inspect the resulting [funnel cohort](/docs/funnels/cohorts/). Check whether your analysis dates should roll forward or stay fixed.
+
+## 4. Build focused help
+
+Create an anchored card or short guide beside the project-creation control. Explain one concrete next action. Choose the saved cohort as **A saved Segment**, the correct Page, and a suitable [trigger](/docs/targeting/triggers/). Use conservative repetition.
+
+<DocScreenshot src={shot_multistep_guide} alt="Movcues How this step works panel with modal type and user-click, custom-event, and page-reached advancement options." caption="Choose the condition that advances a guide step. Demo workspace; synthetic data only." />
+
+## 5. Preview, publish, and review
+
+[Preview](/docs/experiences/preview/) with a qualifying test user, complete the [launch review](/docs/experiences/publishing/), then verify a normal delivery. Review experience engagement alongside the product funnel using the same definitions and dates.
+
+A higher completion rate after launch is a reason to investigate further, not proof the experience caused the change. Compare equivalent audiences and allow the conversion window to mature before deciding what to keep.

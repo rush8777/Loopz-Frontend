@@ -1,0 +1,53 @@
+---
+title: Next.js
+description: Run the browser SDK inside a client component and keep it out of the server render.
+---
+
+For an App Router application, add one client component near the root layout. The component owns initialization and cleanup; all tracking remains client-side.
+
+```tsx
+// app/components/movcues.tsx
+"use client";
+
+import { useEffect } from "react";
+import { createAnalytics } from "@movcues/sdk";
+
+export function Movcues() {
+  useEffect(() => {
+    const analytics = createAnalytics({
+      siteId: "YOUR_SITE_ID",
+      debug: false,
+    });
+
+    return () => analytics.destroy();
+  }, []);
+
+  return null;
+}
+```
+
+```tsx
+// app/layout.tsx
+import { Movcues } from "./components/movcues";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <Movcues />
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+## Navigation
+
+The shipped runtime observes `history.pushState`, `history.replaceState`, browser back/forward, and hash changes. A typical App Router transition therefore results in an automatic page view without a manual `usePathname()` handler.
+
+Use a manual `page()` call only when your application has a navigation pattern the browser observer cannot see, or when you deliberately want another page-view boundary.
+
+## Avoid server-only values
+
+The Site ID is intended for the public browser installation. Do not put server secrets, billing credentials, API keys, or user tokens in Movcues configuration.

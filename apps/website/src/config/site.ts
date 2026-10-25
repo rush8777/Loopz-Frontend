@@ -47,7 +47,7 @@ export const NAV_ITEMS = [
       { label: "Blog", description: "Practical notes for product teams", href: "/resources/blog" },
       { label: "Guides", description: "Long-form, focused learning", href: "/resources/guides" },
       { label: "Templates", description: "Starting points for better experiences", href: "/resources/templates" },
-      { label: "Documentation", description: "Technical setup and implementation", href: "/resources#documentation", external: true },
+      { label: "Documentation", description: "Technical setup and implementation", href: "/docs/" },
     ],
   },
 ] as const;

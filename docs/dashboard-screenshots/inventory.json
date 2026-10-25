@@ -1,0 +1,2854 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-10-22",
+  "baseCommit": "ef9808b568df2de652e3cfce9252512e56043d97",
+  "branch": "docs/dashboard-screenshots",
+  "documentationApp": "apps/website",
+  "documentationRoot": "apps/website/src/content/docs/docs",
+  "dashboardOrigin": "https://dash.movcues.com",
+  "preferredViewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "capturedScreenshotCount": 39,
+  "integratedArticleCount": 35,
+  "existingAssets": {
+    "dedicatedDocumentationScreenshots": [],
+    "excludedMarketingImages": [
+      "apps/website/public/images/analyze_landing.png",
+      "apps/website/public/images/livesdk_landing.png"
+    ],
+    "reason": "Marketing images are not verified current-dashboard captures and are not substitutes for authentic documentation screenshots."
+  },
+  "excludedFeatures": [
+    {
+      "feature": "Standalone workflow editor",
+      "reason": "No active route in reviewed frontend."
+    },
+    {
+      "feature": "Heatmaps",
+      "reason": "Disabled navigation / coming soon."
+    },
+    {
+      "feature": "Session replay",
+      "reason": "Route commented out; session timeline is supported."
+    },
+    {
+      "feature": "Pattern analysis and discovery",
+      "reason": "Routes commented out."
+    }
+  ],
+  "screenshots": [
+    {
+      "id": "dashboard-overview",
+      "filename": "movcues-dashboard-overview.webp",
+      "assetPath": "apps/website/src/assets/dashboard/getting-started/movcues-dashboard-overview.webp",
+      "articles": [
+        {
+          "path": "/docs/getting-started/welcome/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/welcome.mdx"
+        },
+        {
+          "path": "/docs/getting-started/first-results/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-results.mdx"
+        },
+        {
+          "path": "/docs/analytics/overview/",
+          "sourceFile": "apps/website/src/content/docs/docs/analytics/overview.mdx"
+        }
+      ],
+      "plannedFeature": "Experience overview with sidebar navigation",
+      "navigation": "/analytics",
+      "frontendSources": [
+        "apps/dashboard/src/pages/auth/OnboardingPage.tsx",
+        "apps/dashboard/src/pages/auth/SignupPage.tsx",
+        "apps/dashboard/src/pages/auth/LoginPage.tsx",
+        "apps/dashboard/src/components/Sidebar.tsx",
+        "apps/dashboard/src/auth/OnboardingGate.tsx",
+        "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx",
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/components/experiences/ExperienceAnalyticsView.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx"
+      ],
+      "status": "not-captured",
+      "missingReason": "Experience Overview was not captured; a custom dashboard is not an equivalent view.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "workspace-setup",
+      "filename": "movcues-workspace-setup.webp",
+      "assetPath": "apps/website/src/assets/dashboard/getting-started/movcues-workspace-setup.webp",
+      "articles": [
+        {
+          "path": "/docs/getting-started/welcome/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/welcome.mdx"
+        }
+      ],
+      "plannedFeature": "Workspace and site onboarding",
+      "navigation": "/onboarding",
+      "frontendSources": [
+        "apps/dashboard/src/pages/auth/OnboardingPage.tsx",
+        "apps/dashboard/src/pages/auth/SignupPage.tsx",
+        "apps/dashboard/src/pages/auth/LoginPage.tsx",
+        "apps/dashboard/src/components/Sidebar.tsx",
+        "apps/dashboard/src/auth/OnboardingGate.tsx"
+      ],
+      "status": "reused",
+      "missingReason": "Covered by the authentic workspace-settings capture; no duplicate asset.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      },
+      "reusedCaptureId": "workspace-settings"
+    },
+    {
+      "id": "installation-verification",
+      "filename": "movcues-installation-verification.webp",
+      "assetPath": "apps/website/src/assets/dashboard/getting-started/movcues-installation-verification.webp",
+      "articles": [
+        {
+          "path": "/docs/getting-started/connect/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/connect.mdx"
+        },
+        {
+          "path": "/docs/help/missing-data/",
+          "sourceFile": "apps/website/src/content/docs/docs/help/missing-data.mdx"
+        }
+      ],
+      "plannedFeature": "Connection verification without developer tools",
+      "navigation": "Settings \u2192 Installation",
+      "frontendSources": [
+        "apps/dashboard/src/components/settings/InstallationSettings.tsx",
+        "apps/dashboard/src/components/settings/SitesSettings.tsx",
+        "apps/dashboard/src/pages/observe/EventsPage.tsx",
+        "apps/dashboard/src/api/sites.ts",
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+        "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "installation-verification.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        860,
+        452
+      ],
+      "finalFileSizeBytes": 25438,
+      "alt": "Movcues Installation settings showing Receiving data as Active and a Test SDK connection control.",
+      "caption": "An Active receiving-data status confirms that the selected site has sent data. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        252,
+        158,
+        1112,
+        610
+      ]
+    },
+    {
+      "id": "experience-creation",
+      "filename": "movcues-experience-creation.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-experience-creation.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/overview/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/overview.mdx"
+        },
+        {
+          "path": "/docs/getting-started/first-experience/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-experience.mdx"
+        }
+      ],
+      "plannedFeature": "Create experience dialog with format choices",
+      "navigation": "/experiences/guides \u2192 Create",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/components/Sidebar.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/types/experiences.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "experience-creation.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        448,
+        517
+      ],
+      "finalFileSizeBytes": 16520,
+      "alt": "Movcues Create guide form with a demo name, manually entered build URL, and Start blank template.",
+      "caption": "Name the draft and choose the product page used to build it. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        458,
+        210,
+        906,
+        727
+      ]
+    },
+    {
+      "id": "dashboard-list",
+      "filename": "movcues-dashboard-list.webp",
+      "assetPath": "apps/website/src/assets/dashboard/dashboards/movcues-dashboard-list.webp",
+      "articles": [
+        {
+          "path": "/docs/analytics/dashboards/",
+          "sourceFile": "apps/website/src/content/docs/docs/analytics/dashboards.mdx"
+        }
+      ],
+      "plannedFeature": "Saved dashboards list",
+      "navigation": "/dashboard",
+      "frontendSources": [
+        "apps/dashboard/src/pages/dashboard/DashboardListPage.tsx",
+        "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx",
+        "apps/dashboard/src/components/dashboard/DashboardCardChrome.tsx",
+        "apps/dashboard/src/api/dashboards.ts"
+      ],
+      "status": "not-captured",
+      "missingReason": "No reviewed capture in this batch; existing article text is preserved.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "create-dashboard",
+      "filename": "movcues-create-dashboard.webp",
+      "assetPath": "apps/website/src/assets/dashboard/dashboards/movcues-create-dashboard.webp",
+      "articles": [
+        {
+          "path": "/docs/analytics/dashboards/",
+          "sourceFile": "apps/website/src/content/docs/docs/analytics/dashboards.mdx"
+        }
+      ],
+      "plannedFeature": "New dashboard name and card controls",
+      "navigation": "/dashboard/new",
+      "frontendSources": [
+        "apps/dashboard/src/pages/dashboard/DashboardListPage.tsx",
+        "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx",
+        "apps/dashboard/src/components/dashboard/DashboardCardChrome.tsx",
+        "apps/dashboard/src/api/dashboards.ts"
+      ],
+      "status": "reused",
+      "missingReason": "Covered by the authentic dashboard-editor capture; no duplicate asset.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      },
+      "reusedCaptureId": "dashboard-editor"
+    },
+    {
+      "id": "dashboard-editor",
+      "filename": "movcues-dashboard-editor.webp",
+      "assetPath": "apps/website/src/assets/dashboard/dashboards/movcues-dashboard-editor.webp",
+      "articles": [
+        {
+          "path": "/docs/analytics/dashboards/",
+          "sourceFile": "apps/website/src/content/docs/docs/analytics/dashboards.mdx"
+        }
+      ],
+      "plannedFeature": "Dashboard edit layout with saved cards",
+      "navigation": "/dashboard/:dashboardId/edit",
+      "frontendSources": [
+        "apps/dashboard/src/pages/dashboard/DashboardListPage.tsx",
+        "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx",
+        "apps/dashboard/src/components/dashboard/DashboardCardChrome.tsx",
+        "apps/dashboard/src/api/dashboards.ts",
+        "apps/dashboard/src/components/dashboard/CardEditorDialog.tsx",
+        "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
+        "apps/dashboard/src/api/analytics.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "dashboard-editor.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        755
+      ],
+      "finalFileSizeBytes": 32052,
+      "alt": "Movcues dashboard editor with signup, onboarding funnel, and retention cards and visible edit controls.",
+      "caption": "Arrange product metrics together in an editable custom dashboard. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        820
+      ]
+    },
+    {
+      "id": "analytics-card-configuration",
+      "filename": "movcues-analytics-card-configuration.webp",
+      "assetPath": "apps/website/src/assets/dashboard/analytics/movcues-analytics-card-configuration.webp",
+      "articles": [
+        {
+          "path": "/docs/analytics/cards/",
+          "sourceFile": "apps/website/src/content/docs/docs/analytics/cards.mdx"
+        }
+      ],
+      "plannedFeature": "Metrics card configuration with a real event selection",
+      "navigation": "Dashboard editor \u2192 Add card",
+      "frontendSources": [
+        "apps/dashboard/src/components/dashboard/CardEditorDialog.tsx",
+        "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
+        "apps/dashboard/src/api/analytics.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "analytics-card-configuration.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        920,
+        850
+      ],
+      "finalFileSizeBytes": 34242,
+      "alt": "Movcues Add card panel counting unique users who performed signup_completed, with a single-value preview of 16.",
+      "caption": "Configure a metric from the event and aggregation you actually want to measure. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        443,
+        0,
+        1363,
+        850
+      ]
+    },
+    {
+      "id": "retention-card",
+      "filename": "movcues-retention-card.webp",
+      "assetPath": "apps/website/src/assets/dashboard/analytics/movcues-retention-card.webp",
+      "articles": [
+        {
+          "path": "/docs/analytics/metrics/",
+          "sourceFile": "apps/website/src/content/docs/docs/analytics/metrics.mdx"
+        }
+      ],
+      "plannedFeature": "Retention card with start and return events",
+      "navigation": "Dashboard editor \u2192 Add card \u2192 Retention",
+      "frontendSources": [
+        "apps/dashboard/src/components/dashboard/CardEditorDialog.tsx",
+        "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
+        "apps/dashboard/src/lib/dateRange.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "retention-card.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        920,
+        640
+      ],
+      "finalFileSizeBytes": 29202,
+      "alt": "Movcues retention card configuration using signup_completed as the start event and feature_explored as the return event.",
+      "caption": "Choose a start and return event to define retention. The preview uses synthetic activity. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        443,
+        0,
+        1363,
+        640
+      ]
+    },
+    {
+      "id": "dashboard-filters",
+      "filename": "movcues-dashboard-filters.webp",
+      "assetPath": "apps/website/src/assets/dashboard/analytics/movcues-dashboard-filters.webp",
+      "articles": [
+        {
+          "path": "/docs/analytics/filters/",
+          "sourceFile": "apps/website/src/content/docs/docs/analytics/filters.mdx"
+        }
+      ],
+      "plannedFeature": "Date range and audience filter controls",
+      "navigation": "/dashboard/:dashboardId",
+      "frontendSources": [
+        "apps/dashboard/src/components/dashboard/DashboardFilterBar.tsx",
+        "apps/dashboard/src/components/filters/AnalyticsFilterBar.tsx",
+        "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "dashboard-filters.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        576,
+        508
+      ],
+      "finalFileSizeBytes": 19810,
+      "alt": "Movcues dashboard Filters dialog offering date range, granularity, audience, and excluded events.",
+      "caption": "Apply filters deliberately, then check which cards support each selection. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        394,
+        214,
+        970,
+        722
+      ]
+    },
+    {
+      "id": "dashboard-results",
+      "filename": "movcues-dashboard-results.webp",
+      "assetPath": "apps/website/src/assets/dashboard/analytics/movcues-dashboard-results.webp",
+      "articles": [
+        {
+          "path": "/docs/analytics/metrics/",
+          "sourceFile": "apps/website/src/content/docs/docs/analytics/metrics.mdx"
+        }
+      ],
+      "plannedFeature": "Saved cards with synthetic event data calculated by Movcues",
+      "navigation": "/dashboard/:dashboardId",
+      "frontendSources": [
+        "apps/dashboard/src/components/dashboard/CardEditorDialog.tsx",
+        "apps/dashboard/src/components/dashboard/DashboardCardView.tsx",
+        "apps/dashboard/src/lib/dateRange.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "dashboard-results.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        755
+      ],
+      "finalFileSizeBytes": 29368,
+      "alt": "Movcues saved Demo activation overview dashboard with a signup count, onboarding funnel, and retention trend.",
+      "caption": "A saved custom dashboard combines three views of the synthetic product journey. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        820
+      ]
+    },
+    {
+      "id": "segment-list",
+      "filename": "movcues-segment-list.webp",
+      "assetPath": "apps/website/src/assets/dashboard/segments/movcues-segment-list.webp",
+      "articles": [
+        {
+          "path": "/docs/segments/membership/",
+          "sourceFile": "apps/website/src/content/docs/docs/segments/membership.mdx"
+        }
+      ],
+      "plannedFeature": "Saved segment list",
+      "navigation": "/segments",
+      "frontendSources": [
+        "apps/dashboard/src/pages/segments/SegmentsPage.tsx",
+        "apps/dashboard/src/pages/segments/SegmentDetailPage.tsx",
+        "apps/dashboard/src/api/segments.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "segment-list.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        315
+      ],
+      "finalFileSizeBytes": 17422,
+      "alt": "Movcues Segments list showing the saved Signed up without a project audience with six users.",
+      "caption": "The saved audience appears in the Segments list with its current membership. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        380
+      ]
+    },
+    {
+      "id": "create-user-segment",
+      "filename": "movcues-create-user-segment.webp",
+      "assetPath": "apps/website/src/assets/dashboard/segments/movcues-create-user-segment.webp",
+      "articles": [
+        {
+          "path": "/docs/segments/create/",
+          "sourceFile": "apps/website/src/content/docs/docs/segments/create.mdx"
+        },
+        {
+          "path": "/docs/segments/conditions/",
+          "sourceFile": "apps/website/src/content/docs/docs/segments/conditions.mdx"
+        },
+        {
+          "path": "/docs/guides/feature-adoption/",
+          "sourceFile": "apps/website/src/content/docs/docs/guides/feature-adoption.mdx"
+        }
+      ],
+      "plannedFeature": "Segment builder with behavioral conditions",
+      "navigation": "/segments/new",
+      "frontendSources": [
+        "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+        "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+        "apps/dashboard/src/lib/segmentDefinition.ts",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/observe/EventDetailPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "create-user-segment.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1100,
+        750
+      ],
+      "finalFileSizeBytes": 23372,
+      "alt": "Movcues segment builder combining signup_completed within 14 days with project_created not performed using ALL rules.",
+      "caption": "Example audience: signed up recently, but have not created a project. The estimate reflects the moment of capture. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        160,
+        1325,
+        910
+      ]
+    },
+    {
+      "id": "segment-conditions",
+      "filename": "movcues-segment-conditions.webp",
+      "assetPath": "apps/website/src/assets/dashboard/segments/movcues-segment-conditions.webp",
+      "articles": [
+        {
+          "path": "/docs/segments/conditions/",
+          "sourceFile": "apps/website/src/content/docs/docs/segments/conditions.mdx"
+        }
+      ],
+      "plannedFeature": "ALL and ANY condition groups",
+      "navigation": "/segments/:segmentId/edit",
+      "frontendSources": [
+        "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+        "apps/dashboard/src/lib/segmentDefinition.ts",
+        "apps/dashboard/src/types/api.ts"
+      ],
+      "status": "reused",
+      "missingReason": "Covered by the authentic create-user-segment capture; no duplicate asset.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      },
+      "reusedCaptureId": "create-user-segment"
+    },
+    {
+      "id": "segment-membership",
+      "filename": "movcues-segment-membership.webp",
+      "assetPath": "apps/website/src/assets/dashboard/segments/movcues-segment-membership.webp",
+      "articles": [
+        {
+          "path": "/docs/segments/membership/",
+          "sourceFile": "apps/website/src/content/docs/docs/segments/membership.mdx"
+        }
+      ],
+      "plannedFeature": "Matching synthetic users in segment detail",
+      "navigation": "/segments/:segmentId",
+      "frontendSources": [
+        "apps/dashboard/src/pages/segments/SegmentsPage.tsx",
+        "apps/dashboard/src/pages/segments/SegmentDetailPage.tsx",
+        "apps/dashboard/src/api/segments.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "segment-membership.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        800
+      ],
+      "finalFileSizeBytes": 30576,
+      "alt": "Movcues segment details showing signup and project rules and six synthetic members.",
+      "caption": "Review the definition and matching users before using a Segment for targeting. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        865
+      ]
+    },
+    {
+      "id": "funnel-list",
+      "filename": "movcues-funnel-list.webp",
+      "assetPath": "apps/website/src/assets/dashboard/funnels/movcues-funnel-list.webp",
+      "articles": [
+        {
+          "path": "/docs/funnels/create/",
+          "sourceFile": "apps/website/src/content/docs/docs/funnels/create.mdx"
+        }
+      ],
+      "plannedFeature": "Saved ordered funnels list",
+      "navigation": "/observe/funnels",
+      "frontendSources": [
+        "apps/dashboard/src/pages/funnels/FunnelsPage.tsx",
+        "apps/dashboard/src/pages/funnels/FunnelBuilderPage.tsx",
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/api/funnels.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "funnel-list.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        270
+      ],
+      "finalFileSizeBytes": 16022,
+      "alt": "Movcues Funnels list showing Demo onboarding activation with three steps and 37.5 percent conversion.",
+      "caption": "The saved demo funnel is available from the Funnels list. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        335
+      ]
+    },
+    {
+      "id": "funnel-builder",
+      "filename": "movcues-funnel-builder.webp",
+      "assetPath": "apps/website/src/assets/dashboard/funnels/movcues-funnel-builder.webp",
+      "articles": [
+        {
+          "path": "/docs/funnels/create/",
+          "sourceFile": "apps/website/src/content/docs/docs/funnels/create.mdx"
+        },
+        {
+          "path": "/docs/guides/improve-activation/",
+          "sourceFile": "apps/website/src/content/docs/docs/guides/improve-activation.mdx"
+        }
+      ],
+      "plannedFeature": "Ordered event steps and conversion window",
+      "navigation": "/observe/funnels/new",
+      "frontendSources": [
+        "apps/dashboard/src/pages/funnels/FunnelsPage.tsx",
+        "apps/dashboard/src/pages/funnels/FunnelBuilderPage.tsx",
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/api/funnels.ts",
+        "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "funnel-builder.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1100,
+        855
+      ],
+      "finalFileSizeBytes": 26904,
+      "alt": "Movcues funnel builder with Signed up, Created a project, and Finished onboarding steps and a 24-hour conversion window.",
+      "caption": "A three-step activation funnel built from recorded product events. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1325,
+        920
+      ]
+    },
+    {
+      "id": "funnel-step-configuration",
+      "filename": "movcues-funnel-step-configuration.webp",
+      "assetPath": "apps/website/src/assets/dashboard/funnels/movcues-funnel-step-configuration.webp",
+      "articles": [
+        {
+          "path": "/docs/funnels/create/",
+          "sourceFile": "apps/website/src/content/docs/docs/funnels/create.mdx"
+        }
+      ],
+      "plannedFeature": "Funnel step event or page selector",
+      "navigation": "/observe/funnels/:funnelId/edit",
+      "frontendSources": [
+        "apps/dashboard/src/pages/funnels/FunnelsPage.tsx",
+        "apps/dashboard/src/pages/funnels/FunnelBuilderPage.tsx",
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/api/funnels.ts"
+      ],
+      "status": "reused",
+      "missingReason": "Covered by the authentic funnel-builder capture; no duplicate asset.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      },
+      "reusedCaptureId": "funnel-builder"
+    },
+    {
+      "id": "funnel-analysis",
+      "filename": "movcues-funnel-analysis.webp",
+      "assetPath": "apps/website/src/assets/dashboard/funnels/movcues-funnel-analysis.webp",
+      "articles": [
+        {
+          "path": "/docs/funnels/results/",
+          "sourceFile": "apps/website/src/content/docs/docs/funnels/results.mdx"
+        },
+        {
+          "path": "/docs/getting-started/first-results/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/first-results.mdx"
+        }
+      ],
+      "plannedFeature": "Computed funnel conversion and drop-off",
+      "navigation": "/observe/funnels/:funnelId",
+      "frontendSources": [
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/types/api.ts",
+        "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx",
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
+        "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "funnel-analysis.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1105,
+        815
+      ],
+      "finalFileSizeBytes": 39706,
+      "alt": "Movcues onboarding funnel report showing 16 starters, 10 project creators, and six completions.",
+      "caption": "Synthetic demo events produce 16 \u2192 10 \u2192 6 users and 37.5% completion; these are illustrative results, not a customer outcome. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        20,
+        1330,
+        835
+      ]
+    },
+    {
+      "id": "funnel-result-segment",
+      "filename": "movcues-funnel-result-segment.webp",
+      "assetPath": "apps/website/src/assets/dashboard/funnels/movcues-funnel-result-segment.webp",
+      "articles": [
+        {
+          "path": "/docs/funnels/cohorts/",
+          "sourceFile": "apps/website/src/content/docs/docs/funnels/cohorts.mdx"
+        }
+      ],
+      "plannedFeature": "Create segment from a real funnel result",
+      "navigation": "Funnel detail \u2192 Create segment",
+      "frontendSources": [
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+        "apps/dashboard/src/api/segments.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "funnel-result-segment.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        740
+      ],
+      "finalFileSizeBytes": 24704,
+      "alt": "Movcues funnel drop-off segment showing four synthetic users who dropped off after step two.",
+      "caption": "A saved drop-off audience retains the funnel step being investigated. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        805
+      ]
+    },
+    {
+      "id": "page-definitions",
+      "filename": "movcues-page-definitions.webp",
+      "assetPath": "apps/website/src/assets/dashboard/pages/movcues-page-definitions.webp",
+      "articles": [
+        {
+          "path": "/docs/observe/pages/",
+          "sourceFile": "apps/website/src/content/docs/docs/observe/pages.mdx"
+        }
+      ],
+      "plannedFeature": "Named page definitions list",
+      "navigation": "/observe/pages",
+      "frontendSources": [
+        "apps/dashboard/src/pages/observe/PagesPage.tsx",
+        "apps/dashboard/src/pages/observe/PageEditorPage.tsx",
+        "apps/dashboard/src/pages/observe/PageDetailPage.tsx",
+        "apps/dashboard/src/api/pages.ts"
+      ],
+      "status": "reused",
+      "missingReason": "Covered by the authentic create-page-definition capture; no duplicate asset.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      },
+      "reusedCaptureId": "create-page-definition"
+    },
+    {
+      "id": "create-page-definition",
+      "filename": "movcues-create-page-definition.webp",
+      "assetPath": "apps/website/src/assets/dashboard/pages/movcues-create-page-definition.webp",
+      "articles": [
+        {
+          "path": "/docs/observe/pages/",
+          "sourceFile": "apps/website/src/content/docs/docs/observe/pages.mdx"
+        }
+      ],
+      "plannedFeature": "Include and exclude URL matching rules",
+      "navigation": "/observe/pages/new",
+      "frontendSources": [
+        "apps/dashboard/src/pages/observe/PagesPage.tsx",
+        "apps/dashboard/src/pages/observe/PageEditorPage.tsx",
+        "apps/dashboard/src/pages/observe/PageDetailPage.tsx",
+        "apps/dashboard/src/api/pages.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "create-page-definition.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        855
+      ],
+      "finalFileSizeBytes": 35052,
+      "alt": "Movcues Create Page form naming Projects and matching URLs whose path starts with /projects.",
+      "caption": "Group project screens with a starts-with rule instead of defining every project URL separately. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        920
+      ]
+    },
+    {
+      "id": "events-list",
+      "filename": "movcues-events-list.webp",
+      "assetPath": "apps/website/src/assets/dashboard/events/movcues-events-list.webp",
+      "articles": [
+        {
+          "path": "/docs/observe/events/",
+          "sourceFile": "apps/website/src/content/docs/docs/observe/events.mdx"
+        }
+      ],
+      "plannedFeature": "Recorded custom events explorer",
+      "navigation": "/observe/events",
+      "frontendSources": [
+        "apps/dashboard/src/pages/observe/EventsPage.tsx",
+        "apps/dashboard/src/pages/observe/EventDetailPage.tsx",
+        "apps/dashboard/src/api/events.ts",
+        "apps/dashboard/src/components/settings/InstallationSettings.tsx",
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+        "apps/dashboard/src/pages/dashboard/DashboardWorkspacePage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "events-list.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        515
+      ],
+      "finalFileSizeBytes": 32398,
+      "alt": "Movcues Events list with dashboard_viewed, feature_explored, signup_completed, project_created, and onboarding_completed.",
+      "caption": "Real event names recorded for the synthetic documentation users. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        580
+      ]
+    },
+    {
+      "id": "event-properties",
+      "filename": "movcues-event-properties.webp",
+      "assetPath": "apps/website/src/assets/dashboard/events/movcues-event-properties.webp",
+      "articles": [
+        {
+          "path": "/docs/observe/events/",
+          "sourceFile": "apps/website/src/content/docs/docs/observe/events.mdx"
+        }
+      ],
+      "plannedFeature": "Custom event detail and properties",
+      "navigation": "/observe/events/:eventName",
+      "frontendSources": [
+        "apps/dashboard/src/pages/observe/EventsPage.tsx",
+        "apps/dashboard/src/pages/observe/EventDetailPage.tsx",
+        "apps/dashboard/src/api/events.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "event-properties.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        810
+      ],
+      "finalFileSizeBytes": 34338,
+      "alt": "Movcues project_created event detail with occurrences, user counts, and demo, project_name, and template properties.",
+      "caption": "Open a recorded event to inspect the properties available for analysis and targeting. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        875
+      ]
+    },
+    {
+      "id": "user-directory",
+      "filename": "movcues-user-directory.webp",
+      "assetPath": "apps/website/src/assets/dashboard/users/movcues-user-directory.webp",
+      "articles": [
+        {
+          "path": "/docs/people/users/",
+          "sourceFile": "apps/website/src/content/docs/docs/people/users.mdx"
+        }
+      ],
+      "plannedFeature": "Identified synthetic user directory",
+      "navigation": "/users",
+      "frontendSources": [
+        "apps/dashboard/src/pages/users/UsersPage.tsx",
+        "apps/dashboard/src/pages/users/UserProfilePage.tsx",
+        "apps/dashboard/src/pages/users/AnonymousVisitorPage.tsx",
+        "apps/dashboard/src/api/trackedUsers.ts",
+        "apps/dashboard/src/api/anonymousUsers.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "user-directory.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1110,
+        845
+      ],
+      "finalFileSizeBytes": 56260,
+      "alt": "Movcues identified user directory listing synthetic Demo users with example.test email addresses.",
+      "caption": "Identified profiles connect product activity to the identity your product supplies. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        910
+      ]
+    },
+    {
+      "id": "user-activity",
+      "filename": "movcues-user-activity.webp",
+      "assetPath": "apps/website/src/assets/dashboard/users/movcues-user-activity.webp",
+      "articles": [
+        {
+          "path": "/docs/people/users/",
+          "sourceFile": "apps/website/src/content/docs/docs/people/users.mdx"
+        }
+      ],
+      "plannedFeature": "Synthetic user profile and activity",
+      "navigation": "/users/:userId",
+      "frontendSources": [
+        "apps/dashboard/src/pages/users/UsersPage.tsx",
+        "apps/dashboard/src/pages/users/UserProfilePage.tsx",
+        "apps/dashboard/src/pages/users/AnonymousVisitorPage.tsx",
+        "apps/dashboard/src/api/trackedUsers.ts",
+        "apps/dashboard/src/api/anonymousUsers.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "user-activity.jpg",
+      "originalDimensions": [
+        1353,
+        929
+      ],
+      "optimizedDimensions": [
+        1110,
+        845
+      ],
+      "finalFileSizeBytes": 40914,
+      "alt": "Movcues Demo user 06 Activity tab listing recorded product events in time order.",
+      "caption": "A profile\u2019s Activity tab helps you inspect what one person did. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        910
+      ]
+    },
+    {
+      "id": "anonymous-visitors",
+      "filename": "movcues-anonymous-visitors.webp",
+      "assetPath": "apps/website/src/assets/dashboard/users/movcues-anonymous-visitors.webp",
+      "articles": [
+        {
+          "path": "/docs/people/users/",
+          "sourceFile": "apps/website/src/content/docs/docs/people/users.mdx"
+        }
+      ],
+      "plannedFeature": "Anonymous visitor activity",
+      "navigation": "/users/anonymous/:anonymousId",
+      "frontendSources": [
+        "apps/dashboard/src/pages/users/UsersPage.tsx",
+        "apps/dashboard/src/pages/users/UserProfilePage.tsx",
+        "apps/dashboard/src/pages/users/AnonymousVisitorPage.tsx",
+        "apps/dashboard/src/api/trackedUsers.ts",
+        "apps/dashboard/src/api/anonymousUsers.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "anonymous-visitors.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1110,
+        735
+      ],
+      "finalFileSizeBytes": 24916,
+      "alt": "Movcues anonymous visitor profile for docs-demo-anonymous-04 with visit and browser information.",
+      "caption": "Anonymous activity remains available before your product identifies a visitor. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        225,
+        65,
+        1335,
+        800
+      ]
+    },
+    {
+      "id": "session-timeline",
+      "filename": "movcues-session-timeline.webp",
+      "assetPath": "apps/website/src/assets/dashboard/users/movcues-session-timeline.webp",
+      "articles": [
+        {
+          "path": "/docs/observe/sessions/",
+          "sourceFile": "apps/website/src/content/docs/docs/observe/sessions.mdx"
+        }
+      ],
+      "plannedFeature": "Recorded session events timeline",
+      "navigation": "/observe/sessions/:sessionId",
+      "frontendSources": [
+        "apps/dashboard/src/pages/observe/SessionsPage.tsx",
+        "apps/dashboard/src/pages/observe/SessionDetailPage.tsx",
+        "apps/dashboard/src/pages/observe/session-detail/sessionTimeline.ts",
+        "apps/dashboard/src/api/sessions.ts"
+      ],
+      "status": "not-captured",
+      "missingReason": "No verified session timeline capture in this batch.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "experience-list",
+      "filename": "movcues-experience-list.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-experience-list.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/overview/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/overview.mdx"
+        }
+      ],
+      "plannedFeature": "Draft guide list and status controls",
+      "navigation": "/experiences/guides",
+      "frontendSources": [
+        "apps/dashboard/src/components/Sidebar.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx",
+        "apps/dashboard/src/types/experiences.ts"
+      ],
+      "status": "not-captured",
+      "missingReason": "No reviewed capture in this batch; existing article text is preserved.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "experience-builder",
+      "filename": "movcues-experience-builder.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-experience-builder.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/editor/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/editor.mdx"
+        }
+      ],
+      "plannedFeature": "Visual editor canvas, block palette, and properties",
+      "navigation": "/experiences/:experienceId/edit",
+      "frontendSources": [
+        "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx",
+        "apps/dashboard/src/components/experiences/GrapesWidgetInspector.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetBuilder.ts",
+        "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "experience-builder.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        1293,
+        490
+      ],
+      "finalFileSizeBytes": 58482,
+      "alt": "Movcues guide editor with the Blocks palette, a centered modal message, and two guide steps.",
+      "caption": "The real editor keeps content blocks and the guide sequence next to the canvas. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        70,
+        0,
+        1363,
+        490
+      ]
+    },
+    {
+      "id": "builder-block-properties",
+      "filename": "movcues-builder-block-properties.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-builder-block-properties.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/editor/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/editor.mdx"
+        }
+      ],
+      "plannedFeature": "Selected block and layout or typography properties",
+      "navigation": "Experience editor \u2192 Properties",
+      "frontendSources": [
+        "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx",
+        "apps/dashboard/src/components/experiences/GrapesWidgetInspector.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetBuilder.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "builder-block-properties.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        260,
+        426
+      ],
+      "finalFileSizeBytes": 8294,
+      "alt": "Movcues Typography inspector with font, weight, size, line height, text color, and alignment controls.",
+      "caption": "Select a block to edit its typography and appearance in Properties. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        88,
+        325,
+        348,
+        751
+      ]
+    },
+    {
+      "id": "builder-button-action",
+      "filename": "movcues-builder-button-action.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-builder-button-action.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/editor/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/editor.mdx"
+        }
+      ],
+      "plannedFeature": "Button interaction and Open URL action",
+      "navigation": "Experience editor \u2192 Properties \u2192 Interaction",
+      "frontendSources": [
+        "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx",
+        "apps/dashboard/src/components/experiences/GrapesWidgetInspector.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetBuilder.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "builder-button-action.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        260,
+        130
+      ],
+      "finalFileSizeBytes": 2806,
+      "alt": "Movcues button Properties inspector with Interaction set to Next step.",
+      "caption": "A guide button needs a Next step action to advance the sequence. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        88,
+        723,
+        348,
+        853
+      ]
+    },
+    {
+      "id": "multistep-guide",
+      "filename": "movcues-multistep-guide.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-multistep-guide.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/guides/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/guides.mdx"
+        },
+        {
+          "path": "/docs/guides/improve-activation/",
+          "sourceFile": "apps/website/src/content/docs/docs/guides/improve-activation.mdx"
+        }
+      ],
+      "plannedFeature": "Guide steps and advancement settings",
+      "navigation": "Guide editor \u2192 Steps",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/types/experiences.ts",
+        "apps/dashboard/src/pages/funnels/FunnelDetailPage.tsx",
+        "apps/dashboard/src/pages/segments/SegmentBuilderPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/pages/analytics/ExperienceAnalyticsPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "multistep-guide.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        403,
+        370
+      ],
+      "finalFileSizeBytes": 11668,
+      "alt": "Movcues How this step works panel with modal type and user-click, custom-event, and page-reached advancement options.",
+      "caption": "Choose the condition that advances a guide step. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        950,
+        65,
+        1353,
+        435
+      ]
+    },
+    {
+      "id": "anchored-card",
+      "filename": "movcues-anchored-card.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-anchored-card.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/widgets/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx"
+        }
+      ],
+      "plannedFeature": "Anchored card target and placement controls",
+      "navigation": "Anchored card editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetSizing.ts"
+      ],
+      "status": "rejected",
+      "missingReason": "Rejected: the Blocks panel obscures part of the widget.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": "anchored-card.jpg",
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "toast",
+      "filename": "movcues-toast.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-toast.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/widgets/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx"
+        }
+      ],
+      "plannedFeature": "Toast content and placement",
+      "navigation": "Toast editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetSizing.ts"
+      ],
+      "status": "rejected",
+      "missingReason": "Rejected: the Blocks panel obscures part of the widget.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": "toast.jpg",
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "modal",
+      "filename": "movcues-modal.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-modal.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/widgets/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx"
+        }
+      ],
+      "plannedFeature": "Modal experience content",
+      "navigation": "Modal editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetSizing.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "modal.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        630,
+        335
+      ],
+      "finalFileSizeBytes": 16316,
+      "alt": "Movcues modal editor with A clearer view of your work message and a Got it button.",
+      "caption": "A modal gives one focused announcement a distinct reading space. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        490,
+        150,
+        1120,
+        485
+      ]
+    },
+    {
+      "id": "banner",
+      "filename": "movcues-banner.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-banner.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/widgets/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx"
+        }
+      ],
+      "plannedFeature": "Full-width banner experience",
+      "navigation": "Banner editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetSizing.ts",
+        "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+        "apps/dashboard/src/pages/observe/EventDetailPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "banner.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        973,
+        150
+      ],
+      "finalFileSizeBytes": 13398,
+      "alt": "Movcues banner editor in Tablet preview with Reports are easier to find text and a Got it button.",
+      "caption": "A banner places a short product announcement across the available width. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        390,
+        180,
+        1363,
+        330
+      ]
+    },
+    {
+      "id": "slideout",
+      "filename": "movcues-slideout.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-slideout.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/widgets/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx"
+        }
+      ],
+      "plannedFeature": "Slideout content and position",
+      "navigation": "Slideout editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetSizing.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "slideout.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        450,
+        510
+      ],
+      "finalFileSizeBytes": 16614,
+      "alt": "Movcues slideout editor with Your reports, in one place message and a Got it button.",
+      "caption": "A slideout supports a longer introduction while preserving space around the message. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        680,
+        225,
+        1130,
+        735
+      ]
+    },
+    {
+      "id": "hotspot",
+      "filename": "movcues-hotspot.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-hotspot.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/widgets/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx"
+        }
+      ],
+      "plannedFeature": "Hotspot target and appearance",
+      "navigation": "Hotspot editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetSizing.ts"
+      ],
+      "status": "not-captured",
+      "missingReason": "No reviewed capture in this batch; existing article text is preserved.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "cursor-follower",
+      "filename": "movcues-cursor-follower.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-cursor-follower.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/widgets/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/widgets.mdx"
+        }
+      ],
+      "plannedFeature": "Cursor follower widget configuration",
+      "navigation": "Cursor follower editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetSizing.ts"
+      ],
+      "status": "not-captured",
+      "missingReason": "No reviewed capture in this batch; existing article text is preserved.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "survey-builder",
+      "filename": "movcues-survey-builder.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-survey-builder.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/surveys/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/surveys.mdx"
+        },
+        {
+          "path": "/docs/guides/collect-feedback/",
+          "sourceFile": "apps/website/src/content/docs/docs/guides/collect-feedback.mdx"
+        }
+      ],
+      "plannedFeature": "Survey question and navigation controls",
+      "navigation": "Survey editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/surveyQuestions.ts",
+        "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx",
+        "apps/dashboard/src/pages/experiences/CreateExperienceModal.tsx",
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "survey-builder.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        340,
+        438
+      ],
+      "finalFileSizeBytes": 15116,
+      "alt": "Movcues Questions inspector editing a required one-to-five rating about creating a first project, plus an optional long-text question.",
+      "caption": "Use the Questions inspector to set wording, scale, and required answers. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        1008,
+        117,
+        1348,
+        555
+      ]
+    },
+    {
+      "id": "survey-results",
+      "filename": "movcues-survey-results.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-survey-results.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/survey-results/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/survey-results.mdx"
+        },
+        {
+          "path": "/docs/guides/collect-feedback/",
+          "sourceFile": "apps/website/src/content/docs/docs/guides/collect-feedback.mdx"
+        }
+      ],
+      "plannedFeature": "Computed synthetic survey response summary",
+      "navigation": "/experiences/:experienceId/results",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
+        "apps/dashboard/src/api/experiences.ts",
+        "apps/dashboard/src/types/experiences.ts",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx"
+      ],
+      "status": "not-captured",
+      "missingReason": "No completed survey response capture in this batch; no invented results.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "survey-responses",
+      "filename": "movcues-survey-responses.webp",
+      "assetPath": "apps/website/src/assets/dashboard/experiences/movcues-survey-responses.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/survey-results/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/survey-results.mdx"
+        }
+      ],
+      "plannedFeature": "Synthetic respondent answers",
+      "navigation": "/experiences/:experienceId/results/responses",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx",
+        "apps/dashboard/src/api/experiences.ts",
+        "apps/dashboard/src/types/experiences.ts"
+      ],
+      "status": "not-captured",
+      "missingReason": "No completed individual survey response capture in this batch.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "onboarding-checklist",
+      "filename": "movcues-onboarding-checklist.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-onboarding-checklist.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/checklists/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/checklists.mdx"
+        }
+      ],
+      "plannedFeature": "Checklist tasks, actions, and completion rules",
+      "navigation": "Checklist editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ChecklistEditor.tsx",
+        "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx",
+        "apps/dashboard/src/components/experiences/checklistBuilder.ts",
+        "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "onboarding-checklist.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        722,
+        600
+      ],
+      "finalFileSizeBytes": 41938,
+      "alt": "Movcues checklist editor showing Create your first project, Launch Guide, and Guide is completed task settings.",
+      "caption": "The task action opens the demo guide; the completion condition checks that the guide was completed. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        88,
+        115,
+        810,
+        715
+      ]
+    },
+    {
+      "id": "responsive-preview",
+      "filename": "movcues-responsive-preview.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-responsive-preview.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/editor/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/editor.mdx"
+        }
+      ],
+      "plannedFeature": "Editor preview with responsive viewport controls",
+      "navigation": "Experience editor \u2192 Desktop / Tablet / Mobile",
+      "frontendSources": [
+        "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx",
+        "apps/dashboard/src/components/experiences/GrapesWidgetInspector.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/widgetBuilder.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "responsive-preview.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        703,
+        535
+      ],
+      "finalFileSizeBytes": 36616,
+      "alt": "Movcues editor with Mobile preview selected and the guide message laid out at a narrow width.",
+      "caption": "Check narrow layouts in the editor as well as testing delivery in the product. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        650,
+        0,
+        1353,
+        535
+      ]
+    },
+    {
+      "id": "live-editor-target-selection",
+      "filename": "movcues-live-editor-target-selection.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-live-editor-target-selection.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/preview/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/preview.mdx"
+        }
+      ],
+      "plannedFeature": "Live editor target and placement in an owned demo product",
+      "navigation": "Experience editor \u2192 Live editor",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/pages/experiences/liveEditorPopup.ts",
+        "apps/dashboard/src/components/experiences/GrapesWidgetBuilder.tsx"
+      ],
+      "status": "not-captured",
+      "missingReason": "No verified live target-selection capture in this batch.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "publish-review",
+      "filename": "movcues-publish-review.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-publish-review.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/publishing/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/publishing.mdx"
+        },
+        {
+          "path": "/docs/help/experience-delivery/",
+          "sourceFile": "apps/website/src/content/docs/docs/help/experience-delivery.mdx"
+        }
+      ],
+      "plannedFeature": "Saved draft review before publication",
+      "navigation": "Experience editor \u2192 Review and publish",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/components/experiences/publish/launchReadiness.ts",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx",
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "publish-review.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        672,
+        720
+      ],
+      "finalFileSizeBytes": 33990,
+      "alt": "Movcues launch review summarizing a saved Segment, Projects page, manual-only trigger, once-only display, and two steps.",
+      "caption": "Review the complete delivery boundary before publishing. This demo guide uses manual-only launch. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        346,
+        108,
+        1018,
+        828
+      ]
+    },
+    {
+      "id": "audience-targeting",
+      "filename": "movcues-audience-targeting.webp",
+      "assetPath": "apps/website/src/assets/dashboard/targeting/movcues-audience-targeting.webp",
+      "articles": [
+        {
+          "path": "/docs/targeting/audience/",
+          "sourceFile": "apps/website/src/content/docs/docs/targeting/audience.mdx"
+        }
+      ],
+      "plannedFeature": "Audience and page selection",
+      "navigation": "Experience editor \u2192 Targeting",
+      "frontendSources": [
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx",
+        "apps/dashboard/src/pages/segments/ConditionGroupEditor.tsx",
+        "apps/dashboard/src/pages/observe/EventDetailPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "audience-targeting.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        403,
+        615
+      ],
+      "finalFileSizeBytes": 23116,
+      "alt": "Movcues Launch settings showing the Signed up without a project Segment, Projects page, allowed origin, and once-only display.",
+      "caption": "The Segment selects people; the Projects page and allowed origin constrain where delivery can occur. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        950,
+        65,
+        1353,
+        680
+      ]
+    },
+    {
+      "id": "configure-event-trigger",
+      "filename": "movcues-configure-event-trigger.webp",
+      "assetPath": "apps/website/src/assets/dashboard/targeting/movcues-configure-event-trigger.webp",
+      "articles": [
+        {
+          "path": "/docs/targeting/triggers/",
+          "sourceFile": "apps/website/src/content/docs/docs/targeting/triggers.mdx"
+        },
+        {
+          "path": "/docs/guides/collect-feedback/",
+          "sourceFile": "apps/website/src/content/docs/docs/guides/collect-feedback.mdx"
+        }
+      ],
+      "plannedFeature": "Launch trigger for a recorded product event",
+      "navigation": "Experience editor \u2192 Triggers",
+      "frontendSources": [
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/App.tsx",
+        "apps/dashboard/src/api/experiences.ts",
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "configure-event-trigger.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        672,
+        720
+      ],
+      "finalFileSizeBytes": 27106,
+      "alt": "Movcues launch setup with When something happens selected and dashboard_viewed chosen as the event.",
+      "caption": "An event trigger waits for the selected recorded event. This screenshot shows the setup control, not the final launch choice for the demo guide. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        346,
+        108,
+        1018,
+        828
+      ]
+    },
+    {
+      "id": "experience-frequency",
+      "filename": "movcues-experience-frequency.webp",
+      "assetPath": "apps/website/src/assets/dashboard/targeting/movcues-experience-frequency.webp",
+      "articles": [
+        {
+          "path": "/docs/targeting/timing/",
+          "sourceFile": "apps/website/src/content/docs/docs/targeting/timing.mdx"
+        }
+      ],
+      "plannedFeature": "Repeat, schedule, and priority controls",
+      "navigation": "Experience editor \u2192 Timing",
+      "frontendSources": [
+        "apps/dashboard/src/components/experiences/AdvancedFrequencyControls.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "experience-frequency.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        403,
+        670
+      ],
+      "finalFileSizeBytes": 23494,
+      "alt": "Movcues Launch settings with once-only display, start and end controls, and expanded priority settings.",
+      "caption": "Review repeat behavior, the active window, and priority together. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        950,
+        65,
+        1353,
+        735
+      ]
+    },
+    {
+      "id": "workspace-settings",
+      "filename": "movcues-workspace-settings.webp",
+      "assetPath": "apps/website/src/assets/dashboard/settings/movcues-workspace-settings.webp",
+      "articles": [
+        {
+          "path": "/docs/workspace/sites/",
+          "sourceFile": "apps/website/src/content/docs/docs/workspace/sites.mdx"
+        },
+        {
+          "path": "/docs/getting-started/welcome/",
+          "sourceFile": "apps/website/src/content/docs/docs/getting-started/welcome.mdx"
+        }
+      ],
+      "plannedFeature": "Workspace configuration",
+      "navigation": "Settings \u2192 Workspace",
+      "frontendSources": [
+        "apps/dashboard/src/components/settings/WorkspaceSettings.tsx",
+        "apps/dashboard/src/components/settings/SitesSettings.tsx",
+        "apps/dashboard/src/components/settings/AccountSettings.tsx",
+        "apps/dashboard/src/components/settings/DataPrivacySettings.tsx",
+        "apps/dashboard/src/components/settings/DeveloperSettings.tsx",
+        "apps/dashboard/src/auth/WorkspaceContext.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "workspace-settings.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        860,
+        387
+      ],
+      "finalFileSizeBytes": 17534,
+      "alt": "Movcues Workspace settings showing the Demo workspace and Owner role.",
+      "caption": "Workspace settings identify the active workspace and your role. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        252,
+        158,
+        1112,
+        545
+      ]
+    },
+    {
+      "id": "project-sites",
+      "filename": "movcues-project-sites.webp",
+      "assetPath": "apps/website/src/assets/dashboard/settings/movcues-project-sites.webp",
+      "articles": [
+        {
+          "path": "/docs/workspace/sites/",
+          "sourceFile": "apps/website/src/content/docs/docs/workspace/sites.mdx"
+        }
+      ],
+      "plannedFeature": "Site selection and synthetic project settings",
+      "navigation": "Settings \u2192 Sites",
+      "frontendSources": [
+        "apps/dashboard/src/components/settings/WorkspaceSettings.tsx",
+        "apps/dashboard/src/components/settings/SitesSettings.tsx",
+        "apps/dashboard/src/components/settings/AccountSettings.tsx",
+        "apps/dashboard/src/components/settings/DataPrivacySettings.tsx",
+        "apps/dashboard/src/components/settings/DeveloperSettings.tsx",
+        "apps/dashboard/src/auth/WorkspaceContext.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "project-sites.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        860,
+        620
+      ],
+      "finalFileSizeBytes": 28898,
+      "alt": "Movcues Sites settings with Demo Site, its domain, and public site ID.",
+      "caption": "Check the selected site and product domain before installing or publishing. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        252,
+        158,
+        1112,
+        778
+      ]
+    },
+    {
+      "id": "team-roles",
+      "filename": "movcues-team-roles.webp",
+      "assetPath": "apps/website/src/assets/dashboard/settings/movcues-team-roles.webp",
+      "articles": [
+        {
+          "path": "/docs/workspace/team/",
+          "sourceFile": "apps/website/src/content/docs/docs/workspace/team.mdx"
+        }
+      ],
+      "plannedFeature": "Team roles without exposing invitation tokens or real addresses",
+      "navigation": "Settings \u2192 Team",
+      "frontendSources": [
+        "apps/dashboard/src/components/settings/TeamSettings.tsx",
+        "apps/dashboard/src/pages/auth/InvitationPage.tsx",
+        "apps/dashboard/src/api/team.ts",
+        "apps/dashboard/src/types/api.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "team-roles.jpg",
+      "originalDimensions": [
+        448,
+        327
+      ],
+      "optimizedDimensions": [
+        448,
+        327
+      ],
+      "finalFileSizeBytes": 6996,
+      "alt": "Movcues Invite member form with an empty email field and the Member role selected.",
+      "caption": "Choose the intended role before creating an invitation. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": null
+    },
+    {
+      "id": "plan-and-usage",
+      "filename": "movcues-plan-and-usage.webp",
+      "assetPath": "apps/website/src/assets/dashboard/settings/movcues-plan-and-usage.webp",
+      "articles": [
+        {
+          "path": "/docs/workspace/billing/",
+          "sourceFile": "apps/website/src/content/docs/docs/workspace/billing.mdx"
+        }
+      ],
+      "plannedFeature": "Demo workspace plan capacity and usage",
+      "navigation": "Settings \u2192 Plan & Usage",
+      "frontendSources": [
+        "apps/dashboard/src/components/settings/PlanUsageSettings.tsx",
+        "apps/dashboard/src/pages/billing/BillingPage.tsx",
+        "apps/dashboard/src/components/billing/UpgradeNowModal.tsx",
+        "apps/dashboard/src/api/billing.ts",
+        "apps/dashboard/src/lib/paddleCheckout.ts"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "plan-and-usage.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        860,
+        620
+      ],
+      "finalFileSizeBytes": 23798,
+      "alt": "Movcues Plan and Usage settings showing a Growth trial, plan controls, and MAU usage.",
+      "caption": "The demo account\u2019s plan and usage controls; this trial is not a pricing quotation. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        252,
+        158,
+        1112,
+        778
+      ]
+    },
+    {
+      "id": "subscription-management",
+      "filename": "movcues-subscription-management.webp",
+      "assetPath": "apps/website/src/assets/dashboard/settings/movcues-subscription-management.webp",
+      "articles": [
+        {
+          "path": "/docs/workspace/billing/",
+          "sourceFile": "apps/website/src/content/docs/docs/workspace/billing.mdx"
+        }
+      ],
+      "plannedFeature": "Demo plan selection without payment details",
+      "navigation": "/billing",
+      "frontendSources": [
+        "apps/dashboard/src/components/settings/PlanUsageSettings.tsx",
+        "apps/dashboard/src/pages/billing/BillingPage.tsx",
+        "apps/dashboard/src/components/billing/UpgradeNowModal.tsx",
+        "apps/dashboard/src/api/billing.ts",
+        "apps/dashboard/src/lib/paddleCheckout.ts"
+      ],
+      "status": "reused",
+      "missingReason": "Covered by the authentic plan-and-usage capture; no duplicate asset.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      },
+      "reusedCaptureId": "plan-and-usage"
+    },
+    {
+      "id": "website-theme",
+      "filename": "movcues-website-theme.webp",
+      "assetPath": "apps/website/src/assets/dashboard/settings/movcues-website-theme.webp",
+      "articles": [
+        {
+          "path": "/docs/workspace/themes/",
+          "sourceFile": "apps/website/src/content/docs/docs/workspace/themes.mdx"
+        }
+      ],
+      "plannedFeature": "Website theme import and approval if present in deployed UI",
+      "navigation": "Settings \u2192 Website themes (verify availability)",
+      "frontendSources": [
+        "apps/dashboard/src/components/settings/ThemesSettings.tsx",
+        "apps/dashboard/src/api/themes.ts",
+        "apps/dashboard/src/types/themes.ts"
+      ],
+      "status": "not-captured",
+      "missingReason": "Website theme controls are not available in the deployed demo dashboard.",
+      "captureSource": null,
+      "capturedAt": null,
+      "originalFile": null,
+      "originalDimensions": null,
+      "optimizedDimensions": null,
+      "finalFileSizeBytes": null,
+      "alt": null,
+      "caption": null,
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": false,
+        "syntheticDataOnly": false,
+        "sensitiveDataReview": false,
+        "readabilityReview": false,
+        "lightAndDarkThemeReview": false,
+        "integrated": false
+      }
+    },
+    {
+      "id": "publish-success",
+      "filename": "movcues-publish-success.webp",
+      "assetPath": "apps/website/src/assets/dashboard/builder/movcues-publish-success.webp",
+      "articles": [
+        {
+          "path": "/docs/experiences/publishing/",
+          "sourceFile": "apps/website/src/content/docs/docs/experiences/publishing.mdx"
+        }
+      ],
+      "plannedFeature": "Publication confirmation",
+      "navigation": "Experience editor \u2192 Review and publish",
+      "frontendSources": [
+        "apps/dashboard/src/pages/experiences/ExperienceEditorPage.tsx",
+        "apps/dashboard/src/components/experiences/publish/ReviewPublishDialog.tsx",
+        "apps/dashboard/src/components/experiences/publish/launchReadiness.ts",
+        "apps/dashboard/src/pages/experiences/ExperienceListPage.tsx",
+        "apps/dashboard/src/components/experiences/ChecklistEditorPanels.tsx",
+        "apps/dashboard/src/pages/experiences/SurveyResultsPage.tsx"
+      ],
+      "status": "integrated",
+      "missingReason": null,
+      "captureSource": "cloud-browser",
+      "capturedAt": "2026-10-21",
+      "originalFile": "publish-success.jpg",
+      "originalDimensions": [
+        1363,
+        936
+      ],
+      "optimizedDimensions": [
+        448,
+        322
+      ],
+      "finalFileSizeBytes": 10592,
+      "alt": "Movcues Published confirmation for the demo guide with View results, Preview, and Done controls.",
+      "caption": "Publishing confirms availability; the configured audience, page, and trigger still govern delivery. Demo workspace; synthetic data only.",
+      "format": "webp",
+      "responsiveVariants": [],
+      "verification": {
+        "authenticCloudCapture": true,
+        "syntheticDataOnly": true,
+        "sensitiveDataReview": true,
+        "readabilityReview": true,
+        "lightAndDarkThemeReview": false,
+        "integrated": true
+      },
+      "crop": [
+        458,
+        307,
+        906,
+        629
+      ]
+    }
+  ],
+  "articlesWithoutDedicatedScreenshot": [
+    {
+      "path": "/docs/analytics/overview/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    },
+    {
+      "path": "/docs/observe/sessions/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    },
+    {
+      "path": "/docs/experiences/preview/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    },
+    {
+      "path": "/docs/experiences/survey-results/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    },
+    {
+      "path": "/docs/workspace/themes/",
+      "reason": "No relevant reviewed capture available; original article preserved."
+    }
+  ],
+  "plannedScreenshotCount": 56,
+  "captureNotes": "Authentic cloud-browser JPEG captures, reviewed and cropped only. CapturedAt records the session date; exact per-frame timestamps are not retained. Astro generates responsive WebP variants from the committed masters.",
+  "renderedFigureCount": 50,
+  "qa": {
+    "build": "passed: 86 pages, 59 docs, 4806 links/anchors",
+    "astroCheck": "passed: 68 files; 0 errors, warnings or hints",
+    "htmlImageChecks": "passed for all integrated figures",
+    "originalArticleProse": "preserved",
+    "sdkArticles": "unchanged",
+    "optimizedImageReadability": "reviewed at native size and in contact sheets",
+    "responsiveThemeVisualReview": "not performed in a browser; lightAndDarkThemeReview remains false",
+    "coreWebVitals": "not measured"
+  }
+}

@@ -1,0 +1,104 @@
+---
+title: Installation
+description: Install the Movcues browser SDK with a CDN script or ES module, then verify your setup and first event.
+---
+
+Install Movcues with a script tag for the quickest setup, or use the ES module in a bundled application. Both methods expose the same core tracking API. After installing, use the verification steps below to confirm the SDK is running.
+
+## Install with the CDN
+
+Add the loader once to your HTML document, before the closing `</head>` tag. The `data-site-id` attribute lets the SDK initialize automatically.
+
+```html
+<script
+  async
+  src="https://cdn.movcues.com/v1.js"
+  data-site-id="YOUR_SITE_ID"
+></script>
+```
+
+The Site ID is required. The browser SDK uses this public identifier; do not put secret keys, private API URLs, or server credentials in the script tag.
+
+### Queue calls before the bundle loads
+
+If code needs to call Movcues before the asynchronous script has loaded, create the command queue first:
+
+```html
+<script>
+  window.analytics = window.analytics || function () {
+    (window.analytics.q = window.analytics.q || []).push(arguments);
+  };
+
+  window.analytics("event", "pricing_opened", { source: "header" });
+</script>
+<script async src="https://cdn.movcues.com/v1.js" data-site-id="YOUR_SITE_ID"></script>
+```
+
+The loader drains queued commands when it installs. A queued `init` command takes precedence over automatic initialization from the script tag.
+
+### Initialize manually
+
+If your app receives the Site ID after it starts, initialize the browser global when the value is available:
+
+```js
+analytics.init({
+  siteId: "YOUR_SITE_ID",
+  debug: false,
+});
+```
+
+Call `init()` once. The runtime ignores duplicate initialization.
+
+## Install as an ES module
+
+For a React, Next.js, Vue, Svelte, or other bundled application, import the package and create one SDK instance at the application level:
+
+```bash
+npm install @movcues/sdk
+```
+
+```ts
+import { createAnalytics } from "@movcues/sdk";
+
+const analytics = createAnalytics({
+  siteId: "YOUR_SITE_ID",
+  debug: false,
+});
+
+analytics.event("app_started");
+```
+
+`createAnalytics()` initializes the instance immediately and registers page-lifecycle cleanup. Keep it in a shared application module or provider instead of creating one instance per component.
+
+:::caution
+The SDK source and package manifest confirm the package name and ES module entry, but public registry availability has not been independently verified. Confirm that `@movcues/sdk` is published to your approved registry before installing it. Use the package name shown above; older examples may use the mismatched `movcues/sdk` import.
+:::
+
+### Use and clean up the instance
+
+The returned instance provides the same core methods as the CDN global:
+
+```ts
+analytics.identify("usr_123", { plan: "pro" });
+analytics.event("invite_sent", { method: "email" });
+analytics.page();
+```
+
+Call `destroy()` when the application is torn down. It stops collection, clears in-memory pending events, removes route observers, and releases the module singleton for a later initialization.
+
+This is a browser SDK. Create the instance only in client-side code, not during server rendering. See the [Next.js integration](/docs/integrations/nextjs/) for a client-side example.
+
+## Verify the installation
+
+1. Publish your website with the Movcues script added.
+2. Visit your website in a browser and open a page.
+3. In your Movcues dashboard, select the same site and open **Observe → Events**. Look for a page view from your visit.
+
+If you don’t see it after a short wait, check that the script is on the published website and that its Site ID matches the site you selected in the dashboard. For more help, see [troubleshooting](/docs/troubleshooting/).
+
+## Next steps
+
+- Read the [Quickstart](/docs/getting-started/quickstart/) for a short first-event walkthrough.
+- Review [automatic collection](/docs/tracking/automatic/) to see what is captured without extra code.
+- Add a [privacy marker](/docs/privacy/) to pages containing sensitive UI.
+- Continue to the [public API reference](/docs/api/), [React integration](/docs/integrations/react/), or [Next.js integration](/docs/integrations/nextjs/).

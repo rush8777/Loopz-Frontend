@@ -1,0 +1,45 @@
+---
+title: "Define pages and matching rules"
+description: "Group recorded URL paths into named Pages, test rules, and reuse them for funnels and targeting."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_create_page_definition from "../../../../assets/dashboard/pages/movcues-create-page-definition.webp";
+
+A **Page** is a named group of URL paths. It organizes recorded visits and gives your team a reusable page choice in segments, funnels, and experience setup. Creating a Page does not add a new page to your website.
+
+## Create a Page
+
+1. Open **Observe → Pages** and choose **Create Page**.
+2. Enter **Name** and optional **Description**.
+3. Set **Area** and **Page type** if useful. Area is an organizational label, such as “Reporting”; it is not an element selector or heatmap region.
+4. Add at least one **Include rule**. Rules compare the **Path**, such as `/reports`, rather than the full domain.
+5. Add **Exclude rules (optional)** to remove unwanted matches.
+6. Choose **Test rules against real traffic** and inspect matched and unmatched examples.
+7. Choose **Create Page**.
+
+You need Owner or Admin access to save changes. Testing relies on traffic already received for this site; an empty preview does not by itself mean a rule is invalid.
+
+## Example: project screens
+
+Include paths that **starts with** `/projects/`, but exclude the path that **is exactly** `/projects/new`. At least one include rule must match and no exclude rule may match. Multiple include rules act as alternatives.
+
+| Operator | Example |
+| --- | --- |
+| is exactly | `/pricing` |
+| starts with | `/projects/` |
+| ends with | `/settings` |
+| contains | `/reports` |
+| matches pattern (use * as wildcard) | `/projects/*/settings` |
+
+<DocScreenshot src={shot_create_page_definition} alt="Movcues Create Page form naming Projects and matching URLs whose path starts with /projects." caption="Group project screens with a starts-with rule instead of defining every project URL separately. Demo workspace; synthetic data only." />
+
+## Review and maintain
+
+Open the saved Page to see **Views**, **Unique visitors**, **Sessions**, **Last seen**, and **Matched URLs**. **Edit** changes the rules; **Save changes** applies them to recorded history too. A Page’s definition is evaluated against existing page views, rather than only future traffic.
+
+Experience page targeting copies the selected Page rules into the experience. If you later edit the Page, review and republish the experience’s own targeting as needed.
+
+**Delete** removes the definition, not the underlying traffic. Check dependent funnels and segments first. Heatmaps is currently **Coming soon**.
+
+**Related:** [Funnels](/docs/funnels/create/) · [Page targeting](/docs/targeting/audience/).

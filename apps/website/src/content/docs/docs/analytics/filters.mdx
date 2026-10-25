@@ -1,0 +1,45 @@
+---
+title: "Apply dashboard filters"
+description: "Change date range, granularity, audience, and excluded events without changing the saved analysis."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_dashboard_filters from "../../../../assets/dashboard/analytics/movcues-dashboard-filters.webp";
+
+Dashboard filters change the data you are viewing. They do not change the saved event definitions, segment rules, or funnel steps.
+
+## Example
+
+You want last week’s project-creation activity for trial users. Open the saved dashboard and apply **Date range → Last 7 days** and **Audience →** your trial-user Segment.
+
+## Apply filters
+
+1. Open a custom dashboard.
+2. Open **Filter**.
+3. Choose from **Date range**, **Granularity**, **Audience**, or **Exclude events**.
+4. Choose **Apply filters** and review the updated cards.
+
+The available date presets are **Today**, **Last 7 days**, **Last 30 days**, and **Last 90 days**. **Granularity** groups results as **Daily**, **Weekly**, or **Monthly**. **Audience** uses a saved Segment’s current membership. **Exclude events** removes selected custom events from applicable calculations; it does not delete them.
+
+Filters are viewing controls and are not saved as dashboard defaults. Reopening the dashboard starts with its normal viewing defaults.
+
+<DocScreenshot src={shot_dashboard_filters} alt="Movcues dashboard Filters dialog offering date range, granularity, audience, and excluded events." caption="Apply filters deliberately, then check which cards support each selection. Demo workspace; synthetic data only." />
+
+## Which cards use each filter?
+
+| Card type | Applied controls |
+| --- | --- |
+| Metrics | Date range, granularity, audience, and excluded custom events. |
+| Funnel | Date range and audience; steps and conversion window come from the saved funnel. |
+| Retention | Date range, granularity, audience, and excluded custom events. |
+| Experiences | Date range. Audience and excluded-event filters do not narrow these cards. |
+
+Do not assume every filter changes every card.
+
+## Check what changed
+
+A smaller audience usually means a smaller count. A longer time bucket can combine several days into one point. Review both before interpreting a change as product improvement.
+
+Other screens have their own filters. For example, funnels use **Complete within** and **Analyze users**, while the user directory uses **Last active** for identified users. A filter on one screen is not a global filter for the whole product.
+
+**Related:** [Card configuration](/docs/analytics/cards/) · [Missing data](/docs/help/missing-data/).

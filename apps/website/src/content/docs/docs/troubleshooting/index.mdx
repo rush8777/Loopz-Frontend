@@ -1,0 +1,45 @@
+---
+title: Common issues
+description: Diagnose installation, duplicate collection, identity, privacy, and single-page application behavior.
+---
+
+Work from the browser outward: verify the API object, the Site ID, one test event, then your application lifecycle.
+
+## The SDK is not initialized
+
+**Symptom:** console output refers to `init()` or methods do nothing.
+
+**Check:** the CDN script includes a non-empty `data-site-id`, or the ES module calls `createAnalytics({ siteId })` in browser code. The runtime requires a Site ID and ignores tracking calls made before it initializes.
+
+## The SDK loads twice
+
+**Symptom:** duplicate click, scroll, or page-view activity.
+
+**Check:** install the loader in one shared shell only. Common accidental duplicates are a document-level script plus a framework component, or a development-only re-injection path.
+
+The public API and ES module factory both contain duplicate-installation guards, but one deliberate application-level installation point is still the correct setup.
+
+## No SPA page views
+
+**Check:** confirm the navigation changes the browser URL. The observer detects `pushState`, `replaceState`, history navigation, and hash changes. For a virtual screen that retains the URL, call `analytics.page()` at the intentional boundary.
+
+## Identity appears on the wrong user
+
+**Check:** call `reset()` when a user logs out or changes accounts. The SDK keeps the active identity in the current browser session until reset.
+
+## An expected interaction is absent
+
+**Check:** the element or one of its ancestors may use `data-private`, `data-ignore`, or `data-analytics-ignore`. Also confirm the interaction is one of the enabled MVP1 collectors; cursor, hover, heatmaps, replay, and element crawling are release-disabled.
+
+## Delivery is blocked
+
+**Check:** DevTools Network and Console for Content Security Policy, content blocker, mixed-content, or browser-network errors. Verify the configured endpoint only if Movcues has supplied an approved override. Do not paste private backend paths or credentials into client configuration.
+
+## Get a diagnostic trace
+
+```js
+window.analytics.enableDebug();
+window.analytics.event("movcues_diagnostic_check");
+```
+
+Capture the relevant browser errors and request context, then call `disableDebug()` after the reproduction.

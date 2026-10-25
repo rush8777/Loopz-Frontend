@@ -1,0 +1,40 @@
+---
+title: "Create and manage a dashboard"
+description: "Save a reusable set of analytics cards for your site and keep its layout organized."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_dashboard_editor from "../../../../assets/dashboard/dashboards/movcues-dashboard-editor.webp";
+
+A dashboard saves a set of analytics cards for one site. For example, an activation dashboard can show unique users, project-creation events, and a saved onboarding funnel together.
+
+## Before you start
+
+Select a site and use an Owner or Admin account to create, edit, or delete dashboards. Your site needs recorded activity; a Funnel card also needs a saved funnel.
+
+## Create a dashboard
+
+1. Open **Workspace → Dashboards**.
+2. Choose **New dashboard**, or **Create dashboard** on the empty state.
+3. Use the pencil beside the heading to edit the **Dashboard name**. Add a description if useful.
+4. Choose **Add card** and [configure its analysis](/docs/analytics/cards/).
+5. Choose **Save card**. This adds it to the dashboard draft.
+6. Repeat for the questions your team needs, then choose **Save dashboard**.
+
+**Save card** alone does not save the dashboard. Confirm that the saved dashboard reopens with your cards.
+
+## Change the layout
+
+Open a saved dashboard and choose **Edit dashboard**. Card controls let you edit, duplicate, remove, and move cards; you can also drag cards to reorder them. Choose **Save dashboard** after making changes. **Back** asks whether to discard unsaved changes.
+
+Single-value cards appear in the key-metrics area; detailed charts appear below. Card width controls available space, not the calculation.
+
+<DocScreenshot src={shot_dashboard_editor} alt="Movcues dashboard editor with signup, onboarding funnel, and retention cards and visible edit controls." caption="Arrange product metrics together in an editable custom dashboard. Demo workspace; synthetic data only." />
+
+## Manage saved dashboards
+
+The list shows the description, card count, and last update. **Edit** opens the saved configuration. The delete control asks for confirmation and permanently removes that dashboard; it does not delete the underlying events.
+
+If creation is blocked, check your role and [capacity](/docs/workspace/billing/).
+
+**Related:** [Filters](/docs/analytics/filters/) · [Metric definitions](/docs/analytics/metrics/).

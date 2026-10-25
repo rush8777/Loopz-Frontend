@@ -1,0 +1,44 @@
+---
+title: "Choose who sees an experience and where"
+description: "Combine saved audiences with page rules and verify eligibility using real product context."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_audience_targeting from "../../../../assets/dashboard/targeting/movcues-audience-targeting.webp";
+
+Audience targeting chooses the people. Page targeting chooses where the experience can start. A visitor must meet the relevant conditions together; choosing a Segment does not bypass the page rule.
+
+## Example
+
+Show project-setup guidance only to a saved “Signup without project” Segment on the project setup Page. This is more precise than showing it to everyone who opens the product.
+
+## Set the audience
+
+1. Open an experience and choose **Review & publish**.
+2. At **Who should see this experience?**, choose:
+   - **Everyone** for all otherwise eligible visitors.
+   - **A saved Segment** and choose a **Segment**.
+   - **Combined Segment rules** to combine saved audiences.
+3. For combined rules, choose **All rules** or **Any rule**, then use **is in / is not in** and **Add Segment rule**.
+
+Combined rules can require an advanced plan. Segments use current membership, and missing or deleted references cannot qualify users. Check the [Segment’s members](/docs/segments/membership/) before relying on it.
+
+## Set the page
+
+At **Where should this experience appear?**, choose **Selected page** and a saved **Page**, or deliberately choose **All pages**. Create the [Page definition](/docs/observe/pages/) first if needed.
+
+The experience copies the selected Page’s rules. After editing a Page definition, review the experience’s saved rules and republish if you want that change applied. The build page used to design the experience is not a substitute for reviewing launch targeting.
+
+## Check domains and targets
+
+The product’s origin must match the site configuration. Optional **Allowed origins (one per line)** in **Editor options → Launch settings** can narrow delivery further. Origin means scheme plus host and optional port, such as `https://app.example.com`.
+
+An anchored experience also needs its target element on that page. A matching path alone cannot make a missing element appear.
+
+<DocScreenshot src={shot_audience_targeting} alt="Movcues Launch settings showing the Signed up without a project Segment, Projects page, allowed origin, and once-only display." caption="The Segment selects people; the Projects page and allowed origin constrain where delivery can occur. Demo workspace; synthetic data only." />
+
+## Verify
+
+Test one matching user on the intended page and one nonmatching user. Then test the right user on a page that should be excluded. Publish only after the [review summary](/docs/experiences/publishing/) describes those boundaries correctly.
+
+**Next:** [Choose a trigger](/docs/targeting/triggers/) · [Timing and frequency](/docs/targeting/timing/).

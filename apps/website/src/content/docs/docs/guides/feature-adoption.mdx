@@ -1,0 +1,38 @@
+---
+title: "Introduce a feature to relevant users"
+description: "Use a non-adopter segment and contextual guidance to help people try a feature at an appropriate moment."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_create_user_segment from "../../../../assets/dashboard/segments/movcues-create-user-segment.webp";
+
+A feature announcement is more useful when it reaches someone who can benefit from it and has not already used it. This example introduces CSV exports to trial users visiting Reports.
+
+## Before you start
+
+The app sends `report_exported` after successful export and supplies an identified user’s `plan` property. Create a saved Reports [Page](/docs/observe/pages/) and confirm both inputs in [Events](/docs/observe/events/) and [Users](/docs/people/users/).
+
+## Build the audience
+
+1. [Create a segment](/docs/segments/create/) using **ALL** conditions.
+2. Add **User property → plan → equals → trial**.
+3. Add **Event → report_exported → not performed**. Decide whether “never recorded” or a recent time window is appropriate.
+4. Inspect the estimated audience and a few members, then save.
+
+This finds known matching users, not everyone who has ever signed up in another system. Missing tracking can make someone look like a non-adopter.
+
+<DocScreenshot src={shot_create_user_segment} alt="Movcues segment builder combining signup_completed within 14 days with project_created not performed using ALL rules." caption="Example audience: signed up recently, but have not created a project. The estimate reflects the moment of capture. Demo workspace; synthetic data only." />
+
+## Add contextual guidance
+
+Create an **Anchored card** from **Experiences → Other**. Use the [live editor](/docs/experiences/preview/) to point it at the export control, explain what export provides, and configure a useful button action. A short guide is an alternative if export needs several steps.
+
+## Choose the moment
+
+In **Review & publish**, choose **A saved Segment**, the Reports Page, and **When the user reaches the page**. Review frequency so the reminder is useful without becoming repetitive. Test a qualifying user and someone who has already exported.
+
+## Review the product outcome
+
+Check the experience’s delivery and engagement. Separately track `report_exported` with a [dashboard card](/docs/analytics/cards/). An announcement click is not a completed export, and current non-adopter membership changes after adoption.
+
+If people still struggle, ask a focused [survey question](/docs/guides/collect-feedback/) rather than assuming the announcement text is the only problem.

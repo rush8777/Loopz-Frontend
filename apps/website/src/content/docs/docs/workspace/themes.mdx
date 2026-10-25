@@ -1,0 +1,34 @@
+---
+title: "Import and review your website theme"
+description: "Scan your connected site for visual tokens, review the candidate, and activate a theme for new experiences."
+---
+
+**Settings → Themes** imports colors, typography, corner radii, and shadows from your website. Review the result before activating it so generated experience styling is a useful starting point.
+
+## Before you start
+
+Use an Owner or Admin account. Select the correct site, configure its **Primary domain**, and install the SDK there. The scan waits for the SDK to load on that origin.
+
+## Scan and activate
+
+1. Open **Settings → Themes**.
+2. Choose **Scan website theme**.
+3. Open or refresh your product on its configured primary domain while the scan is waiting.
+4. Wait for **Theme received** and the **Candidate theme** preview.
+5. Review **Colors**, **Typography**, **Corner radii**, and **Shadows**. Edit values when needed.
+6. Resolve invalid-value messages and check any low-contrast warning.
+7. Choose **Activate theme** and confirm it appears under **Active theme**.
+
+Example: if the extracted primary button color does not match your product’s main action, correct that color and its foreground text before activation.
+
+## What changes
+
+The active site theme is used as a starting point when new experience definitions are created. Activating a new theme does not automatically restyle all existing authored experiences. Open those drafts and review their design separately.
+
+**Reset extracted values** restores the candidate’s original extracted values. **Discard** removes the candidate, not the active theme. **Scan again** requests a new capture.
+
+## If the scan does not finish
+
+**Waiting for your website** means you should open or refresh the configured product. **Opened from a different origin** means the page’s scheme, host, or port does not match. **Scan expired** requires another scan. Use **Open Sites** if the primary domain is missing.
+
+The capture concerns theme tokens; it is not a screenshot or a copy of all website content. Test readability in a real [experience preview](/docs/experiences/preview/) before publishing.

@@ -1,0 +1,40 @@
+---
+title: "Collect feedback after a product task"
+description: "Connect a successful action to a short survey, inspect real responses, and create a follow-up audience."
+---
+
+import DocScreenshot from '../../../../components/docs/DocScreenshot.astro';
+import shot_configure_event_trigger from "../../../../assets/dashboard/targeting/movcues-configure-event-trigger.webp";
+import shot_survey_builder from "../../../../assets/dashboard/builder/movcues-survey-builder.webp";
+
+Ask about a task after the person has actually completed it. This example asks how easy it was to export a report, rather than interrupting users as soon as they sign in.
+
+## Prepare the inputs
+
+Confirm `report_exported` is recorded after export success in [Events](/docs/observe/events/). Choose the site, product Page, and audience. You need Owner or Admin access and plan access to an event-triggered launch.
+
+## Build a short survey
+
+1. Open **Experiences → Surveys → Create survey**.
+2. Add a **Rating** question such as “How easy was it to export your report?” Use a clearly explained 1–5 scale.
+3. Add an optional **Long text** question asking what could be improved.
+4. Check required-answer behavior and the **Survey: Submit** button action.
+5. [Preview the survey](/docs/experiences/surveys/) through submission.
+
+<DocScreenshot src={shot_survey_builder} alt="Movcues Questions inspector editing a required one-to-five rating about creating a first project, plus an optional long-text question." caption="Use the Questions inspector to set wording, scale, and required answers. Demo workspace; synthetic data only." />
+
+## Launch at the right moment
+
+Choose **Review & publish → When something happens → report_exported**. Set a suitable Page and audience, then limit repeat exposure. Complete the review and test a fresh export as an eligible user outside the editor.
+
+<DocScreenshot src={shot_configure_event_trigger} alt="Movcues launch setup with When something happens selected and dashboard_viewed chosen as the event." caption="An event trigger waits for the selected recorded event. This screenshot shows the setup control, not the final launch choice for the demo guide. Demo workspace; synthetic data only." />
+
+## Read and investigate
+
+Open **View Results**. Use **Overview** to check response rate and **Responses** to read submissions. Under **Investigate**, choose a structured answer group, inspect respondents, and optionally **Create segment** for relevant follow-up.
+
+The response Segment is dynamic. For NPS it uses the selected score’s category, not necessarily that one score; inspect the resulting definition. Text answers can inform a decision but are not an automatic generic condition in the Segment builder.
+
+Follow up with guidance only when the feedback and activity support it. A low rating indicates reported difficulty; inspect the context before assigning a cause.
+
+**Related:** [Survey results](/docs/experiences/survey-results/) · [Target an audience](/docs/targeting/audience/).
