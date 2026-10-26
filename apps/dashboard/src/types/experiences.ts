@@ -8,7 +8,7 @@ export interface ExperienceContent { heading: string; body: string; primaryActio
 export interface ExperienceTarget { primarySelector: string; fallbackSelectors: string[]; label?: string; role?: string; tagName?: string; reliability: "reliable" | "moderate" | "fragile"; targetContext?: { pagePath: string } }
 export type LegacyExperienceWidth = "sm" | "md" | "lg";
 export interface ExperienceSize { width: { mode: "auto" | "fixed" | "full"; value?: number }; height: { mode: "auto" | "fixed" | "viewport"; value?: number } }
-export interface ExperienceDesign { width: LegacyExperienceWidth; size?: ExperienceSize; theme: { background: string; foreground: string; primary: string; borderRadius: "sm" | "md" | "lg" } }
+export interface ExperienceDesign { width: LegacyExperienceWidth; size?: ExperienceSize; theme: { background: string; foreground: string; primary: string; borderRadius: "sm" | "md" | "lg"; spacing?: number } }
 export interface BuilderCanvasViewport { zoom: number; panX: number; panY: number }
 export interface WidgetBuilderState { version: 1; projectData: Record<string, unknown>; html: string; css: string; canvas?: BuilderCanvasViewport }
 export type OnsiteCellSizing = { mode: "flexible"; weight: number } | { mode: "hug" } | { mode: "fixed"; value: number };
