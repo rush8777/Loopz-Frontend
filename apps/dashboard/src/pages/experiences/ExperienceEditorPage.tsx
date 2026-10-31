@@ -2857,22 +2857,40 @@ function WidgetBehaviorEditor({
         </Label>
       )}
       {type === "banner" && (
-        <Label>
-          Banner position
-          <select
-            value={behavior.bannerPosition ?? "top"}
-            onChange={(event) =>
-              onChange((value) => {
-                value.bannerPosition = event.target.value as NonNullable<
-                  ExperienceBehavior["bannerPosition"]
-                >;
-              })
-            }
-          >
-            <option value="top">Top</option>
-            <option value="bottom">Bottom</option>
-          </select>
-        </Label>
+        <>
+          <Label>
+            Banner display
+            <select
+              value={behavior.bannerDisplayMode ?? "overlay"}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.bannerDisplayMode = event.target.value as NonNullable<
+                    ExperienceBehavior["bannerDisplayMode"]
+                  >;
+                })
+              }
+            >
+              <option value="inline">Inline with page</option>
+              <option value="overlay">Overlay viewport</option>
+            </select>
+          </Label>
+          <Label>
+            Banner position
+            <select
+              value={behavior.bannerPosition ?? "top"}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.bannerPosition = event.target.value as NonNullable<
+                    ExperienceBehavior["bannerPosition"]
+                  >;
+                })
+              }
+            >
+              <option value="top">Top</option>
+              <option value="bottom">Bottom</option>
+            </select>
+          </Label>
+        </>
       )}
       {overlay && (
         <BackdropBehaviorEditor

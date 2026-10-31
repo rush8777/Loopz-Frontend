@@ -52,6 +52,15 @@ describe("Experiences dashboard",()=>{
     expect("steps" in saved && saved.steps[0].behavior.backdrop).toBe(true);
     expect("steps" in saved && saved.steps[1].behavior.backdrop).toBeUndefined();
   });
+  it("shows legacy banners as overlays and persists an explicit inline selection", async () => {
+    const legacyBanner: Experience = { ...structuredClone(experience), widgetType: "banner", draftVersion: { ...structuredClone(experience.draftVersion!), definition: { ...structuredClone(definition), behavior: { dismissible: true, bannerPosition: "top" } } } };
+    mockedExperiences.getExperience.mockResolvedValue(legacyBanner); mockedExperiences.updateExperience.mockResolvedValue({ ...legacyBanner, draftVersion: { ...legacyBanner.draftVersion!, revision: 2 } });
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage/>}/></Routes></MemoryRouter>);
+    await screen.findByLabelText("Builder experience key"); fireEvent.pointerDown(screen.getByRole("button", { name: "Editor options" }), { button: 0, ctrlKey: false }); fireEvent.click(await screen.findByRole("menuitem", { name: "Behavior" }));
+    expect(screen.getByLabelText("Banner display")).toHaveValue("overlay"); expect(mockedExperiences.updateExperience).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("Banner display"), { target: { value: "inline" } });
+    await waitFor(() => expect(mockedExperiences.updateExperience).toHaveBeenCalled()); expect(mockedExperiences.updateExperience.mock.calls.at(-1)![3]).toMatchObject({ definition: { behavior: { bannerDisplayMode: "inline" } } });
+  });
   it("hardening: retains and exports a dashboard conflict without a background overwrite", async () => {
     mockedExperiences.getExperience.mockResolvedValue(onsiteExperience());
     mockedExperiences.updateExperience.mockRejectedValue(Object.assign(new Error("draft_conflict"), { status: 409 }));
