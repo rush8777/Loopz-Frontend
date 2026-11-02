@@ -117,8 +117,8 @@ export const marketingPages = {
     metaTitle: "Contextual in-app experiences | Movcues",
     path: "/explore/experiences",
     eyebrow: "In-app experiences",
-    title: "Build in-product guidance around a real moment.",
-    description: "Create guides, surveys, banners, and checklists in the dashboard, then configure where, when, and for whom each experience should appear.",
+    title: "Help users take the next step, right inside your product.",
+    description: "Turn confusing onboarding steps, overlooked features, and missed feedback opportunities into targeted in-app experiences. Build guides, checklists, banners, and surveys that reach users when they're relevant.",
     visual: "experiences",
     secondaryLabel: "Explore experience types",
     bridgeText: "Effective guidance is deliberate: it has a clear job, a bounded audience, and a page or event that makes its timing understandable.",
@@ -140,8 +140,8 @@ export const marketingPages = {
     sections: [
       {
         eyebrow: "Build visually",
-        title: "Choose a format that fits the task.",
-        description: "Use multi-step guides, contextual surveys, full-width banners, or persistent checklists to help users complete a focused piece of work.",
+        title: "A different experience for every moment that matters.",
+        description: "Whether someone needs help finishing setup, discovering a feature, or sharing feedback, choose an experience that helps them move forward without leaving your product.",
         points: ["Guide steps can advance by button, element, event, or route", "Surveys support structured questions and multi-step responses", "Checklist tasks can open a page or launch a guide"],
         visual: "experiences",
         tone: "light"
