@@ -1,4 +1,5 @@
 ---
+import { DASHBOARD_URLS } from "../../config/site";
 import ProductOverview from "../product/ProductOverview.astro";
 ---
 
@@ -7,7 +8,7 @@ import ProductOverview from "../product/ProductOverview.astro";
     <h1>Turn user behavior<br />    into action.</h1>
     <div class="hero-bottom-row">
       <div class="hero-actions">
-        <button class="hero-primary waitlist-trigger" type="button" data-waitlist-open>Join waitlist</button>
+        <a class="hero-primary" href={DASHBOARD_URLS.signup}>Get started</a>
         <a href="#product" class="hero-secondary">Explore the product</a>
       </div>
       <p class="hero-description">
