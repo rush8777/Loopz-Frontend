@@ -1,6 +1,6 @@
 ---
 import logo from "../../../../dashboard/public/movcues_logo.png";
-import { NAV_ITEMS } from "../../config/site";
+import { DASHBOARD_URLS, NAV_ITEMS } from "../../config/site";
 
 const currentPath = Astro.url.pathname;
 ---
@@ -35,7 +35,7 @@ const currentPath = Astro.url.pathname;
     </nav>
 
     <div class="nav-actions">
-      <button class="login-link waitlist-nav-button" type="button" data-waitlist-open>Sign up</button>
+      <a class="login-link" href={DASHBOARD_URLS.login}>Log in</a>
       <button class="nav-cta waitlist-nav-button" type="button" data-waitlist-open>Get started</button>
       <button class="mobile-menu-button" type="button" aria-expanded="false" aria-controls="mobile-navigation" aria-label="Open navigation" data-menu-button><span></span><span></span></button>
     </div>
@@ -52,7 +52,7 @@ const currentPath = Astro.url.pathname;
       </details>
     ))}
     <a href="/pricing">Pricing</a>
-    <button class="mobile-waitlist-link" type="button" data-waitlist-open>Sign up</button>
+    <a href={DASHBOARD_URLS.login}>Log in</a>
     <button class="mobile-primary-link mobile-waitlist-link" type="button" data-waitlist-open>Get started</button>
   </nav>
 </header>
