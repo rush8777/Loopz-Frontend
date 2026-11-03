@@ -344,8 +344,8 @@ export const marketingPages = {
     metaTitle: "Contextual product feedback | Movcues",
     path: "/explore/product-feedback",
     eyebrow: "Product feedback",
-    title: "Ask the right users, at the right moment.",
-    description: "Connect short in-product surveys to the behavior, audience, and product moment that make each response meaningful.",
+    title: "Find out why users struggle, while the experience is fresh.",
+    description: "Ask targeted in-app survey questions after meaningful product actions. Understand what users find confusing, collect feedback on new features, and connect their answers to product behavior.",
     visual: "survey",
     secondaryLabel: "See the feedback loop",
     workflow: {
@@ -356,16 +356,16 @@ export const marketingPages = {
     sections: [
       {
         eyebrow: "Choose the moment",
-        title: "Ask after experience, not at random.",
-        description: "Target users who used a newly launched feature three or more times, match the relevant page, and trigger a short survey in context.",
+        title: "Ask about a feature after someone actually uses it.",
+        description: "Instead of surveying every visitor, reach users who have tried a feature or completed a workflow. Ask what worked, what was confusing, or what they expected to happen.",
         points: ["Segments built from real use", "Page and event-based delivery", "Scheduling and frequency controls"],
         visual: "targeting",
         tone: "soft"
       },
       {
         eyebrow: "Understand the response",
-        title: "Read metrics and comments together.",
-        description: "See response rate, completion, answer distribution, recent comments, and respondent context in the same results view.",
+        title: "Understand the feedback behind the numbers.",
+        description: "Review ratings, answer distributions, written responses, and respondent context together. See which concerns appear repeatedly and use that evidence to decide what deserves investigation.",
         points: ["Quantitative distributions and NPS", "Latest qualitative feedback", "Respondent identity and user context"],
         visual: "survey",
         tone: "dark"
