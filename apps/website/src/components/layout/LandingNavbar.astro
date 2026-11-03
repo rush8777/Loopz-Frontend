@@ -36,7 +36,7 @@ const currentPath = Astro.url.pathname;
 
     <div class="nav-actions">
       <a class="login-link" href={DASHBOARD_URLS.login}>Log in</a>
-      <button class="nav-cta waitlist-nav-button" type="button" data-waitlist-open>Get started</button>
+      <a class="nav-cta" href={DASHBOARD_URLS.signup}>Get started</a>
       <button class="mobile-menu-button" type="button" aria-expanded="false" aria-controls="mobile-navigation" aria-label="Open navigation" data-menu-button><span></span><span></span></button>
     </div>
   </div>
@@ -53,7 +53,7 @@ const currentPath = Astro.url.pathname;
     ))}
     <a href="/pricing">Pricing</a>
     <a href={DASHBOARD_URLS.login}>Log in</a>
-    <button class="mobile-primary-link mobile-waitlist-link" type="button" data-waitlist-open>Get started</button>
+    <a class="mobile-primary-link" href={DASHBOARD_URLS.signup}>Get started</a>
   </nav>
 </header>
 
@@ -92,7 +92,7 @@ const currentPath = Astro.url.pathname;
     header?.classList.toggle("menu-open", open);
   };
   mobileButton?.addEventListener("click", () => setMobileOpen(mobileButton.getAttribute("aria-expanded") !== "true"));
-  mobileMenu?.querySelectorAll("a, button[data-waitlist-open]").forEach((link) => link.addEventListener("click", () => setMobileOpen(false)));
+  mobileMenu?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => setMobileOpen(false)));
   document.addEventListener("click", (event) => { if (header && !header.contains(event.target as Node)) { closeDesktopMenus(); setMobileOpen(false); } });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") { closeDesktopMenus(); setMobileOpen(false); } });
 </script>
