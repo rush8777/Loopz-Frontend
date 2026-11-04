@@ -174,27 +174,42 @@ export function UserProfilePage() {
           </div>
 
           {tab === "overview" && (
-            <div className="space-y-5 rounded-lg border bg-card p-5">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-5">
+              <section aria-label="User activity summary">
+                <div className="mb-3">
+                  <h2 className="text-sm font-semibold">Activity summary</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">A high-level view of this user's engagement.</p>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <AnalyticsMetricCard label="First seen" value={user.stats.firstSeenAt ? formatRelativeTime(user.stats.firstSeenAt) : "—"} description="First observed activity" />
                 <AnalyticsMetricCard label="Last seen" value={user.stats.lastSeenAt ? formatRelativeTime(user.stats.lastSeenAt) : "—"} description="Most recent observed activity" />
                 <AnalyticsMetricCard label="Sessions" value={user.stats.sessionCount.toLocaleString()} description="Recorded sessions" />
                 <AnalyticsMetricCard label="Page views" value={user.stats.pageViewCount.toLocaleString()} description="Recorded page views" />
                 <AnalyticsMetricCard label="Events" value={user.stats.eventCount.toLocaleString()} description="Recorded events" />
                 <AnalyticsMetricCard label="Active time" value={formatDuration(user.stats.totalActiveTimeMs)} description="Total observed active time" />
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                </div>
+              </section>
+
+              <section aria-label="User identity and journey">
+                <div className="mb-3">
+                  <h2 className="text-sm font-semibold">Identity and journey</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Identification and the first and most recent recorded pages.</p>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <AnalyticsMetricCard label="First page" value={user.stats.firstPage ?? "—"} description="First recorded page" />
                 <AnalyticsMetricCard label="Last page" value={user.stats.lastPage ?? "—"} description="Most recent recorded page" />
                 <AnalyticsMetricCard label="Identified" value={formatRelativeTime(user.firstIdentifiedAt)} description="When this user was identified" />
                 <AnalyticsMetricCard label="Anonymous IDs merged" value={user.anonymousIds.length.toLocaleString()} description="Anonymous identities linked to this user" />
-              </div>
-              <div className="border-t pt-5">
-                <div className="mb-3.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
-                  Environment (most recent session)
+                </div>
+              </section>
+
+              <section className="rounded-lg border bg-card p-4" aria-label="Latest user environment">
+                <div className="mb-3">
+                  <h2 className="text-sm font-semibold">Environment</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Details captured during the user's most recent session.</p>
                 </div>
                 <EnvironmentBlock environment={user.environment} />
-              </div>
+              </section>
             </div>
           )}
 
