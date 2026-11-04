@@ -7,60 +7,60 @@ const capabilities = [
     step: "01 / Discover",
     activeTab: "Funnels",
     preview: "onboarding funnel",
-    title: "See where new users lose momentum.",
-    description: "Use product analytics and onboarding funnels to see where signups get stuck before they reach their first success.",
+    title: "Which onboarding step is losing your signups?",
+    description: "Build a funnel from signup to first project. See where people abandon setup, how many drop off, and which users need a closer look—before you change your onboarding.",
     points: [
-      "Follow the journey from signup to first project.",
-      "Inspect drop-off and the users behind each funnel step.",
+      "See signups, setup starts, and first projects in one funnel.",
+      "Open the users who started setup but never created a project.",
     ],
     href: "/explore/analytics",
-    link: "Explore product analytics",
-    caption: "Example: 34 users started setup but did not create a first project.",
+    link: "See onboarding funnel analytics",
+    caption: "The 34 example users started setup but never created a first project.",
   },
   {
     id: "identify",
     step: "02 / Identify",
     activeTab: "Segments",
     preview: "behavioral segment",
-    title: "Know exactly who needs help.",
-    description: "Turn a funnel drop-off into a dynamic audience. Reach people based on what they have done—and the important step they have not completed.",
+    title: "Stop reminding users who already finished setup.",
+    description: "Save the people who abandoned setup as a behavioral segment. Send help to users who started onboarding but never created a project—not everyone who signed up.",
     points: [
-      "Combine funnel progress, events, pages, and user properties.",
-      "Keep targeting relevant as user behavior changes.",
+      "Build a reusable segment from the funnel drop-off.",
+      "Refine it with page visits, events, and user properties.",
     ],
     href: "/explore/targeting",
-    link: "Explore behavioral targeting",
-    caption: "Example: a segment of the same 34 users who stalled during setup.",
+    link: "See behavioral user segments",
+    caption: "The 34-person drop-off cohort becomes an audience for targeted help.",
   },
   {
     id: "engage",
     step: "03 / Engage",
     activeTab: "Experiences",
     preview: "in-app onboarding checklist",
-    title: "Give users a reason to keep going.",
-    description: "Create contextual onboarding checklists, guides, and tooltips that show users the next useful action, right inside your product.",
+    title: "Show stalled users what to do next—in your app.",
+    description: "Show a short onboarding checklist where users return. Start with “Create your first project,” then use a guide or tooltip if they need help finishing the job.",
     points: [
-      "Build an experience visually, without changing your app UI.",
-      "Show it only to the audience and pages where it matters.",
+      "Build an in-app checklist with the visual editor.",
+      "Target stalled users on the pages where they can continue.",
     ],
     href: "/explore/experiences",
-    link: "Explore in-app experiences",
-    caption: "Example: a checklist draft targeted at the stalled setup audience.",
+    link: "Explore onboarding checklists",
+    caption: "A checklist draft for users who still need to create their first project.",
   },
   {
     id: "improve",
     step: "04 / Improve",
     activeTab: "Results",
     preview: "experience results",
-    title: "See what worked. Improve what didn't.",
-    description: "Measure in-app experience engagement and completion alongside product behavior, so you know what to investigate and improve next.",
+    title: "Don’t stop at clicks. Check who finished setup.",
+    description: "See how many users saw, started, and completed the checklist. Then return to the onboarding funnel to check whether they created their first project. Checklist completion alone is not activation.",
     points: [
-      "Review reach, starts, completions, and drop-offs.",
-      "Use the results to refine your audience and onboarding journey.",
+      "Review checklist reach, starts, and completions.",
+      "Check first-project completion separately in the funnel.",
     ],
     href: "/product/dashboards",
-    link: "Explore results and dashboards",
-    caption: "Example: sample checklist engagement, not a claim of improved retention.",
+    link: "Explore experience analytics",
+    caption: "A sample report: 12 completed the checklist; check activation separately.",
   },
 ] as const;
 
@@ -70,9 +70,9 @@ const screenTabs = ["Funnels", "Segments", "Experiences", "Results"] as const;
 <section class="key-capabilities" id="key-capabilities" aria-labelledby="capabilities-title">
   <div class="section-shell">
     <header class="capabilities-intro">
-      <p class="section-kicker"><span aria-hidden="true"></span>From signup to success</p>
-      <h2 id="capabilities-title">Find the friction. <em>Help users move forward.</em></h2>
-      <p>Follow one onboarding example: find the drop-off, identify affected users, deliver contextual guidance, and measure what happens next.</p>
+      <p class="section-kicker"><span aria-hidden="true"></span>Why new users drop off</p>
+      <h2 id="capabilities-title">Users started setup. <em>Why didn’t they finish?</em></h2>
+      <p>Here’s how Movcues helps you investigate one onboarding drop-off: find the missing step in a funnel, target the affected users, show an in-app checklist, and check whether they complete setup.</p>
     </header>
 
     <div class="capabilities-list">
@@ -137,7 +137,7 @@ const screenTabs = ["Funnels", "Segments", "Experiences", "Results"] as const;
                       <div class="screen-header"><div><span class="screen-eyebrow">IN-APP EXPERIENCES / CHECKLIST</span><strong>Help users finish setup</strong></div><span class="screen-filter">Draft preview</span></div>
                       <div class="experience-target"><span class="target-dot"></span><strong>Audience:</strong> Stalled during setup <span class="audience-count">34 users</span></div>
                       <div class="checklist-preview">
-                        <div class="checklist-top"><div><small>GETTING STARTED</small><strong>You're almost there.</strong><p>Three quick steps to get value from your workspace.</p></div><span class="checklist-progress-label">0 / 3</span></div>
+                        <div class="checklist-top"><div><small>GETTING STARTED</small><strong>Your first project starts here.</strong><p>Create a project, invite your team, and explore the workspace.</p></div><span class="checklist-progress-label">0 / 3</span></div>
                         <div class="checklist-progress"><i></i></div>
                         <div class="checklist-task"><span></span><b>Create your first project</b><em>Start here →</em></div>
                         <div class="checklist-task"><span></span><b>Invite a teammate</b></div>
@@ -156,7 +156,7 @@ const screenTabs = ["Funnels", "Segments", "Experiences", "Results"] as const;
                         <div class="results-line"><span>Started</span><div><i class="result-bar started"></i></div><b>19</b></div>
                         <div class="results-line"><span>Completed</span><div><i class="result-bar completed"></i></div><b>12</b></div>
                       </div>
-                      <div class="results-insight"><span class="insight-dot"></span><p><strong>What to review next</strong> Check where users stop, then inspect subsequent first-project completion in the funnel.</p></div>
+                      <div class="results-insight"><span class="insight-dot"></span><p><strong>Did they create a first project?</strong> Review the activation funnel too. Checklist completion isn’t proof of activation.</p></div>
                     </div>
                   )}
                 </div>
