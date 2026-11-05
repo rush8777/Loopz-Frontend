@@ -344,8 +344,8 @@ export const marketingPages = {
     metaTitle: "Contextual product feedback | Movcues",
     path: "/explore/product-feedback",
     eyebrow: "Product feedback",
-    title: "Ask the right users, at the right moment.",
-    description: "Connect short in-product surveys to the behavior, audience, and product moment that make each response meaningful.",
+    title: "Your analytics show where users leave. Ask them why.",
+    description: "Use targeted in-app surveys to understand confusing onboarding steps, abandoned workflows, and frustrating features. Ask relevant users while the experience is still fresh, then review their answers alongside product behavior.",
     visual: "survey",
     secondaryLabel: "See the feedback loop",
     workflow: {
@@ -356,8 +356,8 @@ export const marketingPages = {
     sections: [
       {
         eyebrow: "Choose the moment",
-        title: "Ask after experience, not at random.",
-        description: "Target users who used a newly launched feature three or more times, match the relevant page, and trigger a short survey in context.",
+        title: "Ask what went wrong while users still remember.",
+        description: "Did someone finish onboarding but struggle with a key step? Or try a new feature several times without completing the task? Use behavioral segments and contextual triggers to ask a focused question when the experience is still relevant.",
         points: ["Segments built from real use", "Page and event-based delivery", "Scheduling and frequency controls"],
         visual: "targeting",
         tone: "soft"
