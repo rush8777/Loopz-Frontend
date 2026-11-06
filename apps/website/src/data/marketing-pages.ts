@@ -365,7 +365,7 @@ export const marketingPages = {
       {
         eyebrow: "Understand the response",
         title: "Read metrics and comments together.",
-        description: "See response rate, completion, answer distribution, recent comments, and respondent context in the same results view.",
+        description: "Review response rates, answer distributions, written comments, and respondent context together. See which concerns appear repeatedly and use that evidence to decide what deserves investigation.",
         points: ["Quantitative distributions and NPS", "Latest qualitative feedback", "Respondent identity and user context"],
         visual: "survey",
         tone: "dark"
