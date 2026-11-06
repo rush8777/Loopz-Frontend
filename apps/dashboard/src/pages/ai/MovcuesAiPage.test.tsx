@@ -11,7 +11,7 @@ vi.mock("@/auth/WorkspaceContext");
 vi.mock("@/api/ai");
 
 const conversation = { id: "aic_1", orgId: "org_1", siteId: "site_1", userId: "usr_1", title: "New conversation", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-const assistant = { id: "aim_2", role: "assistant" as const, content: "## Performance\n\nNo activity yet.", evidence: [{ source: "analytics.query", label: "Product metrics" }], proposal: null, approval: null, createdAt: new Date().toISOString() };
+const assistant = { id: "aim_2", role: "assistant" as const, content: "## Performance\n\n| Metric | Result |\n| --- | --- |\n| Active users | 42 |\n\nNo activity yet.", evidence: [{ source: "analytics.query", label: "Product metrics" }], proposal: null, approval: null, createdAt: new Date().toISOString() };
 
 describe("Movcues AI page", () => {
   beforeEach(() => {
@@ -28,6 +28,8 @@ describe("Movcues AI page", () => {
     expect(await screen.findByRole("heading", { name: "Welcome back, Sam" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Ask anything about your product, users, or performance...")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Performance digest" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Conversation history" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "New chat" })).toBeInTheDocument();
   });
 
   it("submits with Enter and renders the persisted assistant answer", async () => {
@@ -37,6 +39,7 @@ describe("Movcues AI page", () => {
     fireEvent.keyDown(composer, { key: "Enter", shiftKey: false });
     await waitFor(() => expect(aiApi.sendAiMessage).toHaveBeenCalledWith("org_1", "site_1", "aic_1", "What changed?", expect.any(AbortSignal)));
     expect(await screen.findByRole("heading", { name: "Performance" })).toBeInTheDocument();
-    expect(screen.getByText("Sources and limitations (1)")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("table")).toHaveTextContent("Active users"));
+    expect(await screen.findByText("Sources and limitations (1)")).toBeInTheDocument();
   });
 });
