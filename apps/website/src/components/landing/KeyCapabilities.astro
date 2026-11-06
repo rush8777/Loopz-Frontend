@@ -3,75 +3,75 @@ import { ArrowUpRight, Check } from "lucide-astro";
 
 const capabilities = [
   {
-    id: "discover",
-    step: "01 / Discover",
-    activeTab: "Funnels",
-    preview: "onboarding funnel",
-    title: "Which onboarding step is losing your signups?",
-    description: "Build a funnel from signup to first project. See where people abandon setup, how many drop off, and which users need a closer look—before you change your onboarding.",
-    points: [
-      "See signups, setup starts, and first projects in one funnel.",
-      "Open the users who started setup but never created a project.",
+    "id": "discovery",
+    "step": "Introducing Geo · AI behavioral insights",
+    "activeTab": "Geo AI",
+    "preview": "Geo AI behavioral insights",
+    "title": "Not every user is the same. Geo knows what each one needs.",
+    "description": "Geo helps you understand different types of users, spot what's holding them back, and discover better ways to turn them into customers.",
+    "points": [
+      "Understand user behavior and personalize groups with different needs.",
+      "Discover where each group struggles and what you can do to help them convert."
     ],
-    href: "/explore/analytics",
-    link: "See onboarding funnel analytics",
-    caption: "The 34 example users started setup but never created a first project.",
+    "href": "/explore/analytics",
+    "link": "Discover Geo AI insights",
+    "caption": "From user behavior to meaningful insights and smarter next steps, all in one place."
   },
   {
-    id: "identify",
-    step: "02 / Identify",
-    activeTab: "Segments",
-    preview: "behavioral segment",
-    title: "Stop reminding users who already finished setup.",
-    description: "Save the people who abandoned setup as a behavioral segment. Send help to users who started onboarding but never created a project—not everyone who signed up.",
-    points: [
-      "Build a reusable segment from the funnel drop-off.",
-      "Refine it with page visits, events, and user properties.",
+    "id": "personalize",
+    "step": "Live on-site visual builder",
+    "activeTab": "Live Builder",
+    "preview": "on-site visual builder",
+    "title": "Build the right experience, right where users need it.",
+    "description": "More features mean nothing if users struggle to use them. Geo helps you create beautiful guides, tooltips, and in-app experiences right on your website, so users can adopt your product faster and with less friction.",
+    "points": [
+      "Create guides, modals, tooltips, and more directly on your live website.",
+      "Describe what you want to Geo and let AI help you design beautiful experiences in seconds."
     ],
-    href: "/explore/targeting",
-    link: "See behavioral user segments",
-    caption: "The 34-person drop-off cohort becomes an audience for targeted help.",
+    "href": "/explore/experiences",
+    "link": "Explore the live visual builder",
+    "caption": "Build, customize, and preview in-app experiences directly on your website."
   },
   {
-    id: "engage",
-    step: "03 / Engage",
-    activeTab: "Experiences",
-    preview: "in-app onboarding checklist",
-    title: "Show stalled users what to do next—in your app.",
-    description: "Show a short onboarding checklist where users return. Start with “Create your first project,” then use a guide or tooltip if they need help finishing the job.",
-    points: [
-      "Build an in-app checklist with the visual editor.",
-      "Target stalled users on the pages where they can continue.",
+    "id": "analytics",
+    "step": "All-in-one product analytics",
+    "activeTab": "Analytics",
+    "preview": "analytics dashboard and activation funnel",
+    "title": "Go beyond the numbers. Understand your users.",
+    "description": "Movcues goes beyond feature adoption. Use powerful dashboards, segments, and funnels to understand user behavior, uncover where they struggle, and identify the users who need your attention most, so you can take action before they leave.",
+    "points": [
+      "Build customizable dashboards to track the metrics that matter most.",
+      "Use segments and funnels to isolate struggling users and uncover where they drop off."
     ],
-    href: "/explore/experiences",
-    link: "Explore onboarding checklists",
-    caption: "A checklist draft for users who still need to create their first project.",
+    "href": "/explore/analytics",
+    "link": "Explore product analytics",
+    "caption": "Understand user journeys, uncover friction, and focus on the users who need your attention."
   },
   {
-    id: "improve",
-    step: "04 / Improve",
-    activeTab: "Results",
-    preview: "experience results",
-    title: "Don’t stop at clicks. Check who finished setup.",
-    description: "See how many users saw, started, and completed the checklist. Then return to the onboarding funnel to check whether they created their first project. Checklist completion alone is not activation.",
-    points: [
-      "Review checklist reach, starts, and completions.",
-      "Check first-project completion separately in the funnel.",
+    "id": "feedback",
+    "step": "The contextual feedback loop",
+    "activeTab": "Feedback",
+    "preview": "contextual in-app feedback survey",
+    "title": "Don't guess what users need. Just ask them.",
+    "description": "Users won't always tell you what's wrong. Movcues helps you collect feedback right inside your product, at the moments that matter, so you can understand their frustrations and improve their experience before they leave.",
+    "points": [
+      "Trigger contextual surveys when users struggle, drop off, or complete key actions.",
+      "Collect and analyze feedback to uncover what's holding users back."
     ],
-    href: "/product/dashboards",
-    link: "Explore experience analytics",
-    caption: "A sample report: 12 completed the checklist; check activation separately.",
-  },
+    "href": "/explore/product-feedback",
+    "link": "Explore product feedback",
+    "caption": "Ask the right questions at the right moment and turn user feedback into meaningful improvements."
+  }
 ] as const;
 
-const screenTabs = ["Funnels", "Segments", "Experiences", "Results"] as const;
+const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
 ---
 
 <section class="key-capabilities" id="key-capabilities" aria-labelledby="capabilities-title">
   <div class="section-shell">
     <header class="capabilities-intro">
       <p class="section-kicker"><span aria-hidden="true"></span>Why new users drop off</p>
-      <h2 id="capabilities-title">\Users signed up. <em>Why didn't they come back?.</em></h2>
+      <h2 id="capabilities-title">Users signed up. <em>Why didn't they come back?</em></h2>
       <p>Most businesses know how to get users. Few know how to keep them. Movcues bridges that gap by showing where users get stuck and helping you guide them toward value, so they stay engaged and keep coming back.</p>
     </header>
 
@@ -107,56 +107,59 @@ const screenTabs = ["Funnels", "Segments", "Experiences", "Results"] as const;
                 </div>
 
                 <div class="mockup-main">
-                  {capability.id === "discover" && (
-                    <div class="funnel-screen">
-                      <div class="screen-header"><div><span class="screen-eyebrow">PRODUCT ANALYTICS / FUNNELS</span><strong>First project activation</strong></div><span class="screen-filter">Last 30 days</span></div>
-                      <div class="funnel-summary"><span>Where users stop</span><strong>34 users stalled during setup</strong><p>They began setup but did not create a first project.</p></div>
-                      <div class="funnel-list">
-                        <div class="funnel-step"><div><span>01</span><b>Signed up</b><strong>100</strong></div><div class="funnel-track"><i class="funnel-bar is-first"></i></div></div>
-                        <div class="funnel-step"><div><span>02</span><b>Started setup</b><strong>58</strong></div><div class="funnel-track"><i class="funnel-bar is-second"></i></div></div>
-                        <div class="funnel-step"><div><span>03</span><b>Created first project</b><strong>24</strong></div><div class="funnel-track"><i class="funnel-bar is-third"></i></div></div>
+
+                  {capability.id === "discovery" && (
+                    <div class="geo-screen">
+                      <div class="screen-header"><div><span class="screen-eyebrow">GEO / BEHAVIOR INTELLIGENCE</span><strong>Understand who needs help</strong></div><span class="screen-filter">Last 30 days</span></div>
+                      <div class="geo-hero"><span class="ai-orb" aria-hidden="true">✦</span><div><small>GEO INSIGHT · SAMPLE</small><strong>Not all users need the same next step.</strong><p>Here are three example behavior patterns worth investigating.</p></div></div>
+                      <div class="geo-cohorts">
+                        <div class="geo-cohort"><span class="cohort-symbol blue">↗</span><div><b>Exploring confidently</b><small>Returning and discovering features</small></div><strong>42 <em>users</em></strong></div>
+                        <div class="geo-cohort focus"><span class="cohort-symbol amber">!</span><div><b>Stuck during setup</b><small>Started onboarding, no first project</small></div><strong>34 <em>users</em></strong></div>
+                        <div class="geo-cohort"><span class="cohort-symbol violet">◷</span><div><b>Quiet after signup</b><small>Haven't taken the first key action</small></div><strong>24 <em>users</em></strong></div>
                       </div>
-                      <div class="screen-footer"><span class="footer-dot"></span>Inspect drop-off cohort <span aria-hidden="true">→</span></div>
+                      <div class="geo-next"><span>✦ &nbsp; GEO RECOMMENDATION · ILLUSTRATIVE</span><p>Start by helping the setup group create their first project with a short in-app guide.</p></div>
                     </div>
                   )}
 
-                  {capability.id === "identify" && (
-                    <div class="segment-screen">
-                      <div class="screen-header"><div><span class="screen-eyebrow">AUDIENCES / SEGMENTS</span><strong>Stalled during setup</strong></div><span class="screen-filter">Dynamic segment</span></div>
-                      <div class="segment-summary"><span class="segment-people">34</span><div><strong>users match</strong><small>Based on the activation funnel above</small></div><span class="segment-status"><i></i> Active rules</span></div>
-                      <div class="segment-rule-heading">Include users who match ALL conditions</div>
-                      <div class="segment-rule"><span class="rule-property">Funnel</span><b>Reached “Started setup”</b><span class="rule-check">✓</span></div>
-                      <div class="segment-operator">AND</div>
-                      <div class="segment-rule"><span class="rule-property">Funnel</span><b>Did not reach “First project”</b><span class="rule-check">✓</span></div>
-                      <div class="screen-footer"><span class="footer-dot"></span>Audience ready for targeting <span aria-hidden="true">→</span></div>
+                  {capability.id === "personalize" && (
+                    <div class="builder-screen">
+                      <div class="screen-header"><div><span class="screen-eyebrow">LIVE BUILDER / ON-SITE EDITOR</span><strong>Edit experiences on your website</strong></div><span class="screen-filter">Draft · Preview</span></div>
+                      <div class="builder-workspace">
+                        <div class="builder-web">
+                          <div class="builder-browser"><span class="browser-lights">● ● ●</span><span>yourapp.com / workspace</span></div>
+                          <div class="builder-site">
+                            <div class="site-top"><b>Acme<span>space</span></b><small>Overview　Projects　Settings</small></div>
+                            <strong>Welcome to your workspace</strong><p>Organize your work, all in one place.</p>
+                            <div class="site-skeleton"><i></i><i></i><i></i></div>
+                            <div class="builder-spotlight"><span class="selected-chip">✦ GUIDE · SELECTED</span><small>STEP 1 OF 3</small><strong>Let's make your first project.</strong><p>Start here and see what your workspace can do.</p><span class="builder-cta">Create a project <span>↗</span></span><span class="resize-dot top-left"></span><span class="resize-dot top-right"></span><span class="resize-dot bottom-left"></span><span class="resize-dot bottom-right"></span></div>
+                          </div>
+                        </div>
+                        <div class="builder-inspector"><div class="inspector-head"><span class="ai-orb">✦</span><div><strong>Geo AI</strong><small>Widget assistant</small></div></div><div class="inspector-message">Make this a welcoming first-project guide.</div><div class="inspector-state"><span>✓</span> One widget draft ready</div><div class="inspector-divider"></div><span class="inspector-label">ELEMENT</span><div class="inspector-property">Guide card <span>⌄</span></div><span class="inspector-label">APPEARANCE</span><div class="inspector-swatches"><i></i><i></i><i></i><i></i></div></div>
+                      </div>
+                      <div class="preview-footnote">Visual placement, direct editing and AI-assisted widget design · illustrative preview</div>
                     </div>
                   )}
 
-                  {capability.id === "engage" && (
-                    <div class="experience-screen">
-                      <div class="screen-header"><div><span class="screen-eyebrow">IN-APP EXPERIENCES / CHECKLIST</span><strong>Help users finish setup</strong></div><span class="screen-filter">Draft preview</span></div>
-                      <div class="experience-target"><span class="target-dot"></span><strong>Audience:</strong> Stalled during setup <span class="audience-count">34 users</span></div>
-                      <div class="checklist-preview">
-                        <div class="checklist-top"><div><small>GETTING STARTED</small><strong>Your first project starts here.</strong><p>Create a project, invite your team, and explore the workspace.</p></div><span class="checklist-progress-label">0 / 3</span></div>
-                        <div class="checklist-progress"><i></i></div>
-                        <div class="checklist-task"><span></span><b>Create your first project</b><em>Start here →</em></div>
-                        <div class="checklist-task"><span></span><b>Invite a teammate</b></div>
-                        <div class="checklist-task"><span></span><b>Explore your dashboard</b></div>
+                  {capability.id === "analytics" && (
+                    <div class="analytics-screen">
+                      <div class="screen-header"><div><span class="screen-eyebrow">ANALYTICS / DASHBOARDS</span><strong>Investigate your activation journey</strong></div><span class="screen-filter">Last 30 days</span></div>
+                      <div class="analytics-kpis"><div><small>Users</small><strong>1,284</strong><span>Unique visitors</span></div><div><small>Activation rate</small><strong>24%</strong><span>First project created</span></div><div class="attention"><small>Needs attention</small><strong>34</strong><span>Stalled during setup</span></div></div>
+                      <div class="analytics-panels">
+                        <div class="analytics-funnel"><div class="panel-heading"><strong>First project activation</strong><span>FUNNEL</span></div><div class="funnel-rows"><div><span>Signed up</span><i><b style="width:100%"></b></i><strong>100</strong></div><div><span>Started setup</span><i><b style="width:58%"></b></i><strong>58</strong></div><div><span>First project</span><i><b style="width:24%"></b></i><strong>24</strong></div></div></div>
+                        <div class="analytics-segment"><div class="panel-heading"><strong>Investigate segment</strong><span>SEGMENT</span></div><div class="segment-count">34 <small>users</small></div><p>Started setup, but never created a first project.</p><span class="segment-pill">◎ &nbsp; View affected users</span></div>
                       </div>
-                      <div class="screen-footer"><span class="footer-dot"></span>Shown to the selected audience on matching pages</div>
+                      <div class="preview-footnote">Dashboards reveal trends. Funnels locate friction. Segments isolate users.</div>
                     </div>
                   )}
 
-                  {capability.id === "improve" && (
-                    <div class="results-screen">
-                      <div class="screen-header"><div><span class="screen-eyebrow">EXPERIENCE ANALYTICS / RESULTS</span><strong>Help users finish setup</strong></div><span class="screen-filter">Sample report</span></div>
-                      <div class="results-metrics"><div><span>Reached</span><strong>28</strong><small>of 34 users</small></div><div><span>Started</span><strong>19</strong><small>of 28 reached</small></div><div><span>Completed</span><strong>12</strong><small>of 28 reached</small></div></div>
-                      <div class="results-report"><div class="results-report-title"><strong>Checklist engagement</strong><span>Illustrative</span></div>
-                        <div class="results-line"><span>Reached</span><div><i class="result-bar reach"></i></div><b>28</b></div>
-                        <div class="results-line"><span>Started</span><div><i class="result-bar started"></i></div><b>19</b></div>
-                        <div class="results-line"><span>Completed</span><div><i class="result-bar completed"></i></div><b>12</b></div>
+                  {capability.id === "feedback" && (
+                    <div class="feedback-screen">
+                      <div class="screen-header"><div><span class="screen-eyebrow">FEEDBACK / IN-APP SURVEYS</span><strong>Ask while the experience is fresh</strong></div><span class="screen-filter">Sample survey</span></div>
+                      <div class="feedback-stage">
+                        <div class="feedback-context"><span class="feedback-label">TARGETING RULE</span><div class="trigger-badge"><span></span> In-app behavior</div><strong>Ask users stalled in setup.</strong><p>Show a short survey to users who started onboarding but haven't created a project.</p><div class="context-divider"></div><span class="feedback-label">RIGHT MOMENT</span><div class="moment-card">↗ &nbsp; When setup is revisited</div></div>
+                        <div class="feedback-card"><span class="survey-accent"></span><small>WE'D LOVE YOUR FEEDBACK</small><strong>What's stopping you from creating your first project?</strong><div class="feedback-choice"><i></i> I'm not sure where to start</div><div class="feedback-choice"><i></i> Setup feels complicated</div><div class="feedback-choice"><i></i> I'm just exploring</div><span class="survey-submit">Share feedback <span>↗</span></span><div class="survey-progress"><i></i><i></i><i></i></div></div>
                       </div>
-                      <div class="results-insight"><span class="insight-dot"></span><p><strong>Did they create a first project?</strong> Review the activation funnel too. Checklist completion isn’t proof of activation.</p></div>
+                      <div class="feedback-insight"><span class="ai-orb">✦</span><div><small>SAMPLE FEEDBACK THEME</small><strong>“I'm not sure where to start.”</strong></div><span class="feedback-tag">Actionable insight</span></div>
                     </div>
                   )}
                 </div>
@@ -296,4 +299,50 @@ const screenTabs = ["Funnels", "Segments", "Experiences", "Results"] as const;
     .capabilities-intro h2 { font-size: clamp(2.15rem, 8vw, 3rem); }
   }
   @media (prefers-reduced-motion: reduce) { .capability-link { scroll-behavior: auto; } }
+
+  /* Cohesive editorial product previews: illustrative, not production screenshots */
+  .mockup-frame { border-radius:1.1rem; border-color:#cdd8ed; box-shadow:0 1.8rem 4rem #050b1d40,0 0 0 1px #ffffff16; }
+  .mockup-toolbar { min-height:2.8rem; }
+  .mockup-main { background:linear-gradient(145deg,#f8faff,#f1f5fd); }
+  .mockup-sidebar { background:#fff; }
+  .screen-header { margin-bottom:.8rem; }
+  .screen-eyebrow { color:#6981b3; }
+  .ai-orb { display:grid;place-items:center;flex:0 0 auto;width:2rem;height:2rem;border-radius:.7rem;background:linear-gradient(135deg,#355bd0,#8b72f0);color:white;font-size:1rem;box-shadow:0 .2rem .65rem #425fc12b; }
+  .geo-hero { display:flex;align-items:center;gap:.75rem;padding:.9rem;border:1px solid #d9e3ff;border-radius:.65rem;background:linear-gradient(110deg,#edf3ff,#f9f7ff); }
+  .geo-hero small,.geo-next>span { display:block;color:#506bb8;font-size:.5rem;font-weight:800;letter-spacing:.08em; }
+  .geo-hero strong { display:block;margin:.26rem 0;color:#223760;font-size:.8rem;line-height:1.25; }
+  .geo-hero p { margin:0;color:#73819b;font-size:.56rem;line-height:1.5; }
+  .geo-cohorts { display:grid;gap:.42rem;margin-top:.65rem; }
+  .geo-cohort { display:flex;align-items:center;gap:.57rem;padding:.54rem .65rem;border:1px solid #e2e8f2;border-radius:.55rem;background:#fff; }
+  .geo-cohort.focus { border-color:#f0d2a0;background:#fffaf2;box-shadow:inset 3px 0 #e8aa4f; }
+  .cohort-symbol { display:grid;place-items:center;flex:0 0 auto;width:1.65rem;height:1.65rem;border-radius:.5rem;font-size:.8rem;font-weight:800; }
+  .cohort-symbol.blue { color:#3d65bf;background:#edf3ff; }.cohort-symbol.amber { color:#af751b;background:#fff0d8; }.cohort-symbol.violet { color:#795fc4;background:#f2edff; }
+  .geo-cohort>div { display:grid;gap:.12rem;min-width:0; }.geo-cohort b { color:#273957;font-size:.62rem; }.geo-cohort small { color:#8793a6;font-size:.51rem; }.geo-cohort>strong { margin-left:auto;color:#263f75;font-size:.84rem;white-space:nowrap; }.geo-cohort>strong em { color:#8896ac;font-size:.48rem;font-style:normal;font-weight:500; }
+  .geo-next { margin-top:.65rem;padding:.67rem .8rem;border:1px solid #dae4ff;border-radius:.58rem;background:#f0f5ff; }.geo-next p { margin:.3rem 0 0;color:#506587;font-size:.59rem;line-height:1.55; }
+  .builder-workspace { display:grid;grid-template-columns:minmax(0,1.75fr) minmax(7.8rem,1fr);gap:.55rem;min-height:15rem; }
+  .builder-web { overflow:hidden;border:1px solid #dce4f1;border-radius:.63rem;background:#fff; }
+  .builder-browser { display:flex;align-items:center;gap:.75rem;padding:.47rem .7rem;border-bottom:1px solid #e6ecf4;color:#8996aa;font-size:.52rem;white-space:nowrap; }.browser-lights { color:#bcc7d9;letter-spacing:.1em; }
+  .builder-site { position:relative;min-height:13.5rem;padding:.8rem;background:linear-gradient(#fff,#f9fbff); }
+  .site-top { display:flex;justify-content:space-between;align-items:center;padding-bottom:.8rem;margin-bottom:.9rem;border-bottom:1px solid #e9edf5; }.site-top b { color:#25314e;font-size:.68rem; }.site-top b span { color:#4e77d8; }.site-top small { color:#9ba6b8;font-size:.43rem; }
+  .builder-site>strong { display:block;color:#2a3e65;font-size:.78rem; }.builder-site>p { color:#8b98ad;font-size:.51rem; }.site-skeleton { display:flex;gap:.5rem; }.site-skeleton i { flex:1;height:2.2rem;background:#f2f5fb;border-radius:.35rem; }
+  .builder-spotlight { position:absolute;left:14%;right:5%;top:43%;padding:.7rem .8rem;border:2px solid #5480ec;border-radius:.55rem;background:white;box-shadow:0 1rem 2rem #3555942b; }
+  .selected-chip { position:absolute;top:-.7rem;left:.55rem;padding:.18rem .45rem;border-radius:.25rem;background:#3d68dc;color:white;font-size:.46rem;font-weight:800;letter-spacing:.03em; }
+  .builder-spotlight>small { display:block;color:#748ab9;font-size:.44rem;font-weight:800;letter-spacing:.06em; }.builder-spotlight>strong { display:block;margin:.38rem 0 .2rem;color:#203b70;font-size:.7rem; }.builder-spotlight p { margin:0 0 .5rem;color:#70809a;font-size:.52rem;line-height:1.4; }
+  .builder-cta { display:inline-flex;gap:.6rem;padding:.35rem .54rem;border-radius:.3rem;background:#3e67d0;color:white;font-size:.5rem;font-weight:700; }
+  .resize-dot { position:absolute;width:.36rem;height:.36rem;border:1px solid #fff;background:#4b78ec;border-radius:.08rem; }.top-left { top:-.25rem;left:-.25rem; }.top-right { top:-.25rem;right:-.25rem; }.bottom-left { bottom:-.25rem;left:-.25rem; }.bottom-right { bottom:-.25rem;right:-.25rem; }
+  .builder-inspector { padding:.68rem;border:1px solid #dce4f1;border-radius:.6rem;background:#fff; }.inspector-head { display:flex;gap:.45rem;align-items:center; }.inspector-head .ai-orb { width:1.5rem;height:1.5rem;border-radius:.5rem; }.inspector-head div { display:grid; }.inspector-head strong { font-size:.66rem; }.inspector-head small { color:#8792a5;font-size:.49rem; }
+  .inspector-message { margin:.85rem 0 .55rem;padding:.6rem;border-radius:.48rem;background:#f0f4ff;color:#3b527f;font-size:.55rem;line-height:1.6; }.inspector-state { color:#24855e;font-size:.51rem;font-weight:700; }.inspector-state span { margin-right:.22rem; }
+  .inspector-divider { height:1px;margin:.8rem 0;background:#e8ecf4; }.inspector-label { display:block;margin:.55rem 0 .35rem;color:#8a97ad;font-size:.47rem;font-weight:800;letter-spacing:.06em; }.inspector-property { display:flex;justify-content:space-between;padding:.4rem;border:1px solid #e0e6f0;border-radius:.35rem;color:#52617f;font-size:.53rem; }.inspector-swatches { display:flex;gap:.35rem; }.inspector-swatches i { width:1rem;height:1rem;border-radius:.3rem;background:#4169da; }.inspector-swatches i:nth-child(2) { background:#8d87ea; }.inspector-swatches i:nth-child(3) { background:#f2bd6d; }.inspector-swatches i:nth-child(4) { background:#f6f7fa;border:1px solid #d7deec; }
+  .preview-footnote { margin-top:.65rem;color:#657fae;font-size:.53rem;line-height:1.45; }
+  .analytics-kpis { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem; }.analytics-kpis>div { display:grid;gap:.25rem;padding:.7rem;border:1px solid #e0e7f2;border-radius:.55rem;background:white; }.analytics-kpis small { color:#8693a9;font-size:.53rem; }.analytics-kpis strong { color:#233c72;font-size:1.3rem;letter-spacing:-.04em; }.analytics-kpis span { color:#a0adbf;font-size:.46rem; }.analytics-kpis .attention { background:#fff9f1;border-color:#f1ddb8; }.analytics-kpis .attention strong { color:#b17b30; }
+  .analytics-panels { display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:.5rem;margin-top:.55rem; }.analytics-panels>div { padding:.7rem;border:1px solid #e0e7f2;border-radius:.55rem;background:white; }.panel-heading { display:flex;align-items:center;justify-content:space-between;gap:.3rem; }.panel-heading strong { font-size:.59rem; }.panel-heading span { color:#7490cd;font-size:.44rem;font-weight:800; }
+  .funnel-rows { display:grid;gap:.7rem;margin-top:1rem; }.funnel-rows>div { display:grid;grid-template-columns:4.3rem 1fr 1.4rem;align-items:center;gap:.38rem; }.funnel-rows span { color:#72809b;font-size:.5rem; }.funnel-rows i { height:.48rem;border-radius:.2rem;background:#eef2f8;overflow:hidden; }.funnel-rows b { display:block;height:100%;background:#5d7ee0;border-radius:inherit; }.funnel-rows>div:nth-child(2) b { background:#8eaaee; }.funnel-rows>div:nth-child(3) b { background:#bdcbf5; }.funnel-rows strong { color:#3a507a;font-size:.56rem;text-align:right; }
+  .segment-count { margin:.8rem 0 .1rem;color:#3c66bb;font-size:1.7rem;font-weight:800; }.segment-count small { color:#8191ab;font-size:.6rem;font-weight:500; }.analytics-segment p { color:#7888a2;font-size:.53rem;line-height:1.5; }.segment-pill { display:inline-block;margin-top:.3rem;padding:.38rem .46rem;border-radius:.35rem;background:#edf3ff;color:#3e66b8;font-size:.49rem;font-weight:750; }
+  .feedback-stage { display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:.58rem; }.feedback-context { padding:.8rem;border:1px solid #dae5f8;border-radius:.65rem;background:linear-gradient(145deg,#edf3ff,#f7faff); }.feedback-label { color:#6984bc;font-size:.47rem;font-weight:800;letter-spacing:.07em; }.trigger-badge { display:flex;align-items:center;gap:.4rem;width:max-content;max-width:100%;margin:.5rem 0 .8rem;padding:.28rem .45rem;border-radius:50px;background:#fff;color:#516a9f;font-size:.49rem; }.trigger-badge>span { width:.38rem;height:.38rem;border-radius:50%;background:#4dab85; }
+  .feedback-context>strong { display:block;color:#304a7d;font-size:.75rem;line-height:1.3; }.feedback-context p { color:#7587a5;font-size:.54rem;line-height:1.65; }.context-divider { margin:.8rem 0;border-top:1px solid #d8e3f5; }.moment-card { margin-top:.5rem;color:#496ba8;font-size:.52rem;font-weight:650; }
+  .feedback-card { position:relative;display:grid;gap:.5rem;padding:.85rem;border:1px solid #dee5f0;border-radius:.7rem;background:#fff;box-shadow:0 .65rem 1.4rem #263e6a12; }.survey-accent { position:absolute;top:0;left:0;right:0;height:.22rem;border-radius:.7rem .7rem 0 0;background:linear-gradient(90deg,#4474de,#8978eb); }.feedback-card>small { margin-top:.3rem;color:#577abf;font-size:.47rem;font-weight:800;letter-spacing:.07em; }.feedback-card>strong { color:#2a3e68;font-size:.73rem;line-height:1.35; }.feedback-choice { display:flex;align-items:center;gap:.42rem;padding:.4rem .5rem;border:1px solid #e3e8f2;border-radius:.38rem;color:#63718a;font-size:.5rem; }.feedback-choice i { flex:0 0 auto;width:.66rem;height:.66rem;border:1px solid #c8d3e5;border-radius:50%; }.survey-submit { display:flex;justify-content:space-between;align-items:center;justify-self:start;gap:.5rem;padding:.37rem .6rem;border-radius:.35rem;background:#3f68d5;color:white;font-size:.51rem;font-weight:750; }.survey-progress { display:flex;gap:.2rem; }.survey-progress i { width:1rem;height:.2rem;border-radius:.5rem;background:#dce5f6; }.survey-progress i:first-child { background:#4972da; }
+  .feedback-insight { display:flex;align-items:center;gap:.56rem;margin-top:.6rem;padding:.55rem .65rem;border:1px solid #dbe5fa;border-radius:.55rem;background:#f1f5ff; }.feedback-insight .ai-orb { width:1.5rem;height:1.5rem;border-radius:.5rem; }.feedback-insight>div { display:grid;gap:.18rem; }.feedback-insight small { color:#6881b5;font-size:.46rem;font-weight:800; }.feedback-insight strong { color:#3d5b9f;font-size:.58rem; }.feedback-tag { margin-left:auto;color:#6580b3;font-size:.49rem;white-space:nowrap; }
+  @media(max-width:650px) { .builder-workspace { grid-template-columns:1fr; }.builder-inspector { display:none; }.analytics-panels { grid-template-columns:1fr; }.feedback-stage { grid-template-columns:1fr; }.feedback-tag { display:none; }.site-top small { display:none; } }
+  @media(max-width:420px) { .analytics-kpis strong { font-size:1.05rem; }.geo-cohort small { font-size:.47rem; }.funnel-rows>div { grid-template-columns:3.75rem 1fr 1.15rem; } }
+
 </style>
