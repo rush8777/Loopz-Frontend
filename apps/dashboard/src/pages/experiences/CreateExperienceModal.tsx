@@ -25,7 +25,7 @@ export function CreateExperienceModal({ kind, widgetType: fixedWidgetType, singu
   const [guidePattern, setGuidePattern] = useState<"anchored_card" | "modal">("anchored_card"); const [legacyPreset, setLegacyPreset] = useState<"default" | "minimal" | "soft" | "compact">("default");
   const [templateId, setTemplateId] = useState("blank"); const [themeSource, setThemeSource] = useState<"template" | "site" | "preset">("template"); const [visualPreset, setVisualPreset] = useState<VisualPresetId>("modern");
   const [source, setSource] = useState("manual"); const [manualUrl, setManualUrl] = useState(""); const [targetPage, setTargetPage] = useState(false); const [error, setError] = useState<string | null>(null); const [saving, setSaving] = useState(false);
-  const onsiteAvailable = kind === "checklist" || kind === "guide" || (kind === "widget" && !!fixedWidgetType && fixedWidgetType !== "hotspot");
+  const onsiteAvailable = kind === "checklist" || kind === "guide" || (kind === "widget" && !!fixedWidgetType);
   const selectedTemplate = useMemo(() => templates.find(template => template.id === templateId) ?? null, [templates, templateId]);
 
   useEffect(() => {
