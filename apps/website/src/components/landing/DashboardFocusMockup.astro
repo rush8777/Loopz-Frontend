@@ -6,7 +6,8 @@ import {
 } from "lucide-astro";
 
 // The data in this marketing demonstration is illustrative, not a live dashboard query.
-const sections = [
+type SidebarSection = { title: string; items: Array<{ name: string; Icon: typeof Gauge; active?: boolean; soon?: boolean }> };
+const sections: SidebarSection[] = [
   { title: "WORKSPACE", items: [
     { name: "Overview", Icon: Gauge },
     { name: "Dashboards", Icon: BarChart2, active: true },
@@ -29,7 +30,7 @@ const sections = [
     { name: "Segments", Icon: UserRoundPen },
     { name: "Users", Icon: Users }
   ] }
-] as const;
+];
 
 const sessionCounts = [0,0,1,5,24,1,0,0,1,2,2,0,0,4,0,2,3,0,1,1,0,2,0,5,0,4,4,1,0,10,12];
 const uniqueCounts = [0,0,1,1,1,0,0,1,1,1,0,0,1,0,1,1,0,1,1,0,1,0,1,1,1,0,0,0,1,4];
@@ -87,7 +88,7 @@ const userScale = [4,3,2,1,0];
     <div class="df-sidebar-settings"><Settings size={13} strokeWidth={1.8} aria-hidden="true"/><span>Settings</span></div>
   </aside>
 
-  <main class="df-main" data-focus-viewport>
+  <div class="df-main" data-focus-viewport>
     <div class="df-grid">
       <section class="df-card df-funnel-card" data-focus-card aria-label="Illustrative funnel: 3 dashboard views and 2 pricing views">
         <div class="df-card-heading"><h4>Funnel</h4><Info size={11} aria-hidden="true"/></div>
@@ -145,7 +146,7 @@ const userScale = [4,3,2,1,0];
         <div class="df-card-footer"><span>Updated just now</span><span>View details <ArrowUpRight size={10} aria-hidden="true"/></span></div>
       </section>
     </div>
-  </main>
+  </div>
   <div class="df-dim" aria-hidden="true"></div>
 </div>
 
@@ -200,7 +201,7 @@ const userScale = [4,3,2,1,0];
           if (!running) return;
           scene.classList.add("df-focus-active");
           card.classList.add("df-focused");
-          // Entrance: 750ms. Then hold the focused card in place for a full 5 seconds.
+          // Ease into focus for 550ms, then hold at full focus for exactly 2 seconds.
           timeoutId = window.setTimeout(() => {
             card.classList.remove("df-focused");
             scene.classList.remove("df-focus-active");
@@ -208,8 +209,8 @@ const userScale = [4,3,2,1,0];
             timeoutId = window.setTimeout(() => {
               activeCard = null;
               advance();
-            }, 900);
-          }, 5750);
+            }, 650);
+          }, 2550);
         });
       };
       const start = () => {
@@ -257,9 +258,9 @@ const userScale = [4,3,2,1,0];
 
   .df-main {min-width:0;min-height:0;padding:9px 9px 10px;background:#fcfcfc;}
   .df-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:9px;width:100%;height:100%;}
-  .df-card {position:relative;min-width:0;min-height:0;z-index:1;overflow:hidden;border:1px solid #e3e3e3;border-radius:8px;background:#fff;transform-origin:center center;transform:translate3d(0,0,0) scale(1);transition:transform .75s cubic-bezier(.2,.72,.22,1),border-color .75s ease,box-shadow .75s ease;box-shadow:0 1px 1px #00000004;}
+  .df-card {position:relative;min-width:0;min-height:0;z-index:1;overflow:hidden;border:1px solid #e3e3e3;border-radius:8px;background:#fff;transform-origin:center center;transform:translate3d(0,0,0) scale(1);transition:transform .55s cubic-bezier(.2,.72,.22,1),border-color .55s ease,box-shadow .55s ease;box-shadow:0 1px 1px #00000004;}
   .df-card.df-focused {z-index:6;transform:translate3d(var(--df-dx,0px),var(--df-dy,0px),0) scale(var(--df-scale,1.25));border-color:#bbd1fb;box-shadow:0 21px 46px rgba(24,46,92,.24),0 3px 14px rgba(24,46,92,.1);}
-  .df-dim {position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;background:rgba(15,23,42,.20);transition:opacity .7s ease;}
+  .df-dim {position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;background:rgba(15,23,42,.20);transition:opacity .55s ease;}
   .df-scene.df-focus-active .df-dim {opacity:1;}
   .df-card-heading {display:flex;align-items:center;gap:5px;padding:12px 12px 0;color:#272727;}
   .df-card-heading h4 {margin:0;font-size:11px;line-height:1.3;font-weight:680;letter-spacing:-.015em;}
