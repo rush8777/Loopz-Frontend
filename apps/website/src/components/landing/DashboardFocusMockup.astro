@@ -1,0 +1,336 @@
+---
+import {
+  ArrowUpRight, BarChart2, CheckSquare, ChevronDown, Ellipsis, FileText,
+  Flame, Gauge, Info, LayoutTemplate, ListChecks, MousePointerClick,
+  Network, PanelLeftClose, Settings, Sparkles, UserRoundPen, Users, Waypoints
+} from "lucide-astro";
+
+// The data in this marketing demonstration is illustrative, not a live dashboard query.
+const sections = [
+  { title: "WORKSPACE", items: [
+    { name: "Overview", Icon: Gauge },
+    { name: "Dashboards", Icon: BarChart2, active: true },
+    { name: "Geo", Icon: Sparkles }
+  ] },
+  { title: "EXPERIENCES", items: [
+    { name: "Surveys", Icon: ListChecks },
+    { name: "Guides", Icon: LayoutTemplate },
+    { name: "Checklists", Icon: CheckSquare },
+    { name: "Other", Icon: Ellipsis }
+  ] },
+  { title: "OBSERVE", items: [
+    { name: "Pages", Icon: FileText },
+    { name: "Sessions", Icon: MousePointerClick },
+    { name: "Events", Icon: Waypoints },
+    { name: "Funnels", Icon: Network },
+    { name: "Heatmaps", Icon: Flame, soon: true }
+  ] },
+  { title: "PEOPLE", items: [
+    { name: "Segments", Icon: UserRoundPen },
+    { name: "Users", Icon: Users }
+  ] }
+] as const;
+
+const sessionCounts = [0,0,1,5,24,1,0,0,1,2,2,0,0,4,0,2,3,0,1,1,0,2,0,5,0,4,4,1,0,10,12];
+const uniqueCounts = [0,0,1,1,1,0,0,1,1,1,0,0,1,0,1,1,0,1,1,0,1,0,1,1,1,0,0,0,1,4];
+const metrics = [
+  { label: "Direct / unknown", count: 4 },
+  { label: "n-html/index.html", count: 3 },
+  { label: "l/dashboard.html", count: 1 },
+  { label: "//localhost:5173/", count: 1 },
+  { label: "html/features.html", count: 1 }
+] as const;
+const round = (n: number) => Number(n.toFixed(2));
+const makeCurve = (series: number[], max: number) => {
+  const points = series.map((v, i) => ({
+    x: round(35 + (i / (series.length - 1)) * 359),
+    y: round(146 - (v / max) * 129)
+  }));
+  return points.reduce((path, point, i) => {
+    if (i === 0) return "M " + point.x + " " + point.y;
+    const previous = points[i - 1];
+    const offset = (point.x - previous.x) * .35;
+    return path + " C " + round(previous.x + offset) + " " + previous.y +
+      " " + round(point.x - offset) + " " + point.y +
+      " " + point.x + " " + point.y;
+  }, "");
+};
+const sessionPath = makeCurve(sessionCounts, 24);
+const uniquePath = makeCurve(uniqueCounts, 4);
+const dateTicks = [
+  { x: 35, label: "Oct 10" },
+  { x: 147, label: "Oct 18" },
+  { x: 258, label: "Oct 26" },
+  { x: 367, label: "Nov 3" }
+];
+const sessionScale = [24,18,12,6,0];
+const userScale = [4,3,2,1,0];
+---
+
+<div class="df-scene" data-dashboard-focus-scene role="group" aria-label="Illustrative Movcues dashboard with funnel, total sessions, unique users, and metrics charts; each chart is highlighted in turn">
+  <aside class="df-sidebar" aria-label="Illustrative workspace navigation">
+    <div class="df-sidebar-head"><span>Demo</span><ChevronDown size={10} strokeWidth={1.9} aria-hidden="true"/><PanelLeftClose class="df-collapse" size={15} strokeWidth={1.8} aria-hidden="true"/></div>
+    <div class="df-sidebar-sections">
+      {sections.map((section) => (
+        <div class="df-nav-section">
+          <p>{section.title}</p>
+          {section.items.map(({ name, Icon, active, soon }) => (
+            <div class:list={["df-nav-item", active && "df-active", soon && "df-disabled"]}>
+              <Icon size={13} strokeWidth={1.8} aria-hidden="true"/>
+              <span>{name}</span>
+              {soon && <small>Soon</small>}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+    <div class="df-sidebar-settings"><Settings size={13} strokeWidth={1.8} aria-hidden="true"/><span>Settings</span></div>
+  </aside>
+
+  <main class="df-main" data-focus-viewport>
+    <div class="df-grid">
+      <section class="df-card df-funnel-card" data-focus-card aria-label="Illustrative funnel: 3 dashboard views and 2 pricing views">
+        <div class="df-card-heading"><h4>Funnel</h4><Info size={11} aria-hidden="true"/></div>
+        <div class="df-funnel-body">
+          <div class="df-funnel-step">
+            <div class="df-funnel-value"><strong>3</strong><span>100%</span></div>
+            <div class="df-funnel-bar df-funnel-full"></div>
+            <div class="df-funnel-name">dashboard_viewed</div>
+          </div>
+          <div class="df-funnel-step">
+            <div class="df-funnel-value"><strong>2</strong><span>66.7%</span></div>
+            <div class="df-funnel-bar df-funnel-second"><i></i></div>
+            <div class="df-funnel-name">pricing_viewed</div>
+          </div>
+        </div>
+        <div class="df-card-footer"><span>Updated just now</span><span>View details <ArrowUpRight size={10} aria-hidden="true"/></span></div>
+      </section>
+
+      <section class="df-card df-graph-card" data-focus-card aria-label="Illustrative total sessions over 30 days">
+        <div class="df-card-heading"><h4>Total Sessions</h4><Info size={11} aria-hidden="true"/></div>
+        <div class="df-svg-wrap">
+          <svg viewBox="0 0 410 183" preserveAspectRatio="none" role="img" aria-labelledby="df-sessions-title df-sessions-description">
+            <title id="df-sessions-title">Total sessions trend, example data</title>
+            <desc id="df-sessions-description">Daily sessions between October 10 and November 9. A spike reaches 24, with later smaller peaks and a final value of 12.</desc>
+            {sessionScale.map((value) => <text x="22" y={round(146 - (value / 24) * 129 + 3.5)} text-anchor="end" class="df-axis">{value}</text>)}
+            <path d={sessionPath} class="df-plot" fill="none" stroke="#2666ff" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" pathLength="100"/>
+            {dateTicks.map((tick) => <text class="df-date" x={tick.x} y="170" text-anchor="middle">{tick.label}</text>)}
+          </svg>
+        </div>
+        <div class="df-card-footer"><span>Updated just now</span><span>View details <ArrowUpRight size={10} aria-hidden="true"/></span></div>
+      </section>
+
+      <section class="df-card df-graph-card" data-focus-card aria-label="Illustrative daily unique users over 30 days">
+        <div class="df-card-heading"><h4>Unique users</h4><Info size={11} aria-hidden="true"/></div>
+        <div class="df-svg-wrap">
+          <svg viewBox="0 0 410 183" preserveAspectRatio="none" role="img" aria-labelledby="df-users-title df-users-description">
+            <title id="df-users-title">Unique users trend, example data</title>
+            <desc id="df-users-description">Most days show zero or one unique user; the final day rises to four unique users.</desc>
+            {userScale.map((value) => <text x="22" y={round(146 - (value / 4) * 129 + 3.5)} text-anchor="end" class="df-axis">{value}</text>)}
+            <path d={uniquePath} class="df-plot" fill="none" stroke="#2666ff" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" pathLength="100"/>
+            {dateTicks.map((tick) => <text class="df-date" x={tick.x} y="170" text-anchor="middle">{tick.label}</text>)}
+          </svg>
+        </div>
+        <div class="df-card-footer"><span>Updated just now</span><span>View details <ArrowUpRight size={10} aria-hidden="true"/></span></div>
+      </section>
+
+      <section class="df-card df-metrics-card" data-focus-card aria-label="Illustrative metrics by source: Direct/unknown four, index page three, and three other pages one each">
+        <div class="df-card-heading"><h4>Metrics</h4><Info size={11} aria-hidden="true"/></div>
+        <div class="df-metric-rows">
+          {metrics.map((metric) => (
+            <div class="df-metric-row"><span title={metric.label}>{metric.label}</span><div class="df-metric-track"><i style={"--df-bar:" + (metric.count / 4) * 100 + "%"}></i></div></div>
+          ))}
+          <div class="df-metric-ticks"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+        </div>
+        <div class="df-card-footer"><span>Updated just now</span><span>View details <ArrowUpRight size={10} aria-hidden="true"/></span></div>
+      </section>
+    </div>
+  </main>
+  <div class="df-dim" aria-hidden="true"></div>
+</div>
+
+<script>
+  // Purely illustrative: no network calls, no production SDK, and no analytics events.
+  // Transform original cards, never clones, so returning to transform:none is pixel-exact.
+  const scenes = document.querySelectorAll<HTMLElement>("[data-dashboard-focus-scene]");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if ("IntersectionObserver" in window && !reduced.matches) {
+    const controllers = Array.from(scenes, (scene) => {
+      const cards = Array.from(scene.querySelectorAll<HTMLElement>("[data-focus-card]"));
+      const main = scene.querySelector<HTMLElement>("[data-focus-viewport]");
+      let running = false;
+      let nextIndex = 0;
+      let activeCard: HTMLElement | null = null;
+      let timeoutId: number | undefined;
+      let frameId: number | undefined;
+
+      const clearTimers = () => {
+        if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+        if (frameId !== undefined) window.cancelAnimationFrame(frameId);
+        timeoutId = undefined;
+        frameId = undefined;
+      };
+      const stop = () => {
+        running = false;
+        clearTimers();
+        activeCard?.classList.remove("df-focused");
+        activeCard = null;
+        scene.classList.remove("df-focus-active");
+      };
+      const advance = () => {
+        if (!running || !main || !cards.length) return;
+        const card = cards[nextIndex];
+        nextIndex = (nextIndex + 1) % cards.length;
+        activeCard = card;
+
+        // Measure the natural, untransformed card rectangle each time.
+        const cardRect = card.getBoundingClientRect();
+        const mainRect = main.getBoundingClientRect();
+        const sceneRect = scene.getBoundingClientRect();
+        const centerX = mainRect.left + mainRect.width / 2;
+        const centerY = sceneRect.top + sceneRect.height / 2;
+        const availableWidth = Math.max(1, sceneRect.width - 22);
+        const availableHeight = Math.max(1, sceneRect.height - 22);
+        const scale = Math.min(1.34, availableWidth / cardRect.width, availableHeight / cardRect.height);
+        card.style.setProperty("--df-dx", (centerX - (cardRect.left + cardRect.width / 2)) + "px");
+        card.style.setProperty("--df-dy", (centerY - (cardRect.top + cardRect.height / 2)) + "px");
+        card.style.setProperty("--df-scale", String(Math.max(1, scale)));
+
+        frameId = window.requestAnimationFrame(() => {
+          if (!running) return;
+          scene.classList.add("df-focus-active");
+          card.classList.add("df-focused");
+          // Entrance: 750ms. Then hold the focused card in place for a full 5 seconds.
+          timeoutId = window.setTimeout(() => {
+            card.classList.remove("df-focused");
+            scene.classList.remove("df-focus-active");
+            // Restore to the original card layout before moving to the next.
+            timeoutId = window.setTimeout(() => {
+              activeCard = null;
+              advance();
+            }, 900);
+          }, 5750);
+        });
+      };
+      const start = () => {
+        if (running || document.hidden) return;
+        running = true;
+        advance();
+      };
+      return { scene, start, stop };
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const controller = controllers.find((item) => item.scene === entry.target);
+        if (!controller) continue;
+        if (entry.isIntersecting && entry.intersectionRatio >= .3) controller.start();
+        else controller.stop();
+      }
+    }, { threshold: [0, .15, .3, .5] });
+
+    controllers.forEach(({ scene }) => observer.observe(scene));
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) controllers.forEach((controller) => controller.stop());
+      else controllers.forEach((controller) => {
+        if (controller.scene.getBoundingClientRect().bottom > 0 &&
+            controller.scene.getBoundingClientRect().top < window.innerHeight) controller.start();
+      });
+    });
+  }
+</script>
+
+<style>
+  .df-scene {container-type:inline-size;position:relative;isolation:isolate;display:grid;grid-template-columns:112px minmax(0,1fr);overflow:hidden;width:100%;height:468px;border:1px solid #d5dfe9;border-radius:14px;background:#fdfdfd;color:#24272c;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;box-shadow:0 1.5rem 3.5rem rgba(0,0,0,.23);}
+  .df-scene *,.df-scene *::before,.df-scene *::after {box-sizing:border-box}
+  .df-sidebar {position:relative;z-index:0;min-width:0;display:flex;flex-direction:column;padding:11px 7px 10px;background:linear-gradient(155deg,#b8d9ff 0%,#d4e9ff 68%,#e7f4ff 100%);border-right:1px solid #cdddf1;overflow:hidden;}
+  .df-sidebar-head {display:flex;align-items:center;gap:4px;min-height:33px;padding:0 5px 0 6px;color:#1e293b;font-size:10px;white-space:nowrap;}
+  .df-collapse {margin-left:auto}
+  .df-sidebar-sections {display:grid;align-content:start;gap:12px;margin-top:12px;}
+  .df-nav-section>p {font-size:7px;font-weight:750;color:#748394;margin:0 0 6px 6px;letter-spacing:.025em;}
+  .df-nav-item {height:24px;padding:0 6px;display:flex;gap:7px;align-items:center;color:#29333e;font-size:9px;white-space:nowrap;border-radius:6px;}
+  .df-nav-item svg {width:12px;height:12px;flex:none;}
+  .df-nav-item.df-active {background:rgba(255,255,255,.65);box-shadow:0 1px 2px rgba(82,143,223,.12);font-weight:600;}
+  .df-nav-item.df-disabled {color:#9baaba;}
+  .df-nav-item small {margin-left:auto;color:#99a9b9;border:1px solid #ffffff75;border-radius:3px;padding:1px 2px;font-size:7px;}
+  .df-sidebar-settings {margin-top:auto;display:flex;align-items:center;gap:7px;padding:9px 6px;color:#2b3a49;font-size:9px;}
+
+  .df-main {min-width:0;min-height:0;padding:9px 9px 10px;background:#fcfcfc;}
+  .df-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:9px;width:100%;height:100%;}
+  .df-card {position:relative;min-width:0;min-height:0;z-index:1;overflow:hidden;border:1px solid #e3e3e3;border-radius:8px;background:#fff;transform-origin:center center;transform:translate3d(0,0,0) scale(1);transition:transform .75s cubic-bezier(.2,.72,.22,1),border-color .75s ease,box-shadow .75s ease;box-shadow:0 1px 1px #00000004;}
+  .df-card.df-focused {z-index:6;transform:translate3d(var(--df-dx,0px),var(--df-dy,0px),0) scale(var(--df-scale,1.25));border-color:#bbd1fb;box-shadow:0 21px 46px rgba(24,46,92,.24),0 3px 14px rgba(24,46,92,.1);}
+  .df-dim {position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;background:rgba(15,23,42,.20);transition:opacity .7s ease;}
+  .df-scene.df-focus-active .df-dim {opacity:1;}
+  .df-card-heading {display:flex;align-items:center;gap:5px;padding:12px 12px 0;color:#272727;}
+  .df-card-heading h4 {margin:0;font-size:11px;line-height:1.3;font-weight:680;letter-spacing:-.015em;}
+  .df-card-heading svg {color:#93999c;width:10px;height:10px;}
+  .df-card-footer {position:absolute;bottom:0;left:0;right:0;height:28px;border-top:1px solid #e6e6e6;padding:0 12px;display:flex;justify-content:space-between;align-items:center;color:#929292;font-size:7.5px;white-space:nowrap;}
+  .df-card-footer>span:last-child {display:flex;align-items:center;gap:6px;}
+
+  .df-funnel-body {display:flex;align-items:flex-start;gap:10px;margin:14px 12px 0;width:min(240px,calc(100% - 24px));}
+  .df-funnel-step {min-width:0;flex:1;}
+  .df-funnel-value {display:flex;justify-content:space-between;align-items:end;margin-bottom:7px;}
+  .df-funnel-value strong {font-size:12px;font-weight:750;color:#262626;}
+  .df-funnel-value span {font-size:8px;color:#969696;}
+  .df-funnel-bar {position:relative;width:100%;height:113px;border-radius:4px 4px 0 0;overflow:hidden;background:#f2f2f2;}
+  .df-funnel-full {background:#3774f5;}
+  .df-funnel-second i {position:absolute;display:block;bottom:0;left:0;right:0;height:66.7%;background:#3774f5;}
+  .df-funnel-name {font-size:8.5px;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#303030;}
+  .df-graph-card .df-svg-wrap {width:100%;height:calc(100% - 59px);padding:0 7px;}
+  .df-svg-wrap svg {display:block;width:100%;height:100%;overflow:visible;}
+  .df-axis,.df-date {fill:#414141;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:9px;}
+  .df-date {font-size:8.5px;}
+  .df-plot {vector-effect:non-scaling-stroke;}
+  .df-card.df-focused .df-plot {animation:df-line-draw .85s ease .15s both;}
+  @keyframes df-line-draw {from{stroke-dasharray:100;stroke-dashoffset:100}to{stroke-dasharray:100;stroke-dashoffset:0}}
+
+  .df-metric-rows {padding:15px 13px 0;}
+  .df-metric-row {display:grid;grid-template-columns:80px minmax(0,1fr);align-items:center;gap:9px;margin-bottom:8px;}
+  .df-metric-row>span {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:7.5px;color:#383838;}
+  .df-metric-track {height:19px;min-width:0;}
+  .df-metric-track>i {display:block;height:100%;width:var(--df-bar);border-radius:3px 3px 0 0;background:#477feb;}
+  .df-metric-ticks {display:flex;justify-content:space-between;margin-left:89px;color:#333;font-size:8px;padding-top:1px;}
+  .df-card.df-focused .df-metric-track>i {animation:df-bar-in .7s cubic-bezier(.2,.75,.3,1) .15s both;transform-origin:left center;}
+  @keyframes df-bar-in {from{transform:scaleX(.12);opacity:.45}to{transform:scaleX(1);opacity:1}}
+  .df-card.df-focused .df-funnel-bar {animation:df-funnel-in .55s ease .1s both;transform-origin:bottom;}
+  @keyframes df-funnel-in {from{transform:scaleY(.45)}to{transform:scaleY(1)}}
+
+  @container (max-width:690px) {
+    .df-scene {grid-template-columns:89px minmax(0,1fr);height:445px;}
+    .df-sidebar {padding-inline:4px;}
+    .df-nav-item {gap:4px;font-size:8px;padding-inline:5px;}
+    .df-sidebar-sections {gap:10px;}
+    .df-nav-section>p {font-size:6.8px;}
+    .df-main {padding:7px;}
+    .df-grid {gap:7px;}
+    .df-funnel-body {gap:6px;margin-inline:8px;width:calc(100% - 16px);}
+    .df-card-heading {padding:9px 9px 0;}
+    .df-card-footer {padding-inline:9px;font-size:7px;}
+    .df-funnel-name {font-size:7px;}
+    .df-metric-rows {padding-inline:9px;}
+    .df-metric-row {grid-template-columns:64px minmax(0,1fr);gap:6px;}
+    .df-metric-row>span {font-size:7px;}
+    .df-metric-ticks {margin-left:70px;}
+  }
+  @container (max-width:505px) {
+    .df-scene {grid-template-columns:37px minmax(0,1fr);height:800px;}
+    .df-sidebar {padding:8px 3px;}
+    .df-sidebar-head {justify-content:center;padding:0;}
+    .df-sidebar-head>span,.df-sidebar-head>svg:not(.df-collapse),.df-nav-section>p,.df-nav-item>span,.df-nav-item>small,.df-sidebar-settings>span {display:none;}
+    .df-collapse {margin:0;}
+    .df-sidebar-sections {gap:12px;}
+    .df-nav-item,.df-sidebar-settings {padding:0;justify-content:center;}
+    .df-grid {grid-template-columns:1fr;grid-template-rows:repeat(4, minmax(0,1fr));gap:8px;}
+    .df-funnel-bar {height:102px;}
+    .df-funnel-body {width:min(250px,calc(100% - 20px));}
+    .df-card-heading h4 {font-size:11px;}
+    .df-metric-row {grid-template-columns:80px minmax(0,1fr);}
+    .df-metric-ticks {margin-left:86px;}
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .df-card {transition:none!important;}
+    .df-card.df-focused {transform:none!important;}
+    .df-card.df-focused .df-plot,.df-card.df-focused .df-metric-track>i,.df-card.df-focused .df-funnel-bar {animation:none!important;}
+    .df-dim {display:none;}
+  }
+</style>
