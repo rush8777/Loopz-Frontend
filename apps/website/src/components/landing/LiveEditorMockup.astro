@@ -60,7 +60,7 @@ const tasks = [
     <div class="le-checklist">
       <strong>Activate your workspace</strong>
       <p>Complete these quick steps to get the most from your workspace.</p>
-      <span class="le-count">0 of 3 complete</span>
+      <span class="le-count"><span class="le-count-before">0 of 3 complete</span><span class="le-count-after">1 of 3 complete</span></span>
       <div class="le-progress" aria-hidden="true">{Array.from({length:16},()=> <i></i>)}</div>
       <ul>{tasks.map(([title, subtitle]) => <li><span class="le-task-box"></span><div><b>{title}</b><small>{subtitle}</small></div></li>)}</ul>
       <div class="le-check-actions"><span><Minus size={11}/></span><span><X size={11}/></span></div>
@@ -330,11 +330,27 @@ const tasks = [
   .le-scene.is-playing .le-task-box:first-child {animation:none;}
   .le-scene.is-playing .le-checklist li:first-child .le-task-box {animation:le-tour-task-completed .3s ease 18.2s forwards;}
   .le-scene.is-playing .le-checklist li:first-child .le-task-box::after {animation:le-tour-task-check .2s ease 18.2s both;}
+  .le-count {display:block;position:relative;height:12px;}
+  .le-count-before,.le-count-after {position:absolute;top:0;left:0;white-space:nowrap;}
+  .le-count-after {opacity:0;}
+  .le-scene.is-playing .le-count-before {animation:le-tour-count-before .25s ease 18.2s forwards;}
+  .le-scene.is-playing .le-count-after {animation:le-tour-count-after .25s ease 18.2s forwards;}
+  .le-scene.is-playing .le-tour-click-ring {animation:le-tour-cursor-click 11.2s linear 7.15s both;}
+  .le-scene.is-playing .le-checklist li:first-child {animation:le-tour-task-highlight .7s ease 8.36s both;}
+
   @keyframes le-tour-preview-pill {0%,4%{opacity:0;transform:translateY(-4px)}8%,90%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-4px)}}
   @keyframes le-tour-stage-timing {0%{opacity:0;transform:translateY(8px)}9%,86%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-5px)}}
   @keyframes le-tour-selected-cycle {0%{opacity:1}5%,90%{opacity:0}100%{opacity:1}}
   @keyframes le-tour-edit-handles {from{opacity:1}to{opacity:0;visibility:hidden}}
   @keyframes le-tour-task-completed {to{background:#dff8eb;border-radius:3px}}
+  @keyframes le-tour-count-before {to{opacity:0}}
+  @keyframes le-tour-count-after {to{opacity:1}}
+  @keyframes le-tour-task-highlight {0%,100%{background:transparent}50%{background:#f1f4ff;border-radius:5px;box-shadow:0 0 0 4px #f1f4ff}}
+  @keyframes le-tour-cursor-click {
+    0%,13%,18%,28%,33%,54%,59%,80%,85%,100%{opacity:0;transform:scale(.4)}
+    15%,31%,56%,82%{opacity:.78;transform:scale(1.5)}
+  }
+
   .le-checklist li:first-child .le-task-box::after {content:"✓";display:grid;place-items:center;color:#1b9a5e;font-size:10px;font-weight:800;opacity:0;}
   @keyframes le-tour-task-check {from{opacity:0}to{opacity:1}}
   @keyframes le-tour-cursor-path {
@@ -382,5 +398,7 @@ const tasks = [
   @media(prefers-reduced-motion:reduce) {
     .le-tour-stage,.le-tour-cursor,.le-tour-preview-pill {display:none!important;animation:none!important;}
     .le-checklist li:first-child .le-task-box::after {opacity:0;}
+    .le-count-before {opacity:1;}
+    .le-count-after {opacity:0;}
   }
 </style>
