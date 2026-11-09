@@ -66,6 +66,49 @@ const tasks = [
       <div class="le-check-actions"><span><Minus size={11}/></span><span><X size={11}/></span></div>
     </div>
   </div>
+
+  <!-- A passive, timed product tour. These are visuals, not interactive controls. -->
+  <div class="le-tour-preview-pill" aria-hidden="true"><span></span> Previewing onboarding guide</div>
+
+  <div class="le-tour-intro le-tour-stage" aria-hidden="true">
+    <div class="le-tour-scrim"></div>
+    <div class="le-tour-dialog">
+      <div class="le-tour-dialog-icon"><Sparkles size={16} strokeWidth={1.8}/></div>
+      <span class="le-tour-eyebrow">YOUR FIRST WORKFLOW · STEP 1 OF 3</span>
+      <h5>Let's connect your data.</h5>
+      <p>A few simple steps will help you get started and understand what happens in your workspace.</p>
+      <div class="le-tour-dialog-actions"><span>Skip guide</span><strong>Show me how <ArrowUpRight size={11}/></strong></div>
+    </div>
+  </div>
+
+  <div class="le-tour-anchored le-tour-stage" aria-hidden="true">
+    <div class="le-tour-soft-shade"></div>
+    <div class="le-tour-highlight"></div>
+    <div class="le-tour-anchor-card">
+      <span class="le-tour-eyebrow">ON THIS PAGE · STEP 2 OF 3</span>
+      <h5>Watch your events arrive.</h5>
+      <p>Once your source is connected, this activity feed helps you confirm that tracking is working.</p>
+      <div class="le-tour-anchor-bottom"><span><i></i><i class="is-current"></i><i></i></span><strong>Continue <ArrowUpRight size={11}/></strong></div>
+    </div>
+  </div>
+
+  <div class="le-tour-success le-tour-stage" aria-hidden="true">
+    <div class="le-tour-scrim"></div>
+    <div class="le-tour-dialog le-tour-success-dialog">
+      <div class="le-tour-success-icon"><Check size={17} strokeWidth={2.25}/></div>
+      <span class="le-tour-eyebrow">GUIDE COMPLETED · STEP 3 OF 3</span>
+      <h5>You're ready for what's next.</h5>
+      <p>You've learned where to check incoming activity. Continue setting up your workspace at your own pace.</p>
+      <div class="le-tour-dialog-actions"><span>3 steps explored</span><strong>Finish guide <Check size={11}/></strong></div>
+    </div>
+  </div>
+
+  <div class="le-tour-cursor" aria-hidden="true">
+    <svg viewBox="0 0 24 29" width="24" height="29" fill="none">
+      <path d="M2 1.5V22.5L8.2 17.1L12.7 27L17.2 24.9L12.6 15.5H22.2L2 1.5Z" fill="white" stroke="#1F2937" stroke-width="1.8" stroke-linejoin="round"/>
+    </svg>
+    <span class="le-tour-click-ring"></span>
+  </div>
 </div>
 <script>
   // All copy is present in Astro's HTML before hydration, including the AI response.
@@ -248,5 +291,96 @@ const tasks = [
     .le-toolbar-label strong { font-size:7.5px; }
     .le-toolbar-label small { font-size:6px; }
     .le-top-icons svg:first-child, .le-top-icons svg:nth-child(2) { display:none; }
+  }
+
+  /* Automated, non-interactive walkthrough layered over the existing mock website. */
+  .le-tour-stage {position:absolute;inset:0;z-index:9;opacity:0;pointer-events:none;}
+  .le-tour-scrim {position:absolute;inset:0;background:rgba(16,24,40,.15);}
+  .le-tour-soft-shade {position:absolute;inset:0;background:rgba(16,24,40,.055);}
+  .le-tour-dialog {position:absolute;left:61%;top:51%;transform:translate(-50%,-50%);width:min(270px,55%);padding:19px 19px 17px;border:1px solid rgba(223,228,239,.94);border-radius:14px;background:rgba(255,255,255,.99);box-shadow:0 20px 50px rgba(19,29,49,.17),0 3px 9px rgba(19,29,49,.05);color:#17243a;}
+  .le-tour-dialog-icon,.le-tour-success-icon {display:grid;place-items:center;width:32px;height:32px;margin-bottom:13px;border:1px solid #e0e4ff;border-radius:9px;background:#f2f1ff;color:#6057e9;}
+  .le-tour-eyebrow {display:block;color:#716bb4;font-size:8px;font-weight:760;letter-spacing:.095em;line-height:1.4;}
+  .le-tour-dialog h5,.le-tour-anchor-card h5 {margin:7px 0 8px;color:#19243a;font-size:17px;font-weight:770;letter-spacing:-.055em;line-height:1.22;}
+  .le-tour-dialog p,.le-tour-anchor-card p {margin:0;color:#75829a;font-size:10px;line-height:1.65;}
+  .le-tour-dialog-actions {display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-top:20px;color:#8b97aa;font-size:9px;}
+  .le-tour-dialog-actions strong,.le-tour-anchor-bottom strong {display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;padding:9px 11px;border-radius:6px;background:#615bf4;color:#fff;font-weight:750;font-size:9px;box-shadow:0 3px 8px rgba(94,86,229,.13);}
+  .le-tour-highlight {position:absolute;top:58%;right:5.8%;width:30%;height:8%;border:1.5px solid rgba(108,100,241,.75);border-radius:8px;box-shadow:0 0 0 3px rgba(99,91,255,.11);background:rgba(255,255,255,.06);}
+  .le-tour-anchor-card {position:absolute;top:42%;left:45%;width:min(225px,45%);padding:15px;border:1px solid #dde3ef;border-radius:11px;background:#fff;box-shadow:0 14px 35px rgba(20,30,52,.17);color:#17243a;}
+  .le-tour-anchor-card::after {content:"";position:absolute;right:20px;bottom:-6px;width:11px;height:11px;transform:rotate(45deg);border-right:1px solid #dde3ef;border-bottom:1px solid #dde3ef;background:#fff;}
+  .le-tour-anchor-card h5 {font-size:14px;}
+  .le-tour-anchor-card p {font-size:9.5px;}
+  .le-tour-anchor-bottom {display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:15px;}
+  .le-tour-anchor-bottom>span {display:flex;gap:4px;}.le-tour-anchor-bottom i {height:4px;width:14px;border-radius:4px;background:#e1e5ef;}.le-tour-anchor-bottom i.is-current {background:#716bff;}
+  .le-tour-anchor-bottom strong {padding:8px 10px;font-size:8px;}
+  .le-tour-success-icon {border-color:#d9eee2;background:#effbf4;color:#209c64;}
+  .le-tour-success .le-tour-eyebrow {color:#308d64;}
+  .le-tour-success-dialog {top:51%;}
+  .le-tour-preview-pill {position:absolute;z-index:8;left:41%;top:58px;display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #dce5ff;border-radius:100px;background:rgba(255,255,255,.96);box-shadow:0 3px 12px rgba(28,44,87,.07);font-size:8px;font-weight:700;color:#4769a0;opacity:0;pointer-events:none;}
+  .le-tour-preview-pill>span {width:6px;height:6px;border-radius:50%;background:#35b77b;}
+  .le-tour-cursor {position:absolute;z-index:15;left:56%;top:54%;width:24px;height:29px;opacity:0;pointer-events:none;filter:drop-shadow(1px 2px 2px rgba(0,0,0,.2));}
+  .le-tour-click-ring {position:absolute;top:0;left:0;display:block;width:20px;height:20px;border:2px solid rgba(84,116,247,.45);border-radius:50%;opacity:0;transform:scale(.4);}
+
+  .le-scene.is-playing .le-tour-preview-pill {animation:le-tour-preview-pill 11.45s linear 7.0s both;}
+  .le-scene.is-playing .le-tour-cursor {animation:le-tour-cursor-path 11.2s linear 7.15s both;}
+  .le-scene.is-playing .le-tour-intro {animation:le-tour-stage-timing 2.95s ease 8.96s both;}
+  .le-scene.is-playing .le-tour-anchored {animation:le-tour-stage-timing 2.7s ease 11.86s both;}
+  .le-scene.is-playing .le-tour-success {animation:le-tour-stage-timing 3.45s ease 14.59s both;}
+  .le-scene.is-playing .le-selected {animation:le-check-in .52s cubic-bezier(.18,.8,.2,1) 5.86s both, le-tour-selected-cycle 10.0s linear 8.85s forwards;}
+  .le-scene.is-playing .le-selected-tools,.le-scene.is-playing .le-handle {animation:le-tour-edit-handles .22s ease 7.15s forwards;}
+  .le-scene.is-playing .le-task-box:first-child {animation:none;}
+  .le-scene.is-playing .le-checklist li:first-child .le-task-box {animation:le-tour-task-completed .3s ease 18.2s forwards;}
+  .le-scene.is-playing .le-checklist li:first-child .le-task-box::after {animation:le-tour-task-check .2s ease 18.2s both;}
+  @keyframes le-tour-preview-pill {0%,4%{opacity:0;transform:translateY(-4px)}8%,90%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-4px)}}
+  @keyframes le-tour-stage-timing {0%{opacity:0;transform:translateY(8px)}9%,86%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-5px)}}
+  @keyframes le-tour-selected-cycle {0%{opacity:1}5%,90%{opacity:0}100%{opacity:1}}
+  @keyframes le-tour-edit-handles {from{opacity:1}to{opacity:0;visibility:hidden}}
+  @keyframes le-tour-task-completed {to{background:#dff8eb;border-radius:3px}}
+  .le-checklist li:first-child .le-task-box::after {content:"✓";display:grid;place-items:center;color:#1b9a5e;font-size:10px;font-weight:800;opacity:0;}
+  @keyframes le-tour-task-check {from{opacity:0}to{opacity:1}}
+  @keyframes le-tour-cursor-path {
+    0%{left:54%;top:53%;opacity:0;transform:scale(1)}
+    7%{left:65%;top:59%;opacity:1}
+    14%{left:80%;top:71%;opacity:1;transform:scale(1)}
+    16%{left:80%;top:71%;transform:scale(.8)}
+    18%{left:80%;top:71%;transform:scale(1)}
+    26%{left:69%;top:64%;opacity:1}
+    31%{left:69%;top:64%;transform:scale(.8)}
+    34%{left:69%;top:64%;transform:scale(1)}
+    45%{left:66%;top:67%;opacity:1}
+    56%{left:66%;top:67%;transform:scale(.8)}
+    59%{left:66%;top:67%;transform:scale(1)}
+    73%{left:68%;top:65%;opacity:1}
+    82%{left:68%;top:65%;transform:scale(.8)}
+    85%{left:68%;top:65%;transform:scale(1)}
+    93%{left:72%;top:69%;opacity:1}
+    100%{left:72%;top:69%;opacity:0}
+  }
+  @container(max-width:570px) {
+    .le-tour-dialog {left:59%;width:55%;padding:13px;}
+    .le-tour-dialog h5 {font-size:13px;}
+    .le-tour-dialog p {font-size:8px;}
+    .le-tour-eyebrow {font-size:7px;}
+    .le-tour-dialog-actions {gap:7px;margin-top:13px;font-size:7px;}
+    .le-tour-dialog-actions strong {font-size:7px;padding:7px;}
+    .le-tour-anchor-card {left:44%;width:49%;top:45%;padding:11px;}
+    .le-tour-anchor-card h5 {font-size:12px;}
+    .le-tour-anchor-card p {font-size:8px;}
+    .le-tour-anchor-bottom strong {font-size:7px;padding:6px;}
+    .le-tour-preview-pill {left:40%;top:54px;font-size:7px;padding:5px 7px;}
+  }
+  @container(max-width:425px) {
+    .le-tour-dialog {left:63%;width:66%;padding:10px;}
+    .le-tour-dialog-icon,.le-tour-success-icon {width:25px;height:25px;margin-bottom:8px;}
+    .le-tour-dialog h5 {font-size:12px;}
+    .le-tour-dialog p {font-size:7.5px;}
+    .le-tour-dialog-actions {margin-top:9px;}
+    .le-tour-anchor-card {left:40%;top:49%;width:57%;padding:9px;}
+    .le-tour-anchor-card h5 {font-size:11px;}
+    .le-tour-anchor-card p {font-size:7.5px;}
+    .le-tour-preview-pill {left:39%;top:48px;}
+  }
+  @media(prefers-reduced-motion:reduce) {
+    .le-tour-stage,.le-tour-cursor,.le-tour-preview-pill {display:none!important;animation:none!important;}
+    .le-checklist li:first-child .le-task-box::after {opacity:0;}
   }
 </style>
