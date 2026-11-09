@@ -135,17 +135,32 @@ const ticks = [
 </div>
 
 <script>
+  // The static Geo response remains server-rendered for crawlers and no-JS visitors.
+  // Pause the decorative timeline whenever it is offscreen or the tab is hidden.
   const previews = document.querySelectorAll<HTMLElement>("[data-geo-chat-preview]");
   if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-playing");
-          observer.unobserve(entry.target);
+      for (const entry of entries) {
+        const preview = entry.target as HTMLElement;
+        if (entry.intersectionRatio >= .2 && !document.hidden) {
+          preview.classList.add("is-playing", "is-in-view");
+        } else {
+          preview.classList.remove("is-in-view");
         }
-      });
-    }, { threshold: 0.24 });
+      }
+    }, { threshold: [0, .2, .5] });
     previews.forEach((preview) => observer.observe(preview));
+    document.addEventListener("visibilitychange", () => {
+      for (const preview of previews) {
+        if (document.hidden) {
+          preview.classList.remove("is-in-view");
+        } else {
+          const rect = preview.getBoundingClientRect();
+          const visible = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(0, rect.top));
+          if (visible >= rect.height * .2) preview.classList.add("is-in-view");
+        }
+      }
+    });
   }
 </script>
 
@@ -280,6 +295,11 @@ const ticks = [
     .geo-composer p { font-size:8.3px; }
     .geo-composer>div { min-height:32px; font-size:7px; }
     .geo-composer-send { width:24px; height:24px; }
+  }
+  .geo-chat-preview.is-playing:not(.is-in-view) *,
+  .geo-chat-preview.is-playing:not(.is-in-view) *::before,
+  .geo-chat-preview.is-playing:not(.is-in-view) *::after {
+    animation-play-state: paused !important;
   }
   @media(prefers-reduced-motion: reduce) {
     .geo-chat-preview *, .geo-chat-preview *::before, .geo-chat-preview *::after {
