@@ -129,7 +129,7 @@ const sampleAnswer = "Finding the right integration took me a little longer than
       };
       const stop = () => {
         active = false;
-        timeouts.forEach(window.clearTimeout);
+        timeouts.forEach((id) => window.clearTimeout(id));
         timeouts = [];
         if (interval !== undefined) window.clearInterval(interval);
         interval = undefined;
@@ -149,6 +149,7 @@ const sampleAnswer = "Finding the right integration took me a little longer than
         if (active || document.hidden || !cursor || !typed) return;
         active = true;
         typed.textContent = "";
+        if (placeholder) placeholder.style.opacity = "1";
         scene.classList.add("sf-running");
         cursor.style.transition = "none";
         cursor.style.transform = "translate3d(0,0,0)";
@@ -249,7 +250,7 @@ const sampleAnswer = "Finding the right integration took me a little longer than
   .sf-rating-option.sf-selected {background:#dfe6ff;border-color:#7b8bff;border-bottom-color:#737efb;box-shadow:0 0 0 2px #959aff22;color:#2925ab;transform:translateY(-2px);}
   .sf-text-question {margin-top:1px;padding:13px 12px 10px;}
   .sf-text-field {position:relative;height:90px;margin-top:11px;padding:12px 13px;overflow:hidden;border:1px solid #c9d2ff;border-left:3px solid #635bff;border-radius:9px;background:repeating-linear-gradient(to bottom,#fff 0px,#fff 19px,#ebeff8 19px,#ebeff8 20px);box-shadow:0 3px 0 #d7ddfc;color:#4a5571;}
-  .sf-placeholder {position:absolute;left:12px;top:12px;color:#909398;font-size:9px;transition:opacity .18s ease;}
+  .sf-placeholder {position:absolute;left:12px;top:12px;color:#909398;font-size:9px;opacity:0;transition:opacity .18s ease;}
   .sf-typed-text {position:relative;display:block;max-width:100%;padding-right:2px;color:#37465e;line-height:20px;font-size:9.4px;white-space:normal;overflow-wrap:anywhere;}
   .sf-type-caret {position:absolute;display:none;top:12px;left:13px;height:12px;width:1.5px;background:#625bff;animation:sf-blink .8s steps(2,end) infinite;}
   .sf-scene.sf-running .sf-typed-text {visibility:hidden;}
