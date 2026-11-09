@@ -1,0 +1,100 @@
+---
+import { ArrowUp, ArrowUpRight, BarChart3, Bell, Check, ChevronDown, Copy, GripVertical, LayoutTemplate, List, Minus, Palette, Plus, Redo2, Search, Settings2, SlidersHorizontal, Sparkles, Undo2, X, Zap } from "lucide-astro";
+const metrics = [
+  ["Active users", "24,892", "+18.4%"],
+  ["New sign-ups", "3,248", "+12.8%"],
+  ["Conversion rate", "12.6%", "+4.2%"],
+  ["Avg. session", "4m 32s", "+9.1%"]
+] as const;
+const bars = [42, 59, 49, 72, 65, 88, 100];
+const events = ["Activated", "user_signed_in", "checkout_started", "feature_viewed"];
+const tasks = [
+  ["Connect your data", "Add a source to your workspace."],
+  ["Create your first project", "Set up a real workspace for your team."],
+  ["Complete the core action", "Finish one workflow from start to result."]
+] as const;
+---
+<div class="le-scene" data-live-editor-mockup role="group" aria-label="Illustrative Movcues live visual editor with a three-step onboarding checklist over a sample analytics dashboard">
+  <div class="le-site">
+    <div class="le-site-nav">
+      <span class="le-brand"><span class="le-brand-icon">✳</span> orbit<span class="le-brand-dot">.</span></span>
+      <div class="le-site-navlinks"><span class="active">Overview</span><span>Analytics</span><span>Projects</span><span>Settings</span></div>
+      <div class="le-site-actions"><Search size={12} aria-hidden="true"/><Bell size={12} aria-hidden="true"/><span class="le-avatar">AM</span></div>
+      <span class="le-back-home">Back home <ArrowUpRight size={11} aria-hidden="true"/></span>
+    </div>
+    <div class="le-site-content">
+      <div class="le-intro"><div><span>Workspace / Overview</span><h4>Good morning, Alex.</h4><p>Here's what happened across your product this week.</p></div><span class="le-feature-cta">View features ↗</span></div>
+      <div class="le-stats">
+        {metrics.map(([label, value, change]) => <div class="le-stat"><span>{label}</span><strong>{value}</strong><small>↗ {change} <em>this week</em></small></div>)}
+      </div>
+      <div class="le-main-panels">
+        <section class="le-panel"><div class="le-panel-head"><div><h5>Weekly active users</h5><p>Activity over the last 7 days</p></div><span>This week <ChevronDown size={9}/></span></div>
+          <div class="le-chart" role="img" aria-label="Sample weekly active user bar chart trending upward">
+            <div class="le-gridlines"></div><div class="le-bars">{bars.map((bar, i) => <span class="le-bar" style={"height:"+bar+"%;--i:"+i}></span>)}</div>
+          </div><div class="le-axis"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+        </section>
+        <section class="le-panel le-events"><div class="le-panel-head"><div><h5>Recent events</h5><p>Latest activity in your product</p></div><span>•••</span></div><div class="le-event-list">{events.map((ev, i) => <div><span class="le-event-dot"></span><strong>{ev}</strong><small>{[2,8,21,34][i]}m ago</small></div>)}</div></section>
+      </div>
+    </div>
+  </div>
+  <aside class="le-ai" aria-label="Geo-assisted visual editor preview">
+    <div class="le-ai-header"><div class="le-ai-brand"><span><Sparkles size={14}/></span><b>movcues</b></div><div><SlidersHorizontal size={12}/><Palette size={12}/><span class="le-ai-tab"><Sparkles size={14}/></span></div></div>
+    <div class="le-ai-context"><span>Checklist · expanded · Step</span></div>
+    <div class="le-ai-empty"><span class="le-ai-zap"><Zap size={23} strokeWidth={1.9}/></span><p>Describe the change you want to make.</p><span class="le-ai-done"><Check size={10}/> Checklist design updated</span></div>
+    <div class="le-ai-prompt"><p>Create a beautiful, three-step activation checklist for new users.</p><div><span><Sparkles size={11}/> Design with Movcues</span><span class="le-ai-send"><ArrowUp size={14}/></span></div></div>
+  </aside>
+  <div class="le-toolbar" aria-label="Illustrative live editor toolbar">
+    <div class="le-toolbar-top"><div><strong>Movcues Live Editor</strong><small><i></i> Connected · Draft saved</small></div><div class="le-top-icons"><Undo2 size={11}/><Redo2 size={11}/><span>Save</span><span>⇄</span><span>↗</span><List size={11}/><X size={11}/></div></div>
+    <div class="le-modes"><span class="current">Design</span><span>Navigate</span><span>Preview</span></div>
+    <div class="le-tool-options"><span>Expanded <ChevronDown size={10}/></span><span><Plus size={10}/> Task</span><span>Reset simulation</span></div>
+  </div>
+  <div class="le-selected" aria-label="Selected onboarding checklist in the editor">
+    <div class="le-selected-tools" aria-hidden="true"><Plus size={12}/><LayoutTemplate size={12}/><span>▤</span><span>↑</span><Copy size={12}/><span>↔</span><GripVertical size={12}/><X size={12}/></div>
+    <span class="le-handle top"><Plus size={12}/></span><span class="le-handle left"><Plus size={12}/></span><span class="le-handle right"><Plus size={12}/></span><span class="le-handle bottom"><Plus size={12}/></span>
+    <div class="le-checklist">
+      <strong>Activate your workspace</strong>
+      <p>Complete these quick steps to get the most from your workspace.</p>
+      <span class="le-count">0 of 3 complete</span>
+      <div class="le-progress" aria-hidden="true">{Array.from({length:16},()=> <i></i>)}</div>
+      <ul>{tasks.map(([title, subtitle]) => <li><span class="le-task-box"></span><div><b>{title}</b><small>{subtitle}</small></div></li>)}</ul>
+      <div class="le-check-actions"><span><Minus size={11}/></span><span><X size={11}/></span></div>
+    </div>
+  </div>
+</div>
+<script>
+  const liveMocks = document.querySelectorAll<HTMLElement>("[data-live-editor-mockup]");
+  if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add("is-playing"); observer.unobserve(entry.target); }
+    }, { threshold: 0.2 });
+    liveMocks.forEach((mock) => observer.observe(mock));
+  }
+</script>
+<style>
+  .le-scene { position:relative; isolation:isolate; container-type:inline-size; overflow:hidden; width:100%; height:470px; border:1px solid #dce2ed; border-radius:15px; background:#f8fafc; color:#152137; box-shadow:0 1.5rem 3.4rem #0004; font-family:Inter,"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .le-scene *, .le-scene *::before, .le-scene *::after {box-sizing:border-box}
+  .le-site {position:absolute;inset:0;background:#f8fafc}
+  .le-site-nav {display:flex;align-items:center;gap:15px;height:47px;padding:0 15px;border-bottom:1px solid #e4e8ef;background:#fff}
+  .le-brand {display:flex;align-items:center;gap:5px;color:#121c30;font-size:12px;font-weight:800;letter-spacing:-.04em}.le-brand-icon {width:20px;height:20px;display:grid;place-items:center;background:#645bff;color:#fff;border-radius:5px;font-size:13px}.le-brand-dot {margin-left:-5px;color:#635bff}
+  .le-site-navlinks {display:flex;gap:17px;margin-left:16px;color:#8a97ab;font-size:9px}.le-site-navlinks .active {color:#384459;font-weight:700}.le-site-actions {margin-left:auto;display:flex;align-items:center;gap:12px;color:#94a1b1}.le-avatar {width:23px;height:23px;border-radius:50%;background:#efefff;display:grid;place-items:center;color:#625cf3;font-size:8px;font-weight:750}
+  .le-back-home {padding:9px 11px;border-radius:6px;background:#625bfa;color:#fff;white-space:nowrap;font-weight:750;font-size:9px;display:flex;align-items:center;gap:5px}
+  .le-site-content {padding:50px 15px 18px}.le-intro {display:flex;justify-content:space-between;align-items:end;gap:10px;margin-left:29%;margin-bottom:21px}.le-intro>div>span {color:#8491a5;font-size:9px}.le-intro h4 {margin:7px 0 4px;font-size:22px;line-height:1.2;letter-spacing:-.055em;font-weight:790;color:#152034}.le-intro p {margin:0;color:#8a97aa;font-size:10px}.le-feature-cta {padding:9px 12px;background:#635bff;color:#fff;font-weight:750;font-size:9px;border-radius:6px;white-space:nowrap}
+  .le-stats {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:10px}.le-stat {min-width:0;min-height:100px;padding:15px 11px;background:#fff;border:1px solid #e4e8ee;border-radius:9px;box-shadow:0 1px 2px #0f172a08}.le-stat>span {display:block;color:#8291a5;font-size:9px}.le-stat strong {display:block;margin:11px 0 6px;color:#111d31;font-size:21px;line-height:1;letter-spacing:-.04em;font-weight:790}.le-stat small {font-size:9px;color:#0f9e70}.le-stat em {font-size:8px;color:#94a3b5;font-style:normal}
+  .le-main-panels {display:grid;grid-template-columns:1.4fr 1fr;gap:10px}.le-panel {min-height:240px;min-width:0;padding:15px 14px 9px;border:1px solid #e4e8ee;background:#fff;border-radius:9px}.le-panel-head {display:flex;justify-content:space-between;gap:5px;align-items:flex-start}.le-panel-head h5 {margin:0 0 4px;font-size:12px;font-weight:760;color:#1c293e}.le-panel-head p {margin:0;font-size:8px;color:#a1acb9}.le-panel-head>span {display:flex;align-items:center;gap:4px;padding:5px;border:1px solid #e8ebf0;border-radius:5px;color:#8493a6;font-size:8px}
+  .le-chart {height:153px;position:relative;margin-top:15px}.le-gridlines {position:absolute;inset:0;background:repeating-linear-gradient(to top,#ebeff5 0 1px,transparent 1px 38px)}.le-bars {position:absolute;inset:0;display:flex;align-items:end;gap:8px;padding:0 8px 0 4px}.le-bar {display:block;min-width:0;flex:1;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#8e88ff,#635bfa)}.le-axis {display:flex;justify-content:space-around;margin-top:8px;color:#a5afbc;font-size:8px}
+  .le-event-list {margin-top:13px}.le-event-list>div {display:flex;align-items:center;gap:7px;padding:12px 0;border-bottom:1px solid #edf0f4}.le-event-list>div:last-child {border:0}.le-event-dot {height:6px;width:6px;border-radius:50%;background:#aba4ff}.le-event-list strong {font-size:9px;color:#334157}.le-event-list small {font-size:8px;color:#a6b0be;margin-left:auto;white-space:nowrap}
+  .le-ai {position:absolute;z-index:5;top:8px;left:8px;bottom:8px;width:29%;display:flex;flex-direction:column;overflow:hidden;border-radius:15px;border:1px solid #e1e9f6;background:linear-gradient(125deg,#eff5ff,#fbfcff 57%,#f1f5ff);box-shadow:0 14px 32px #0f172a26,0 0 0 3px #fff9}
+  .le-ai-header {display:flex;justify-content:space-between;align-items:center;height:46px;flex:none;padding:0 11px;border-bottom:1px solid #dfe7f4}.le-ai-brand {display:flex;align-items:center;gap:6px;font-size:11px;color:#253652;letter-spacing:-.04em}.le-ai-brand>span {display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:7px;background:#336cff;color:#fff}.le-ai-header>div:last-child {display:flex;align-items:center;gap:8px;color:#7e92b0}.le-ai-tab {display:grid;place-items:center;width:28px;height:28px;border:1px solid #d9e6fc;background:#fff;border-radius:7px;color:#306bff}
+  .le-ai-context {padding:13px 13px 0;flex:none}.le-ai-context>span {display:block;min-width:0;padding:10px 9px;border-radius:7px;border:1px solid #dae5f6;background:#ffffffab;color:#6d819e;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .le-ai-empty {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;min-height:0;flex:1;padding:8px}.le-ai-zap {width:48px;height:48px;display:grid;place-items:center;border-radius:16px;border:1px solid #d4e2ff;background:#e8efff;color:#3972ff;box-shadow:0 9px 21px #3168d715}.le-ai-empty p {max-width:174px;margin:0;text-align:center;font-size:10px;line-height:1.5;color:#8798b1}.le-ai-done {display:flex;align-items:center;gap:5px;padding:6px 7px;border-radius:6px;border:1px solid #baf0d6;background:#effdf5;color:#16835c;font-weight:650;font-size:8px;opacity:0}
+  .le-ai-prompt {min-height:92px;flex:none;margin:0 10px 10px;padding:12px 11px 9px;border-radius:13px;border:1px solid #fff;background:linear-gradient(135deg,#fff,#f2f5fc);box-shadow:0 8px 22px #7086b322}.le-ai-prompt p {min-height:40px;margin:0;color:#667c9d;font-size:9px;line-height:1.6}.le-ai-prompt>div {display:flex;align-items:center;justify-content:space-between;gap:6px}.le-ai-prompt>div>span:first-child {display:flex;align-items:center;gap:4px;color:#8a9ab1;font-size:8px;white-space:nowrap}.le-ai-send {display:grid;place-items:center;width:26px;height:26px;flex:none;background:#356ef9;color:white;border-radius:7px;box-shadow:0 2px 6px #3874f754}
+  .le-toolbar {position:absolute;z-index:4;top:8px;left:36.5%;width:42%;overflow:hidden;border-radius:13px;border:1px solid #e4e9f3;background:#f7f9ff;box-shadow:0 12px 27px #1e293b1c}.le-toolbar-top {display:flex;justify-content:space-between;align-items:center;gap:4px;padding:9px 10px 7px;background:#fbfcff;border-bottom:1px solid #e1e7f2}.le-toolbar-top strong {display:block;color:#23304a;font-size:9px;white-space:nowrap;line-height:1.2}.le-toolbar-top small {display:flex;gap:4px;align-items:center;margin-top:4px;color:#8695ad;font-size:8px;white-space:nowrap}.le-toolbar-top i {height:6px;width:6px;border-radius:50%;background:#10aa63}.le-top-icons {display:flex;align-items:center;gap:8px;color:#8ea1bc;font-size:9px}.le-top-icons svg {flex:none}.le-modes {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:5px 8px}.le-modes span {padding:6px 3px;text-align:center;border-radius:7px;font-size:9px;color:#7285a1}.le-modes .current {border:1px solid #dce6fb;background:#fff;color:#3972fe;box-shadow:0 1px 2px #0000000c}.le-tool-options {display:flex;gap:4px;padding:1px 8px 8px}.le-tool-options>span {display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid #dbe3f0;border-radius:6px;background:#fff;color:#344560;padding:6px 8px;font-size:8px;white-space:nowrap}
+  .le-selected {position:absolute;z-index:6;right:7px;bottom:11px;width:31%;border:2px solid #3475ff;box-shadow:0 15px 33px #17233b25;background:#fff}.le-selected-tools {display:flex;align-items:center;gap:7px;position:absolute;right:0;bottom:calc(100% + 7px);padding:7px 9px;border-radius:8px;border:1px solid #e1e7ef;background:#fff;color:#56657b;box-shadow:0 7px 16px #17233b23}.le-selected-tools svg {flex:none}.le-handle {position:absolute;z-index:2;display:grid;place-items:center;height:21px;width:21px;background:#fff;border:1px solid #8abbff;border-radius:50%;color:#3977ff;box-shadow:0 2px 6px #4478d63a}.le-handle.top {left:50%;top:-11px;transform:translateX(-50%)}.le-handle.left {left:-11px;top:50%;transform:translateY(-50%)}.le-handle.right {right:-11px;top:50%;transform:translateY(-50%)}.le-handle.bottom {left:50%;bottom:-11px;transform:translateX(-50%)}
+  .le-checklist {min-height:263px;padding:16px 15px 11px;background:white}.le-checklist>strong {display:block;color:#172238;line-height:1.25;font-size:14px;letter-spacing:-.04em}.le-checklist>p {margin:9px 0;color:#8090a7;font-size:10px;line-height:1.55}.le-count {color:#7c8ba2;font-size:9px}.le-progress {display:flex;justify-content:space-between;gap:3px;margin:11px 0 16px}.le-progress i {width:4px;height:4px;border-radius:50%;background:#148a50}.le-checklist ul {display:grid;gap:17px;margin:0;padding:0;list-style:none}.le-checklist li {display:flex;gap:10px;align-items:flex-start}.le-task-box {display:block;height:13px;width:13px;flex:none;margin-top:2px;background:#e3ebe5}.le-checklist li b {display:block;color:#293750;font-size:10px;line-height:1.4}.le-checklist li small {display:block;margin-top:3px;color:#8393ab;font-size:9px;line-height:1.4}.le-check-actions {display:flex;justify-content:flex-end;gap:6px;margin-top:17px}.le-check-actions>span {display:grid;place-items:center;width:25px;height:25px;background:#f8fafc;color:#5f6f86;border-radius:6px}
+  .le-scene.is-playing .le-ai-prompt p {animation:le-type 1.9s steps(36,end) .25s both}.le-scene.is-playing .le-ai-done {animation:le-result .4s ease 2.35s both}.le-scene.is-playing .le-selected {animation:le-check-in .55s cubic-bezier(.18,.8,.2,1) 2.7s both}.le-scene.is-playing .le-selected-tools {animation:le-result .4s ease 3.15s both}.le-scene.is-playing .le-bar {animation:le-chart-grow .65s ease both;animation-delay:calc(.15s + var(--i) * .09s);transform-origin:bottom}
+  @keyframes le-type {from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}@keyframes le-result {from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}@keyframes le-check-in {from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes le-chart-grow {from{transform:scaleY(.12);opacity:.2}to{transform:scaleY(1);opacity:1}}
+  @container (max-width:710px) {.le-site-navlinks {gap:9px;margin-left:5px}.le-stats {gap:6px}.le-stat {padding:13px 8px}.le-stat strong {font-size:17px}.le-selected {width:34%}.le-checklist {padding:14px 10px}.le-toolbar {width:44%;left:35.5%}.le-top-icons {gap:5px}.le-ai-header {padding:0 7px}.le-ai-header>div:last-child {gap:5px}}
+  @container (max-width:570px) {.le-site-navlinks {display:none}.le-site-content {padding:74px 10px 10px}.le-intro {margin-left:32%;margin-bottom:18px}.le-intro h4 {font-size:17px}.le-intro p {font-size:8px}.le-feature-cta {display:none}.le-stats {gap:5px}.le-stat {padding:10px 6px;min-height:88px}.le-stat>span {font-size:8px}.le-stat strong {font-size:14px}.le-stat small {font-size:8px}.le-stat em {display:none}.le-main-panels {gap:6px}.le-panel {padding:10px}.le-panel-head h5 {font-size:10px}.le-panel-head p {font-size:7px}.le-event-list small {display:none}.le-ai {width:33%;left:6px;top:6px;bottom:7px}.le-ai-brand {font-size:9px}.le-ai-brand>span,.le-ai-tab {width:24px;height:24px}.le-ai-header>div:last-child>svg {display:none}.le-ai-context {padding:9px 7px 0}.le-ai-context>span {font-size:8px;padding:8px 6px}.le-ai-prompt {margin:0 6px 7px;padding:10px 7px}.le-ai-prompt p {font-size:8px}.le-ai-prompt>div>span:first-child {font-size:7px}.le-toolbar {left:35%;width:48%}.le-toolbar-top {padding:8px 6px}.le-toolbar-top strong {font-size:8px}.le-toolbar-top small {font-size:7px}.le-top-icons>svg:nth-child(-n+2),.le-top-icons>svg:last-child {display:none}.le-modes {padding-inline:5px}.le-tool-options {padding:1px 5px 7px}.le-tool-options>span {font-size:7px;padding:6px 5px}.le-selected {width:38%;right:5px}.le-checklist>strong {font-size:12px}.le-checklist>p {font-size:9px}.le-checklist li b {font-size:9px}.le-checklist li small {font-size:8px}.le-selected-tools {gap:4px;padding:6px}.le-selected-tools svg {width:10px}.le-progress {gap:1px}}
+  @container (max-width:425px) {.le-scene {height:440px}.le-site-content {padding-top:83px}.le-intro h4 {font-size:15px}.le-stats .le-stat:first-child,.le-stats .le-stat:nth-child(2) {display:none}.le-stats {grid-template-columns:repeat(2,1fr)}.le-site-actions {gap:5px}.le-ai {width:36%}.le-toolbar {left:39%;width:58%}.le-top-icons>span:nth-of-type(2),.le-top-icons>span:nth-of-type(3) {display:none}.le-tool-options>span:last-child {display:none}.le-selected {width:43%}.le-ai-empty p {font-size:8px}.le-ai-zap {width:40px;height:40px}.le-ai-prompt>div>span:first-child {font-size:6px}.le-checklist li small {font-size:7px}.le-selected-tools>span {display:none}}
+  @media (prefers-reduced-motion:reduce) {.le-scene * {animation:none!important;transition:none!important;clip-path:none!important}.le-ai-done {opacity:1}}
+</style>
