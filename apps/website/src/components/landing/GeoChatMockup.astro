@@ -1,0 +1,291 @@
+---
+import {
+  ArrowUp, BarChart2, CheckSquare, ChevronDown, Ellipsis, FileText,
+  Flame, Gauge, LayoutTemplate, ListChecks, MousePointerClick, Network,
+  PanelLeftClose, Settings, Sparkles, UserRoundPen, Waypoints
+} from "lucide-astro";
+
+const navigation = [
+  { label: "WORKSPACE", items: [
+    { label: "Overview", Icon: Gauge },
+    { label: "Dashboards", Icon: BarChart2 },
+    { label: "Geo", Icon: Sparkles, active: true }
+  ] },
+  { label: "EXPERIENCES", items: [
+    { label: "Surveys", Icon: ListChecks },
+    { label: "Guides", Icon: LayoutTemplate },
+    { label: "Checklists", Icon: CheckSquare },
+    { label: "Other", Icon: Ellipsis }
+  ] },
+  { label: "OBSERVE", items: [
+    { label: "Pages", Icon: FileText },
+    { label: "Sessions", Icon: MousePointerClick },
+    { label: "Events", Icon: Waypoints },
+    { label: "Funnels", Icon: Network },
+    { label: "Heatmaps", Icon: Flame, soon: true }
+  ] },
+  { label: "PEOPLE", items: [
+    { label: "Segments", Icon: UserRoundPen },
+    { label: "Settings", Icon: Settings }
+  ] }
+];
+
+/* Illustrative daily counts, drawn in SVG rather than rasterized imagery. */
+const values = [
+  0, 0, 1, 1, 0, 0, 1, 1, 1, 0,
+  0, 1, 0, 1, 1, 0, 1, 1, 0, 1,
+  1, 0, 1, 0, 1, 1, 1, 0, 1, 4
+];
+const plotLeft = 46;
+const plotRight = 744;
+const baseline = 188;
+const yScale = 42;
+const points = values.map((value, index) => ({
+  x: plotLeft + index * (plotRight - plotLeft) / (values.length - 1),
+  y: baseline - value * yScale
+}));
+const fmt = (number: number) => Number(number.toFixed(2));
+const linePath = points.reduce((path, p, i) => {
+  if (!i) return "M " + fmt(p.x) + " " + fmt(p.y);
+  const previous = points[i - 1];
+  const span = p.x - previous.x;
+  return path + " C " + fmt(previous.x + span * .23) + " " + fmt(previous.y)
+    + " " + fmt(p.x - span * .23) + " " + fmt(p.y)
+    + " " + fmt(p.x) + " " + fmt(p.y);
+}, "");
+const areaPath = linePath + " L " + fmt(plotRight) + " " + baseline
+  + " L " + fmt(plotLeft) + " " + baseline + " Z";
+const ticks = [
+  { x: plotLeft, label: "2026-10-11" },
+  { x: 141, label: "2026-10-15" },
+  { x: 237, label: "2026-10-19" },
+  { x: 333, label: "2026-10-23" },
+  { x: 429, label: "2026-10-27" },
+  { x: 525, label: "2026-10-31" },
+  { x: 621, label: "2026-11-04" },
+  { x: plotRight, label: "2026-11-09" }
+];
+---
+
+<div class="geo-chat-preview" data-geo-chat-preview role="group" aria-label="Illustrative Movcues Geo AI conversation and embedded user activity chart">
+  <div class="geo-app-layout">
+    <aside class="geo-nav" aria-label="Illustrative workspace navigation">
+      <div class="geo-site-header">
+        <span>Demo</span>
+        <ChevronDown size={12} strokeWidth={1.8} aria-hidden="true" />
+        <PanelLeftClose class="geo-collapse-icon" size={16} strokeWidth={1.8} aria-hidden="true" />
+      </div>
+      <div class="geo-nav-groups">
+        {navigation.map((group) => (
+          <div class="geo-nav-group">
+            <p>{group.label}</p>
+            {group.items.map(({ label, Icon, active, soon }) => (
+              <div class:list={["geo-nav-item", active && "is-active", soon && "is-disabled"]}>
+                <Icon size={15} strokeWidth={1.75} aria-hidden="true" />
+                <span class="geo-nav-text">{label}</span>
+                {soon && <small>Soon</small>}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </aside>
+
+    <div class="geo-chat-content">
+      <div class="geo-background-strip" aria-hidden="true"></div>
+      <div class="geo-conversation">
+        <div class="geo-message">
+          <div class="geo-assistant-logo" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <rect x="4.5" y="6.8" width="15" height="19" rx="9.2" stroke="#2563ff" stroke-width="2"/>
+              <rect x="12.5" y="6.8" width="15" height="19" rx="9.2" stroke="#2563ff" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="geo-answer">
+            <h4 class="geo-typing geo-typing-one">New users compared with previous months</h4>
+            <p class="geo-answer-first geo-typing geo-typing-two">The earlier segment comparison showed <strong>0 users in the New User segment</strong>. That doesn’t necessarily mean no new users joined; the segment’s criteria aren’t available.</p>
+            <h5 class="geo-typing geo-typing-three">What to keep in mind</h5>
+            <p class="geo-answer-second geo-typing geo-typing-four">I can’t compare new users with previous months from the available data. The activity data counts active users, not when they first joined, and doesn’t include prior-month results.</p>
+            <div class="geo-chart-card">
+              <strong class="geo-chart-title">Unique users — Last 30 days</strong>
+              <svg class="geo-timechart" viewBox="0 0 772 234" preserveAspectRatio="none" role="img" aria-labelledby="geo-activity-title geo-activity-description">
+                <title id="geo-activity-title">Example unique users over the last 30 days</title>
+                <desc id="geo-activity-description">Illustrative daily unique users between October 11 and November 9, 2026. Most days have zero or one user; November 9 has four.</desc>
+                <path d="M 46 188 H 744" stroke="#e1e2e5" stroke-width="1" fill="none" />
+                {[0, 1, 2, 3, 4].map((number) => (
+                  <text x="29" y={baseline - number * yScale + 4} text-anchor="end" class="geo-axis-number">{number}</text>
+                ))}
+                <path class="geo-chart-fill" d={areaPath} fill="#e9efff" />
+                <path class="geo-chart-line" d={linePath} pathLength="1000" fill="none" stroke="#1d5eff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                {ticks.map(({ x, label }, index) => (
+                  <text x={x} y="207" text-anchor={index === 0 ? "start" : index === ticks.length - 1 ? "end" : "middle"} class="geo-axis-date">{label}</text>
+                ))}
+              </svg>
+              <div class="geo-chart-legend"><span aria-hidden="true"></span>value</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="geo-composer" aria-hidden="true">
+        <p>Compare the earlier segment with "Enabled Invoice" user segment</p>
+        <div><span>Enter to send · Shift+Enter for a new line</span><span class="geo-composer-send"><ArrowUp size={16} strokeWidth={1.9}/></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const previews = document.querySelectorAll<HTMLElement>("[data-geo-chat-preview]");
+  if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-playing");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.24 });
+    previews.forEach((preview) => observer.observe(preview));
+  }
+</script>
+
+<style>
+  .geo-chat-preview {
+    container-type: inline-size;
+    overflow: hidden;
+    width: 100%;
+    border: 1px solid #d5dbe4;
+    border-radius: .94rem;
+    background: #fcfcfc;
+    color: #242424;
+    font-family: "Gt Standard L Standard", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    box-shadow: 0 1.6rem 3.7rem rgba(0,0,0,.23), 0 0 0 1px rgba(255,255,255,.6);
+    isolation: isolate;
+  }
+  .geo-chat-preview *, .geo-chat-preview *::before, .geo-chat-preview *::after { box-sizing: border-box; }
+  .geo-app-layout { display: grid; grid-template-columns: 116px minmax(0,1fr); min-width: 0; min-height: 454px; }
+  .geo-nav {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    padding: 9px 7px 14px;
+    overflow: hidden;
+    border-right: 1px solid #d1e1f7;
+    background: linear-gradient(160deg,#b6d8ff 0%,#d7eaff 66%,#e0f1ff 100%);
+  }
+  .geo-nav::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 165px; height: 180px;
+    left: -50px; top: -60px;
+    background: #76b4ff;
+    opacity: .22;
+    filter: blur(41px);
+    pointer-events: none;
+  }
+  .geo-site-header { display:flex; align-items:center; gap:6px; height:34px; padding:0 6px; font-size:11px; color:#252d35; white-space:nowrap; }
+  .geo-collapse-icon { margin-left:auto; }
+  .geo-nav-groups { display:grid; align-content:start; gap:11px; padding-top:8px; }
+  .geo-nav-group p { margin:0 0 5px 5px; color:#6e7e8e; font-size:7px; font-weight:750; line-height:1.2; }
+  .geo-nav-item { display:flex; align-items:center; gap:7px; min-height:25px; border-radius:6px; padding:0 5px; color:#333d46; font-size:9px; font-weight:470; white-space:nowrap; }
+  .geo-nav-item svg { flex:none; width:13px; height:13px; color:#26313d; }
+  .geo-nav-item.is-active { background:rgba(248,252,255,.67); color:#282d36; box-shadow:0 1px 2px #79b3f933; }
+  .geo-nav-item.is-disabled { color:#9cadbc; }
+  .geo-nav-item.is-disabled svg { color:#9cadbc; }
+  .geo-nav-item small { margin-left:auto; padding:2px 3px; border-radius:3px; border:1px solid #ffffff88; font-size:7px; color:#9cadbc; }
+  .geo-chat-content { position:relative; display:flex; flex-direction:column; min-width:0; background:#fcfcfc; padding:0 17px 12px; }
+  .geo-background-strip { position:absolute; top:-8px; right:0; width:74%; height:11px; border-radius:0 0 11px 11px; background:#f4f4f4; }
+  .geo-conversation { flex:1; min-width:0; width:100%; max-width:610px; margin:0 auto; }
+  .geo-message { display:grid; grid-template-columns:29px minmax(0,1fr); column-gap:10px; padding-top:22px; }
+  .geo-assistant-logo { display:grid; place-items:center; width:28px; height:28px; border-radius:6px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.13); border:1px solid #ededed; }
+  .geo-assistant-logo svg { width:23px; height:23px; }
+  .geo-answer { min-width:0; padding:1px 0 0; }
+  .geo-answer h4 { margin:0 0 12px; font-size:14px; line-height:1.25; letter-spacing:-.035em; font-weight:690; color:#222; }
+  .geo-answer h5 { margin:19px 0 10px; font-size:12px; line-height:1.3; font-weight:690; letter-spacing:-.012em; color:#282828; }
+  .geo-answer p { color:#333; margin:0; line-height:1.68; font-size:10.1px; letter-spacing:-.009em; font-weight:420; }
+  .geo-answer p strong { font-weight:720; color:#252525; }
+  .geo-chart-card { position:relative; padding:13px 11px 9px; border-radius:9px; border:1px solid #dedede; background:#fff; margin-top:15px; box-shadow:0 1px 2px rgba(0,0,0,.11); }
+  .geo-chart-title { display:block; padding-left:1px; font-size:11px; line-height:1.4; font-weight:680; letter-spacing:-.011em; }
+  .geo-timechart { display:block; width:100%; height:auto; margin-top:9px; overflow:visible; }
+  .geo-timechart .geo-axis-number { fill:#737373; font-size:12px; font-family:inherit; font-weight:400; }
+  .geo-timechart .geo-axis-date { fill:#717171; font-size:11px; font-family:inherit; font-weight:400; }
+  .geo-chart-legend { display:flex; justify-content:center; align-items:center; gap:4px; margin-top:-7px; margin-bottom:1px; font-size:9px; color:#2361ff; }
+  .geo-chart-legend span { display:inline-block; width:11px; height:2px; background:#2361ff; position:relative; }
+  .geo-chart-legend span::after { content:""; position:absolute; left:4px; top:-2px; border-radius:50%; width:6px; height:6px; background:#fff; border:1.4px solid #2361ff; }
+  .geo-composer { width:100%; max-width:610px; align-self:center; border:1px solid #dddddd; border-radius:11px; background:#fff; margin-top:16px; padding:13px 12px 6px; box-shadow:0 1px 2px rgba(0,0,0,.12); }
+  .geo-composer p { margin:0; color:#393939; font-size:10.5px; line-height:1.4; }
+  .geo-composer>div { display:flex; justify-content:space-between; align-items:flex-end; gap:8px; min-height:37px; color:#969696; font-size:8px; }
+  .geo-composer-send { display:grid; place-items:center; width:27px; height:27px; border:1px solid #98bcff; background:#e6f1ff; border-radius:7px; box-shadow:0 1px 3px rgba(44,100,213,.15); color:#202d40; }
+  .geo-composer-send svg { width:14px; height:14px; }
+
+  /* The real text stays in server-rendered HTML. Motion only reveals it visually. */
+  .geo-chat-preview.is-playing .geo-typing-one { animation: geo-type-in .7s steps(28,end) .12s both; }
+  .geo-chat-preview.is-playing .geo-typing-two { animation: geo-type-in 1.05s steps(44,end) .75s both; }
+  .geo-chat-preview.is-playing .geo-typing-three { animation: geo-type-in .45s steps(18,end) 1.82s both; }
+  .geo-chat-preview.is-playing .geo-typing-four { animation: geo-type-in 1.05s steps(44,end) 2.28s both; }
+  .geo-chat-preview.is-playing .geo-chart-card { animation: geo-card-enter .4s ease-out 3.34s both; }
+  .geo-chat-preview.is-playing .geo-chart-fill { animation: geo-fill-enter .65s ease-out 5.15s both; }
+  .geo-chat-preview.is-playing .geo-chart-line { animation: geo-chart-draw 1.75s cubic-bezier(.31,.03,.12,1) 3.58s both; }
+  .geo-chat-preview.is-playing .geo-chart-legend { animation: geo-fade-up .3s ease 5.1s both; }
+  .geo-chat-preview.is-playing .geo-composer { animation: geo-fade-up .5s ease 5.35s both; }
+  @keyframes geo-type-in {
+    from { clip-path:inset(0 100% 0 0); }
+    to { clip-path:inset(0 0 0 0); }
+  }
+  @keyframes geo-card-enter { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes geo-fade-up { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes geo-fill-enter { from { opacity:0; } to { opacity:1; } }
+  @keyframes geo-chart-draw { from { stroke-dasharray:1000; stroke-dashoffset:1000; } to { stroke-dasharray:1000; stroke-dashoffset:0; } }
+
+  @container (max-width: 600px) {
+    .geo-app-layout { grid-template-columns:100px minmax(0,1fr); min-height:440px; }
+    .geo-nav { padding-inline:5px; }
+    .geo-nav-item { gap:5px; font-size:8px; }
+    .geo-chat-content { padding-inline:12px; }
+    .geo-message { grid-template-columns:25px minmax(0,1fr); gap:7px; padding-top:17px; }
+    .geo-assistant-logo { width:25px; height:25px; }
+    .geo-answer h4 { font-size:12.2px; }
+    .geo-answer h5 { font-size:11.1px; margin:15px 0 7px; }
+    .geo-answer p { font-size:9.2px; line-height:1.65; }
+    .geo-chart-card { margin-top:11px; padding:10px 8px 8px; }
+    .geo-chart-title { font-size:10px; }
+    .geo-axis-date { font-size:9px; }
+    .geo-composer { margin-top:12px; padding:10px 10px 5px; }
+    .geo-composer p { font-size:9.2px; }
+  }
+  @container (max-width: 470px) {
+    .geo-app-layout { grid-template-columns:41px minmax(0,1fr); min-height:420px; }
+    .geo-nav { padding-inline:5px; }
+    .geo-site-header { justify-content:center; padding:0; }
+    .geo-site-header>span, .geo-site-header>svg:not(.geo-collapse-icon), .geo-nav-group p, .geo-nav-text, .geo-nav-item small { display:none; }
+    .geo-collapse-icon { margin:0; }
+    .geo-nav-groups { gap:11px; padding-top:12px; }
+    .geo-nav-item { padding:4px 7px; justify-content:center; }
+    .geo-chat-content { padding-inline:9px; }
+    .geo-background-strip { width:50%; }
+    .geo-message { grid-template-columns:22px minmax(0,1fr); gap:5px; }
+    .geo-assistant-logo { width:22px; height:22px; border-radius:5px; }
+    .geo-assistant-logo svg { width:20px; height:20px; }
+    .geo-answer h4 { font-size:11px; }
+    .geo-answer h5 { font-size:10px; }
+    .geo-answer p { font-size:8.6px; }
+    .geo-chart-legend { margin-top:0; }
+    .geo-chart-title { font-size:9.2px; }
+    .geo-composer p { font-size:8.3px; }
+    .geo-composer>div { min-height:32px; font-size:7px; }
+    .geo-composer-send { width:24px; height:24px; }
+  }
+  @media(prefers-reduced-motion: reduce) {
+    .geo-chat-preview *, .geo-chat-preview *::before, .geo-chat-preview *::after {
+      animation-duration:0.01ms !important;
+      animation-delay:0ms !important;
+      transition-duration:0.01ms !important;
+      clip-path:none !important;
+      stroke-dashoffset:0 !important;
+    }
+  }
+</style>
