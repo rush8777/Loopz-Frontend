@@ -416,6 +416,24 @@ button:focus-visible {
   height: auto;
 }
 
+/* Progressive enhancement: preserve the LCP poster; fade desktop video in later. */
+.hero-card-video {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .45s ease;
+}
+.hero-card-video.is-playing { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-card-video { display: none; }
+}
+
 /* Advice */
 .advice-section {
   position: relative;
