@@ -1,0 +1,320 @@
+---
+type Capability = "guide" | "modal" | "checklist" | "tooltip" | "dashboard";
+interface Props { capability: Capability }
+const { capability } = Astro.props;
+
+const stories = {
+  guide: {
+    eyebrow: "In-app guides, in context",
+    title: "Show the next step where the work actually happens.",
+    description: "Imagine a new teammate opening your app for the first time. They need to invite their team, but they do not know where to start. Instead of sending them to a help article, put a short guide beside the Invite button and let the next step appear after they act.",
+    supporting: "Movcues guides can attach to real page elements or use a modal step, then advance on clicks, events, or route changes. The walkthrough follows the user, not the other way around.",
+    details: ["Guidance anchored to the right element", "Progress based on real user actions"],
+    caption: "Example: a four-step team onboarding guide attached to an invitation form."
+  },
+  modal: {
+    eyebrow: "Targeted in-app modals",
+    title: "Make an important message feel timely—not random.",
+    description: "Say a workspace is nearly out of seats. Its admin should know, but the rest of the team does not need another interruption. Show a clear message to the right audience, on the right page, when it becomes relevant.",
+    supporting: "With Movcues, choose a centered or fullscreen modal and control audience rules, triggers, scheduling, frequency, and backdrop behavior before you publish.",
+    details: ["Relevant audiences and page rules", "Frequency and dismissal controls"],
+    caption: "Example: a seat-capacity message shown to a workspace administrator."
+  },
+  checklist: {
+    eyebrow: "Onboarding checklists that stick",
+    title: "Turn the first session into visible progress.",
+    description: "A new customer might create a workspace today and connect their first data source tomorrow. A small, persistent checklist makes the remaining steps obvious, so they can pick up without starting over.",
+    supporting: "Checklist items can open a guide or destination and mark progress from clicks, completed guides, or matching segments. It is a practical path to the first useful outcome.",
+    details: ["Steps that launch guides or pages", "Completion tied to real milestones"],
+    caption: "Example: a workspace activation checklist with two of four tasks completed."
+  },
+  tooltip: {
+    eyebrow: "Contextual tooltips and hotspots",
+    title: "Answer the question without breaking the flow.",
+    description: "Someone is setting up an activation funnel and stops at “Conversion window.” They do not need a tour of the whole product. They need one clear explanation next to that control, at that exact moment.",
+    supporting: "Use an anchored card for direct help or a hotspot for quieter discovery. Adjust placement and dismiss behavior, and check selector reliability before publishing.",
+    details: ["Answers beside the relevant control", "Reliable targets with fallback selectors"],
+    caption: "Example: contextual help explaining a funnel conversion-window setting."
+  },
+  dashboard: {
+    eyebrow: "Product analytics dashboards",
+    title: "See what changed, then find the people behind it.",
+    description: "Signups can look great while first-project creation quietly falls behind. Put both numbers in one view, add the activation funnel, and you can see exactly where the journey needs attention.",
+    supporting: "Combine metric, funnel, retention, and experience cards in a saved Movcues dashboard. Filter the view by date or segment, then drill into supported results to investigate.",
+    details: ["Metrics and funnels in one saved view", "Filters and drilldowns for investigation"],
+    caption: "Example: an illustrative activation dashboard with sample signup and first-project figures."
+  }
+} as const;
+const story = stories[capability];
+const location = {
+  guide: "setup / invite team",
+  modal: "settings / members",
+  checklist: "workspace / projects",
+  tooltip: "analytics / funnels",
+  dashboard: "analytics / dashboards"
+}[capability];
+---
+
+<section class="value-story" aria-labelledby="value-story-title">
+  <div class="value-shell">
+    <div class="value-copy" data-reveal>
+      <p class="value-kicker"><span aria-hidden="true"></span>{story.eyebrow}</p>
+      <h2 id="value-story-title">{story.title}</h2>
+      <p class="value-description">{story.description}</p>
+      <p class="value-supporting">{story.supporting}</p>
+      <ul class="value-details">
+        {story.details.map((detail) => <li><span aria-hidden="true">↗</span>{detail}</li>)}
+      </ul>
+      <a class="value-link" href="#capabilities">See what you can configure <span aria-hidden="true">↗</span></a>
+    </div>
+
+    <figure class="scene-figure" data-reveal>
+      <div class:list={["scene-browser", "scene-" + capability]}>
+        <div class="scene-browser-bar" aria-hidden="true">
+          <div class="scene-dots"><i></i><i></i><i></i></div>
+          <span class="scene-address">northstar.app / {location}</span>
+          <span class="scene-lock">⌁</span>
+        </div>
+        <div class="scene-frame">
+          <aside class="scene-nav" aria-label="Example application's navigation">
+            <div class="scene-brand"><span class="scene-brand-icon">N</span><strong>northstar</strong></div>
+            <p>WORKSPACE</p>
+            <span class:list={["scene-nav-item", capability === "checklist" ? "is-current" : ""]}>◫ <span>Overview</span></span>
+            <span class:list={["scene-nav-item", capability === "dashboard" || capability === "tooltip" ? "is-current" : ""]}>▥ <span>Analytics</span></span>
+            <span class="scene-nav-item">▤ <span>Projects</span></span>
+            <span class:list={["scene-nav-item", capability === "modal" || capability === "guide" ? "is-current" : ""]}>♧ <span>Team</span></span>
+            <div class="scene-nav-bottom"><span class="scene-user-dot">A</span><span>Alex Morgan <small>Admin</small></span></div>
+          </aside>
+          <div class="scene-content">
+            <div class="scene-topbar"><span>Northstar workspace <b>/</b> {location}</span><span class="scene-topbar-right"><i></i><span class="scene-mini-avatar">AM</span></span></div>
+
+            {capability === "guide" && (
+              <div class="scene-page guide-page">
+                <div class="scene-small-label">TEAM SETUP <span>02 / 04</span></div>
+                <div class="scene-heading"><div><strong>Invite your teammates</strong><p>Bring the right people into your workspace.</p></div><span class="scene-outline-button">Invite people</span></div>
+                <div class="scene-form">
+                  <div class="scene-form-label">Email address</div>
+                  <div class="scene-input">sam@northstar.app, jo@northstar.app</div>
+                  <div class="scene-form-label">Workspace role</div>
+                  <div class="scene-select">Editor <span>⌄</span></div>
+                  <div class="scene-form-footer"><span>Invitations expire in 7 days</span><span class="scene-cta-target">Send invitations <b>→</b></span></div>
+                </div>
+                <div class="scene-guide-card">
+                  <div class="scene-guide-meta"><span>GUIDE · STEP 2 OF 4</span><span>×</span></div>
+                  <strong>Invite your team</strong>
+                  <p>Enter their emails, choose a role, then send the invitations to continue setup.</p>
+                  <div class="scene-guide-progress"><i></i><i class="active"></i><i></i><i></i></div>
+                  <div class="scene-guide-footer"><span>Back</span><b>Got it →</b></div>
+                </div>
+              </div>
+            )}
+
+            {capability === "modal" && (
+              <div class="scene-page modal-page">
+                <div class="scene-small-label">WORKSPACE SETTINGS</div>
+                <div class="scene-heading"><div><strong>Team members</strong><p>Manage the people with access to this workspace.</p></div><span class="scene-outline-button">Invite member</span></div>
+                <div class="scene-seat-usage"><div><span>Seats in use</span><strong>8 of 10</strong></div><div class="scene-usage-bar"><i></i></div></div>
+                <div class="scene-member"><span class="member-avatar">AM</span><span>Alex Morgan<small>alex@northstar.app</small></span><b>Admin</b></div>
+                <div class="scene-member"><span class="member-avatar alt">SC</span><span>Sam Chen<small>sam@northstar.app</small></span><b>Editor</b></div>
+                <div class="scene-member"><span class="member-avatar third">JR</span><span>Jordan Reed<small>jordan@northstar.app</small></span><b>Editor</b></div>
+                <div class="scene-modal-shade">
+                  <div class="scene-modal-card">
+                    <div class="scene-modal-icon">↗</div>
+                    <span class="scene-overline">WORKSPACE NOTICE</span>
+                    <strong>Your team is growing.</strong>
+                    <p>You're using 8 of 10 seats. Review your plan before your next teammate joins.</p>
+                    <div class="scene-modal-actions"><span>Maybe later</span><b>Review plan →</b></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {capability === "checklist" && (
+              <div class="scene-page checklist-page">
+                <div class="scene-small-label">WORKSPACE OVERVIEW</div>
+                <div class="scene-heading"><div><strong>Good morning, Alex</strong><p>Your team is making progress. Here's what's next.</p></div></div>
+                <div class="scene-overview-cards"><div><span>ACTIVE PROJECTS</span><b>01</b><small>First project created</small></div><div><span>TEAM MEMBERS</span><b>03</b><small>Invites accepted</small></div></div>
+                <div class="scene-activity"><div><strong>Recent activity</strong><span>View all</span></div><p><i></i> Workspace created <small>Today</small></p><p><i></i> First project added <small>Today</small></p></div>
+                <div class="scene-checklist-pop">
+                  <div class="scene-check-top"><span>GETTING STARTED</span><span>⌄</span></div>
+                  <strong>Make Northstar your own</strong>
+                  <p>2 of 4 steps complete</p>
+                  <div class="scene-check-progress"><span></span></div>
+                  <div class="scene-check-item is-done"><b>✓</b><span>Create your workspace</span></div>
+                  <div class="scene-check-item is-done"><b>✓</b><span>Invite a teammate</span></div>
+                  <div class="scene-check-item is-next"><b>3</b><span>Connect your data source <small>Continue setup →</small></span></div>
+                  <div class="scene-check-item"><b>4</b><span>Build your first report</span></div>
+                </div>
+              </div>
+            )}
+
+            {capability === "tooltip" && (
+              <div class="scene-page tooltip-page">
+                <div class="scene-small-label">ANALYTICS / FUNNELS</div>
+                <div class="scene-heading"><div><strong>New activation funnel</strong><p>Choose the milestones that matter.</p></div><span class="scene-solid-button">Save funnel</span></div>
+                <div class="scene-funnel-steps">
+                  <div><span>1</span><strong>Signed up</strong><small>Event · sign_up</small></div>
+                  <div><span>2</span><strong>Started setup</strong><small>Event · setup_started</small></div>
+                  <div><span>3</span><strong>Created first project</strong><small>Event · project_created</small></div>
+                </div>
+                <div class="scene-setting"><div><strong>Conversion window</strong><small>How long users have to complete all steps</small></div><div class="scene-setting-select">7 days <span>⌄</span><i></i></div></div>
+                <div class="scene-tooltip-pop"><span>SETTING EXPLAINED <b>×</b></span><strong>What's a conversion window?</strong><p>Only count users who finish every funnel step within 7 days of signing up.</p><small>Learn without leaving this page →</small></div>
+              </div>
+            )}
+
+            {capability === "dashboard" && (
+              <div class="scene-page dashboard-page">
+                <div class="scene-small-label">SAVED DASHBOARD <span>● Example data</span></div>
+                <div class="scene-heading"><div><strong>Activation overview</strong><p>Are new users reaching their first project?</p></div><span class="scene-outline-button">Last 30 days ⌄</span></div>
+                <div class="scene-kpis">
+                  <div><span>SIGNUPS</span><strong>1,240</strong><small>Users who joined</small></div>
+                  <div><span>SETUP STARTED</span><strong>886</strong><small>71.5% of signups</small></div>
+                  <div><span>FIRST PROJECT</span><strong>412</strong><small>33.2% activated</small></div>
+                </div>
+                <div class="scene-analytics-grid">
+                  <div class="scene-trend"><div class="scene-panel-heading"><strong>Weekly activation</strong><span>↗ 30 days</span></div>
+                    <svg viewBox="0 0 290 112" preserveAspectRatio="none" aria-label="Illustrative activation trend rising slightly over four weeks" role="img"><title>Example weekly activation trend</title><path d="M0 88H290 M0 59H290 M0 30H290" stroke="#e5e9e5" stroke-width="1" fill="none"/><path d="M0 81 L48 75 L96 84 L144 58 L192 64 L240 37 L290 24" stroke="#76a84e" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="290" cy="24" r="4" fill="#76a84e"/></svg>
+                    <div class="scene-chart-labels"><span>Oct 1</span><span>Oct 15</span><span>Oct 30</span></div>
+                  </div>
+                  <div class="scene-funnel-summary"><div class="scene-panel-heading"><strong>Activation funnel</strong><span>3 steps</span></div>
+                    <div class="scene-funnel-stat"><span>Signed up <b>1,240</b></span><i style="--bar:100%"></i></div>
+                    <div class="scene-funnel-stat"><span>Started setup <b>886</b></span><i style="--bar:71.5%"></i></div>
+                    <div class="scene-funnel-stat"><span>First project <b>412</b></span><i style="--bar:33.2%"></i></div>
+                    <p>Explore users who stopped at setup <b>↗</b></p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <figcaption>{story.caption} <span>Illustrative UI · Sample data only</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .value-story { padding: clamp(4.8rem,8vw,8rem) 0; color:#1c251e; background:#fffefb; overflow:hidden; }
+  .value-shell { width:min(1220px,calc(100% - var(--site-gutter)*2)); margin:0 auto; display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr); align-items:center; gap:clamp(2.8rem,5.3vw,6.4rem); }
+  .value-copy { max-width:480px; }
+  .value-kicker { display:flex; align-items:center; gap:.65rem; margin:0 0 1.55rem; color:#537d24; font-size:.68rem; text-transform:uppercase; font-weight:800; letter-spacing:.14em; }
+  .value-kicker span { width:1.4rem; height:1px; background:currentColor; }
+  .value-copy h2 { margin:0; max-width:12.5ch; font-size:clamp(2.45rem,4.05vw,4.7rem); line-height:1.04; letter-spacing:-.068em; font-weight:530; text-wrap:balance; }
+  .value-description { margin:1.45rem 0 0; color:#4d5950; font-size:clamp(.96rem,1.18vw,1.08rem); line-height:1.78; }
+  .value-supporting { margin:1.05rem 0 0; color:#667067; font-size:.88rem; line-height:1.75; }
+  .value-details { margin:1.55rem 0 0; padding:0; list-style:none; display:flex; flex-wrap:wrap; gap:.55rem; }
+  .value-details li { border:1px solid #dce6d7; border-radius:100px; background:#f6faf3; padding:.5rem .72rem; color:#38532c; font-size:.68rem; font-weight:650; }
+  .value-details li span { margin-right:.3rem; color:#6b9e3c; }
+  .value-link { margin-top:1.65rem; display:inline-flex; gap:.75rem; align-items:center; color:#1f3923; font-size:.78rem; font-weight:800; text-underline-offset:.28rem; }
+  .value-link span { font-size:1rem; }
+  .scene-figure { width:100%; min-width:0; margin:0; }
+  .scene-browser { overflow:hidden; border-radius:15px; border:1px solid #ccd5cd; box-shadow:0 24px 60px rgba(30,48,34,.12),0 3px 10px rgba(30,48,34,.06); background:#fff; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#253329; }
+  .scene-browser-bar { height:36px; padding:0 13px; display:flex; gap:10px; align-items:center; border-bottom:1px solid #e6eae6; background:#f6f8f6; }
+  .scene-dots { display:flex; gap:4px; } .scene-dots i { height:7px; width:7px; background:#c6ceca; border-radius:100%; }
+  .scene-address { margin:auto; display:block; padding:5px 12px; min-width:140px; text-align:center; border:1px solid #e4e9e5; border-radius:5px; color:#87938b; font-size:9px; letter-spacing:.01em; background:#fff; }
+  .scene-lock { color:#9ba49d; font-size:12px; }
+  .scene-frame { display:grid; grid-template-columns:136px minmax(0,1fr); min-height:401px; }
+  .scene-nav { min-width:0; display:flex; flex-direction:column; padding:17px 10px 11px; border-right:1px solid #e8ece8; background:#fbfcfb; }
+  .scene-brand { display:flex; align-items:center; gap:7px; margin:0 7px 24px; font-size:12px; letter-spacing:-.04em; color:#29392c; }
+  .scene-brand-icon { display:grid; place-items:center; width:21px; height:21px; border-radius:5px; color:#fff; background:#273d2b; font-weight:800; font-size:11px; }
+  .scene-nav p { margin:0 7px 9px; color:#9ca6a0; font-size:8px; letter-spacing:.12em; font-weight:800; }
+  .scene-nav-item { display:flex; align-items:center; gap:8px; border-radius:5px; padding:9px 9px; color:#87928a; font-size:10px; font-weight:600; }
+  .scene-nav-item.is-current { background:#e9f2e4; color:#345c29; }
+  .scene-nav-bottom { margin-top:auto; padding:10px 5px 0; display:flex; gap:7px; align-items:center; border-top:1px solid #e8ece8; color:#425249; font-size:9px; font-weight:700; }
+  .scene-nav-bottom small { display:block; padding-top:1px; color:#9ba49d; font-size:8px; font-weight:500; }
+  .scene-user-dot { width:23px; height:23px; display:grid; place-items:center; flex:none; border-radius:50%; color:#496333; background:#e1eddb; font-size:10px; }
+  .scene-content { position:relative; min-width:0; background:#fff; }
+  .scene-topbar { height:45px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #e9eee9; padding:0 19px; color:#819086; font-size:9px; }
+  .scene-topbar b { color:#c4cec5; margin:0 5px; }
+  .scene-topbar-right { display:flex; align-items:center; gap:12px; } .scene-topbar-right i { width:12px; height:12px; border:1.3px solid #a7b4ab; border-radius:50%; }
+  .scene-mini-avatar { border-radius:50%; width:23px; height:23px; display:grid; place-items:center; font-size:8px; font-weight:700; background:#e3efe0; color:#4b6c40; }
+  .scene-page { position:relative; min-height:356px; padding:24px 21px; }
+  .scene-small-label { margin-bottom:11px; display:flex; justify-content:space-between; color:#8a9a8e; font-size:8px; letter-spacing:.1em; font-weight:800; }
+  .scene-small-label span { color:#587c40; letter-spacing:0; }
+  .scene-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:18px; }
+  .scene-heading strong { display:block; color:#233527; font-size:18px; font-weight:750; letter-spacing:-.045em; line-height:1.16; }
+  .scene-heading p { margin:6px 0 0; color:#8a978d; font-size:9px; line-height:1.5; }
+  .scene-outline-button, .scene-solid-button { white-space:nowrap; border:1px solid #d8e1d8; padding:8px 10px; border-radius:5px; background:#fff; font-size:9px; font-weight:750; color:#456043; }
+  .scene-solid-button { background:#2d5033; border-color:#2d5033; color:#fff; }
+  .scene-form { width:100%; max-width:310px; padding:17px 16px; border:1px solid #e1e8e2; border-radius:8px; box-shadow:0 6px 17px rgba(36,57,41,.025); background:#fff; }
+  .scene-form-label { margin-bottom:7px; color:#455849; font-weight:700; font-size:9px; }
+  .scene-input, .scene-select { display:flex; justify-content:space-between; border:1px solid #dce6dd; border-radius:5px; color:#798b7d; font-size:9px; padding:10px; margin-bottom:15px; background:#fdfefd; }
+  .scene-form-footer { display:flex; justify-content:space-between; gap:8px; align-items:center; color:#a0aca3; font-size:8px; }
+  .scene-cta-target { position:relative; white-space:nowrap; border:2px solid #7cae43; border-radius:5px; padding:8px 10px; color:#fff; background:#2c5532; font-size:9px; font-weight:750; box-shadow:0 0 0 3px #e8f3e2; }
+  .scene-cta-target b { margin-left:3px; }
+  .scene-guide-card { position:absolute; z-index:2; width:218px; right:12px; bottom:12px; padding:14px; border:1px solid #dbe5db; border-radius:9px; background:#fff; box-shadow:0 14px 35px rgba(28,56,36,.18); }
+  .scene-guide-card:before { content:""; position:absolute; left:-6px; bottom:39px; height:10px; width:10px; transform:rotate(45deg); background:#fff; border-left:1px solid #dbe5db; border-bottom:1px solid #dbe5db; }
+  .scene-guide-meta { display:flex; justify-content:space-between; color:#6e9749; font-size:8px; font-weight:800; letter-spacing:.06em; }
+  .scene-guide-meta span:last-child { font-size:13px; color:#8a988d; font-weight:400; }
+  .scene-guide-card > strong { display:block; margin:9px 0 5px; font-size:14px; letter-spacing:-.03em; }
+  .scene-guide-card > p { margin:0; color:#748177; font-size:9px; line-height:1.6; }
+  .scene-guide-progress { display:flex; gap:3px; margin-top:13px; }.scene-guide-progress i { height:3px; flex:1; border-radius:4px; background:#e5ece5; }.scene-guide-progress i.active { background:#80b14e; }
+  .scene-guide-footer { display:flex; justify-content:space-between; align-items:center; margin-top:14px; font-size:9px; color:#9eaaa0; }
+  .scene-guide-footer b { padding:8px 11px; background:#2d5033; color:#fff; border-radius:4px; }
+  .scene-modal .scene-content { overflow:hidden; }
+  .scene-seat-usage { border:1px solid #e6ebe6; border-radius:8px; padding:12px; margin-bottom:13px; }
+  .scene-seat-usage>div:first-child { display:flex; justify-content:space-between; color:#738375; font-size:10px; }
+  .scene-seat-usage strong { color:#314c34; }
+  .scene-usage-bar { background:#eaf0e9; height:5px; border-radius:20px; margin-top:12px; overflow:hidden; }.scene-usage-bar i { display:block; width:80%; height:100%; background:#84ac65; }
+  .scene-member { display:flex; gap:9px; align-items:center; padding:10px 7px; border-bottom:1px solid #edf0ed; color:#344b3a; font-size:10px; font-weight:700; }
+  .scene-member>span:nth-child(2) { flex:1; }.scene-member small { display:block; font-weight:400; margin-top:2px; color:#91a094; }
+  .scene-member b { font-size:9px; color:#78907c; font-weight:500; }.member-avatar { width:25px; height:25px; display:grid; place-items:center; border-radius:50%; background:#e1eee1; font-size:8px; color:#527358; }.member-avatar.alt { background:#e8e9f5; color:#7978a7; }.member-avatar.third { background:#f7e9dd; color:#ad805d; }
+  .scene-modal-shade { position:absolute; inset:0; z-index:2; background:rgba(27,39,31,.48); display:grid; place-items:center; padding:16px; }
+  .scene-modal-card { max-width:285px; width:100%; background:#fff; border-radius:10px; padding:20px 19px 18px; box-shadow:0 20px 45px rgba(20,33,22,.22); }
+  .scene-modal-icon { display:grid; place-items:center; width:32px; height:32px; border-radius:9px; background:#eef6e9; color:#548038; font-size:18px; margin-bottom:14px; }
+  .scene-overline { display:block; font-size:8px; color:#6e9151; letter-spacing:.12em; font-weight:800; }
+  .scene-modal-card>strong { display:block; font-size:20px; letter-spacing:-.055em; line-height:1.15; margin:7px 0; }
+  .scene-modal-card>p { margin:0 0 17px; color:#758376; line-height:1.55; font-size:10px; }
+  .scene-modal-actions { display:flex; align-items:center; justify-content:flex-end; gap:14px; font-size:9px; color:#6d7c70; font-weight:650; }
+  .scene-modal-actions b { background:#2e5335; padding:10px 12px; border-radius:5px; color:#fff; }
+  .scene-overview-cards { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .scene-overview-cards>div { border:1px solid #e6ebe6; border-radius:8px; padding:12px; }
+  .scene-overview-cards span { display:block; font-size:8px; letter-spacing:.1em; color:#95a298; font-weight:800; }
+  .scene-overview-cards b { display:block; margin-top:8px; font-size:21px; color:#2b4532; }.scene-overview-cards small { color:#8d9c91; font-size:8px; }
+  .scene-activity { margin-top:16px; }.scene-activity>div { display:flex; justify-content:space-between; font-size:10px; color:#506255; }.scene-activity>div>span { color:#73975d; font-size:9px; }
+  .scene-activity p { display:flex; align-items:center; gap:7px; font-size:9px; margin:9px 0; color:#708072; }.scene-activity p i { width:6px; height:6px; border-radius:50%; background:#aac899; }.scene-activity small { margin-left:auto; font-size:8px; color:#a8b3aa; }
+  .scene-checklist-pop { position:absolute; right:12px; bottom:11px; width:230px; border:1px solid #dfe8de; border-radius:9px; padding:15px; background:#fff; box-shadow:0 14px 32px rgba(30,55,35,.17); z-index:2; }
+  .scene-check-top { display:flex; justify-content:space-between; color:#7ba262; font-size:8px; font-weight:800; letter-spacing:.1em; }
+  .scene-checklist-pop>strong { display:block; margin:8px 0 6px; font-size:14px; color:#2d3f32; letter-spacing:-.02em; }
+  .scene-checklist-pop>p { margin:0; font-size:9px; color:#88988a; }.scene-check-progress { height:5px; border-radius:5px; background:#ebf0e9; margin:12px 0; }.scene-check-progress span { display:block; width:50%; height:100%; border-radius:5px; background:#84b358; }
+  .scene-check-item { display:flex; gap:9px; align-items:flex-start; border-top:1px solid #edf1ec; padding:10px 0; color:#57695b; font-size:9px; font-weight:650; }
+  .scene-check-item b { flex:none; width:17px; height:17px; border-radius:50%; border:1px solid #d2ded1; display:grid; place-items:center; font-size:9px; color:#9caa9f; }
+  .scene-check-item.is-done { color:#9baa9d; text-decoration:line-through; }.scene-check-item.is-done b { color:#fff; background:#89b86d; border-color:#89b86d; text-decoration:none; }
+  .scene-check-item.is-next { color:#304b36; }.scene-check-item.is-next b { border-color:#79aa58; color:#587c40; }
+  .scene-check-item small { display:block; margin-top:5px; color:#6b994c; font-size:8px; text-decoration:none; }
+  .scene-funnel-steps { border:1px solid #e3eae3; border-radius:8px; overflow:hidden; }
+  .scene-funnel-steps>div { display:flex; gap:10px; align-items:center; padding:11px; border-bottom:1px solid #edf1ed; }
+  .scene-funnel-steps>div:last-child { border:0; }
+  .scene-funnel-steps>div>span { width:19px; height:19px; border-radius:5px; display:grid; place-items:center; background:#eaf2e7; color:#658b54; font-size:9px; }
+  .scene-funnel-steps strong { font-size:10px; color:#415447; }.scene-funnel-steps small { margin-left:auto; font-size:8px; color:#91a095; }
+  .scene-setting { position:relative; margin-top:15px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .scene-setting strong { display:block; color:#344839; font-size:10px; }.scene-setting small { display:block; color:#9ba99e; margin-top:4px; font-size:8px; }
+  .scene-setting-select { white-space:nowrap; display:flex; gap:11px; align-items:center; border:2px solid #8db66c; background:#f9fdf7; border-radius:5px; padding:9px; font-weight:700; font-size:9px; color:#476b39; }
+  .scene-setting-select span { font-size:12px; }.scene-setting-select i { position:absolute; width:10px; height:10px; right:18px; top:36px; border-radius:50%; background:#8cb56c; }
+  .scene-tooltip-pop { position:absolute; z-index:2; right:8px; bottom:12px; max-width:222px; border:1px solid #dbe5d7; border-radius:9px; background:#fff; padding:15px; box-shadow:0 12px 31px rgba(29,54,34,.17); }
+  .scene-tooltip-pop:before { content:""; position:absolute; top:-6px; right:31px; width:10px; height:10px; transform:rotate(45deg); background:#fff; border-left:1px solid #dbe5d7; border-top:1px solid #dbe5d7; }
+  .scene-tooltip-pop>span { display:flex; justify-content:space-between; font-size:8px; letter-spacing:.06em; color:#78a457; font-weight:800; }
+  .scene-tooltip-pop>span b { color:#9ba49b; font-size:12px; }
+  .scene-tooltip-pop>strong { display:block; margin:8px 0; font-size:12px; color:#344a39; }
+  .scene-tooltip-pop>p { margin:0; font-size:9px; line-height:1.6; color:#7f8f81; }.scene-tooltip-pop>small { display:block; margin-top:10px; color:#527b3d; font-size:8px; font-weight:800; }
+  .dashboard-page { padding:18px 17px 13px; }.dashboard-page .scene-heading { margin-bottom:14px; }.dashboard-page .scene-heading strong { font-size:17px; }
+  .scene-kpis { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+  .scene-kpis>div { border:1px solid #e5ebe5; border-radius:7px; padding:11px 9px; min-width:0; }
+  .scene-kpis span { display:block; color:#829383; font-size:7px; font-weight:800; letter-spacing:.07em; white-space:nowrap; }
+  .scene-kpis strong { display:block; margin:7px 0 2px; color:#2b4230; font-size:20px; letter-spacing:-.06em; }
+  .scene-kpis small { display:block; font-size:8px; color:#9bab9e; white-space:nowrap; }
+  .scene-analytics-grid { display:grid; grid-template-columns:1.08fr .92fr; gap:8px; margin-top:10px; }
+  .scene-trend,.scene-funnel-summary { min-width:0; padding:11px; border:1px solid #e5ebe5; border-radius:7px; }
+  .scene-panel-heading { display:flex; justify-content:space-between; align-items:center; gap:4px; }.scene-panel-heading strong { font-size:10px; color:#405346; }.scene-panel-heading span { font-size:8px; color:#7a9b67; white-space:nowrap; }
+  .scene-trend svg { display:block; width:100%; height:125px; margin-top:7px; overflow:visible; }
+  .scene-chart-labels { display:flex; justify-content:space-between; font-size:8px; color:#a0aea3; }
+  .scene-funnel-stat { margin-top:16px; }.scene-funnel-stat>span { display:flex; justify-content:space-between; font-size:8px; color:#829284; }.scene-funnel-stat b { color:#4c684d; }
+  .scene-funnel-stat i { margin-top:5px; display:block; border-radius:4px; height:6px; background:linear-gradient(to right,#88b667 var(--bar),#edf2ec var(--bar)); }
+  .scene-funnel-summary p { color:#577e46; font-size:8px; font-weight:800; margin:16px 0 0; }.scene-funnel-summary p b { float:right; }
+  .scene-figure figcaption { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; padding:12px 3px 0; color:#7b897d; font-size:.69rem; line-height:1.5; }
+  .scene-figure figcaption span { color:#9da9a0; }
+  @media(max-width:1000px) { .value-shell { grid-template-columns:1fr; gap:2.1rem; }.value-copy { max-width:730px; }.value-copy h2 { max-width:17ch; }.scene-figure { max-width:740px; } }
+  @media(max-width:610px) { .value-story { padding:4rem 0; }.value-copy h2 { font-size:clamp(2.15rem,9vw,3rem); }.scene-frame { grid-template-columns:1fr; }.scene-nav { display:none; }.scene-browser { border-radius:9px; }.scene-page { padding:17px 13px; }.scene-guide-card { right:7px; width:195px; }.scene-guide-card>p { font-size:8px; }.scene-form { max-width:100%; }.scene-form-footer { gap:3px; font-size:7px; }.scene-cta-target { padding:7px 6px; font-size:8px; }.scene-checklist-pop { width:220px; right:8px; }.scene-topbar { padding:0 12px; }.scene-figure figcaption { font-size:.65rem; }.scene-trend svg { height:110px; } }
+  @media(max-width:400px) { .scene-kpis { gap:4px; }.scene-kpis>div { padding:10px 5px; }.scene-kpis strong { font-size:17px; }.scene-kpis small { font-size:7px; white-space:normal; }.scene-kpis span { font-size:6.5px; }.scene-analytics-grid { grid-template-columns:1fr; }.scene-trend svg { height:70px; }.scene-trend { padding:8px; }.scene-funnel-summary { padding:8px; }.scene-funnel-stat { margin-top:7px; }.scene-funnel-summary p { margin-top:8px; }.scene-page { min-height:365px; }.scene-guide-card { bottom:8px; }.scene-form-footer { align-items:flex-start; }.scene-form-footer>span:first-child { max-width:68px; } }
+  @media(prefers-reduced-motion:reduce) { .value-story *, .value-story *::before, .value-story *::after { scroll-behavior:auto !important; } }
+</style>
