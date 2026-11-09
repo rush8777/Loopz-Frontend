@@ -1,5 +1,6 @@
 ---
 import { ArrowUpRight, Check } from "lucide-astro";
+import GeoChatMockup from "./GeoChatMockup.astro";
 
 const capabilities = [
   {
@@ -91,6 +92,9 @@ const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
           </div>
 
           <figure class="capability-figure">
+            {capability.id === "discovery" ? (
+              <GeoChatMockup />
+            ) : (
             <div class="mockup-frame" role="group" aria-label={"Illustrative Movcues " + capability.preview + " interface using sample data"}>
               <div class="mockup-toolbar">
                 <span class="toolbar-brand-mark" aria-hidden="true">M</span>
@@ -107,19 +111,6 @@ const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
                 </div>
 
                 <div class="mockup-main">
-
-                  {capability.id === "discovery" && (
-                    <div class="geo-screen">
-                      <div class="screen-header"><div><span class="screen-eyebrow">GEO / BEHAVIOR INTELLIGENCE</span><strong>Understand who needs help</strong></div><span class="screen-filter">Last 30 days</span></div>
-                      <div class="geo-hero"><span class="ai-orb" aria-hidden="true">✦</span><div><small>GEO INSIGHT · SAMPLE</small><strong>Not all users need the same next step.</strong><p>Here are three example behavior patterns worth investigating.</p></div></div>
-                      <div class="geo-cohorts">
-                        <div class="geo-cohort"><span class="cohort-symbol blue">↗</span><div><b>Exploring confidently</b><small>Returning and discovering features</small></div><strong>42 <em>users</em></strong></div>
-                        <div class="geo-cohort focus"><span class="cohort-symbol amber">!</span><div><b>Stuck during setup</b><small>Started onboarding, no first project</small></div><strong>34 <em>users</em></strong></div>
-                        <div class="geo-cohort"><span class="cohort-symbol violet">◷</span><div><b>Quiet after signup</b><small>Haven't taken the first key action</small></div><strong>24 <em>users</em></strong></div>
-                      </div>
-                      <div class="geo-next"><span>✦ &nbsp; GEO RECOMMENDATION · ILLUSTRATIVE</span><p>Start by helping the setup group create their first project with a short in-app guide.</p></div>
-                    </div>
-                  )}
 
                   {capability.id === "personalize" && (
                     <div class="builder-screen">
@@ -165,6 +156,7 @@ const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
                 </div>
               </div>
             </div>
+            )}
             <figcaption><span class="caption-indicator" aria-hidden="true"></span>{capability.caption} <span class="caption-qualifier">Illustrative UI · sample data</span></figcaption>
           </figure>
         </article>
