@@ -1,0 +1,70 @@
+name: Website build and Lighthouse audit
+
+on:
+  push:
+    branches:
+      - main
+      - 'perf/**'
+    paths:
+      - 'apps/website/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/website-performance.yml'
+  pull_request:
+    paths:
+      - 'apps/website/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/website-performance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  website-performance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install workspace dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build production website
+        run: npm run build:website
+      - name: Run Astro static checks
+        run: npm run check:website
+      - name: Start local production preview
+        run: |
+          npm run preview --workspace=@movcues/website -- --host 127.0.0.1 --port 4321 > /tmp/movcues-preview.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:4321/; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/movcues-preview.log
+          exit 1
+      - name: Audit mobile and desktop locally
+        continue-on-error: true
+        run: |
+          mkdir -p lighthouse-results
+          npx --yes lighthouse@12.8.2 http://127.0.0.1:4321/ \
+            --only-categories=performance,seo \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --output=json --output-path=lighthouse-results/mobile.json
+          npx --yes lighthouse@12.8.2 http://127.0.0.1:4321/ \
+            --only-categories=performance,seo \
+            --preset=desktop \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --output=json --output-path=lighthouse-results/desktop.json
+          node -e 'for (const name of ["mobile","desktop"]) { try {const d=require("./lighthouse-results/"+name+".json"); console.log(name, "performance", Math.round(d.categories.performance.score*100), "SEO", Math.round(d.categories.seo.score*100), "LCP", d.audits["largest-contentful-paint"].displayValue, "CLS", d.audits["cumulative-layout-shift"].displayValue)} catch (e) { console.log(name, "audit unavailable:",e.message)} }'
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-lighthouse
+          path: lighthouse-results/*.json
+          if-no-files-found: ignore
