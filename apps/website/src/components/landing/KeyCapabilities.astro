@@ -2,6 +2,7 @@
 import { ArrowUpRight, Check } from "lucide-astro";
 import GeoChatMockup from "./GeoChatMockup.astro";
 import LiveEditorMockup from "./LiveEditorMockup.astro";
+import DashboardFocusMockup from "./DashboardFocusMockup.astro";
 
 const capabilities = [
   {
@@ -97,6 +98,8 @@ const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
               <GeoChatMockup />
             ) : capability.id === "personalize" ? (
               <LiveEditorMockup />
+            ) : capability.id === "analytics" ? (
+              <DashboardFocusMockup />
             ) : (
             <div class="mockup-frame" role="group" aria-label={"Illustrative Movcues " + capability.preview + " interface using sample data"}>
               <div class="mockup-toolbar">
@@ -114,18 +117,6 @@ const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
                 </div>
 
                 <div class="mockup-main">
-
-                  {capability.id === "analytics" && (
-                    <div class="analytics-screen">
-                      <div class="screen-header"><div><span class="screen-eyebrow">ANALYTICS / DASHBOARDS</span><strong>Investigate your activation journey</strong></div><span class="screen-filter">Last 30 days</span></div>
-                      <div class="analytics-kpis"><div><small>Users</small><strong>1,284</strong><span>Unique visitors</span></div><div><small>Activation rate</small><strong>24%</strong><span>First project created</span></div><div class="attention"><small>Needs attention</small><strong>34</strong><span>Stalled during setup</span></div></div>
-                      <div class="analytics-panels">
-                        <div class="analytics-funnel"><div class="panel-heading"><strong>First project activation</strong><span>FUNNEL</span></div><div class="funnel-rows"><div><span>Signed up</span><i><b style="width:100%"></b></i><strong>100</strong></div><div><span>Started setup</span><i><b style="width:58%"></b></i><strong>58</strong></div><div><span>First project</span><i><b style="width:24%"></b></i><strong>24</strong></div></div></div>
-                        <div class="analytics-segment"><div class="panel-heading"><strong>Investigate segment</strong><span>SEGMENT</span></div><div class="segment-count">34 <small>users</small></div><p>Started setup, but never created a first project.</p><span class="segment-pill">◎ &nbsp; View affected users</span></div>
-                      </div>
-                      <div class="preview-footnote">Dashboards reveal trends. Funnels locate friction. Segments isolate users.</div>
-                    </div>
-                  )}
 
                   {capability.id === "feedback" && (
                     <div class="feedback-screen">
