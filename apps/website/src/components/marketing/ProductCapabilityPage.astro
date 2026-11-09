@@ -1,6 +1,7 @@
 ---
 import { DASHBOARD_URLS } from "../../config/site";
 import MarketingLayout from "./MarketingLayout.astro";
+import ProductValueScene from "./ProductValueScene.astro";
 
 type Capability = "guide" | "modal" | "checklist" | "tooltip" | "dashboard";
 interface Props { capability: Capability }
@@ -80,6 +81,8 @@ const page = pages[capability];
       </div>
     </div>
   </section>
+
+  <ProductValueScene capability={capability} />
 
   <section class="capability-proof" id="capabilities">
     <div class="capability-shell"><p>Built around what Movcues actually supports</p><div>{page.features.map(([title, description], index) => <article data-reveal><span>0{index + 1}</span><h2>{title}</h2><p>{description}</p><details><summary>Explore the controls <b>+</b></summary><ul>{page.featureDetails[index].map((detail) => <li><i></i>{detail}</li>)}</ul></details></article>)}</div><blockquote>“{page.proofNote}”</blockquote></div>
