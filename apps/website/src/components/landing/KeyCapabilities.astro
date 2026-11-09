@@ -1,6 +1,7 @@
 ---
 import { ArrowUpRight, Check } from "lucide-astro";
 import GeoChatMockup from "./GeoChatMockup.astro";
+import LiveEditorMockup from "./LiveEditorMockup.astro";
 
 const capabilities = [
   {
@@ -94,6 +95,8 @@ const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
           <figure class="capability-figure">
             {capability.id === "discovery" ? (
               <GeoChatMockup />
+            ) : capability.id === "personalize" ? (
+              <LiveEditorMockup />
             ) : (
             <div class="mockup-frame" role="group" aria-label={"Illustrative Movcues " + capability.preview + " interface using sample data"}>
               <div class="mockup-toolbar">
@@ -111,25 +114,6 @@ const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
                 </div>
 
                 <div class="mockup-main">
-
-                  {capability.id === "personalize" && (
-                    <div class="builder-screen">
-                      <div class="screen-header"><div><span class="screen-eyebrow">LIVE BUILDER / ON-SITE EDITOR</span><strong>Edit experiences on your website</strong></div><span class="screen-filter">Draft · Preview</span></div>
-                      <div class="builder-workspace">
-                        <div class="builder-web">
-                          <div class="builder-browser"><span class="browser-lights">● ● ●</span><span>yourapp.com / workspace</span></div>
-                          <div class="builder-site">
-                            <div class="site-top"><b>Acme<span>space</span></b><small>Overview　Projects　Settings</small></div>
-                            <strong>Welcome to your workspace</strong><p>Organize your work, all in one place.</p>
-                            <div class="site-skeleton"><i></i><i></i><i></i></div>
-                            <div class="builder-spotlight"><span class="selected-chip">✦ GUIDE · SELECTED</span><small>STEP 1 OF 3</small><strong>Let's make your first project.</strong><p>Start here and see what your workspace can do.</p><span class="builder-cta">Create a project <span>↗</span></span><span class="resize-dot top-left"></span><span class="resize-dot top-right"></span><span class="resize-dot bottom-left"></span><span class="resize-dot bottom-right"></span></div>
-                          </div>
-                        </div>
-                        <div class="builder-inspector"><div class="inspector-head"><span class="ai-orb">✦</span><div><strong>Geo AI</strong><small>Widget assistant</small></div></div><div class="inspector-message">Make this a welcoming first-project guide.</div><div class="inspector-state"><span>✓</span> One widget draft ready</div><div class="inspector-divider"></div><span class="inspector-label">ELEMENT</span><div class="inspector-property">Guide card <span>⌄</span></div><span class="inspector-label">APPEARANCE</span><div class="inspector-swatches"><i></i><i></i><i></i><i></i></div></div>
-                      </div>
-                      <div class="preview-footnote">Visual placement, direct editing and AI-assisted widget design · illustrative preview</div>
-                    </div>
-                  )}
 
                   {capability.id === "analytics" && (
                     <div class="analytics-screen">
