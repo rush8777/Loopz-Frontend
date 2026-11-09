@@ -22,6 +22,7 @@ const tasks = [
       <div class="le-site-actions"><Search size={12} aria-hidden="true"/><Bell size={12} aria-hidden="true"/><span class="le-avatar">AM</span></div>
       <span class="le-back-home">Back home <ArrowUpRight size={11} aria-hidden="true"/></span>
     </div>
+    <div class="le-site-viewport" data-le-site-viewport>
     <div class="le-site-content">
       <div class="le-intro"><div><span>Workspace / Overview</span><h4>Good morning, Alex.</h4><p>Here's what happened across your product this week.</p></div><span class="le-feature-cta">View features ↗</span></div>
       <div class="le-stats">
@@ -35,6 +36,16 @@ const tasks = [
         </section>
         <section class="le-panel le-events"><div class="le-panel-head"><div><h5>Recent events</h5><p>Latest activity in your product</p></div><span>•••</span></div><div class="le-event-list">{events.map((ev, i) => <div><span class="le-event-dot"></span><strong>{ev}</strong><small>{[2,8,21,34][i]}m ago</small></div>)}</div></section>
       </div>
+    </div>
+    <section class="le-below-fold" aria-label="Illustrative data connection settings">
+      <div class="le-below-heading"><span class="le-lower-kicker">GETTING STARTED / DATA SOURCES</span><h5>Connect your product data</h5><p>Bring activity into your workspace so the team can track what matters.</p></div>
+      <div class="le-integration-card">
+        <div class="le-integration-icon"><Zap size={17} strokeWidth={1.7} aria-hidden="true"/></div>
+        <div><strong>Connect your first source</strong><p>Install the SDK or choose an integration to start tracking.</p></div>
+        <span class="le-integration-target" data-le-tour-target>Connect source <ArrowUpRight size={10} aria-hidden="true"/></span>
+      </div>
+      <div class="le-integration-foot"><span><Check size={9} aria-hidden="true"/> Guided setup</span><span>Secure connection</span></div>
+    </section>
     </div>
   </div>
   <aside class="le-ai" aria-label="Geo-assisted visual editor preview">
@@ -86,8 +97,8 @@ const tasks = [
     <div class="le-tour-highlight"></div>
     <div class="le-tour-anchor-card">
       <span class="le-tour-eyebrow">ON THIS PAGE · STEP 2 OF 3</span>
-      <h5>Watch your events arrive.</h5>
-      <p>Once your source is connected, this activity feed helps you confirm that tracking is working.</p>
+      <h5>Connect your first source.</h5>
+      <p>Choose Connect source to add your SDK or integration. Your first events will appear here once tracking is active.</p>
       <div class="le-tour-anchor-bottom"><span><i></i><i class="is-current"></i><i></i></span><strong>Continue <ArrowUpRight size={11}/></strong></div>
     </div>
   </div>
@@ -97,8 +108,8 @@ const tasks = [
     <div class="le-tour-dialog le-tour-success-dialog">
       <div class="le-tour-success-icon"><Check size={17} strokeWidth={2.25}/></div>
       <span class="le-tour-eyebrow">GUIDE COMPLETED · STEP 3 OF 3</span>
-      <h5>You're ready for what's next.</h5>
-      <p>You've learned where to check incoming activity. Continue setting up your workspace at your own pace.</p>
+      <h5>Your setup is taking shape.</h5>
+      <p>You found where to connect product data. You're ready to continue the rest of your workspace setup.</p>
       <div class="le-tour-dialog-actions"><span>3 steps explored</span><strong>Finish guide <Check size={11}/></strong></div>
     </div>
   </div>
@@ -136,6 +147,46 @@ const tasks = [
         mock.classList.add("is-playing");
         typeText(mock.querySelector<HTMLElement>("[data-le-user-request]"), 160, 28);
         typeText(mock.querySelector<HTMLElement>("[data-le-assistant-answer]"), 3200, 21);
+
+        // The page inside this demonstration scrolls; the visitor's page never moves.
+        // Reveal the anchored card only after the simulated website reaches its bottom.
+        window.setTimeout(() => {
+          const viewport = mock.querySelector<HTMLElement>("[data-le-site-viewport]");
+          if (!viewport) return;
+          mock.classList.add("is-tour-scrolling");
+          const from = viewport.scrollTop;
+          const to = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+          const duration = 1420;
+          let start: number | undefined;
+          const scrollFrame = (now: number) => {
+            if (start === undefined) start = now;
+            const progress = Math.min(1, (now - start) / duration);
+            const eased = progress < .5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+            viewport.scrollTop = from + (to - from) * eased;
+            if (progress < 1) {
+              window.requestAnimationFrame(scrollFrame);
+              return;
+            }
+            viewport.scrollTop = to;
+            const target = mock.querySelector<HTMLElement>("[data-le-tour-target]");
+            if (target) {
+              const rect = target.getBoundingClientRect();
+              const scene = mock.getBoundingClientRect();
+              mock.style.setProperty("--le-target-left", rect.left - scene.left - 3 + "px");
+              mock.style.setProperty("--le-target-top", rect.top - scene.top - 3 + "px");
+              mock.style.setProperty("--le-target-width", rect.width + 6 + "px");
+              mock.style.setProperty("--le-target-height", rect.height + 6 + "px");
+            }
+            mock.classList.remove("is-tour-scrolling");
+            mock.classList.add("is-tour-anchor-visible");
+            window.setTimeout(() => {
+              mock.classList.add("is-tour-success-visible");
+              window.setTimeout(() => mock.classList.add("is-tour-complete"), 3000);
+              window.setTimeout(() => mock.classList.add("is-tour-finished"), 3750);
+            }, 2650);
+          };
+          window.requestAnimationFrame(scrollFrame);
+        }, 12100);
         observer.unobserve(mock);
       }
     }, { threshold: 0.2 });
@@ -400,5 +451,134 @@ const tasks = [
     .le-checklist li:first-child .le-task-box::after {opacity:0;}
     .le-count-before {opacity:1;}
     .le-count-after {opacity:0;}
+  }
+
+  /* Preserve the initial dashboard, but scroll within the mock website's viewport. */
+  .le-site {overflow:hidden;}
+  .le-site-nav {position:relative;z-index:1;}
+  .le-site-viewport {position:absolute;top:47px;left:0;right:0;bottom:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;}
+  .le-site-viewport::-webkit-scrollbar {display:none;}
+  .le-below-fold {min-height:270px;margin:28px 15px 28px;padding:17px 15px 22px;width:62%;border:1px solid #e2e7ef;border-radius:11px;background:#fff;box-shadow:0 3px 16px #10182807;}
+  .le-lower-kicker {color:#6b66e7;font-size:8px;font-weight:780;letter-spacing:.1em;}
+  .le-below-heading h5 {margin:9px 0 5px;font-size:16px;letter-spacing:-.045em;line-height:1.2;color:#172338;}
+  .le-below-heading p {margin:0;color:#8c9aab;font-size:9px;line-height:1.5;}
+  .le-integration-card {display:flex;align-items:center;gap:10px;margin-top:18px;padding:13px 10px;border-radius:9px;border:1px solid #e2e7f0;background:#fcfcff;}
+  .le-integration-icon {display:grid;place-items:center;flex:none;width:29px;height:29px;border:1px solid #dedcff;border-radius:8px;background:#f1efff;color:#655be9;}
+  .le-integration-card>div:nth-child(2) {flex:1;min-width:0;}
+  .le-integration-card strong {display:block;color:#283650;font-size:10px;}
+  .le-integration-card p {margin:4px 0 0;color:#8e9bad;font-size:8px;line-height:1.5;}
+  .le-integration-target {display:flex;align-items:center;justify-content:center;gap:5px;flex:none;padding:9px 10px;border-radius:6px;background:#635bff;color:#fff;white-space:nowrap;font-size:8px;font-weight:750;}
+  .le-integration-foot {display:flex;justify-content:space-between;margin-top:17px;color:#98a6b6;font-size:8px;}
+  .le-integration-foot>span:first-child {display:flex;align-items:center;gap:4px;color:#138a5b;}
+
+  /* Hide editor chrome before the passive cursor enters; checklist remains as a real in-app widget. */
+  .le-scene.is-playing .le-ai,.le-scene.is-playing .le-toolbar {animation:le-editor-exit .24s ease 6.96s forwards;pointer-events:none;}
+  .le-scene.is-playing .le-selected {animation:le-check-in .52s cubic-bezier(.18,.8,.2,1) 5.86s both,le-runtime-checklist .25s ease 7s forwards;}
+  .le-scene.is-playing .le-selected-tools,.le-scene.is-playing .le-handle {animation:le-editor-exit .22s ease 6.96s forwards;}
+  @keyframes le-editor-exit {to {opacity:0;visibility:hidden;transform:translateY(-5px);}}
+  @keyframes le-runtime-checklist {to {border-color:transparent;box-shadow:0 12px 30px #13213b1c;}}
+
+  /* Smaller welcome/success modals with gently dimmed backdrop. */
+  .le-tour-scrim {background:rgba(16,24,40,.09);}
+  .le-tour-soft-shade {background:rgba(16,24,40,.04);}
+  .le-tour-dialog {left:61%;top:50%;width:min(193px,35%);padding:12px;border-radius:11px;box-shadow:0 16px 40px #131d3122,0 2px 7px #131d310c;}
+  .le-tour-dialog-icon,.le-tour-success-icon {height:26px;width:26px;margin-bottom:9px;border-radius:8px;}
+  .le-tour-dialog-icon svg,.le-tour-success-icon svg {width:13px;height:13px;}
+  .le-tour-dialog h5 {font-size:13px;letter-spacing:-.04em;margin:6px 0;}
+  .le-tour-dialog p {font-size:8.4px;line-height:1.52;}
+  .le-tour-dialog .le-tour-eyebrow {font-size:7px;letter-spacing:.065em;}
+  .le-tour-dialog-actions {gap:9px;margin-top:12px;font-size:7px;}
+  .le-tour-dialog-actions strong {padding:7px 8px;font-size:7px;gap:4px;}
+  .le-tour-dialog-actions strong svg {width:9px;height:9px;}
+
+  /* Place the anchored card at the bottom after the internal website scroll completes. */
+  .le-tour-highlight {top:var(--le-target-top,75%);left:var(--le-target-left,20%);width:var(--le-target-width,115px);height:var(--le-target-height,30px);right:auto;bottom:auto;border-radius:7px;}
+  .le-tour-anchor-card {top:auto;left:39%;bottom:30px;width:min(207px,34%);padding:12px;border-radius:10px;box-shadow:0 12px 30px #121c2c2a;}
+  .le-tour-anchor-card::after {right:auto;bottom:auto;left:-6px;top:67%;border-left:1px solid #dde3ef;border-bottom:1px solid #dde3ef;border-right:0;transform:rotate(45deg);}
+  .le-tour-anchor-card h5 {font-size:12px;margin:5px 0 6px;}
+  .le-tour-anchor-card p {font-size:8px;line-height:1.55;}
+  .le-tour-anchor-bottom {margin-top:12px;}
+  .le-tour-anchor-bottom strong {font-size:7px;padding:7px 8px;}
+
+  /* Anchored help is driven by scroll completion, never by a fixed animation delay. */
+  .le-scene.is-playing .le-tour-anchored,.le-scene.is-playing .le-tour-success {animation:none;opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .45s cubic-bezier(.2,.75,.24,1);}
+  .le-scene.is-playing.is-tour-anchor-visible .le-tour-anchored {opacity:1;transform:translateY(0);}
+  .le-scene.is-playing.is-tour-success-visible .le-tour-anchored {opacity:0;transform:translateY(-5px);}
+  .le-scene.is-playing.is-tour-success-visible .le-tour-success {opacity:1;transform:translateY(0);}
+  .le-scene.is-playing.is-tour-finished .le-tour-success {opacity:0;transform:translateY(-5px);}
+
+  /* Cursor navigates: first checklist task, modal CTA, lower-page tooltip, success. */
+  .le-scene.is-playing .le-tour-cursor {animation:le-cursor-follow-through 13.1s linear 7.35s both;}
+  .le-scene.is-playing .le-tour-click-ring {animation:le-cursor-ripples 13.1s linear 7.35s both;}
+  @keyframes le-cursor-follow-through {
+    0%{left:54%;top:49%;opacity:0;transform:scale(1)}
+    7%{left:67%;top:58%;opacity:1}
+    12%{left:81%;top:70%;opacity:1}
+    14%{left:81%;top:70%;transform:scale(.8)}
+    16%{left:81%;top:70%;transform:scale(1)}
+    23%{left:69%;top:55%}
+    27%{left:69%;top:55%;transform:scale(.82)}
+    29%{left:69%;top:55%;transform:scale(1)}
+    36%{left:65%;top:68%}
+    46%{left:45%;top:74%}
+    52%{left:58%;top:80%}
+    66%{left:57%;top:80%;transform:scale(.8)}
+    68%{left:57%;top:80%;transform:scale(1)}
+    73%{left:67%;top:59%}
+    88%{left:67%;top:59%;transform:scale(.8)}
+    90%{left:67%;top:59%;transform:scale(1)}
+    97%{left:70%;top:64%;opacity:1}
+    100%{left:70%;top:64%;opacity:0}
+  }
+  @keyframes le-cursor-ripples {
+    0%,12%,16%,25%,29%,64%,69%,86%,91%,100%{opacity:0;transform:scale(.4)}
+    14%,27%,66%,88%{opacity:.75;transform:scale(1.45)}
+  }
+
+  /* Completion only after the success walkthrough, not earlier. */
+  .le-scene.is-playing .le-checklist li:first-child .le-task-box,
+  .le-scene.is-playing .le-checklist li:first-child .le-task-box::after,
+  .le-scene.is-playing .le-count-before,.le-scene.is-playing .le-count-after {animation:none;}
+  .le-scene.is-playing.is-tour-complete .le-checklist li:first-child .le-task-box {background:#dff8eb;border-radius:3px;}
+  .le-scene.is-playing.is-tour-complete .le-checklist li:first-child .le-task-box::after {opacity:1;}
+  .le-scene.is-playing.is-tour-complete .le-count-before {opacity:0;}
+  .le-scene.is-playing.is-tour-complete .le-count-after {opacity:1;}
+
+  @container(max-width:710px) {
+    .le-below-fold {width:66%;min-height:260px;}
+    .le-integration-card {flex-wrap:wrap;}
+    .le-integration-target {margin-left:38px;}
+    .le-tour-dialog {width:min(185px,37%);}
+    .le-tour-anchor-card {left:37%;width:min(198px,39%);}
+  }
+  @container(max-width:570px) {
+    .le-below-fold {width:66%;min-height:250px;margin:20px 10px;padding:12px;}
+    .le-below-heading h5 {font-size:12px;}
+    .le-below-heading p {font-size:8px;}
+    .le-integration-card {gap:7px;padding:8px;}
+    .le-integration-target {margin-left:0;padding:7px;}
+    .le-tour-dialog {left:60%;width:42%;padding:10px;}
+    .le-tour-dialog h5 {font-size:11.5px;}
+    .le-tour-dialog p {font-size:8px;}
+    .le-tour-anchor-card {left:41%;width:45%;bottom:24px;padding:10px;}
+    .le-tour-anchor-card h5 {font-size:11px;}
+    .le-tour-anchor-card p {font-size:7.5px;}
+  }
+  @container(max-width:425px) {
+    .le-below-fold {width:72%;min-height:245px;}
+    .le-integration-card strong {font-size:8px;}
+    .le-integration-card p {font-size:7px;}
+    .le-tour-dialog {left:63%;width:49%;padding:9px;}
+    .le-tour-dialog h5 {font-size:10.5px;}
+    .le-tour-dialog p {font-size:7px;}
+    .le-tour-dialog-actions {font-size:6px;gap:5px;}
+    .le-tour-dialog-actions strong {font-size:6px;padding:6px;}
+    .le-tour-anchor-card {left:39%;width:57%;bottom:18px;padding:9px;}
+    .le-tour-anchor-card h5 {font-size:10px;}
+    .le-tour-anchor-card p {font-size:7px;}
+  }
+  @media(prefers-reduced-motion:reduce) {
+    .le-tour-anchored,.le-tour-success {display:none!important;}
+    .le-site-viewport {scroll-behavior:auto;}
   }
 </style>
