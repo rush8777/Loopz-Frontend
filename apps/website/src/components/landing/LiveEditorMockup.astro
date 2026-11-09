@@ -122,75 +122,135 @@ const tasks = [
   </div>
 </div>
 <script>
-  // All copy is present in Astro's HTML before hydration, including the AI response.
-  // JS only animates a visual illustration; no real editor request or analytics event fires.
-  const liveMocks = document.querySelectorAll<HTMLElement>("[data-live-editor-mockup]");
-  if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    const typeText = (node: HTMLElement | null, startDelay: number, msPerCharacter: number) => {
-      if (!node) return;
-      const original = node.textContent ?? "";
-      node.textContent = "";
-      window.setTimeout(() => {
-        let index = 0;
-        const interval = window.setInterval(() => {
-          index = Math.min(index + 1, original.length);
-          node.textContent = original.slice(0, index);
-          if (index >= original.length) window.clearInterval(interval);
-        }, msPerCharacter);
-      }, startDelay);
-    };
+  // All mockup copy is server-rendered. This is a local visual sequence only.
+  // Releasing timers offscreen avoids idle work and replays cleanly when visible again.
+  const liveMocks = Array.from(document.querySelectorAll<HTMLElement>("[data-live-editor-mockup]"));
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if ("IntersectionObserver" in window && !reducedMotion.matches) {
+    const demos = liveMocks.map((mock) => {
+      const viewport = mock.querySelector<HTMLElement>("[data-le-site-viewport]");
+      const request = mock.querySelector<HTMLElement>("[data-le-user-request]");
+      const answer = mock.querySelector<HTMLElement>("[data-le-assistant-answer]");
+      const originalRequest = request?.textContent ?? "";
+      const originalAnswer = answer?.textContent ?? "";
+      let active = false;
+      let timeouts: number[] = [];
+      let intervals: number[] = [];
+      let frameId: number | undefined;
+
+      const later = (fn: () => void, ms: number) => {
+        const id = window.setTimeout(() => { if (active) fn(); }, ms);
+        timeouts.push(id);
+      };
+      const typeText = (node: HTMLElement | null, original: string, delay: number, msPerCharacter: number) => {
+        if (!node) return;
+        node.textContent = "";
+        later(() => {
+          let index = 0;
+          const id = window.setInterval(() => {
+            if (!active) return;
+            index = Math.min(index + 1, original.length);
+            node.textContent = original.slice(0, index);
+            if (index >= original.length) window.clearInterval(id);
+          }, msPerCharacter);
+          intervals.push(id);
+        }, delay);
+      };
+      const clearWork = () => {
+        timeouts.forEach((id) => window.clearTimeout(id));
+        intervals.forEach((id) => window.clearInterval(id));
+        if (frameId !== undefined) window.cancelAnimationFrame(frameId);
+        timeouts = [];
+        intervals = [];
+        frameId = undefined;
+      };
+      const stop = () => {
+        if (!active) return;
+        active = false;
+        clearWork();
+        mock.classList.remove("is-playing", "is-tour-scrolling", "is-tour-anchor-visible",
+          "is-tour-success-visible", "is-tour-complete", "is-tour-finished");
+        if (request) request.textContent = originalRequest;
+        if (answer) answer.textContent = originalAnswer;
+        if (viewport) viewport.scrollTop = 0;
+        for (const property of ["--le-target-left", "--le-target-top", "--le-target-width", "--le-target-height"]) {
+          mock.style.removeProperty(property);
+        }
+      };
+      const scrollToGuide = () => {
+        if (!viewport) return;
+        mock.classList.add("is-tour-scrolling");
+        const from = viewport.scrollTop;
+        const to = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+        const duration = 1420;
+        let startTime: number | undefined;
+        const scrollFrame = (now: number) => {
+          if (!active) return;
+          if (startTime === undefined) startTime = now;
+          const progress = Math.min(1, (now - startTime) / duration);
+          const eased = progress < .5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+          viewport.scrollTop = from + (to - from) * eased;
+          if (progress < 1) {
+            frameId = window.requestAnimationFrame(scrollFrame);
+            return;
+          }
+          frameId = undefined;
+          viewport.scrollTop = to;
+          const target = mock.querySelector<HTMLElement>("[data-le-tour-target]");
+          if (target) {
+            const rect = target.getBoundingClientRect();
+            const scene = mock.getBoundingClientRect();
+            mock.style.setProperty("--le-target-left", rect.left - scene.left - 3 + "px");
+            mock.style.setProperty("--le-target-top", rect.top - scene.top - 3 + "px");
+            mock.style.setProperty("--le-target-width", rect.width + 6 + "px");
+            mock.style.setProperty("--le-target-height", rect.height + 6 + "px");
+          }
+          mock.classList.remove("is-tour-scrolling");
+          mock.classList.add("is-tour-anchor-visible");
+          later(() => {
+            mock.classList.add("is-tour-success-visible");
+            later(() => mock.classList.add("is-tour-complete"), 3000);
+            later(() => mock.classList.add("is-tour-finished"), 3750);
+          }, 2650);
+        };
+        frameId = window.requestAnimationFrame(scrollFrame);
+      };
+      const start = () => {
+        if (active || document.hidden) return;
+        active = true;
+        if (viewport) viewport.scrollTop = 0;
+        // Force new CSS animations to begin only when the user can see the mockup.
+        mock.classList.add("is-playing");
+        typeText(request, originalRequest, 160, 28);
+        typeText(answer, originalAnswer, 3200, 21);
+        later(scrollToGuide, 12100);
+      };
+      mock.classList.add("is-ready");
+      return { mock, start, stop };
+    });
+
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const mock = entry.target as HTMLElement;
-        if (mock.classList.contains("is-playing")) continue;
-        mock.classList.add("is-playing");
-        typeText(mock.querySelector<HTMLElement>("[data-le-user-request]"), 160, 28);
-        typeText(mock.querySelector<HTMLElement>("[data-le-assistant-answer]"), 3200, 21);
-
-        // The page inside this demonstration scrolls; the visitor's page never moves.
-        // Reveal the anchored card only after the simulated website reaches its bottom.
-        window.setTimeout(() => {
-          const viewport = mock.querySelector<HTMLElement>("[data-le-site-viewport]");
-          if (!viewport) return;
-          mock.classList.add("is-tour-scrolling");
-          const from = viewport.scrollTop;
-          const to = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
-          const duration = 1420;
-          let start: number | undefined;
-          const scrollFrame = (now: number) => {
-            if (start === undefined) start = now;
-            const progress = Math.min(1, (now - start) / duration);
-            const eased = progress < .5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-            viewport.scrollTop = from + (to - from) * eased;
-            if (progress < 1) {
-              window.requestAnimationFrame(scrollFrame);
-              return;
-            }
-            viewport.scrollTop = to;
-            const target = mock.querySelector<HTMLElement>("[data-le-tour-target]");
-            if (target) {
-              const rect = target.getBoundingClientRect();
-              const scene = mock.getBoundingClientRect();
-              mock.style.setProperty("--le-target-left", rect.left - scene.left - 3 + "px");
-              mock.style.setProperty("--le-target-top", rect.top - scene.top - 3 + "px");
-              mock.style.setProperty("--le-target-width", rect.width + 6 + "px");
-              mock.style.setProperty("--le-target-height", rect.height + 6 + "px");
-            }
-            mock.classList.remove("is-tour-scrolling");
-            mock.classList.add("is-tour-anchor-visible");
-            window.setTimeout(() => {
-              mock.classList.add("is-tour-success-visible");
-              window.setTimeout(() => mock.classList.add("is-tour-complete"), 3000);
-              window.setTimeout(() => mock.classList.add("is-tour-finished"), 3750);
-            }, 2650);
-          };
-          window.requestAnimationFrame(scrollFrame);
-        }, 12100);
-        observer.unobserve(mock);
+        const demo = demos.find((item) => item.mock === entry.target);
+        if (!demo) continue;
+        if (entry.intersectionRatio >= .2 && !document.hidden) demo.start();
+        else demo.stop();
       }
-    }, { threshold: 0.2 });
-    liveMocks.forEach((mock) => { mock.classList.add("is-ready"); observer.observe(mock); });
+    }, { threshold: [0, .2, .5] });
+    demos.forEach(({ mock }) => observer.observe(mock));
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        demos.forEach(({ stop }) => stop());
+      } else {
+        demos.forEach(({ mock, start }) => {
+          const rect = mock.getBoundingClientRect();
+          const visible = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+          if (visible >= rect.height * .2) start();
+        });
+      }
+    });
   }
 </script>
 <style>
