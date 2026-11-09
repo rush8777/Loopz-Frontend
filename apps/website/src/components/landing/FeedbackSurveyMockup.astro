@@ -1,0 +1,321 @@
+---
+import { ArrowRight, ArrowUpRight, Check, MessageSquare, Plug, Workflow, Layers, X } from "lucide-astro";
+
+const integrations = [
+  { type: "DATA", name: "Segment", description: "Route customer events into Lumina with a few lines of configuration.", Icon: Layers },
+  { type: "COMMUNICATION", name: "Slack", description: "Share product insights and alerts in the channels your team follows.", Icon: MessageSquare },
+  { type: "WORKFLOW", name: "Zapier", description: "Trigger actions when customers reach important milestones.", Icon: Workflow },
+  { type: "CRM", name: "HubSpot", description: "Keep product insights and customer context together.", Icon: Plug }
+] as const;
+
+const sampleAnswer = "Finding the right integration took me a little longer than expected.";
+---
+<div class="sf-scene" data-feedback-survey-scene role="group" aria-label="Illustrative Movcues in-app feedback survey on a Lumina integrations page. An animated cursor chooses rating four, enters feedback, submits, and reveals the completion screen.">
+  <div class="sf-lumina">
+    <header class="sf-nav">
+      <div class="sf-brand">lumina<span>.</span></div>
+      <nav aria-label="Illustrative Lumina navigation">
+        <span>Features</span><span>Dashboard</span><span class="sf-current">Integrations</span><span>Pricing</span>
+      </nav>
+      <span class="sf-back">Back home</span>
+    </header>
+    <div class="sf-web-content">
+      <div class="sf-web-hero">
+        <p class="sf-web-eyebrow">BUILT FOR YOUR WORKFLOW</p>
+        <h4>Fits into your stack.</h4>
+        <p>Connect the tools your team already uses and send trustworthy product signals where they belong.</p>
+      </div>
+      <div class="sf-web-grid">
+        {integrations.map(({ type, name, description, Icon }) => (
+          <article class="sf-integration">
+            <div class="sf-integration-icon"><Icon size={16} strokeWidth={1.7} aria-hidden="true" /></div>
+            <small>{type}</small>
+            <h5>{name}</h5>
+            <p>{description}</p>
+            <span>Explore integration <ArrowUpRight size={10} aria-hidden="true"/></span>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="sf-scrim" aria-hidden="true"></div>
+
+  <div class="sf-survey" aria-label="Illustrative in-app survey, not a live feedback form">
+    <div class="sf-initial" data-sf-initial>
+      <div class="sf-survey-heading">
+        <h4>Give us the feedback</h4>
+        <X size={12} strokeWidth={2} aria-hidden="true" />
+      </div>
+      <p class="sf-intro">Your feedback helps us improve the experience.</p>
+      <div class="sf-question sf-rating-question">
+        <h5>How easy was it to complete this task?</h5>
+        <div class="sf-rating-options" role="img" aria-label="Five-point ease-of-use rating scale, with the illustrative animation selecting four out of five">
+          {[1,2,3,4,5].map((n) => <span class="sf-rating-option" data-sf-rating={n}>{n}</span>)}
+        </div>
+      </div>
+      <div class="sf-question sf-text-question">
+        <h5>What was the most challenging part?</h5>
+        <div class="sf-text-field" data-sf-text-field>
+          <span class="sf-placeholder" data-sf-placeholder>Tell us more (optional)</span>
+          <span class="sf-typed-text" data-sf-type>{sampleAnswer}</span>
+          <span class="sf-type-caret" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="sf-survey-footer">
+        <span class="sf-next" data-sf-next>Next <ArrowRight size={11} strokeWidth={2} aria-hidden="true"/></span>
+      </div>
+    </div>
+
+    <div class="sf-complete" aria-label="Illustrative survey completion message">
+      <div class="sf-survey-heading sf-complete-heading"><h4>Thanks for your feedback!</h4><X size={12} strokeWidth={2} aria-hidden="true" /></div>
+      <p class="sf-intro">Your feedback helps us improve the experience.</p>
+      <div class="sf-completion-panel">
+        <div class="sf-completion-icon"><Check size={21} strokeWidth={2.25} aria-hidden="true"/></div>
+        <span class="sf-completion-kicker">RESPONSE RECEIVED</span>
+        <h5>You're all set.</h5>
+        <p>Thanks for taking a moment to share your experience. Your input will help us make Lumina better.</p>
+        <div class="sf-response-summary">
+          <span>YOUR RATING</span>
+          <div class="sf-result-rating"><b>4</b><span>/ 5</span></div>
+          <small>Ease of use</small>
+        </div>
+      </div>
+      <div class="sf-completed-footer"><span><Check size={11} aria-hidden="true"/> Survey complete</span><span class="sf-done-label">Done <ArrowRight size={11} aria-hidden="true"/></span></div>
+    </div>
+  </div>
+
+  <div class="sf-cursor" aria-hidden="true">
+    <svg width="22" height="27" viewBox="0 0 24 29" fill="none">
+      <path d="M2 1.5V22.5L8.2 17.1L12.7 27L17.2 24.9L12.6 15.5H22.2L2 1.5Z" fill="white" stroke="#16243d" stroke-width="1.7" stroke-linejoin="round"/>
+    </svg>
+    <span class="sf-click-ring"></span>
+  </div>
+</div>
+
+<script>
+  // The visual text, labels and completion state are server-rendered.
+  // No real data is collected or transmitted by this marketing illustration.
+  const scenes = document.querySelectorAll<HTMLElement>("[data-feedback-survey-scene]");
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if ("IntersectionObserver" in window && !prefersReduced.matches) {
+    const players = Array.from(scenes, (scene) => {
+      const cursor = scene.querySelector<HTMLElement>(".sf-cursor");
+      const typed = scene.querySelector<HTMLElement>("[data-sf-type]");
+      const placeholder = scene.querySelector<HTMLElement>("[data-sf-placeholder]");
+      const rating = scene.querySelector<HTMLElement>('[data-sf-rating="4"]');
+      const field = scene.querySelector<HTMLElement>("[data-sf-text-field]");
+      const next = scene.querySelector<HTMLElement>("[data-sf-next]");
+      const answer = typed?.textContent ?? "";
+      let active = false;
+      let timeouts: number[] = [];
+      let interval: number | undefined;
+      const schedule = (callback: () => void, delay: number) => {
+        timeouts.push(window.setTimeout(() => { if (active) callback(); }, delay));
+      };
+      const moveTo = (element: HTMLElement | null, offsetX = 0, offsetY = 0) => {
+        if (!cursor || !element) return;
+        const rect = element.getBoundingClientRect();
+        const outer = scene.getBoundingClientRect();
+        const x = rect.left - outer.left + rect.width / 2 + offsetX;
+        const y = rect.top - outer.top + rect.height / 2 + offsetY;
+        cursor.style.transform = "translate3d(" + x + "px," + y + "px,0)";
+      };
+      const tap = () => {
+        if (!cursor) return;
+        cursor.classList.remove("sf-tapping");
+        void cursor.offsetWidth;
+        cursor.classList.add("sf-tapping");
+      };
+      const stop = () => {
+        active = false;
+        timeouts.forEach(window.clearTimeout);
+        timeouts = [];
+        if (interval !== undefined) window.clearInterval(interval);
+        interval = undefined;
+        scene.classList.remove("sf-running", "sf-rated", "sf-writing", "sf-submitted");
+        rating?.classList.remove("sf-selected");
+        next?.classList.remove("sf-pressed");
+        cursor?.classList.remove("sf-tapping");
+        if (cursor) {
+          cursor.style.transition = "none";
+          cursor.style.transform = "translate3d(0,0,0)";
+          cursor.style.opacity = "0";
+        }
+        if (typed) typed.textContent = answer;
+        if (placeholder) placeholder.style.opacity = "";
+      };
+      const start = () => {
+        if (active || document.hidden || !cursor || !typed) return;
+        active = true;
+        typed.textContent = "";
+        scene.classList.add("sf-running");
+        cursor.style.transition = "none";
+        cursor.style.transform = "translate3d(0,0,0)";
+        cursor.style.opacity = "0";
+        schedule(() => {
+          cursor.style.transition = "transform 720ms cubic-bezier(.25,.72,.22,1), opacity .25s ease";
+          cursor.style.opacity = "1";
+          moveTo(rating, 0, 3);
+        }, 500);
+        schedule(() => {
+          tap();
+          rating?.classList.add("sf-selected");
+          scene.classList.add("sf-rated");
+        }, 1420);
+        schedule(() => moveTo(field, -30, -9), 1960);
+        schedule(() => {
+          tap();
+          scene.classList.add("sf-writing");
+          if (placeholder) placeholder.style.opacity = "0";
+          let i = 0;
+          interval = window.setInterval(() => {
+            if (!active || !typed) return;
+            i = Math.min(answer.length, i + 1);
+            typed.textContent = answer.slice(0, i);
+            if (i === answer.length && interval !== undefined) {
+              window.clearInterval(interval);
+              interval = undefined;
+            }
+          }, 29);
+        }, 2750);
+        schedule(() => moveTo(next, -6, 2), 4930);
+        schedule(() => {
+          tap();
+          next?.classList.add("sf-pressed");
+        }, 5830);
+        schedule(() => scene.classList.add("sf-submitted"), 6110);
+        schedule(() => {
+          cursor.style.opacity = "0";
+        }, 6550);
+        // Leave the matching completion UI visible for a meaningful beat before replay.
+        schedule(() => { stop(); start(); }, 11300);
+      };
+      return { scene, start, stop };
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const player = players.find((p) => p.scene === entry.target);
+        if (!player) continue;
+        if (entry.intersectionRatio >= .3) player.start();
+        else player.stop();
+      }
+    }, { threshold: [0, .15, .3, .5] });
+    players.forEach(({ scene }) => observer.observe(scene));
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) players.forEach((p) => p.stop());
+      else players.forEach((p) => {
+        const r = p.scene.getBoundingClientRect();
+        if (r.bottom > 0 && r.top < window.innerHeight) p.start();
+      });
+    });
+  }
+</script>
+
+<style>
+  .sf-scene {position:relative;isolation:isolate;container-type:inline-size;overflow:hidden;width:100%;height:478px;border:1px solid #e0e4ed;border-radius:15px;background:#f8f9fc;color:#111827;box-shadow:0 1.6rem 3.5rem #0004;font-family:Inter,"Segoe UI",system-ui,sans-serif;}
+  .sf-scene *,.sf-scene *::before,.sf-scene *::after {box-sizing:border-box;}
+  .sf-lumina {position:absolute;inset:0;background:#f8f9fc;}
+  .sf-nav {height:46px;padding:0 18px;display:flex;gap:12px;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e8f0;background:#fff;}
+  .sf-brand {font-size:16px;font-weight:850;letter-spacing:-.045em;white-space:nowrap;color:#101727;}.sf-brand span {color:#635bff;}
+  .sf-nav nav {display:flex;align-items:center;gap:15px;font-size:9px;color:#64748b;font-weight:550;white-space:nowrap;}.sf-nav nav .sf-current {color:#625afa;}
+  .sf-back {font-size:9px;font-weight:750;padding:8px 12px;color:#fff;background:#635bff;border-radius:5px;white-space:nowrap;}
+  .sf-web-content {max-width:680px;margin:0 auto;padding:28px 25px 30px;}
+  .sf-web-hero {text-align:center;}.sf-web-eyebrow {margin:0 0 7px;color:#635bff;font-size:8px;font-weight:800;letter-spacing:.13em;}
+  .sf-web-hero h4 {font-size:26px;letter-spacing:-.06em;line-height:1.15;margin:0 0 9px;font-weight:790;}
+  .sf-web-hero>p:last-child {margin:0 auto;max-width:410px;color:#69788d;font-size:10px;line-height:1.6;}
+  .sf-web-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:23px;}
+  .sf-integration {min-width:0;padding:15px 14px 13px;background:#fff;border:1px solid #e3e7f0;border-radius:9px;box-shadow:0 1px 2px #0f172a07;}
+  .sf-integration-icon {display:grid;place-items:center;height:27px;width:27px;border-radius:7px;color:#625bff;background:#f0efff;margin-bottom:13px;}
+  .sf-integration small {display:inline-flex;padding:4px 5px;border-radius:3px;color:#5c58ca;background:#f1f0ff;font-size:7px;font-weight:800;letter-spacing:.045em;}
+  .sf-integration h5 {font-size:13px;margin:9px 0 5px;letter-spacing:-.035em;font-weight:760;}
+  .sf-integration p {min-height:45px;margin:0;color:#8390a3;font-size:9px;line-height:1.6;}
+  .sf-integration>span {display:flex;align-items:center;gap:5px;margin-top:11px;color:#665fea;font-size:8px;font-weight:730;}
+  .sf-scrim {position:absolute;inset:0;background:rgba(22,26,34,.53);z-index:2;pointer-events:none;}
+
+  .sf-survey {position:absolute;z-index:3;top:50%;left:50%;width:min(460px,79%);min-height:349px;transform:translate(-50%,-50%);border-radius:14px;border:1px solid #e0e6f0;background:#f9fbff;box-shadow:0 17px 53px rgba(12,19,33,.23),0 2px 9px rgba(12,19,33,.1);overflow:hidden;}
+  .sf-initial,.sf-complete {position:relative;width:100%;min-height:349px;padding:12px 11px 11px;}
+  .sf-survey-heading {position:relative;display:flex;align-items:center;justify-content:center;padding:0 18px 10px;border-bottom:1px solid #e0e5ed;}
+  .sf-survey-heading h4 {margin:0;color:#111a2d;font-size:17px;font-weight:790;letter-spacing:-.05em;line-height:1.35;text-align:center;}
+  .sf-survey-heading>svg {position:absolute;right:0;top:1px;color:#1c2537;}
+  .sf-intro {margin:5px 0 0;color:#6c7c94;text-align:center;font-size:10px;line-height:1.3;}
+  .sf-question {border:1px solid #e2e7f0;border-radius:11px;background:#f8faff;}
+  .sf-question h5 {margin:0;color:#172237;font-size:10px;text-align:center;line-height:1.45;font-weight:760;}
+  .sf-rating-question {padding:15px 13px 10px;margin-top:4px;}
+  .sf-rating-options {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;align-items:end;height:77px;margin-top:10px;}
+  .sf-rating-option {height:42%;display:grid;place-items:center;border:1px solid #c4d0ff;border-bottom:3px solid #c6d0ff;border-radius:10px 10px 7px 7px;background:#edf1ff;color:#3537a6;font-size:10px;font-weight:790;transition:height .4s ease,transform .3s ease,background .3s ease,border-color .3s ease,box-shadow .3s ease;}
+  .sf-rating-option:nth-child(2){height:55%;}.sf-rating-option:nth-child(3){height:68%;}.sf-rating-option:nth-child(4){height:81%;}.sf-rating-option:nth-child(5){height:94%;}
+  .sf-rating-option.sf-selected {background:#dfe6ff;border-color:#7b8bff;border-bottom-color:#737efb;box-shadow:0 0 0 2px #959aff22;color:#2925ab;transform:translateY(-2px);}
+  .sf-text-question {margin-top:1px;padding:13px 12px 10px;}
+  .sf-text-field {position:relative;height:90px;margin-top:11px;padding:12px 13px;overflow:hidden;border:1px solid #c9d2ff;border-left:3px solid #635bff;border-radius:9px;background:repeating-linear-gradient(to bottom,#fff 0px,#fff 19px,#ebeff8 19px,#ebeff8 20px);box-shadow:0 3px 0 #d7ddfc;color:#4a5571;}
+  .sf-placeholder {position:absolute;left:12px;top:12px;color:#909398;font-size:9px;transition:opacity .18s ease;}
+  .sf-typed-text {position:relative;display:block;max-width:100%;padding-right:2px;color:#37465e;line-height:20px;font-size:9.4px;white-space:normal;overflow-wrap:anywhere;}
+  .sf-type-caret {position:absolute;display:none;top:12px;left:13px;height:12px;width:1.5px;background:#625bff;animation:sf-blink .8s steps(2,end) infinite;}
+  .sf-scene.sf-running .sf-typed-text {visibility:hidden;}
+  .sf-scene.sf-running.sf-writing .sf-typed-text {visibility:visible;}
+  .sf-scene.sf-running.sf-writing .sf-type-caret {display:none;}
+  .sf-survey-footer {display:flex;justify-content:flex-end;padding-top:12px;}
+  .sf-next {display:flex;align-items:center;gap:6px;padding:8px 9px;border-radius:9px;border:1px solid #c3ceff;border-bottom:3px solid #bcc9ff;background:#eff2ff;color:#32319e;font-size:10px;font-weight:790;transition:background .22s ease,transform .22s ease;box-shadow:0 1px 3px #5154b20a;}
+  .sf-next.sf-pressed {background:#dce4ff;transform:scale(.94);}
+
+  .sf-complete {position:absolute;inset:0;z-index:3;background:#f9fbff;opacity:0;transform:translateY(12px) scale(.985);pointer-events:none;transition:opacity .48s ease,transform .48s cubic-bezier(.2,.7,.25,1);}
+  .sf-scene.sf-submitted .sf-complete {opacity:1;transform:translateY(0) scale(1);}
+  .sf-scene.sf-submitted .sf-initial {opacity:0;}
+  .sf-completion-panel {display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:17px;padding:17px 17px 15px;border:1px solid #e0e6f0;border-radius:12px;background:#fff;}
+  .sf-completion-icon {display:grid;place-items:center;width:39px;height:39px;border:1px solid #d3dcff;border-radius:50%;background:#f0f3ff;color:#595bee;margin-bottom:11px;}
+  .sf-completion-kicker {font-size:8px;font-weight:800;letter-spacing:.12em;color:#6367cc;}
+  .sf-completion-panel h5 {font-size:17px;letter-spacing:-.045em;line-height:1.1;margin:7px 0 8px;color:#19243a;}
+  .sf-completion-panel>p {font-size:9.5px;line-height:1.55;color:#7c8ca3;margin:0;max-width:295px;}
+  .sf-response-summary {display:flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:220px;margin-top:16px;padding:8px;border:1px solid #e5e9ff;border-radius:8px;background:#f6f7ff;}
+  .sf-response-summary>span {color:#8a8bb3;font-size:8px;letter-spacing:.04em;font-weight:700;}
+  .sf-result-rating {display:flex;align-items:baseline;gap:3px;}.sf-result-rating b {color:#4640d5;font-size:15px;}.sf-result-rating span {color:#8a8bb3;font-size:9px;}
+  .sf-response-summary small {font-size:8px;color:#8385a8;}
+  .sf-completed-footer {display:flex;align-items:center;justify-content:space-between;margin-top:12px;color:#668672;font-size:9px;}
+  .sf-completed-footer>span:first-child {display:flex;align-items:center;gap:5px;}
+  .sf-done-label {display:flex;align-items:center;gap:5px;color:#3435aa;background:#edf0ff;border-radius:7px;border:1px solid #ccd4ff;padding:7px 9px;font-weight:760;}
+
+  .sf-cursor {position:absolute;top:0;left:0;z-index:5;width:22px;height:27px;opacity:0;transform:translate3d(0,0,0);pointer-events:none;filter:drop-shadow(0 2px 2px #07122a33);}
+  .sf-click-ring {position:absolute;left:-2px;top:-2px;height:22px;width:22px;border:1.8px solid #7286ff;border-radius:50%;opacity:0;transform:scale(.5);}
+  .sf-cursor.sf-tapping .sf-click-ring {animation:sf-tap .35s ease-out both;}
+  @keyframes sf-tap {0%{opacity:.9;transform:scale(.35)}100%{opacity:0;transform:scale(1.8)}}
+  @keyframes sf-blink {50%{opacity:0;}}
+
+  @container(max-width:660px) {
+    .sf-nav nav {gap:9px;font-size:8px;}
+    .sf-web-content {padding:24px 17px;}
+    .sf-web-grid {gap:8px;}.sf-integration {padding:11px;}
+    .sf-survey {width:min(430px,83%);}
+  }
+  @container(max-width:490px) {
+    .sf-scene {height:445px;}
+    .sf-nav {padding:0 10px;}
+    .sf-nav nav {gap:7px;font-size:7px;}.sf-back {padding:7px 8px;font-size:8px;}
+    .sf-web-grid {grid-template-columns:repeat(2,1fr);}
+    .sf-web-hero h4 {font-size:22px;}
+    .sf-survey {width:90%;min-height:326px;}
+    .sf-initial,.sf-complete {min-height:326px;padding:10px 9px;}
+    .sf-survey-heading h4 {font-size:15px;}
+    .sf-intro {font-size:9px;}
+    .sf-rating-question {padding:11px 8px 7px;}
+    .sf-rating-options {height:69px;gap:4px;}
+    .sf-rating-option {font-size:9px;}
+    .sf-text-question {padding:10px 9px 8px;}
+    .sf-text-field {height:85px;padding:10px 9px;}
+    .sf-placeholder {top:10px;left:9px;}
+    .sf-next {padding:7px 8px;}
+    .sf-completion-panel {margin-top:10px;padding:14px 10px 12px;}
+    .sf-completion-panel h5 {font-size:15px;}
+    .sf-completion-panel>p {font-size:8.5px;}
+  }
+  @container(max-width:355px) {
+    .sf-nav nav span:nth-child(1),.sf-nav nav span:nth-child(2) {display:none;}
+    .sf-survey {width:94%;}
+    .sf-initial,.sf-complete {padding:9px 7px;}
+    .sf-rating-question h5,.sf-text-question h5 {font-size:9px;}
+  }
+  @media(prefers-reduced-motion:reduce) {
+    .sf-scene *,.sf-scene *::before,.sf-scene *::after {transition:none!important;animation:none!important;}
+    .sf-cursor {display:none!important;}
+  }
+</style>
