@@ -5,7 +5,11 @@ import {
   PanelLeftClose, Settings, Sparkles, UserRoundPen, Waypoints
 } from "lucide-astro";
 
-const navigation = [
+type GeoNavGroup = {
+  label: string;
+  items: Array<{ label: string; Icon: typeof Gauge; active?: boolean; soon?: boolean }>;
+};
+const navigation: GeoNavGroup[] = [
   { label: "WORKSPACE", items: [
     { label: "Overview", Icon: Gauge },
     { label: "Dashboards", Icon: BarChart2 },
