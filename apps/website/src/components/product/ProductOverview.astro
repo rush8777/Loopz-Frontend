@@ -7,6 +7,7 @@
       src="/images/hero-card-img.png"
       alt="Movcues product experience dashboard with guides, surveys, and analytics"
       loading="eager"
+      fetchpriority="high"
       decoding="async"
       data-deferred-hero-video
       data-video-src="/videos/movcues-hero-video.mp4"
@@ -15,41 +16,56 @@
 </div>
 
 <script>
+  // Keep the hero poster as the initial (and mobile) product preview.
+  // A high-resolution video should not compete with mobile LCP or replace its image.
   const poster = document.querySelector<HTMLImageElement>("[data-deferred-hero-video]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const narrowScreen = window.matchMedia("(max-width: 767px)");
 
-  const mountHeroVideo = () => {
-    if (!poster || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (poster && !reducedMotion.matches && !narrowScreen.matches && "IntersectionObserver" in window) {
+    let mounted = false;
+    const mountVideo = () => {
+      if (mounted || document.hidden || narrowScreen.matches || reducedMotion.matches) return;
+      const src = poster.dataset.videoSrc;
+      const host = poster.parentElement;
+      if (!src || !host) return;
+      mounted = true;
 
-    const source = poster.dataset.videoSrc;
-    if (!source) return;
+      const video = document.createElement("video");
+      video.className = "hero-card-video";
+      video.src = src;
+      video.poster = poster.currentSrc || poster.src;
+      video.muted = true;
+      video.autoplay = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = "metadata";
+      video.setAttribute("aria-hidden", "true");
+      host.appendChild(video);
 
-    const video = document.createElement("video");
-    video.className = "hero-card-image hero-card-video";
-    video.src = source;
-    video.poster = poster.currentSrc || poster.src;
-    video.muted = true;
-    video.autoplay = true;
-    video.loop = true;
-    video.playsInline = true;
-    video.preload = "metadata";
-    video.setAttribute("aria-label", "Movcues product experience demonstration");
-
-    video.addEventListener("loadeddata", () => {
-      poster.replaceWith(video);
-      void video.play().catch(() => {
-        // The poster remains a usable fallback if autoplay is unavailable.
-      });
-    }, { once: true });
-
-    video.load();
-
-  };
-
-  // Keep the HTML and primary poster available first; only fetch the video after
-  // the document has finished loading so it cannot delay the initial page render.
-  if (document.readyState === "complete") {
-    mountHeroVideo();
-  } else {
-    window.addEventListener("load", mountHeroVideo, { once: true });
+      video.addEventListener("loadeddata", () => {
+        void video.play().then(() => {
+          video.classList.add("is-playing");
+        }).catch(() => {
+          video.remove(); // The accessible poster never disappears.
+          mounted = false;
+        });
+      }, { once: true });
+      video.load();
+    };
+    const deferVideo = () => {
+      // Allow the image to paint and remain the LCP candidate before video transfer.
+      window.setTimeout(mountVideo, 2600);
+    };
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      if (document.readyState === "complete") deferVideo();
+      else window.addEventListener("load", deferVideo, { once: true });
+    }, { threshold: .1 });
+    observer.observe(poster);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && !mounted && document.readyState === "complete") deferVideo();
+    });
   }
 </script>
