@@ -3,6 +3,7 @@ import { ArrowUpRight, Check } from "lucide-astro";
 import GeoChatMockup from "./GeoChatMockup.astro";
 import LiveEditorMockup from "./LiveEditorMockup.astro";
 import DashboardFocusMockup from "./DashboardFocusMockup.astro";
+import FeedbackSurveyMockup from "./FeedbackSurveyMockup.astro";
 
 const capabilities = [
   {
@@ -101,36 +102,7 @@ const screenTabs = ["Geo AI", "Live Builder", "Analytics", "Feedback"] as const;
             ) : capability.id === "analytics" ? (
               <DashboardFocusMockup />
             ) : (
-            <div class="mockup-frame" role="group" aria-label={"Illustrative Movcues " + capability.preview + " interface using sample data"}>
-              <div class="mockup-toolbar">
-                <span class="toolbar-brand-mark" aria-hidden="true">M</span>
-                <span class="toolbar-brand">movcues</span>
-                <span class="toolbar-workspace">Demo workspace</span>
-                <span class="toolbar-sample">Sample data</span>
-              </div>
-              <div class="mockup-app">
-                <div class="mockup-sidebar" aria-hidden="true">
-                  <span class="sidebar-label">WORKSPACE</span>
-                  {screenTabs.map((tab) => (
-                    <span class:list={["sidebar-item", tab === capability.activeTab && "is-active"]}>{tab}</span>
-                  ))}
-                </div>
-
-                <div class="mockup-main">
-
-                  {capability.id === "feedback" && (
-                    <div class="feedback-screen">
-                      <div class="screen-header"><div><span class="screen-eyebrow">FEEDBACK / IN-APP SURVEYS</span><strong>Ask while the experience is fresh</strong></div><span class="screen-filter">Sample survey</span></div>
-                      <div class="feedback-stage">
-                        <div class="feedback-context"><span class="feedback-label">TARGETING RULE</span><div class="trigger-badge"><span></span> In-app behavior</div><strong>Ask users stalled in setup.</strong><p>Show a short survey to users who started onboarding but haven't created a project.</p><div class="context-divider"></div><span class="feedback-label">RIGHT MOMENT</span><div class="moment-card">↗ &nbsp; When setup is revisited</div></div>
-                        <div class="feedback-card"><span class="survey-accent"></span><small>WE'D LOVE YOUR FEEDBACK</small><strong>What's stopping you from creating your first project?</strong><div class="feedback-choice"><i></i> I'm not sure where to start</div><div class="feedback-choice"><i></i> Setup feels complicated</div><div class="feedback-choice"><i></i> I'm just exploring</div><span class="survey-submit">Share feedback <span>↗</span></span><div class="survey-progress"><i></i><i></i><i></i></div></div>
-                      </div>
-                      <div class="feedback-insight"><span class="ai-orb">✦</span><div><small>SAMPLE FEEDBACK THEME</small><strong>“I'm not sure where to start.”</strong></div><span class="feedback-tag">Actionable insight</span></div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+              <FeedbackSurveyMockup />
             )}
             <figcaption><span class="caption-indicator" aria-hidden="true"></span>{capability.caption} <span class="caption-qualifier">Illustrative UI · sample data</span></figcaption>
           </figure>
