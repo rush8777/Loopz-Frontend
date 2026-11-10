@@ -363,7 +363,7 @@
   .settings-row-label { grid-column: 1 / -1; }
 }
 
-/* Rich, readable Markdown for Movcues AI answers. */
+/* Rich, readable Markdown for Geo answers. */
 .ai-markdown { color: var(--foreground); }
 .ai-markdown > :first-child { margin-top: 0; }
 .ai-markdown > :last-child { margin-bottom: 0; }

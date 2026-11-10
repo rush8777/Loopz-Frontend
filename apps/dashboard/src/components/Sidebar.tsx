@@ -21,7 +21,7 @@ const OTHER_EXPERIENCE_ITEMS: NavItem[] = [
 ];
 
 const SECTIONS: NavSection[] = [
-  { label: "Workspace", items: [{ label: "Overview", path: "/analytics", icon: Gauge }, { label: "Dashboards", path: "/dashboard", icon: BarChart2 }, { label: "Movcues AI", path: "/ai", icon: Sparkles }] },
+  { label: "Workspace", items: [{ label: "Overview", path: "/analytics", icon: Gauge }, { label: "Dashboards", path: "/dashboard", icon: BarChart2 }, { label: "Geo", path: "/ai", icon: Sparkles }] },
   { label: "Experiences", items: [{ label: "Surveys", path: "/experiences/surveys", icon: ListChecks }, { label: "Guides", path: "/experiences/guides", icon: LayoutTemplate  }, { label: "Checklists", path: "/experiences/checklists", icon: CheckSquare }] },
   { label: "Observe", items: [{ label: "Pages", path: "/observe/pages", icon: FileText }, { label: "Sessions", path: "/observe/sessions", icon: MousePointerClick }, { label: "Events", path: "/observe/events", icon: Waypoints }, { label: "Funnels", path: "/observe/funnels", icon: Network }, { label: "Heatmaps", path: "/observe/heatmaps", disabled: true, icon: Flame }] },
   { label: "People", items: [ { label: "Segments", path: "/segments", icon: UserRoundPen },{ label: "Users", path: "/users", icon: Users }] },
