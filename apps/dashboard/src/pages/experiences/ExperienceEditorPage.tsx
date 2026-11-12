@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowDown,
   ArrowLeft,
@@ -70,6 +70,7 @@ import { AdvancedFrequencyControls } from "../../components/experiences/Advanced
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 export function publishErrorMessage(message: string): string {
+  if (message === "reviewed_draft_changed" || message === "reviewed_revision_required") return "This draft changed after review. Close the review and review the latest saved draft before publishing.";
   if (message === "target_required")
     return "Select a target for every guide step that uses Anchored Card before publishing.";
   if (message === "guide_unavailable")
@@ -116,6 +117,7 @@ export function ExperienceEditorPage() {
   const { experienceId } = useParams();
   const { currentOrg, currentSite } = useWorkspace();
   const navigate = useNavigate();
+  const location = useLocation();
   const [experience, setExperience] = useState<Experience | null>(null);
   const [definition, setDefinition] = useState<ExperienceDefinition | null>(
     null,
@@ -124,8 +126,12 @@ export function ExperienceEditorPage() {
   const [segments, setSegments] = useState<Segment[]>([]);
   const [events, setEvents] = useState<EventDefinitionSummary[]>([]);
   const [guides, setGuides] = useState<Experience[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    () => (location.state as { onsiteLaunchError?: string } | null)?.onsiteLaunchError ?? null,
+  );
   const [status, setStatus] = useState("");
+  const [saveProblem, setSaveProblem] = useState<"failed" | "conflict" | null>(null);
+  const [localExport, setLocalExport] = useState<string | null>(null);
   const [selectedStep, setSelectedStep] = useState(0);
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
     null,
@@ -141,6 +147,11 @@ export function ExperienceEditorPage() {
   const latest = useRef<ExperienceDefinition | null>(null);
   const timer = useRef<number | null>(null);
   const saveQueue = useRef<Promise<Experience> | null>(null);
+  const revision = useRef(1);
+  const lastServer = useRef<Experience | null>(null);
+  const pendingDraft = useRef<ExperienceDefinition | null>(null);
+  const saveFailure = useRef<unknown>(null);
+  const reviewed = useRef<{ draftVersionId: string; revision: number } | null>(null);
   const dirty = useRef(false);
   const widgetBuilder = useRef<GrapesWidgetBuilderHandle | null>(null);
   const checklistBuilderFlush = useRef<(() => void) | null>(null);
@@ -182,7 +193,9 @@ export function ExperienceEditorPage() {
           },
           "info",
         );
+        lastServer.current = item;
         dirty.current = false;
+        revision.current = item.draftVersion?.revision ?? 1;
         setExperience(item);
         setDefinition(loaded);
         latest.current = loaded;
@@ -209,7 +222,11 @@ export function ExperienceEditorPage() {
         return Promise.reject(
           new Error("The experience is no longer available."),
         );
-      const summary = summarizeDefinition(draft);
+      if (saveQueue.current && pendingDraft.current === draft) return saveQueue.current;
+      if (!dirty.current && lastServer.current) return saveQueue.current ?? Promise.resolve(lastServer.current);
+      if (saveFailure.current && typeof saveFailure.current === "object" && "status" in saveFailure.current && saveFailure.current.status === 409) return Promise.reject(saveFailure.current);
+      const snapshot = clone(draft);
+      const summary = summarizeDefinition(snapshot);
       builderDebug(
         experience.id,
         "save:queued",
@@ -220,18 +237,32 @@ export function ExperienceEditorPage() {
       const request = (
         saveQueue.current?.catch(() => undefined) ?? Promise.resolve()
       ).then(async () => {
+        if (saveFailure.current && typeof saveFailure.current === "object" && "status" in saveFailure.current && saveFailure.current.status === 409) throw saveFailure.current;
         builderDebug(
           experience.id,
           "save:request:start",
           { definition: summary },
           "info",
         );
+        const expectedRevision = revision.current;
+        const input =
+          experience.builderMode === "onsite"
+            ? {
+                revision: expectedRevision,
+                settings: { targeting: snapshot.targeting },
+              }
+            : { revision: expectedRevision, definition: snapshot };
         const item = await experiencesApi.updateExperience(
           currentOrg.orgId,
           currentSite.id,
           experience.id,
-          { definition: clone(draft) },
+          input,
         );
+        lastServer.current = item;
+        saveFailure.current = null;
+        setSaveProblem(null); setLocalExport(null);
+        revision.current = item.draftVersion?.revision ?? expectedRevision;
+        if (reviewed.current && reviewed.current.draftVersionId === item.draftVersion?.id && reviewed.current.revision === expectedRevision) reviewed.current.revision = revision.current;
         builderDebug(
           experience.id,
           "save:request:success",
@@ -250,7 +281,10 @@ export function ExperienceEditorPage() {
         return item;
       });
       saveQueue.current = request;
+      pendingDraft.current = draft;
       request.catch((caught) => {
+        saveFailure.current = caught;
+        dirty.current = true;
         builderDebug(
           experience.id,
           "save:request:error",
@@ -260,10 +294,23 @@ export function ExperienceEditorPage() {
           },
           "error",
         );
+        const conflict =
+          typeof caught === "object" &&
+          caught !== null &&
+          "status" in caught &&
+          caught.status === 409;
+        setSaveProblem(conflict ? "conflict" : "failed");
         setStatus(
-          `Autosave failed: ${caught instanceof Error ? caught.message : "request failed"}`,
+          conflict
+            ? "Save conflict"
+            : `Autosave failed: ${caught instanceof Error ? caught.message : "request failed"}`,
         );
+        if (conflict)
+          setError(
+            "This draft changed in another editor. Your local edits are still here; reload when you're ready to review the latest saved version.",
+          );
       });
+      void request.finally(() => { if (saveQueue.current === request) { saveQueue.current = null; pendingDraft.current = null; } }).catch(() => undefined);
       return request;
     },
     [currentOrg, currentSite, experience],
@@ -279,7 +326,7 @@ export function ExperienceEditorPage() {
       delayMs: 600,
       definition: summarizeDefinition(definition),
     });
-    timer.current = window.setTimeout(() => void save(definition), 600);
+    timer.current = window.setTimeout(() => { void save(definition).catch(() => undefined); }, 600);
     return () => {
       if (timer.current) {
         builderDebug(experience.id, "save:debounce:cleanup");
@@ -290,15 +337,19 @@ export function ExperienceEditorPage() {
   useEffect(() => {
     if (!currentOrg || !currentSite || !experienceId) return;
     const refresh = () => {
-      if (dirty.current) return;
+      if (dirty.current || saveQueue.current || reviewed.current) return;
+      const startingRevision = revision.current; const startingDraft = latest.current;
       void experiencesApi
         .getExperience(currentOrg.orgId, currentSite.id, experienceId)
         .then((item) => {
+          if (dirty.current || saveQueue.current || reviewed.current || startingRevision !== revision.current || startingDraft !== latest.current) return;
+          lastServer.current = item;
           dirty.current = false;
+          revision.current = item.draftVersion?.revision ?? 1;
           setExperience(item);
           setDefinition(item.draftVersion?.definition ?? null);
           latest.current = item.draftVersion?.definition ?? null;
-        });
+        }).catch(() => { /* Retain current draft on a failed background refresh. */ });
     };
     window.addEventListener("focus", refresh);
     return () => window.removeEventListener("focus", refresh);
@@ -309,8 +360,39 @@ export function ExperienceEditorPage() {
       timer.current = null;
     }
     if (!latest.current) throw new Error("Draft is unavailable.");
-    return save(latest.current);
+    if (saveQueue.current) await saveQueue.current;
+    if (dirty.current) return save(latest.current);
+    if (saveFailure.current) throw saveFailure.current;
+    if (!lastServer.current) throw new Error("Draft is unavailable.");
+    return lastServer.current;
   }, [save]);
+  useEffect(() => {
+    const protect = (event: BeforeUnloadEvent) => { if (!dirty.current && !saveQueue.current) return; event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", protect);
+    return () => window.removeEventListener("beforeunload", protect);
+  }, []);
+  const reloadLatest = async () => {
+    if (!currentOrg || !currentSite || !experience || !window.confirm("Discard local edits and load the latest saved draft? Export first if you need a copy.")) return;
+    const starting = latest.current;
+    try {
+      if (saveQueue.current) await saveQueue.current.catch(() => undefined);
+      const item = await experiencesApi.getExperience(currentOrg.orgId, currentSite.id, experience.id);
+      if (starting !== latest.current || saveQueue.current) throw new Error("Local edits changed while loading. They are preserved; try reload again when ready.");
+      lastServer.current = item; revision.current = item.draftVersion?.revision ?? 1;
+      dirty.current = false; saveFailure.current = null; reviewed.current = null;
+      latest.current = item.draftVersion?.definition ?? null; setDefinition(latest.current); setExperience(item);
+      setSaveProblem(null); setLocalExport(null); setError(null); setStatus("Draft saved"); setReviewOpen(false);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Latest draft could not be loaded."); }
+  };
+  const recoveryControls = saveProblem ? <div role="status" className="space-y-2 p-3">
+    <p className="text-sm">Local edits are preserved in this tab. Export before reloading or leaving.</p>
+    <div className="flex flex-wrap gap-2">
+      {saveProblem === "failed" && <Button variant="outline" onClick={() => { void flush().catch(() => undefined); }}>Retry save</Button>}
+      <Button variant="outline" onClick={() => setLocalExport(JSON.stringify({ experienceId: experience?.id, revision: revision.current, definition: latest.current }, null, 2))}>Export local draft</Button>
+      <Button variant="outline" onClick={() => void reloadLatest()}>Reload latest draft</Button>
+    </div>
+    {localExport && <textarea aria-label="Local draft JSON" className="h-40 w-full font-mono text-xs" readOnly value={localExport}/>}
+  </div> : null;
   const guide = definition && isGuideDefinition(definition) ? definition : null;
   const checklist =
     definition && isChecklistDefinition(definition) ? definition : null;
@@ -344,6 +426,7 @@ export function ExperienceEditorPage() {
     const before = summarizeDefinition(current);
     const next = clone(current);
     fn(next);
+    if (JSON.stringify(current) === JSON.stringify(next)) return;
     const after = summarizeDefinition(next);
     builderDebug(experienceId ?? "unknown-experience", "editor:mutate", {
       selectedStep,
@@ -547,7 +630,15 @@ export function ExperienceEditorPage() {
     setPreparingReview(true);
     try {
       flushEditor();
-      const item = await flush();
+      await flush();
+      const startingDraft = latest.current;
+      const item = await experiencesApi.getExperience(currentOrg!.orgId, currentSite!.id, experience!.id);
+      if (dirty.current || saveQueue.current || startingDraft !== latest.current) throw new Error("The draft changed while preparing review. Try again.");
+      const version = item.draftVersion;
+      if (!version) throw new Error("Draft is unavailable.");
+      reviewed.current = { draftVersionId: version.id, revision: version.revision ?? 1 };
+      lastServer.current = item; revision.current = version.revision ?? 1;
+      latest.current = version.definition; setDefinition(version.definition);
       setExperience(item);
       setReviewOpen(true);
     } catch (caught) {
@@ -583,10 +674,13 @@ export function ExperienceEditorPage() {
         currentOrg.orgId,
         currentSite.id,
         experience.id,
+        reviewed.current ?? { draftVersionId: "", revision: -1 },
       );
+      reviewed.current = null; lastServer.current = item;
       setExperience(item);
       setDefinition(item.draftVersion!.definition);
       latest.current = item.draftVersion!.definition;
+      revision.current = item.draftVersion?.revision ?? 1;
       setStatus("Published");
       return item;
     } catch (caught) {
@@ -624,6 +718,7 @@ export function ExperienceEditorPage() {
   if (checklist)
     return (
       <>
+        {recoveryControls}
         <ChecklistEditor
           experience={experience}
           definition={checklist as ChecklistExperienceDefinition}
@@ -639,6 +734,7 @@ export function ExperienceEditorPage() {
             latest.current = next;
             setDefinition(next);
           }}
+          onOpenLive={() => void openLive()}
           onReview={() => void prepareReview()}
           onRegisterBuilderFlush={registerChecklistBuilderFlush}
         />
@@ -647,7 +743,7 @@ export function ExperienceEditorPage() {
           experience={experience}
           definition={definition}
           references={{ pages, segments, events, guides }}
-          onOpenChange={setReviewOpen}
+          onOpenChange={(open) => { setReviewOpen(open); if (!open) reviewed.current = null; }}
           onChange={(next) => {
             dirty.current = true;
             latest.current = next;
@@ -657,6 +753,7 @@ export function ExperienceEditorPage() {
           onPublish={publish}
           onEditExternal={(target) => {
             if (target === "analytics") navigate("/analytics");
+            else if(experience.builderMode === "onsite") void openLive();
           }}
         />
       </>
@@ -715,19 +812,41 @@ export function ExperienceEditorPage() {
               >
                 {visibleStatus}
               </span>
+              <span className="hidden shrink-0 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700 ring-1 ring-inset ring-violet-200 sm:inline">
+                {experience.builderMode === "onsite" ? "On-site" : "Dashboard"}
+              </span>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            {status === "Save conflict" && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}
+              >
+                Reload latest
+              </Button>
+            )}
             <Button
-              aria-label="Open live editor"
+              aria-label={
+                experience.builderMode === "onsite"
+                  ? "Open on-site builder"
+                  : "Open live editor"
+              }
               variant="outline"
               size="sm"
               onClick={() => void openLive()}
             >
               <ExternalLink />{" "}
-              <span className="hidden sm:inline">Open live editor</span>
-              <span className="sm:hidden">Preview</span>
+              <span className="hidden sm:inline">
+                {experience.builderMode === "onsite"
+                  ? "Open on-site builder"
+                  : "Open live editor"}
+              </span>
+              <span className="sm:hidden">Edit</span>
             </Button>
+            {survey && <Button variant="outline" size="sm" onClick={() => void openResults()} disabled={leavingForResults}>{leavingForResults ? "Saving…" : "Results"}</Button>}
             <Button
               size="sm"
               onClick={() => void prepareReview()}
@@ -753,9 +872,11 @@ export function ExperienceEditorPage() {
                     Questions
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onSelect={() => togglePanel("behavior")}>
-                  {guide || survey ? "How this step works" : "Behavior"}
-                </DropdownMenuItem>
+                {experience.builderMode === "grapesjs" && (
+                  <DropdownMenuItem onSelect={() => togglePanel("behavior")}>
+                    {guide || survey ? "How this step works" : "Behavior"}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => togglePanel("targeting")}>
                   Launch settings
@@ -769,9 +890,10 @@ export function ExperienceEditorPage() {
             <ErrorNotice>{error}</ErrorNotice>
           </div>
         )}
+        {recoveryControls}
         <div className="flex min-h-0 flex-1">
           <section className="relative flex min-w-0 flex-1 flex-col overflow-visible [&>div.mt-4]:mt-0">
-            {guide && (
+            {guide && experience.builderMode === "grapesjs" && (
               <FloatingPanel
                 open={choosingGuideStep}
                 title="Add step"
@@ -806,7 +928,12 @@ export function ExperienceEditorPage() {
               </FloatingPanel>
             )}
             <div className="mt-4">
-              {survey ? (
+              {experience.builderMode === "onsite" ? (
+                <OnsiteBuilderLaunchCard
+                  experience={experience}
+                  onOpen={() => void openLive()}
+                />
+              ) : survey ? (
                 <GrapesWidgetBuilder
                   ref={widgetBuilder}
                   experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}:${surveyStep!.id}`}
@@ -1023,7 +1150,10 @@ export function ExperienceEditorPage() {
               )}
             </div>
             <FloatingPanel
-              open={activePanel === "behavior"}
+              open={
+                experience.builderMode === "grapesjs" &&
+                activePanel === "behavior"
+              }
               title={guide || survey ? "How this step works" : "Behavior"}
               onClose={() => setActivePanel(null)}
             >
@@ -1060,12 +1190,20 @@ export function ExperienceEditorPage() {
                     }
                   />
                   {guideStepRequiresTarget(step!) && (
-                    <AnchoredCardBehaviorEditor
-                      behavior={step!.behavior}
-                      onChange={(change) =>
-                        mutateStep((value) => change(value.behavior))
-                      }
-                    />
+                    <>
+                      <AnchoredCardBehaviorEditor
+                        behavior={step!.behavior}
+                        onChange={(change) =>
+                          mutateStep((value) => change(value.behavior))
+                        }
+                      />
+                      <BackdropBehaviorEditor
+                        behavior={step!.behavior}
+                        onChange={(change) =>
+                          mutateStep((value) => change(value.behavior))
+                        }
+                      />
+                    </>
                   )}
                   <label className="flex gap-2">
                     <Switch
@@ -1312,7 +1450,7 @@ export function ExperienceEditorPage() {
         experience={experience}
         definition={definition}
         references={{ pages, segments, events, guides }}
-        onOpenChange={setReviewOpen}
+        onOpenChange={(open) => { setReviewOpen(open); if (!open) reviewed.current = null; }}
         onChange={(mutateDefinition) => {
           dirty.current = true;
           latest.current = mutateDefinition;
@@ -1327,7 +1465,10 @@ export function ExperienceEditorPage() {
         onEditExternal={(target) => {
           if (target === "live") void openLive();
           else if (target === "questions") setActivePanel("questions");
-          else if (target === "behavior") setActivePanel("behavior");
+          else if (target === "behavior") {
+            if (experience.builderMode === "onsite") void openLive();
+            else setActivePanel("behavior");
+          }
           else if (target === "analytics") {
             if (survey) void openResults();
             else navigate("/analytics");
@@ -1337,6 +1478,40 @@ export function ExperienceEditorPage() {
     </>
   );
 }
+
+function OnsiteBuilderLaunchCard({
+  experience,
+  onOpen,
+}: {
+  experience: Experience;
+  onOpen: () => void;
+}) {
+  return (
+    <div className="grid min-h-[calc(100dvh-6rem)] place-items-center bg-gradient-to-b from-slate-50 to-background p-6">
+      <section className="w-full max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
+        <span className="mx-auto grid size-12 place-items-center rounded-xl bg-violet-100 text-violet-700">
+          <ExternalLink className="size-5" />
+        </span>
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-violet-700">
+          On-site visual builder
+        </p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight">
+          Design this {experience.kind === "guide" ? "guide" : "widget"} in
+          your product
+        </h2>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+          Content, placement, and preview controls open on the selected build
+          page so you can edit against the real interface. Launch settings and
+          publishing stay here.
+        </p>
+        <Button aria-label="Launch on-site builder" className="mt-6" onClick={onOpen}>
+          <ExternalLink /> Open on-site builder
+        </Button>
+      </section>
+    </div>
+  );
+}
+
 function GuideStepCanvasChip({
   steps,
   selectedStep,
@@ -1375,8 +1550,8 @@ function GuideStepCanvasChip({
                   : "movcues-guide-step-chip__step"
               }
               aria-current={index === selectedStep ? "step" : undefined}
-              aria-label={`${index + 1} ${item.content.heading.trim() || `Step ${index + 1}`} · ${getGuideStepPattern(item) === "modal" ? "Modal" : "Anchored"}`}
-              title={item.content.heading.trim() || `Step ${index + 1}`}
+              aria-label={`${index + 1} ${item.label?.trim() || item.content.heading.trim() || `Step ${index + 1}`} · ${getGuideStepPattern(item) === "modal" ? "Modal" : "Anchored"}`}
+              title={item.label?.trim() || item.content.heading.trim() || `Step ${index + 1}`}
               onClick={() => onSelect(index)}
             >
               {index + 1}
@@ -1390,9 +1565,9 @@ function GuideStepCanvasChip({
       <span className="movcues-guide-step-chip__divider" aria-hidden="true" />
       <span
         className="movcues-guide-step-chip__title"
-        title={selected?.content.heading}
+        title={selected?.label || selected?.content.heading}
       >
-        {selected?.content.heading.trim() || `Step ${selectedStep + 1}`}
+        {selected?.label?.trim() || selected?.content.heading.trim() || `Step ${selectedStep + 1}`}
       </span>
       <span
         className={
@@ -2509,7 +2684,11 @@ function WidgetBehaviorEditor({
   onSelectInLive: () => void;
 }) {
   const targetRelative = type === "anchored_card" || type === "hotspot";
-  const overlay = type === "modal" || type === "survey" || type === "slideout";
+  const overlay =
+    type === "anchored_card" ||
+    type === "modal" ||
+    type === "survey" ||
+    type === "slideout";
   return (
     <>
       <LayeringEditor
@@ -2678,72 +2857,48 @@ function WidgetBehaviorEditor({
         </Label>
       )}
       {type === "banner" && (
-        <Label>
-          Banner position
-          <select
-            value={behavior.bannerPosition ?? "top"}
-            onChange={(event) =>
-              onChange((value) => {
-                value.bannerPosition = event.target.value as NonNullable<
-                  ExperienceBehavior["bannerPosition"]
-                >;
-              })
-            }
-          >
-            <option value="top">Top</option>
-            <option value="bottom">Bottom</option>
-          </select>
-        </Label>
-      )}
-      {overlay && (
         <>
-          <label className="flex gap-2">
-            <Switch
-              checked={
-                behavior.backdrop ?? (type === "modal" || type === "survey")
-              }
-              onCheckedChange={(checked) =>
+          <Label>
+            Banner display
+            <select
+              value={behavior.bannerDisplayMode ?? "overlay"}
+              onChange={(event) =>
                 onChange((value) => {
-                  value.backdrop = checked;
+                  value.bannerDisplayMode = event.target.value as NonNullable<
+                    ExperienceBehavior["bannerDisplayMode"]
+                  >;
                 })
               }
-            />
-            Backdrop
-          </label>
-          {behavior.backdrop && (
-            <>
-              <Label>
-                Backdrop opacity
-                <Input
-                  type="number"
-                  min="0"
-                  max="0.9"
-                  step="0.05"
-                  value={
-                    behavior.backdropOpacity ??
-                    (type === "slideout" ? 0.35 : 0.45)
-                  }
-                  onChange={(event) =>
-                    onChange((value) => {
-                      value.backdropOpacity = Number(event.target.value);
-                    })
-                  }
-                />
-              </Label>
-              <label className="flex gap-2">
-                <Switch
-                  checked={behavior.closeOnBackdrop ?? false}
-                  onCheckedChange={(checked) =>
-                    onChange((value) => {
-                      value.closeOnBackdrop = checked;
-                    })
-                  }
-                />
-                Dismiss when backdrop is clicked
-              </label>
-            </>
-          )}
+            >
+              <option value="inline">Inline with page</option>
+              <option value="overlay">Overlay viewport</option>
+            </select>
+          </Label>
+          <Label>
+            Banner position
+            <select
+              value={behavior.bannerPosition ?? "top"}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.bannerPosition = event.target.value as NonNullable<
+                    ExperienceBehavior["bannerPosition"]
+                  >;
+                })
+              }
+            >
+              <option value="top">Top</option>
+              <option value="bottom">Bottom</option>
+            </select>
+          </Label>
         </>
+      )}
+      {overlay && (
+        <BackdropBehaviorEditor
+          behavior={behavior}
+          defaultEnabled={type === "modal" || type === "survey"}
+          defaultOpacity={type === "slideout" ? 0.35 : 0.45}
+          onChange={onChange}
+        />
       )}
       {type === "hotspot" && (
         <>
@@ -2793,6 +2948,69 @@ function WidgetBehaviorEditor({
         />
         Dismissible
       </label>
+    </>
+  );
+}
+
+type BackdropBehavior = Pick<
+  ExperienceBehavior,
+  "backdrop" | "backdropOpacity" | "closeOnBackdrop"
+>;
+function BackdropBehaviorEditor({
+  behavior,
+  onChange,
+  defaultEnabled = false,
+  defaultOpacity = 0.45,
+}: {
+  behavior: BackdropBehavior;
+  onChange: (change: (behavior: BackdropBehavior) => void) => void;
+  defaultEnabled?: boolean;
+  defaultOpacity?: number;
+}) {
+  const enabled = behavior.backdrop ?? defaultEnabled;
+  return (
+    <>
+      <label className="flex gap-2">
+        <Switch
+          checked={enabled}
+          onCheckedChange={(checked) =>
+            onChange((value) => {
+              value.backdrop = checked;
+            })
+          }
+        />
+        Backdrop
+      </label>
+      {enabled && (
+        <>
+          <Label>
+            Backdrop opacity
+            <Input
+              type="number"
+              min="0"
+              max="0.9"
+              step="0.05"
+              value={behavior.backdropOpacity ?? defaultOpacity}
+              onChange={(event) =>
+                onChange((value) => {
+                  value.backdropOpacity = Number(event.target.value);
+                })
+              }
+            />
+          </Label>
+          <label className="flex gap-2">
+            <Switch
+              checked={behavior.closeOnBackdrop ?? false}
+              onCheckedChange={(checked) =>
+                onChange((value) => {
+                  value.closeOnBackdrop = checked;
+                })
+              }
+            />
+            Dismiss when backdrop is clicked
+          </label>
+        </>
+      )}
     </>
   );
 }

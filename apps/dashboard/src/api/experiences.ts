@@ -1,13 +1,16 @@
 import { apiRequest } from "./client";
-import type { Experience, ExperienceAnalytics, ExperienceDefinition, ExperienceKind, SurveyResponseRecord, WidgetType } from "../types/experiences";
-export interface CreateExperienceInput { kind: ExperienceKind; widgetType?: WidgetType | null; name: string; buildPageId?: string | null; buildUrl?: string | null; template: "blank" | "default" | "minimal" | "soft" | "compact"; useBuildPageAsTarget: boolean }
+import type { BuilderMode, Experience, ExperienceAnalytics, ExperienceDefinition, ExperienceKind, ExperienceTargeting, SurveyResponseRecord, WidgetType } from "../types/experiences";
+export type VisualPresetId = "minimal" | "modern" | "soft" | "dark";
+export interface ExperienceTemplateSummary { id: string; version: 1; category: "widget" | "guide" | "survey" | "checklist"; widgetType?: WidgetType; name: string; description: string; accent: string; surface: string; preset: VisualPresetId }
+export interface CreateExperienceInput { kind: ExperienceKind; widgetType?: WidgetType | null; builderMode: BuilderMode; guidePattern?: "anchored_card" | "modal"; name: string; buildPageId?: string | null; buildUrl?: string | null; template: string; theme?: { source: "template" | "site" | "preset"; preset?: VisualPresetId }; useBuildPageAsTarget: boolean }
 const base = (orgId: string, siteId: string) => `/orgs/${orgId}/sites/${siteId}/experiences`;
 export function listExperiences(orgId: string, siteId: string, kind?: ExperienceKind, widgetType?: WidgetType) { return apiRequest<{ experiences: Experience[] }>(base(orgId, siteId), { query: { kind, widgetType } }); }
 export function createExperience(orgId: string, siteId: string, input: CreateExperienceInput) { return apiRequest<Experience>(base(orgId, siteId), { method: "POST", body: input }); }
+export function listExperienceTemplates(orgId: string, siteId: string, kind: ExperienceKind, widgetType?: WidgetType | null) { return apiRequest<{ templates: ExperienceTemplateSummary[]; presets: VisualPresetId[]; hasSiteTheme: boolean }>(`/orgs/${orgId}/sites/${siteId}/experience-templates`, { query: { kind, widgetType: kind === "widget" ? widgetType ?? undefined : undefined } }); }
 export function getExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`); }
-export function updateExperience(orgId: string, siteId: string, id: string, input: { name?: string; definition?: ExperienceDefinition }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`, { method: "PATCH", body: input }); }
+export function updateExperience(orgId: string, siteId: string, id: string, input: { name?: string; definition?: ExperienceDefinition; settings?: { targeting: ExperienceTargeting | Pick<ExperienceTargeting,"pageRules"|"audience"|"priority"|"schedule"|"allowedOrigins"> }; revision?: number }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`, { method: "PATCH", body: input }); }
 export function deleteExperience(orgId: string, siteId: string, id: string) { return apiRequest<void>(`${base(orgId, siteId)}/${id}`, { method: "DELETE" }); }
-export function publishExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/publish`, { method: "POST" }); }
+export function publishExperience(orgId: string, siteId: string, id: string, reviewed: { draftVersionId: string; revision: number }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/publish`, { method: "POST", body: reviewed }); }
 export function completeLaunchSetup(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/launch-setup/complete`, { method: "POST" }); }
 export function pauseExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/pause`, { method: "POST" }); }
 export function createEditorSession(orgId: string, siteId: string, id: string) { return apiRequest<{ sessionId: string; launchUrl: string; expiresAt: string }>(`${base(orgId, siteId)}/${id}/editor-sessions`, { method: "POST" }); }

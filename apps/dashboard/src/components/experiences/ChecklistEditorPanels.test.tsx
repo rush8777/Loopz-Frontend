@@ -58,6 +58,7 @@ function guide(
     siteId: "site",
     kind: "guide",
     widgetType: null,
+    builderMode: "grapesjs",
     buildPageId: null,
     buildUrl: null,
     publishedVersionId: status === "draft" ? null : `${id}-published`,

@@ -54,6 +54,16 @@ describe("widget builder compatibility", () => {
     expect(result).toContain("First line<br>Second line<br>Third line");
   });
 
+  it("preserves the focused rich-text subset and hardens links", () => {
+    const result = sanitizeBuilderHtml('<section class="movcues-widget"><p><strong>Bold</strong> <em>italic</em> <u>underlined</u></p><ol><li><a href="https://example.com/docs" target="_blank">Docs</a></li><li><a href="javascript:alert(1)" onclick="alert(1)">Unsafe</a></li></ol></section>');
+    expect(result).toContain("<strong>Bold</strong>");
+    expect(result).toContain("<ol>");
+    expect(result).toContain('href="https://example.com/docs"');
+    expect(result).toContain('rel="noopener noreferrer"');
+    expect(result).not.toContain("javascript:");
+    expect(result).not.toContain("onclick");
+  });
+
   it("rejects executable or unscoped CSS", () => {
     expect(() => validateBuilderCss("button{color:red}")).toThrow(/scoped/i); expect(() => validateBuilderCss("@import url('https://evil.test/x.css')")).toThrow(/not allowed/i); expect(validateBuilderCss(".movcues-widget .button{color:red}")).toContain(".movcues-widget");
     expect(validateBuilderCss("@media(max-width:600px){.movcues-widget .button{width:100%}}")).toContain("@media");

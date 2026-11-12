@@ -3,6 +3,7 @@ import type { Experience, ExperienceDefinition } from "../../../types/experience
 import { getLaunchChecks, isBroadLaunch } from "./launchReadiness";
 import { specificSummary } from "./ReviewPublishDialog";
 
+type GuideDefinition = Extract<ExperienceDefinition, { steps: unknown[] }>;
 const experience = { kind: "widget", widgetType: "modal" } as Experience;
 const definition: ExperienceDefinition = {
   content: { heading: "Welcome", body: "Hello" },
@@ -33,3 +34,20 @@ describe("launch readiness", () => {
     expect(specificSummary({ kind: "checklist", widgetType: null } as Experience, checklistDefinition)).toBe("2 tasks · In order");
   });
 });
+
+ describe("Guide step behavior readiness", () => {
+  const guide = (): GuideDefinition => ({ steps: [{ id: "welcome", pattern: "modal", content: { heading: "Welcome", body: "" }, behavior: { dismissible: true }, advance: { type: "button" } }, { id: "feature", pattern: "anchored_card", content: { heading: "Feature", body: "" }, behavior: { dismissible: true }, target: { primarySelector: "#anchor", fallbackSelectors: [], reliability: "reliable" }, advance: { type: "element_click", target: { primarySelector: "#action", fallbackSelectors: [], reliability: "reliable" } }, presentation: { delayMs: 300, missingTarget: { action: "dismiss", timeoutMs: 2000 } } }], design: definition.design, targeting: definition.targeting });
+  const blocking = (value: GuideDefinition) => getLaunchChecks({ kind: "guide", widgetType: null }, value, references).filter(check => check.status === "blocking");
+  it("accepts independent interaction targets and optional presentation settings", () => { expect(blocking(guide())).toEqual([]); });
+  it.each(["hover", "event", "route", "delay", "fallback", "modal", "duplicate"])("identifies the step with invalid %s settings", kind => {
+    const value = guide(); const step = value.steps[1];
+    if (kind === "hover") step.advance = { type: "element_hover", durationMs: 99 };
+    if (kind === "event") step.advance = { type: "custom_event", eventName: "bad\nevent" };
+    if (kind === "route") step.advance = { type: "route", pageRules: [] };
+    if (kind === "delay") step.presentation = { delayMs: 30001 };
+    if (kind === "fallback") step.presentation = { missingTarget: { action: "skip", timeoutMs: 500 } };
+    if (kind === "modal") { step.pattern = "modal"; step.advance = { type: "element_hover" }; }
+    if (kind === "duplicate") step.id = value.steps[0].id;
+    expect(blocking(value)).toContainEqual(expect.objectContaining({ title: expect.stringContaining("Step 2:") }));
+  });
+ });

@@ -1,6 +1,6 @@
 import type { ExperienceContent, ExperienceDesign, SurveyQuestion, WidgetBuilderState, WidgetType } from "../../types/experiences";
 import { widgetSizeCss } from "./widgetSizing";
-import { BUILDER_ALLOWED_ATTRIBUTES, BUILDER_ALLOWED_TAGS, BUILDER_BLOCKED_TAGS, BUILDER_SURVEY_INPUT_TAGS, builderImageUrlIsSafe, builderInputTypeIsSafe, validateScopedBuilderCss } from "./builderContentContract";
+import { BUILDER_ALLOWED_ATTRIBUTES, BUILDER_ALLOWED_TAGS, BUILDER_BLOCKED_TAGS, BUILDER_SURVEY_INPUT_TAGS, builderImageUrlIsSafe, builderInputTypeIsSafe, builderLinkUrlIsSafe, validateScopedBuilderCss } from "./builderContentContract";
 
 const ROOT_CLASS = "movcues-widget";
 
@@ -56,6 +56,15 @@ export function sanitizeBuilderHtml(input: string, allowSurveyInputs = false): s
       if (!builderImageUrlIsSafe(source)) element.removeAttribute("src");
     }
     if (element.hasAttribute("src") && element.tagName !== "IMG") element.removeAttribute("src");
+    if (element.tagName === "A") {
+      const href = element.getAttribute("href") ?? "";
+      if (!builderLinkUrlIsSafe(href)) element.removeAttribute("href");
+      const target = element.getAttribute("target");
+      if (target && target !== "_blank" && target !== "_self") element.removeAttribute("target");
+      if (target === "_blank") element.setAttribute("rel", "noopener noreferrer");
+    } else {
+      element.removeAttribute("href"); element.removeAttribute("target"); element.removeAttribute("rel");
+    }
     const action = element.getAttribute("data-movcues-action-id");
     if (action && action !== "primary" && action !== "secondary") element.removeAttribute("data-movcues-action-id");
     const surveyAction = element.getAttribute("data-movcues-survey-action");
