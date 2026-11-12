@@ -9,7 +9,10 @@
     <style>
       #startup-loader { position: fixed; inset: 0; z-index: 2147483647; display: grid; place-items: center; background: #fafafa; color: #52525b; font: 13px/1.5 system-ui, sans-serif; opacity: 1; transition: opacity 180ms ease; }
       #startup-loader[data-ready] { opacity: 0; pointer-events: none; }
-      .startup-content { display: flex; flex-direction: column; align-items: center; padding: 24px; text-align: center; }
+      .startup-particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse at center, transparent 0%, transparent 24%, #000 78%); mask-image: radial-gradient(ellipse at center, transparent 0%, transparent 24%, #000 78%); }
+      .startup-particle { position: absolute; width: var(--size); height: var(--size); border-radius: 50%; background: #93c5fd; opacity: .65; animation: startup-drift var(--duration) ease-in-out var(--delay) infinite alternate; }
+      @keyframes startup-drift { to { transform: translate(var(--drift-x), var(--drift-y)); opacity: .25; } }
+      .startup-content { position: relative; display: flex; flex-direction: column; align-items: center; padding: 24px; text-align: center; }
       .startup-logo { width: 156px; max-width: 60vw; height: auto; }
       .startup-track { width: 132px; height: 3px; margin-top: 24px; overflow: hidden; border-radius: 999px; background: #e4eaf1; opacity: 0; animation: startup-appear 180ms ease 250ms forwards; }
       .startup-track::after { content: ""; display: block; width: 42%; height: 100%; border-radius: inherit; background: #60a5fa; animation: startup-sweep 1.3s ease-in-out infinite; }
@@ -19,7 +22,7 @@
       #startup-loader[data-error] .startup-track { display: none; }
       @keyframes startup-sweep { from { transform: translateX(-110%); } to { transform: translateX(350%); } }
       @keyframes startup-appear { to { opacity: 1; } }
-      @media (prefers-reduced-motion: reduce) { #startup-loader { transition: none; } .startup-track { animation: none; opacity: 1; } .startup-track::after { animation: none; width: 100%; opacity: .65; } }
+      @media (prefers-reduced-motion: reduce) { .startup-particle { animation: none; } #startup-loader { transition: none; } .startup-track { animation: none; opacity: 1; } .startup-track::after { animation: none; width: 100%; opacity: .65; } }
     </style>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2KM8ZQB6G1"></script>
@@ -32,6 +35,7 @@
   </head>
   <body>
     <div id="startup-loader" role="status" aria-label="Loading Movcues" aria-live="polite" aria-busy="true">
+      <div class="startup-particles" aria-hidden="true"></div>
       <div class="startup-content">
         <img class="startup-logo" src="/movcues_logo.png" alt="Movcues" width="156" />
         <div class="startup-track" aria-hidden="true"></div>
@@ -46,6 +50,19 @@
         const root = document.getElementById('root');
         const message = document.getElementById('startup-message');
         const retry = document.getElementById('startup-retry');
+        // Small, deterministic particles drift inward; the radial mask keeps
+        // the logo area clear and gradually fades particles near the center.
+        const particles = loader.querySelector('.startup-particles');
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < 44; i++) {
+          const x = (i * 37 + 3) % 100;
+          const y = (i * 61 + 7) % 100;
+          const particle = document.createElement('span');
+          particle.className = 'startup-particle';
+          particle.style.cssText = `left:${x}%;top:${y}%;--size:${2 + i % 3}px;--duration:${12 + i % 9}s;--delay:-${i % 13}s;--drift-x:${(50 - x) * .65}px;--drift-y:${(50 - y) * .65}px`;
+          fragment.appendChild(particle);
+        }
+        particles.appendChild(fragment);
         let ready = false;
         const fail = () => {
           if (ready) return;
