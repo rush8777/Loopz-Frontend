@@ -18,6 +18,7 @@
       .startup-track::after { content: ""; display: block; width: 42%; height: 100%; border-radius: inherit; background: #60a5fa; animation: startup-sweep 1.3s ease-in-out infinite; }
       #startup-message { margin: 20px 0 12px; max-width: 280px; }
       #startup-retry { border: 1px solid #d4d4d8; border-radius: 8px; padding: 8px 16px; background: white; color: #18181b; font: inherit; cursor: pointer; }
+      #startup-login { margin-top: 12px; color: #2563eb; }
       #startup-retry:focus-visible { outline: 2px solid #60a5fa; outline-offset: 3px; }
       #startup-loader[data-error] .startup-track { display: none; }
       @keyframes startup-sweep { from { transform: translateX(-110%); } to { transform: translateX(350%); } }
@@ -41,6 +42,7 @@
         <div class="startup-track" aria-hidden="true"></div>
         <p id="startup-message" hidden></p>
         <button id="startup-retry" type="button" hidden>Try again</button>
+        <a id="startup-login" href="/login" hidden>Go to sign in</a>
       </div>
     </div>
     <div id="root" inert></div>
@@ -50,6 +52,7 @@
         const root = document.getElementById('root');
         const message = document.getElementById('startup-message');
         const retry = document.getElementById('startup-retry');
+        const login = document.getElementById('startup-login');
         // Small, deterministic particles drift inward; the radial mask keeps
         // the logo area clear and gradually fades particles near the center.
         const particles = loader.querySelector('.startup-particles');
@@ -64,6 +67,8 @@
         }
         particles.appendChild(fragment);
         let ready = false;
+        let observer;
+        let timeout;
         const fail = () => {
           if (ready) return;
           loader.setAttribute('data-error', '');
@@ -71,26 +76,39 @@
           message.textContent = 'Movcues is taking longer than expected. Please try again.';
           message.hidden = false;
           retry.hidden = false;
+          login.hidden = false;
         };
         // Vite rewrites the entry script tag, so observe module errors here.
         const moduleError = (event) => {
           if (event.target instanceof HTMLScriptElement && event.target.type === 'module') fail();
         };
         window.addEventListener('error', moduleError, true);
-        const timeout = window.setTimeout(fail, 20000);
+        timeout = window.setTimeout(fail, 20000);
         retry.addEventListener('click', () => window.location.reload());
         window.addEventListener('movcues:startup-error', fail);
-        window.addEventListener('movcues:startup-ready', () => {
+        const finish = () => {
           if (ready) return;
           ready = true;
           window.clearTimeout(timeout);
+          observer?.disconnect();
+          window.removeEventListener('movcues:startup-ready', finish);
           window.removeEventListener('movcues:startup-error', fail);
           window.removeEventListener('error', moduleError, true);
           root.removeAttribute('inert');
           loader.setAttribute('aria-busy', 'false');
           loader.setAttribute('data-ready', '');
           window.setTimeout(() => loader.remove(), window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180);
-        }, { once: true });
+        };
+        window.addEventListener('movcues:startup-ready', finish);
+        // A custom event must never be the sole way out of a blocking overlay.
+        // Observe committed route content as well, including legacy/cached app
+        // entries that render successfully without sending the ready event.
+        const checkRenderedPage = () => {
+          if (root.querySelector('[data-startup-ready], main, nav, form, [role="alert"]')) finish();
+        };
+        observer = new MutationObserver(checkRenderedPage);
+        observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-startup-ready'] });
+        checkRenderedPage();
       })();
     </script>
     <noscript><style>#startup-loader { display: none; }</style><p>Enable JavaScript to open Movcues.</p></noscript>

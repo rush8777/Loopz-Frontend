@@ -6,7 +6,10 @@ export function StartupReady({ children, ready = true }: { children?: ReactNode;
   useEffect(() => {
     if (ready) window.dispatchEvent(new Event("movcues:startup-ready"));
   }, [ready]);
-  return children === undefined ? <Outlet /> : children;
+  return <>
+    {ready && <span hidden data-startup-ready="true" />}
+    {children === undefined ? <Outlet /> : children}
+  </>;
 }
 
 export class StartupErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {

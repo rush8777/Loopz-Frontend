@@ -42,6 +42,32 @@ describe("HTML startup loader", () => {
     view.rerender(<StartupReady ready><p>Sign in</p></StartupReady>);
     expect(document.getElementById("startup-loader")).toHaveAttribute("data-ready");
   });
+  it("clears a rendered dashboard even when the ready event is lost", async () => {
+    const main = document.createElement("main");
+    main.textContent = "Dashboard";
+    document.getElementById("root")!.append(main);
+    await Promise.resolve();
+    expect(document.getElementById("root")).not.toHaveAttribute("inert");
+    expect(document.getElementById("startup-loader")).toHaveAttribute("data-ready");
+    vi.advanceTimersByTime(20000);
+    expect(document.getElementById("startup-loader")).toBeNull();
+  });
+  it("does not mistake an empty auth placeholder for a usable page", async () => {
+    document.getElementById("root")!.innerHTML = '<div class="min-h-dvh"></div>';
+    await Promise.resolve();
+    expect(document.getElementById("startup-loader")).not.toHaveAttribute("data-ready");
+    expect(document.getElementById("root")).toHaveAttribute("inert");
+  });
+  it("recognizes readiness committed before the observer starts", () => {
+    // End the existing controller, then bootstrap over pre-rendered app content.
+    window.dispatchEvent(new Event("movcues:startup-ready"));
+    vi.runAllTimers();
+    document.body.innerHTML = html.slice(html.indexOf("<body>") + 6, html.indexOf("</body>"));
+    document.getElementById("root")!.innerHTML = '<span hidden data-startup-ready="true"></span>';
+    new Function("window", "document", script)(window, document);
+    expect(document.getElementById("root")).not.toHaveAttribute("inert");
+    expect(document.getElementById("startup-loader")).toHaveAttribute("data-ready");
+  });
   it("supports public route outlets", () => {
     render(<MemoryRouter><Routes><Route element={<StartupReady />}><Route path="/" element={<p>Sign in</p>} /></Route></Routes></MemoryRouter>);
     expect(screen.getByText("Sign in")).toBeInTheDocument();
@@ -50,6 +76,8 @@ describe("HTML startup loader", () => {
   it("offers recovery after a timeout and still accepts a late success", () => {
     vi.advanceTimersByTime(20000);
     expect(document.getElementById("startup-retry")).toBeVisible();
+    expect(document.getElementById("startup-login")).toBeVisible();
+    expect(document.getElementById("startup-login")).toHaveAttribute("href", "/login");
     expect(document.getElementById("startup-loader")).toHaveAttribute("aria-busy", "false");
     window.dispatchEvent(new Event("movcues:startup-ready"));
     vi.advanceTimersByTime(180);
