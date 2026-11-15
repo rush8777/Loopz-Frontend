@@ -29,7 +29,7 @@ const links = [
     <aside class="legal-nav" aria-label="Legal documents">
       <p>Legal</p>
       <nav>{links.map((link) => <a class:list={[canonicalPath === link.href && "is-current"]} href={link.href}>{link.label}</a>)}</nav>
-      <small>Questions? <a href="mailto:rashmikanavod@gmail.com">Contact us</a></small>
+      <small>Questions? <a href="/contact">Contact us</a></small>
     </aside>
     <article class="legal-content">
       <slot />
