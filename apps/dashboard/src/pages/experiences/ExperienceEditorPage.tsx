@@ -773,15 +773,7 @@ export function ExperienceEditorPage() {
         : experience.widgetType === "banner"
           ? "/experiences/banners"
           : "/experiences/guides";
-  const visibleStatus = status || "Saved";
-  const statusClass =
-    visibleStatus === "Published"
-      ? "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200"
-      : visibleStatus === "Saving..."
-        ? "bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-200"
-        : visibleStatus.startsWith("Autosave failed")
-          ? "bg-destructive/10 text-destructive ring-1 ring-inset ring-destructive/20"
-          : "bg-sky-100 text-sky-700 ring-1 ring-inset ring-sky-200";
+  const headerStatus = experience.status === "draft" ? "Draft" : "Saved";
   return (
     <>
       <div className="flex min-h-[calc(100dvh-3rem)] flex-col bg-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
@@ -798,22 +790,8 @@ export function ExperienceEditorPage() {
               <h1 className="truncate text-sm font-semibold">
                 {experience.name}
               </h1>
-              <span
-                className={
-                  visibleStatus === "Published"
-                    ? "shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-200"
-                    : "shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-inset ring-slate-200"
-                }
-              >
-                {visibleStatus === "Published" ? "Published" : "Draft"}
-              </span>
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusClass}`}
-              >
-                {visibleStatus}
-              </span>
-              <span className="hidden shrink-0 rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-700 ring-1 ring-inset ring-violet-200 sm:inline">
-                {experience.builderMode === "onsite" ? "On-site" : "Dashboard"}
+              <span className={headerStatus === "Draft" ? "shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 ring-1 ring-inset ring-slate-200" : "shrink-0 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700 ring-1 ring-inset ring-sky-200"}>
+                {headerStatus}
               </span>
             </div>
           </div>
