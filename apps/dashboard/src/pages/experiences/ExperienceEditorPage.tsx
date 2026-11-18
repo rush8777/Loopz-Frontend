@@ -585,16 +585,12 @@ export function ExperienceEditorPage() {
     }
     try {
       widgetBuilder.current?.flush();
-      // Session creation depends on the experience and build URL, not the draft
-      // revision. Overlap this independent request with the pending draft save.
-      const [, session] = await Promise.all([
-        flush(),
-        experiencesApi.createEditorSession(
-          currentOrg.orgId,
-          currentSite.id,
-          experience.id,
-        ),
-      ]);
+      await flush();
+      const session = await experiencesApi.createEditorSession(
+        currentOrg.orgId,
+        currentSite.id,
+        experience.id,
+      );
       const launch = new URL(session.launchUrl);
       const activeGuideStep = guide?.steps[guideStepIndex];
       const pagePath =
