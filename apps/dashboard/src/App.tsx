@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./auth/AuthContext";
+import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { WorkspaceProvider } from "./auth/WorkspaceContext";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import { OnboardingGate } from "./auth/OnboardingGate";
+import { StartupReady } from "./components/StartupReady";
 import { AppShell } from "./components/AppShell";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { SignupPage } from "./pages/auth/SignupPage";
@@ -41,6 +42,12 @@ import { CheckoutPage } from "./pages/billing/CheckoutPage";
 import { OnboardingPage } from "./pages/auth/OnboardingPage";
 import { MovcuesAiPage } from "./pages/ai/MovcuesAiPage";
 
+function AuthEntryReady() {
+  const { user, bootstrapping } = useAuth();
+  // Login/signup render nothing during bootstrap and redirect signed-in users.
+  return <StartupReady ready={!bootstrapping && !user} />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -48,17 +55,23 @@ export default function App() {
         <WorkspaceProvider>
           <UpgradeNowProvider>
           <Routes>
+          <Route element={<StartupReady />}>
           <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
           <Route path="/invite/:token" element={<InvitationPage />} />
 
+          </Route>
+
+          <Route element={<AuthEntryReady />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+          </Route>
+
           <Route element={<ProtectedRoute />}>
-            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/onboarding" element={<StartupReady><OnboardingPage /></StartupReady>} />
             <Route element={<OnboardingGate />}>
             <Route
               element={
-                <AppShell />
+                <StartupReady><AppShell /></StartupReady>
               }
             >
               <Route index element={<Navigate to="/analytics" replace />} />
