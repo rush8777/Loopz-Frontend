@@ -38,6 +38,8 @@ jobs:
         run: npm run build:website
       - name: Run Astro static checks
         run: npm run check:website
+      - name: Test the blog renderer
+        run: npm run test:blog --workspace=@movcues/website
       - name: Start local production preview
         run: |
           npm run preview --workspace=@movcues/website -- --host 127.0.0.1 --port 4321 > /tmp/movcues-preview.log 2>&1 &

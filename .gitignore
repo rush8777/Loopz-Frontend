@@ -31,3 +31,8 @@ dist-ssr
 
 # Ignore local Cloudflare Wrangler build artifacts
 .wrangler/
+
+# Local Cloudflare Pages runtime variables
+.dev.vars
+.dev.vars.*
+.sanity/

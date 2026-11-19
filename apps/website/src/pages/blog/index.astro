@@ -1,0 +1,11 @@
+---
+import MarketingLayout from "../../components/marketing/MarketingLayout.astro";
+import { BLOG_DESCRIPTION, BLOG_PATH, BLOG_TITLE } from "../../blog/config.mjs";
+import { renderListing } from "../../blog/render.mjs";
+import "../../styles/blog.css";
+
+const content = renderListing({ items: [], total: 0, topic: null, page: 1 });
+---
+<MarketingLayout title={BLOG_TITLE} description={BLOG_DESCRIPTION} canonicalPath={BLOG_PATH}>
+  <div id="blog-content" set:html={content} />
+</MarketingLayout>

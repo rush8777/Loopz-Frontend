@@ -44,7 +44,7 @@ export const NAV_ITEMS = [
     href: "/resources",
     description: "Learn how to understand and influence the product journey.",
     items: [
-      { label: "Blog", description: "Practical notes for product teams", href: "/resources/blog" },
+      { label: "Blog", description: "Practical notes for product teams", href: "/blog" },
       { label: "Guides", description: "Long-form, focused learning", href: "/resources/guides" },
       { label: "Templates", description: "Starting points for better experiences", href: "/resources/templates" },
       { label: "Documentation", description: "Technical setup and implementation", href: "/docs/" },

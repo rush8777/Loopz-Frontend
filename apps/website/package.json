@@ -5,16 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/check-docs-links.mjs",
+    "build": "astro build && node scripts/build-blog-worker.mjs && node scripts/check-docs-links.mjs",
     "preview": "astro preview",
     "check": "astro check",
+    "test:blog": "node --test test/blog.test.mjs",
     "typecheck": "astro check"
   },
   "dependencies": {
     "@astrojs/react": "5.0.7",
+    "@astrojs/sitemap": "^3.7.6",
     "@astrojs/starlight": "^0.40.0",
     "@movcues/tokens": "*",
     "@movcues/ui": "*",
+    "@portabletext/to-html": "^6.0.0",
+    "@sanity/client": "^8.16.0",
+    "@sanity/preview-url-secret": "^4.1.5",
     "astro": "^6.0.0",
     "lucide-astro": "^0.556.0",
     "react": "^19.2.8",
@@ -22,9 +27,11 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.0",
+    "@cloudflare/workers-types": "^5.20261119.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.2.0",
+    "esbuild": "^0.28.2",
     "typescript": "~6.0.2",
     "vite": "^7.3.2"
   }

@@ -1,0 +1,24 @@
+{
+  "name": "movcues-blog-studio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sanity/preview-url-secret": "^4.1.5",
+    "@sanity/ui": "^4.4.12",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "sanity": "^6.24.0",
+    "styled-components": "^6.1.19"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.17",
+    "typescript": "~6.0.2"
+  }
+}

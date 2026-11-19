@@ -1,11 +1,5 @@
 export type ResourceEntry = { title: string; description: string; category: string; meta: string; href?: string; type?: string; group?: string };
 
-export const articles: ResourceEntry[] = [
-  { title: "What funnel drop-off hides", description: "Move from a conversion percentage to the users, context, and next action behind it.", category: "Funnel analysis", meta: "Editorial preview · 6 min" },
-  { title: "Design onboarding around activation", description: "Define first value in behavior, then guide users according to their actual progress.", category: "User onboarding", meta: "Editorial preview · 8 min" },
-  { title: "Better feature announcements start with an audience", description: "Why eligibility and prior behavior matter more than maximum reach.", category: "Product adoption", meta: "Editorial preview · 5 min" },
-];
-
 export const guides: ResourceEntry[] = [
   { title: "A practical guide to activation", description: "Map activation, find the break in the journey, and design guidance around progress.", category: "User onboarding", meta: "Guide outline" },
   { title: "Behavioral segmentation for product teams", description: "Turn events, properties, pages, and funnels into useful living audiences.", category: "Behavioral segmentation", meta: "Guide outline" },

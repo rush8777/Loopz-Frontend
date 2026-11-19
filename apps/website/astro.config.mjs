@@ -1,12 +1,15 @@
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
+import sitemap from "@astrojs/sitemap";
 import starlight from "@astrojs/starlight";
+import { BLOG_PATH } from "./src/blog/config.mjs";
 
 export default defineConfig({
   site: "https://movcues.com",
   output: "static",
   integrations: [
     react(),
+    sitemap({ filter: (page) => new URL(page).pathname.replace(/\/$/, "") !== BLOG_PATH }),
     starlight({
       title: "Movcues Docs",
       description: "Learn to use the Movcues dashboard, build experiences, target audiences, and integrate the JavaScript SDK.",
