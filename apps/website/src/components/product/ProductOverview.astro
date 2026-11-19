@@ -46,7 +46,9 @@
       video.addEventListener("loadeddata", () => {
         void video.play().then(() => {
           video.classList.add("is-playing");
+          poster.style.visibility = "hidden";
         }).catch(() => {
+          poster.style.visibility = "";
           video.remove(); // The accessible poster never disappears.
           mounted = false;
         });

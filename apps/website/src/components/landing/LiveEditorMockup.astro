@@ -217,17 +217,34 @@ const tasks = [
         };
         frameId = window.requestAnimationFrame(scrollFrame);
       };
+      const positionTourCursors = () => {
+        const sceneRect = mock.getBoundingClientRect();
+        for (const [name, selector] of [
+          ["welcome", ".le-tour-intro .le-tour-dialog-actions strong"],
+          ["anchored", ".le-tour-anchored .le-tour-anchor-bottom strong"],
+          ["success", ".le-tour-success .le-tour-dialog-actions strong"],
+        ]) {
+          const button = mock.querySelector<HTMLElement>(selector);
+          if (!button) continue;
+          const buttonRect = button.getBoundingClientRect();
+          const stageRect = button.closest<HTMLElement>(".le-tour-stage")?.getBoundingClientRect() ?? sceneRect;
+          mock.style.setProperty(`--le-${name}-cursor-x`, `${buttonRect.left - stageRect.left + buttonRect.width / 2}px`);
+          mock.style.setProperty(`--le-${name}-cursor-y`, `${buttonRect.top - stageRect.top + buttonRect.height / 2}px`);
+        }
+      };
       const start = () => {
         if (active || document.hidden) return;
         active = true;
         if (viewport) viewport.scrollTop = 0;
         // Force new CSS animations to begin only when the user can see the mockup.
         mock.classList.add("is-playing");
+        positionTourCursors();
         typeText(request, originalRequest, 160, 28);
         typeText(answer, originalAnswer, 3200, 21);
         later(scrollToGuide, 12100);
       };
       mock.classList.add("is-ready");
+      window.addEventListener("resize", positionTourCursors);
       return { mock, start, stop };
     });
 
@@ -513,8 +530,7 @@ const tasks = [
   /* Preserve the initial dashboard, but scroll within the mock website's viewport. */
   .le-site {overflow:hidden;}
   .le-site-nav {position:relative;z-index:1;}
-  .le-site-viewport {position:absolute;top:47px;left:0;right:0;bottom:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;}
-  .le-site-viewport::-webkit-scrollbar {display:none;}
+  .le-site-viewport {position:absolute;top:47px;left:0;right:0;bottom:0;overflow:hidden;}
   .le-below-fold {min-height:270px;margin:28px 15px 28px;padding:17px 15px 22px;width:62%;border:1px solid #e2e7ef;border-radius:11px;background:#fff;box-shadow:0 3px 16px #10182807;}
   .le-lower-kicker {color:#6b66e7;font-size:8px;font-weight:780;letter-spacing:.1em;}
   .le-below-heading h5 {margin:9px 0 5px;font-size:16px;letter-spacing:-.045em;line-height:1.2;color:#172338;}
@@ -573,17 +589,17 @@ const tasks = [
     12%{left:81%;top:70%;opacity:1}
     14%{left:81%;top:70%;transform:scale(.8)}
     16%{left:81%;top:70%;transform:scale(1)}
-    23%{left:69%;top:55%}
-    27%{left:69%;top:55%;transform:scale(.82)}
-    29%{left:69%;top:55%;transform:scale(1)}
+    23%{left:var(--le-welcome-cursor-x, 50%);top:var(--le-welcome-cursor-y, 60%)}
+    27%{left:var(--le-welcome-cursor-x, 50%);top:var(--le-welcome-cursor-y, 60%);transform:scale(.82)}
+    29%{left:var(--le-welcome-cursor-x, 50%);top:var(--le-welcome-cursor-y, 60%);transform:scale(1)}
     36%{left:65%;top:68%}
     46%{left:45%;top:74%}
     52%{left:58%;top:80%}
-    66%{left:57%;top:80%;transform:scale(.8)}
-    68%{left:57%;top:80%;transform:scale(1)}
+    66%{left:var(--le-anchored-cursor-x, 57%);top:var(--le-anchored-cursor-y, 80%);transform:scale(.8)}
+    68%{left:var(--le-anchored-cursor-x, 57%);top:var(--le-anchored-cursor-y, 80%);transform:scale(1)}
     73%{left:67%;top:59%}
-    88%{left:67%;top:59%;transform:scale(.8)}
-    90%{left:67%;top:59%;transform:scale(1)}
+    88%{left:var(--le-success-cursor-x, 67%);top:var(--le-success-cursor-y, 59%);transform:scale(.8)}
+    90%{left:var(--le-success-cursor-x, 67%);top:var(--le-success-cursor-y, 59%);transform:scale(1)}
     97%{left:70%;top:64%;opacity:1}
     100%{left:70%;top:64%;opacity:0}
   }
@@ -637,5 +653,24 @@ const tasks = [
   @media(prefers-reduced-motion:reduce) {
     .le-tour-anchored,.le-tour-success {display:none!important;}
     .le-site-viewport {scroll-behavior:auto;}
+  }
+
+  /* Welcome step uses a centered, two-panel modal rather than a small popover. */
+  .le-tour-intro .le-tour-dialog {
+    left:50%; top:50%; width:50%; min-height:48%; padding:0;
+    display:grid; grid-template-columns:42% 58%; grid-template-rows:auto auto 1fr auto;
+    overflow:hidden; border-radius:14px; background:#f4f3fa;
+  }
+  .le-tour-intro .le-tour-dialog-icon {
+    grid-column:1; grid-row:1 / 5; width:100%; height:100%; margin:0;
+    border:0; border-radius:0; background:linear-gradient(145deg,#fff,#edf0ff);
+  }
+  .le-tour-intro .le-tour-dialog-icon svg {width:32%; height:auto; max-width:58px;}
+  .le-tour-intro .le-tour-eyebrow {grid-column:2; padding:clamp(12px,2.5cqw,24px) clamp(12px,2.5cqw,24px) 0;}
+  .le-tour-intro .le-tour-dialog h5 {grid-column:2; margin:9px clamp(12px,2.5cqw,24px) 6px; font-size:clamp(11px,1.8cqw,18px);}
+  .le-tour-intro .le-tour-dialog p {grid-column:2; margin:0 clamp(12px,2.5cqw,24px); font-size:clamp(7px,1.1cqw,11px);}
+  .le-tour-intro .le-tour-dialog-actions {grid-column:2; margin:12px clamp(12px,2.5cqw,24px) clamp(12px,2.5cqw,24px);}
+  @container(max-width:570px) {
+    .le-tour-intro .le-tour-dialog {width:70%; min-height:40%;}
   }
 </style>
