@@ -32,6 +32,7 @@ const currentPath = Astro.url.pathname;
         </div>
       ))}
       <a class:list={[currentPath === "/pricing" && "is-current"]} href="/pricing">Pricing</a>
+      <a class:list={[currentPath === "/contact" && "is-current"]} href="/contact">Contact</a>
     </nav>
 
     <div class="nav-actions">
@@ -52,6 +53,7 @@ const currentPath = Astro.url.pathname;
       </details>
     ))}
     <a href="/pricing">Pricing</a>
+    <a href="/contact">Contact</a>
     <a href={DASHBOARD_URLS.login}>Log in</a>
     <a class="mobile-primary-link" href={DASHBOARD_URLS.signup}>Get started</a>
   </nav>
