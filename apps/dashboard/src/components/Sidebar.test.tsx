@@ -6,17 +6,15 @@ import * as workspace from "@/auth/WorkspaceContext";
 
 vi.mock("@/auth/WorkspaceContext");
 
-describe("Sidebar Heatmaps navigation", () => {
+describe("Sidebar navigation", () => {
   beforeEach(() => {
     vi.mocked(workspace.useWorkspace).mockReturnValue({ currentSite: { id: "site_1", name: "Site" } } as never);
   });
 
-  it("shows Heatmaps as Soon and non-navigable", () => {
+  it("does not show Heatmaps", () => {
     render(<MemoryRouter><Sidebar onOpenSettings={vi.fn()} /></MemoryRouter>);
-    expect(screen.getByText("Heatmaps")).toBeInTheDocument();
-    expect(screen.getByText("Soon")).toBeInTheDocument();
+    expect(screen.queryByText("Heatmaps")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Heatmaps" })).not.toBeInTheDocument();
-    expect(screen.getByText("Heatmaps").closest("[aria-disabled=true]")).not.toBeNull();
   });
 
   it("reveals the unlisted experience widgets from the Other hover menu", () => {
