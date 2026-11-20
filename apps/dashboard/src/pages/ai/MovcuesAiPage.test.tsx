@@ -44,11 +44,43 @@ describe("Geo page", () => {
     expect(screen.getByLabelText("Analytics visualizations")).toHaveTextContent("+20% vs previous period");
   });
 
+  it("uses the Geo cube on welcome and changes the compact avatar through the reply", async () => {
+    type ChatResponse = Awaited<ReturnType<typeof aiApi.sendAiMessage>>;
+    let resolveResponse!: (result: ChatResponse) => void;
+    const response = new Promise<ChatResponse>(resolve => { resolveResponse = resolve; });
+    vi.mocked(aiApi.sendAiMessage).mockReturnValue(response);
+
+    const { container } = render(<MemoryRouter><MovcuesAiPage /></MemoryRouter>);
+    const welcomeAvatar = container.querySelector('.geo-avatar[data-size="hero"][data-state="idle"]');
+    expect(welcomeAvatar?.querySelector("svg")).toBeInTheDocument();
+    expect(welcomeAvatar).toHaveAttribute("aria-hidden", "true");
+
+    const composer = await screen.findByLabelText("Message Geo");
+    fireEvent.change(composer, { target: { value: "What changed?" } });
+    fireEvent.keyDown(composer, { key: "Enter" });
+
+    const thinking = await screen.findByText("Analyzing your Movcues data…");
+    expect(thinking.querySelector('.geo-avatar[data-size="compact"][data-state="thinking"] svg')).toBeInTheDocument();
+
+    resolveResponse({
+      userMessage: { ...assistant, id: "aim_1", role: "user", content: "What changed?", evidence: [] },
+      assistantMessage: assistant,
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('.geo-avatar[data-size="compact"][data-state="replying"] svg')).toBeInTheDocument();
+    });
+    await screen.findByText("Sources and limitations (1)");
+    expect(container.querySelector('.geo-avatar[data-state="resting"] svg')).toBeInTheDocument();
+    expect(container.querySelector('.geo-avatar[data-state="replying"]')).not.toBeInTheDocument();
+  });
+
   it("renders legacy text-only messages without requiring analytical blocks", async () => {
     vi.mocked(aiApi.sendAiMessage).mockResolvedValue({ userMessage: { ...assistant, id: "aim_1", role: "user", content: "Hello", evidence: [] }, assistantMessage: { ...assistant, contentBlocks: undefined } });
     render(<MemoryRouter><MovcuesAiPage /></MemoryRouter>);
     const composer = await screen.findByLabelText("Message Geo"); fireEvent.change(composer, { target: { value: "Hello" } }); fireEvent.keyDown(composer, { key: "Enter" });
     expect(await screen.findByRole("heading", { name: "Performance" })).toBeInTheDocument();
+    expect(await screen.findByText("Sources and limitations (1)")).toBeInTheDocument();
   });
 
   it("renders model-ordered text and four charts inline in a single assistant message", async () => {

@@ -392,14 +392,4 @@
 .ai-markdown tr:last-child td { border-bottom: 0; }
 .ai-response-cursor { display: inline-block; width: 0.45em; height: 1.1em; margin-left: 0.12em; vertical-align: -0.18em; border-radius: 1px; background: var(--primary); animation: ai-response-cursor-blink 1s steps(2, start) infinite; }
 @keyframes ai-response-cursor-blink { 50% { opacity: 0; } }
-.ai-orb-mark { position: relative; display: inline-block; width: 1.45rem; height: 1.25rem; color: var(--primary); }
-.ai-orb-mark--hero { transform: scale(1.45); }
-.ai-orb-mark i { position: absolute; top: 50%; width: 0.92rem; height: 0.92rem; border: 2px solid currentColor; border-radius: 999px; transform: translateY(-50%); }
-.ai-orb-mark i:first-child { left: 0.08rem; opacity: 0.9; }
-.ai-orb-mark i:last-child { right: 0.08rem; color: color-mix(in srgb, var(--primary) 56%, #7c3aed); opacity: 0.78; }
-.ai-orb-mark.is-animating i:first-child { animation: ai-orb-left 1.45s ease-in-out infinite; }
-.ai-orb-mark.is-animating i:last-child { animation: ai-orb-right 1.45s ease-in-out infinite; }
-@keyframes ai-orb-left { 0%, 100% { transform: translateY(-50%) translateX(0) scale(0.92); } 50% { transform: translateY(-50%) translateX(0.16rem) scale(1.06); } }
-@keyframes ai-orb-right { 0%, 100% { transform: translateY(-50%) translateX(0) scale(1.06); } 50% { transform: translateY(-50%) translateX(-0.16rem) scale(0.92); } }
 @media (prefers-reduced-motion: reduce) { .ai-response-cursor { animation: none; } }
-@media (prefers-reduced-motion: reduce) { .ai-orb-mark.is-animating i { animation: none; } }
