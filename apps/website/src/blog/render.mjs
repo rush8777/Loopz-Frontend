@@ -112,6 +112,18 @@ const BLOG_MASTHEAD_DOODLES = `<div class="blog-doodles" aria-hidden="true">
   <svg viewBox="0 0 56 56" focusable="false">
     <path d="M29 6c1 13 6 18 18 21-12 2-17 7-19 20-2-13-7-18-19-20C22 25 26 19 29 6Zm16 1v10m-5-5h10M10 41v8m-4-4h8"/>
   </svg>
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="M28 25c-4-9-15-8-16 0-2 8 8 15 15 21 7-6 17-13 16-21-1-8-11-9-15 0ZM15 12l-4-5m18 4V5m12 10 6-4"/>
+  </svg>
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="M5 47c12-2 21-9 27-17 5-7 11-14 18-17M12 46c2-5 1-10-4-13m14 8c6 3 11 2 15-2m-9-5c1-5-1-10-6-13m15 3c6 1 11-2 14-7"/>
+  </svg>
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="M32 7c-8 7-11 16-6 24 4 7 12 10 21 7-10 12-27 13-36 2C1 27 8 10 23 7c3-1 6-1 9 0ZM44 10v10m-5-5h10"/>
+  </svg>
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="M29 24c-3-12 3-17 7-14 4 4 0 10-4 15 11-7 18-2 15 3-2 4-10 4-16 2 8 8 6 15 1 15-5 0-7-8-6-14-5 11-12 12-14 7-1-5 5-9 12-11-11 0-16-5-13-9 4-4 11 1 18 6Zm-1 4h.1"/>
+  </svg>
 </div>`;
 
 export function renderListing({ items, total, topic, page, pages = 1 }) {
