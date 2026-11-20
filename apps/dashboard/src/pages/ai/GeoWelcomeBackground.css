@@ -7,18 +7,32 @@
   background-color: var(--background);
 }
 
-.geo-welcome-background::after,
+.geo-welcome-fallback,
 .geo-welcome-background canvas {
   position: absolute;
   inset: 0;
 }
 
-.geo-welcome-background::after {
-  content: "";
+.geo-welcome-fallback {
+  overflow: hidden;
   background:
     radial-gradient(ellipse at 50% 45%, var(--background), transparent 72%),
     repeating-linear-gradient(90deg, transparent 0 15px, rgb(49 86 200 / 5%) 19px, rgb(255 255 255 / 25%) 21px, transparent 23px),
     linear-gradient(132deg, #eaf1ff 2%, #f7faff 56%, #dce8ff 100%);
+}
+
+.geo-welcome-fallback::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(104deg, transparent 26%, rgb(69 131 241 / 13%) 43%, rgb(255 255 255 / 55%) 54%, transparent 71%);
+  animation: geo-welcome-wave 7.5s linear -1.65s infinite;
+}
+
+@keyframes geo-welcome-wave {
+  0% { transform: translateX(-65%); opacity: 0; }
+  20%, 80% { opacity: 1; }
+  100% { transform: translateX(65%); opacity: 0; }
 }
 
 .geo-welcome-background canvas {
@@ -28,7 +42,7 @@
   visibility: hidden;
 }
 
-.geo-welcome-background:has(canvas[data-rendered])::after {
+.geo-welcome-background canvas[data-rendered] + .geo-welcome-fallback {
   display: none;
 }
 
@@ -46,7 +60,7 @@
     mask-image: linear-gradient(to right, black, transparent);
   }
 
-  .geo-welcome-background::after,
+  .geo-welcome-fallback,
   .geo-welcome-background canvas {
     mask-image: linear-gradient(to right, transparent, black clamp(6rem, 15%, 15rem));
   }
@@ -57,7 +71,12 @@
     display: none;
   }
 
-  .geo-welcome-background:has(canvas[data-rendered])::after {
+  .geo-welcome-background canvas[data-rendered] + .geo-welcome-fallback {
     display: block;
+  }
+
+  .geo-welcome-fallback::before {
+    animation: none;
+    opacity: 0;
   }
 }

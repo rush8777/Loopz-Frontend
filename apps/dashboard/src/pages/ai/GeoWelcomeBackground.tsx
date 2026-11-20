@@ -31,6 +31,7 @@ export function GeoWelcomeBackground() {
   return (
     <div className="geo-welcome-background" aria-hidden="true">
       <canvas ref={ref} />
+      <div className="geo-welcome-fallback" />
     </div>
   );
 }

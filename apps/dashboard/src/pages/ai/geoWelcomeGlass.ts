@@ -43,6 +43,14 @@ void main() {
   float frost = lightField(p + vec2(.037 * lens, .012));
   light = mix(light, frost, .28);
 
+  // A broad light crest travels across the flutes, fading before it wraps.
+  float cycle = fract(phase / 7.5 + .22);
+  float crest = mix(-.33, 1.33, cycle);
+  float distanceToCrest = p.x / aspect + .5 - crest + sin(uv.y * 3.5) * .12;
+  float envelope = smoothstep(.02, .20, cycle) * (1. - smoothstep(.80, .98, cycle));
+  float wave = exp(-distanceToCrest * distanceToCrest * 23.) * envelope;
+  light = mix(light, 1., wave * .34);
+
   float rim = pow(abs(lens), 10.);
   float lip = pow(max(0., 1. - abs(flute - .84) * 16.), 2.);
   float relief = .025 * lens + .14 * rim - .09 * lip;
@@ -54,7 +62,7 @@ void main() {
 
   // Give the composer and heading a calmer area while keeping the edges visible.
   float center = 1. - smoothstep(.04, .62, length((uv - vec2(.5, .55)) * vec2(1.6, 1.)));
-  float opacity = (.15 + (1. - light) * .21 + relief) * (1. - center * .64);
+  float opacity = (.15 + (1. - light) * .21 + relief - wave * .055) * (1. - center * .64);
   gl_FragColor = vec4(tint, clamp(opacity, 0., .40));
 }
 `;
