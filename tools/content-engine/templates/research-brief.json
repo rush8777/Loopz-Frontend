@@ -1,0 +1,39 @@
+{
+  "referenceUrl": "https://example.com/replace",
+  "capturedAt": "YYYY-MM-DDTHH:mm:ssZ",
+  "searchIntent": "informational|commercial|transactional|mixed",
+  "primaryKeyword": "",
+  "secondaryKeywords": [],
+  "queriesWithEvidence": [],
+  "serpCompetitors": [
+    {
+      "url": "",
+      "intent": "",
+      "gap": "",
+      "observedAt": "",
+      "rankingEvidence": "unknown"
+    }
+  ],
+  "sourceLedger": [
+    {
+      "id": "s1",
+      "url": "",
+      "publisher": "",
+      "publishedAt": "",
+      "accessedAt": "",
+      "supports": []
+    }
+  ],
+  "movcuesFit": {
+    "persona": "",
+    "pain": "",
+    "productTie": "",
+    "verified": false
+  },
+  "existingBlogOverlap": [],
+  "uniqueAngle": "",
+  "proposedCategory": "",
+  "tags": [],
+  "recommendedAction": "write|refresh|merge|skip",
+  "unknowns": []
+}

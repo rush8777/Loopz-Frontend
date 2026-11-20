@@ -1,0 +1,3 @@
+# Stage 5 — Search optimization reviewer
+
+Verify query intent, unique title, concise meta description, informative headings, canonical, internal links, useful external citations, readable layout, quick answer if helpful, structured data already emitted by website, and correct image alt text. Review extractability for answer engines through accurate factual statements, direct answers, schema-appropriate structured data and complete accessible HTML. No speculative AI-ranking formula, magic schema, artificial micro-chunking, `llms.txt` ranking claims, keyword density targets, or guaranteed citations. Update the brief or flagged passages rather than blindly rewording the complete post. Check actual Cloudflare-rendered HTML, not only source Markdown.

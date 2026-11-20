@@ -1,0 +1,32 @@
+{
+  "voiceId": "analyst",
+  "primaryKeyword": "user activation",
+  "searchIntent": "informational",
+  "uniqueContribution": "Example illustrating how first-project completion differs from signup count.",
+  "categoryStatus": "live",
+  "topicTags": [
+    "activation-metrics"
+  ],
+  "sanity": {
+    "title": "Understanding user activation with an example",
+    "slug": {
+      "current": "understanding-user-activation-example"
+    },
+    "summary": "An illustrative article draft, not a verified or approved blog post.",
+    "author": "PENDING REAL BYLINE",
+    "topic": "onboarding",
+    "publishedAt": "2026-11-21T00:00:00.000Z",
+    "seoTitle": "Understanding User Activation",
+    "seoDescription": "An illustrative activation analysis with definitions and an example.",
+    "answer": "Activation reflects whether a new user reaches meaningful first value."
+  },
+  "bodyMarkdown": "## The core question\n\nWhat counts as first value? A useful starting point is to define a user behavior rather than a signup.\n\n## A hypothetical example\n\nSuppose a team tracks signups, setup starts, and first projects created. This is an illustration, not a measured result.",
+  "sources": [],
+  "claims": [
+    {
+      "text": "Activation reflects reaching meaningful first value.",
+      "sourceIds": [],
+      "kind": "definition"
+    }
+  ]
+}

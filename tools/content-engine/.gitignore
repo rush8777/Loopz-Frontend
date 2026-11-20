@@ -1,0 +1,12 @@
+# Copyrighted/reference scrape bodies, locally generated output, and confidential artifacts
+private-references/
+runs/
+cache/
+exports/
+*.sqlite
+*.db
+*.secret.json
+approval-records/
+.env
+.env.*
+!.env.example

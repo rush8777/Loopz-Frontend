@@ -1,0 +1,3 @@
+# Stage 6 — QA controller & Sanity publishing adapter
+
+Run deterministic local tests and independent review gates. Validate article fields against live Sanity schema (`cms/studio/blogPost.ts`), current allowed category implementation, and website rendering (`apps/website/src/blog/`). Use Sanity MCP to create **draft** only, then preview through existing Studio preview action. Do not call publish from default workflow. Summarize failed checks, repair budget and evidence. Human must explicitly approve one exact draft revision; re-fetch revision, compare fingerprint, rerun checks, then publish only on a separate explicit instruction. Save Sanity ID and observed public URL after publication. Never invent an MCP tool method or simulate success.

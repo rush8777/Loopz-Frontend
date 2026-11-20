@@ -6,6 +6,7 @@ import { defineConfig, useClient, type DocumentActionComponent } from "sanity";
 import { structureTool } from "sanity/structure";
 import { BLOG_ORIGIN, isArticleSlug } from "../../apps/website/src/blog/config.mjs";
 import { blogPost } from "./blogPost";
+import { blogCategory } from "./blogCategory";
 
 const blogOrigin = process.env.SANITY_STUDIO_BLOG_ORIGIN || BLOG_ORIGIN;
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID;
@@ -49,7 +50,7 @@ export default defineConfig({
   projectId,
   dataset: process.env.SANITY_STUDIO_DATASET || "production",
   plugins: [structureTool()],
-  schema: { types: [blogPost] },
+  schema: { types: [blogPost, blogCategory] },
   document: {
     actions: (actions, { schemaType }) => schemaType === "blogPost" ? [...actions, BlogPreview] : actions,
   },

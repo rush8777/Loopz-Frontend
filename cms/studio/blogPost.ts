@@ -47,8 +47,25 @@ export const blogPost = defineType({
     defineField({
       name: "topic", title: "Topic", type: "string", group: "article",
       options: { list: BLOG_TOPICS.map(({ slug, title }) => ({ value: slug, title })), layout: "radio" },
-      validation: (rule) => rule.required(),
+      description: "Legacy topic. Keep for existing posts; select a primary category for new posts.",
+      validation: (rule) => rule.custom((value, context) => !!value || !!context.document?.primaryCategory || "Select a primary category."),
     }),
+    defineField({
+      name: "primaryCategory", type: "reference", to: [{ type: "blogCategory" }], group: "article",
+      description: "Reader-facing category. Publish the category before using it.",
+      validation: rule => rule.custom(async (value, context) => {
+        if (!value?._ref) return true;
+        const category = await context.getClient({ apiVersion: "2026-11-01" }).withConfig({ perspective: "published" }).fetch<{ slug?: string; active?: boolean } | null>(
+          '*[_id == $id && _type == "blogCategory"][0]{"slug": slug.current, active}', { id: value._ref },
+        );
+        if (!category?.slug || category.active === false) return "Select a published, active category with a slug.";
+        if (!BLOG_TOPICS.some(topic => topic.slug === category.slug) && process.env.SANITY_STUDIO_DYNAMIC_TAXONOMY_READY !== "true") {
+          return "New categories are blocked until the compatible website is deployed and SANITY_STUDIO_DYNAMIC_TAXONOMY_READY is set to true.";
+        }
+        return true;
+      }),
+    }),
+    defineField({ name: "topicTags", type: "array", group: "article", of: [defineArrayMember({ type: "string" })], validation: rule => rule.unique() }),
     defineField({
       name: "publishedAt", title: "Publication date", type: "datetime", group: "article",
       description: "Set the date shown to readers. The post appears once it is published and this date has passed.",

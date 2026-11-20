@@ -2,6 +2,20 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { blogPageCount, blogPageRange, isArticleSlug } from "../src/blog/config.mjs";
 import { additionalHead, articleSeo, blogFeed, blogSitemap, listingSeo, renderArticle, renderListing } from "../src/blog/render.mjs";
+import { listArticles } from "../src/blog/content.mjs";
+
+test("dynamic categories render alongside legacy topics and preserve article URLs", async () => {
+  const categories = [{ slug: "retention", title: "Retention", count: 1 }];
+  const item = { slug: "existing-article", title: "Article", summary: "Summary", topic: "retention", category: categories[0], body: [] };
+  const html = renderListing({ items: [item], total: 1, topic: "retention", page: 1, categories });
+  assert.match(html, /Retention/);
+  assert.match(html, /\/blog\/existing-article/);
+  assert.match(html, /topic=onboarding/);
+  assert.match(renderArticle(item), /topic=retention/);
+  assert.match(listingSeo("retention", 1, categories).title, /Retention/);
+  let query; await listArticles({ fetch: q => { query = q; return { total: 0, items: [] }; } }, "retention", 1);
+  assert.match(query, /coalesce\(primaryCategory->slug.current, topic\)/);
+});
 import { inPreview } from "../src/blog/preview.mjs";
 
 const block = (_key, text, style = "normal", markDefs = [], marks = []) => ({

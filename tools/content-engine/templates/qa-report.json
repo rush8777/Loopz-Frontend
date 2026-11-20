@@ -1,0 +1,30 @@
+{
+  "articleFingerprint": "sha256-of-exact-content",
+  "checks": {
+    "research": {
+      "status": "pending",
+      "evidence": [],
+      "reviewer": ""
+    },
+    "facts": {
+      "status": "pending",
+      "evidence": [],
+      "reviewer": ""
+    }
+  },
+  "findings": [
+    {
+      "id": "f-001",
+      "gate": "facts",
+      "severity": "blocker",
+      "location": "",
+      "description": "",
+      "evidenceUrls": [],
+      "repairOwner": "research",
+      "attempts": 0
+    }
+  ],
+  "generatedAt": "",
+  "checkedRevision": "",
+  "notes": "Do not mark PASS merely because a model reviewed its own output."
+}

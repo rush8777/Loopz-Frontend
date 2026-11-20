@@ -49,7 +49,7 @@ function coverImage(image, { lead = false, inline = false, compact = false } = {
 }
 
 function topicFor(article) {
-  return BLOG_TOPICS.find((topic) => topic.slug === article.topic);
+  return article.category?.slug && article.category?.title ? article.category : BLOG_TOPICS.find((topic) => topic.slug === article.topic);
 }
 
 function articleMeta(article) {
@@ -79,9 +79,10 @@ function articleCard(article, variant = "standard") {
   </article>`;
 }
 
-function topicsNav(selected) {
+function topicsNav(selected, categories = []) {
+  const topics = [...BLOG_TOPICS, ...categories.filter(item => item.count > 0 && !BLOG_TOPICS.some(legacy => legacy.slug === item.slug))];
   return `<nav class="blog-topics" aria-label="Article topics">
-    ${[{ slug: null, title: "All articles" }, ...BLOG_TOPICS].map(({ slug, title }) =>
+    ${[{ slug: null, title: "All articles" }, ...topics].map(({ slug, title }) =>
       `<a href="${escape(blogListUrl(slug))}"${selected === slug ? ' aria-current="page"' : ""}>${escape(title)}</a>`
     ).join("")}
   </nav>`;
@@ -126,10 +127,10 @@ const BLOG_MASTHEAD_DOODLES = `<div class="blog-doodles" aria-hidden="true">
   </svg>
 </div>`;
 
-export function renderListing({ items, total, topic, page, pages = 1 }) {
+export function renderListing({ items, total, topic, page, pages = 1, categories = [] }) {
   const articles = items.filter((article) => isArticleSlug(article.slug));
   const [featured, ...briefs] = !topic && page === 1 ? articles.splice(0, BLOG_SPOTLIGHT_SIZE) : [];
-  const topicTitle = BLOG_TOPICS.find((item) => item.slug === topic)?.title;
+  const topicTitle = [...BLOG_TOPICS, ...categories].find((item) => item.slug === topic)?.title;
   const grid = articles.length ? `<div class="blog-grid">${articles.map((article) => articleCard(article)).join("")}</div>` : "";
   const empty = !featured && !articles.length ? `<div class="blog-empty">
     <h2>${topic ? "No articles on this topic yet" : "The first issue is in the works"}</h2>
@@ -149,7 +150,7 @@ export function renderListing({ items, total, topic, page, pages = 1 }) {
     </section>` : ""}
     <section class="blog-catalog" aria-labelledby="blog-catalog-title">
       <h2 id="blog-catalog-title">${escape(topicTitle ?? "Articles & insights")}</h2>
-      ${topicsNav(topic)}
+      ${topicsNav(topic, categories)}
       ${grid}
       ${empty}
       ${pagination(topic, page, pages)}
@@ -247,7 +248,7 @@ export function renderArticle(article, related = [], draft = false) {
         <div class="blog-prose">
           ${article.answer ? `<aside class="blog-answer"><strong>Quick answer</strong><p>${escape(article.answer)}</p></aside>` : ""}
           ${html}
-          ${topic ? `<p class="blog-product-link"><a href="${topic.href}">${escape(topic.link)} in Movcues <span aria-hidden="true">→</span></a></p>` : ""}
+          ${topic?.href ? `<p class="blog-product-link"><a href="${topic.href}">${escape(topic.link)} in Movcues <span aria-hidden="true">→</span></a></p>` : ""}
         </div>
       </div>
     </article>
@@ -267,8 +268,8 @@ function scriptJson(data) {
   return JSON.stringify(data).replaceAll("<", "\\u003c");
 }
 
-export function listingSeo(topic, page) {
-  const topicLabel = BLOG_TOPICS.find((item) => item.slug === topic)?.title;
+export function listingSeo(topic, page, categories = []) {
+  const topicLabel = [...BLOG_TOPICS, ...categories].find((item) => item.slug === topic)?.title;
   const title = topicLabel ? `${topicLabel} | Movcues Blog` : BLOG_TITLE;
   return {
     title: page === 1 ? title : `${title} – Page ${page}`,

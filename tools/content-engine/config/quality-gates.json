@@ -1,0 +1,71 @@
+{
+  "requiredForPublish": [
+    {
+      "id": "research",
+      "type": "editorial",
+      "meaning": "Search intent and original angle evidence reviewed"
+    },
+    {
+      "id": "facts",
+      "type": "independent-review",
+      "meaning": "Material claims matched to trustworthy sources"
+    },
+    {
+      "id": "originality",
+      "type": "editorial",
+      "meaning": "No copying, patchwriting, or shallow reference rewrite"
+    },
+    {
+      "id": "voice",
+      "type": "editorial",
+      "meaning": "Selected Movcues house voice consistent"
+    },
+    {
+      "id": "product",
+      "type": "independent-review",
+      "meaning": "Movcues features/claims verified"
+    },
+    {
+      "id": "seo",
+      "type": "editorial",
+      "meaning": "Search intent, headings, links, metadata reviewed"
+    },
+    {
+      "id": "answer_quality",
+      "type": "editorial",
+      "meaning": "Direct answers, attribution and useful examples reviewed"
+    },
+    {
+      "id": "sanity_schema",
+      "type": "technical",
+      "meaning": "Actual Sanity schema and Portable Text document accepted"
+    },
+    {
+      "id": "browser_preview",
+      "type": "technical",
+      "meaning": "Real website/Pages preview inspected, including mobile"
+    },
+    {
+      "id": "accessibility",
+      "type": "technical",
+      "meaning": "Alt text, hierarchy, contrast, keyboard checks"
+    },
+    {
+      "id": "links",
+      "type": "technical",
+      "meaning": "Links and canonical verified without unsafe protocols"
+    },
+    {
+      "id": "taxonomy_migration",
+      "type": "technical",
+      "meaning": "Selected primary category is live in current CMS and website"
+    }
+  ],
+  "automatedScoresAreNotProofOfQuality": true,
+  "failedCheckBehavior": "Return targeted issue with evidence; maximum 2 repairs; block publish",
+  "approval": {
+    "mustBeHuman": true,
+    "mustMatchContentFingerprint": true,
+    "onRevisionChange": "invalidate"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "note": "Editorial candidates, not live Sanity values. Existing legacy categories must remain compatible. Prefer a dynamic Sanity blogCategory reference + free topic tags; migrate before using candidate category for publication.",
+  "liveCategorySlugs": [
+    "onboarding",
+    "analytics",
+    "adoption",
+    "feedback"
+  ],
+  "proposedCategories": [
+    {
+      "slug": "onboarding",
+      "title": "User onboarding",
+      "status": "live"
+    },
+    {
+      "slug": "analytics",
+      "title": "Product analytics",
+      "status": "live"
+    },
+    {
+      "slug": "adoption",
+      "title": "Feature adoption",
+      "status": "live"
+    },
+    {
+      "slug": "feedback",
+      "title": "Product feedback",
+      "status": "live"
+    },
+    {
+      "slug": "activation",
+      "title": "User activation",
+      "status": "candidate"
+    },
+    {
+      "slug": "retention",
+      "title": "Retention & churn",
+      "status": "candidate"
+    },
+    {
+      "slug": "segmentation",
+      "title": "User segmentation",
+      "status": "candidate"
+    },
+    {
+      "slug": "plg",
+      "title": "Product-led growth",
+      "status": "candidate"
+    },
+    {
+      "slug": "experimentation",
+      "title": "Experimentation & CRO",
+      "status": "candidate"
+    },
+    {
+      "slug": "saas-growth",
+      "title": "SaaS growth",
+      "status": "candidate"
+    },
+    {
+      "slug": "ux-research",
+      "title": "UX & user research",
+      "status": "candidate"
+    },
+    {
+      "slug": "customer-success",
+      "title": "Customer success",
+      "status": "candidate"
+    }
+  ],
+  "tagExamples": [
+    "signup-funnel",
+    "time-to-value",
+    "trial-conversion",
+    "onboarding-checklists",
+    "in-app-surveys",
+    "cohort-analysis",
+    "heatmaps",
+    "product-qualified-leads",
+    "feature-discovery",
+    "customer-journey",
+    "activation-metrics",
+    "behavioral-segmentation"
+  ],
+  "policy": {
+    "categoryCountPerArticle": 1,
+    "tagsCanGrowWithoutDeploy": true,
+    "avoidThinCategories": true,
+    "doNotAutoCreateCategoriesFromEveryKeyword": true
+  }
+}

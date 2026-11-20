@@ -10,7 +10,9 @@ const IMAGE_FIELDS = `
   "height": asset->metadata.dimensions.height
 `;
 const SUMMARY_FIELDS = `
-  _id, title, "slug": slug.current, summary, author, topic, publishedAt,
+  _id, title, "slug": slug.current, summary, author,
+  "topic": coalesce(primaryCategory->slug.current, topic),
+  "category": primaryCategory->{title, "slug": slug.current}, topicTags, publishedAt,
   "updatedAt": _updatedAt, "bodyLength": length(pt::text(body)),
   cover{${IMAGE_FIELDS}}
 `;
@@ -41,7 +43,7 @@ const requestOptions = () => ({ signal: AbortSignal.timeout(4500) });
 
 export async function listArticles(client, topic, page) {
   if (!client) return { total: 0, items: [] };
-  const filter = `${VISIBLE_ARTICLE} && ($topic == null || topic == $topic)`;
+  const filter = `${VISIBLE_ARTICLE} && ($topic == null || coalesce(primaryCategory->slug.current, topic) == $topic)`;
   const order = topic ? "publishedAt desc, _id asc" : "coalesce(featured, false) desc, publishedAt desc, _id asc";
   const { start, end } = blogPageRange(topic, page);
   return client.fetch(`{
@@ -58,9 +60,17 @@ export async function getArticle(client, slug, draft) {
 
 export async function relatedArticles(client, article) {
   return client.fetch(`
-    *[${VISIBLE_ARTICLE} && slug.current != $slug && topic == $topic]
+    *[${VISIBLE_ARTICLE} && slug.current != $slug && coalesce(primaryCategory->slug.current, topic) == $topic]
     | order(publishedAt desc, _id asc)[0...3]{${SUMMARY_FIELDS}}
   `, { slug: article.slug, topic: article.topic ?? null }, requestOptions());
+}
+
+export async function listCategories(client) {
+  if (!client) return [];
+  return client.fetch(`*[_type == "blogCategory" && active != false && defined(slug.current)] | order(order asc, title asc) {
+    title, "slug": slug.current,
+    "count": count(*[${VISIBLE_ARTICLE} && primaryCategory._ref == ^._id])
+  }`, {}, requestOptions());
 }
 
 export async function sitemapArticles(client) {

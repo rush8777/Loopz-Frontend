@@ -1,7 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import { BLOG_PATH, BLOG_SITEMAP_PATH, BLOG_TOPICS, blogListUrl, blogPageCount, isArticleSlug } from "./config.mjs";
-import { blogClient, feedArticles, getArticle, listArticles, relatedArticles, sitemapArticles } from "./content.mjs";
+import { blogClient, feedArticles, getArticle, listArticles, listCategories, relatedArticles, sitemapArticles } from "./content.mjs";
 import { inPreview, startPreview, stopPreview } from "./preview.mjs";
 import { additionalHead, articleSeo, blogFeed, blogSitemap, listingSeo, renderArticle, renderListing, renderMessage } from "./render.mjs";
 
@@ -54,7 +54,7 @@ function readRoute(url) {
   if (url.pathname === BLOG_PATH) {
     const topic = url.searchParams.get("topic") || null;
     const requestedPage = url.searchParams.get("page") || "1";
-    if ((topic && !BLOG_TOPICS.some((item) => item.slug === topic)) || !/^[1-9]\d{0,3}$/.test(requestedPage)) return null;
+    if ((topic && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(topic)) || !/^[1-9]\d{0,3}$/.test(requestedPage)) return null;
     const page = Number(requestedPage);
     return { kind: "list", topic, page, key: blogListUrl(topic, page) };
   }
@@ -80,10 +80,12 @@ async function routeResponse(env, url, route, draft) {
   if (route?.kind === "list") {
     const { topic, page } = route;
     const { items, total } = await listArticles(client, topic, page);
+    const categories = await listCategories(client);
+    if (topic && !BLOG_TOPICS.some(item => item.slug === topic) && !categories.some(item => item.slug === topic && item.count > 0)) return blogHtml(await shellFor(env, url), renderMessage("Category not found", "Browse all articles."), { ...listingSeo(null, 1), title: "Page not found | Movcues Blog" }, { status: 404, draft });
     const pages = blogPageCount(total, topic);
     if (page <= pages) {
-      return blogHtml(await shellFor(env, url), renderListing({ items, total, topic, page, pages }),
-        listingSeo(topic, page), { cacheable: !!client && !draft, draft });
+      return blogHtml(await shellFor(env, url), renderListing({ items, total, topic, page, pages, categories }),
+        listingSeo(topic, page, categories), { cacheable: !!client && !draft, draft });
     }
   }
 

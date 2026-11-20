@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "brand": "Movcues",
+  "project": "rush8777/Loopz-Frontend",
+  "blogOrigin": "https://movcues.com",
+  "blogBasePath": "/blog",
+  "cms": {
+    "provider": "sanity",
+    "documentType": "blogPost",
+    "studioDirectory": "cms/studio",
+    "schemaFile": "cms/studio/blogPost.ts",
+    "integration": "MCP via authenticated local Codex",
+    "publishByDefault": false
+  },
+  "voices": [
+    "analyst",
+    "founder",
+    "practitioner"
+  ],
+  "trainingArticlesPerVoice": 20,
+  "heldOutEvaluationArticles": 5,
+  "repairBudgetPerFinding": 2,
+  "maxSourceFetchPerDomainPerMinute": 5,
+  "autoPublish": false,
+  "seoFieldLimits": {
+    "title": 130,
+    "slug": 96,
+    "summary": 320,
+    "author": 100,
+    "seoTitle": 65,
+    "seoDescription": 170,
+    "answer": 500
+  }
+}
