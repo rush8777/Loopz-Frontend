@@ -54,17 +54,19 @@ describe("Geo page", () => {
     const welcomeAvatar = container.querySelector('.geo-avatar[data-size="hero"][data-state="idle"]');
     expect(welcomeAvatar?.querySelector("svg")).toBeInTheDocument();
     expect(welcomeAvatar).toHaveAttribute("aria-hidden", "true");
+    expect(container.querySelector(".geo-welcome-background")).toHaveAttribute("aria-hidden", "true");
 
     const composer = await screen.findByLabelText("Message Geo");
     fireEvent.change(composer, { target: { value: "What changed?" } });
     fireEvent.keyDown(composer, { key: "Enter" });
 
     const thinking = await screen.findByText("Analyzing your Movcues data…");
+    expect(container.querySelector(".geo-welcome-background")).not.toBeInTheDocument();
     expect(thinking.querySelector('.geo-avatar[data-size="compact"][data-state="thinking"] svg')).toBeInTheDocument();
 
     resolveResponse({
       userMessage: { ...assistant, id: "aim_1", role: "user", content: "What changed?", evidence: [] },
-      assistantMessage: assistant,
+      assistantMessage: { ...assistant, content: "Here are the results.", contentBlocks: [] },
     });
 
     await waitFor(() => {

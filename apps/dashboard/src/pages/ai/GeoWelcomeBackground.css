@@ -1,0 +1,35 @@
+.geo-welcome-background {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background:
+    radial-gradient(ellipse at 50% 45%, var(--background), transparent 72%),
+    repeating-linear-gradient(90deg, transparent 0 15px, rgb(49 86 200 / 5%) 19px, rgb(255 255 255 / 25%) 21px, transparent 23px),
+    linear-gradient(132deg, #eaf1ff 2%, #f7faff 56%, #dce8ff 100%);
+}
+
+.geo-welcome-background canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+  position: absolute;
+  inset: 0;
+}
+
+.geo-welcome-background:has(canvas[data-rendered]) {
+  background: none;
+}
+
+.geo-welcome-background canvas[data-rendered] {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geo-welcome-background canvas {
+    display: none;
+  }
+}

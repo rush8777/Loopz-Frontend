@@ -8,6 +8,7 @@ import * as aiApi from "@/api/ai";
 import type { AiConversation, AiMessage, AiProposal, SegmentGroup } from "@/api/ai";
 import { AiAnalyticsBlocks } from "./AiAnalyticsBlocks";
 import { GeoAvatar } from "./GeoAvatar";
+import { GeoWelcomeBackground } from "./GeoWelcomeBackground";
 
 const suggestions = [
   { label: "Performance digest", icon: BarChart3, prompt: "Give me a performance digest for the last 30 days. Compare it with the previous period and cite the real metrics and sample sizes." },
@@ -145,7 +146,8 @@ export function MovcuesAiPage() {
 
   return <div className="relative -my-6 flex min-h-[calc(100dvh-3.5rem)] flex-col lg:-my-8">
     {hasConversation ? <div className="absolute left-0 top-0 z-30 bg-background/95 py-2 pr-2 backdrop-blur">{controls}</div> : <div className="sticky top-0 z-20 flex items-center justify-between border-b bg-background/95 py-3 backdrop-blur">{controls}<img src="/movcues_logo.png" alt="movcues" className="h-8 w-auto object-contain" /></div>}
-    <div className={cn("relative flex min-h-0 flex-1", hasConversation && "pt-12")}>
+    <div className={cn("relative flex min-h-0 flex-1", hasConversation ? "pt-12" : "isolate")}>
+      {!hasConversation && <GeoWelcomeBackground />}
       {historyOpen && <aside className="absolute left-0 top-1 z-20 w-[min(340px,calc(100vw-2rem))] rounded-xl border bg-card p-2 shadow-lg" aria-label="Conversation history"><div className="flex items-center justify-between px-2 py-1"><span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent conversations</span><Button variant="ghost" size="icon" className="size-7" onClick={() => setHistoryOpen(false)} aria-label="Close history"><X /></Button></div><div className="mt-1 max-h-[60vh] space-y-1 overflow-y-auto">{conversations.length ? conversations.map(item => <div key={item.id} className={cn("group flex items-center rounded-lg", item.id === conversationId && "bg-muted")}><button className="min-w-0 flex-1 px-2 py-2 text-left" onClick={() => void openConversation(item.id)}><span className="block truncate text-sm font-medium">{item.title}</span><span className="block text-[11px] text-muted-foreground">{new Date(item.updatedAt).toLocaleDateString()}</span></button><Button variant="ghost" size="icon" className="mr-1 size-7 opacity-0 group-hover:opacity-100" onClick={() => void removeConversation(item.id)} aria-label={"Delete " + item.title}><Trash2 /></Button></div>) : <p className="px-2 py-8 text-center text-sm text-muted-foreground">No conversations yet.</p>}</div></aside>}
       {messages.length === 0 ? <Welcome firstName={firstName} draft={draft} setDraft={setDraft} submit={submit} loading={loading} enabled={enabled} moreOpen={moreOpen} setMoreOpen={setMoreOpen} textareaRef={textareaRef} error={error} /> : <Conversation messages={messages} draft={draft} setDraft={setDraft} submit={submit} loading={loading} revealingMessageId={revealingMessageId} enabled={enabled} error={error} textareaRef={textareaRef} bottomRef={bottomRef} stop={stopResponse} decide={decide} approving={approving} />}
     </div>
