@@ -96,6 +96,24 @@ function pagination(topic, page, pages) {
   </nav>`;
 }
 
+const BLOG_MASTHEAD_DOODLES = `<div class="blog-doodles" aria-hidden="true">
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="m6 22 43-13-12 38-10-13-10 6 2-13Zm13 5L49 9 27 34M8 36l-4 5m10 3-4 6"/>
+  </svg>
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="m24 6 5 15 16 1-12 10 4 16-13-9-13 9 4-16L3 22l16-1ZM45 7v10m-5-5h10"/>
+  </svg>
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="M8 36c10 9 30 6 39-5 3-4 3-8 0-10-4-4-13-1-19 2-8 4-15 9-17 15M24 12c-10 4-12 13-9 22 3 10 14 15 23 10 9-4 12-15 8-24-3-8-13-12-22-8ZM7 14v8m-4-4h8m39 26v8m-4-4h8"/>
+  </svg>
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="M8 40c0-5 4-9 9-9 1-8 7-14 15-13 6 0 11 5 12 11 5 0 9 4 9 9 0 5-4 8-9 8H17c-5 0-9-2-9-6ZM5 15l5-4m3 9 7-2m-4-9 2-5"/>
+  </svg>
+  <svg viewBox="0 0 56 56" focusable="false">
+    <path d="M29 6c1 13 6 18 18 21-12 2-17 7-19 20-2-13-7-18-19-20C22 25 26 19 29 6Zm16 1v10m-5-5h10M10 41v8m-4-4h8"/>
+  </svg>
+</div>`;
+
 export function renderListing({ items, total, topic, page, pages = 1 }) {
   const articles = items.filter((article) => isArticleSlug(article.slug));
   const [featured, ...briefs] = !topic && page === 1 ? articles.splice(0, BLOG_SPOTLIGHT_SIZE) : [];
@@ -109,6 +127,7 @@ export function renderListing({ items, total, topic, page, pages = 1 }) {
   </div>` : "";
   return `<div class="section-shell blog-listing">
     <header class="blog-masthead">
+      ${BLOG_MASTHEAD_DOODLES}
       <h1>Movcues Blog</h1>
       <p>${BLOG_DESCRIPTION}</p>
     </header>

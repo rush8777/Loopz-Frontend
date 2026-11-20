@@ -513,7 +513,52 @@
 }
 
 .blog-masthead {
+  position: relative;
+  isolation: isolate;
   margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* Keep the decorative layer within the masthead, above the article cards. */
+.blog-doodles {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 44%;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--blog-blue);
+  opacity: 0.26;
+  mask-image: linear-gradient(to bottom, #000 3%, rgb(0 0 0 / 65%) 46%, transparent 100%);
+}
+
+.blog-doodles svg {
+  position: absolute;
+  width: clamp(1.25rem, 3vw, 2.65rem);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.45;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: blog-doodle-sway 12s ease-in-out infinite alternate;
+}
+
+.blog-doodles svg:nth-child(1) { top: 7%; left: 4%; }
+.blog-doodles svg:nth-child(2) { top: 27%; left: 24%; animation-delay: -3s; }
+.blog-doodles svg:nth-child(3) { top: 8%; left: 46%; animation-delay: -7s; }
+.blog-doodles svg:nth-child(4) { top: 30%; left: 66%; animation-delay: -5s; }
+.blog-doodles svg:nth-child(5) { top: 6%; left: 89%; animation-delay: -9s; }
+
+@keyframes blog-doodle-sway {
+  from { transform: translate(0, 0) rotate(-5deg); }
+  to { transform: translate(2px, 3px) rotate(6deg); }
+}
+
+@media (max-width: 740px) {
+  .blog-doodles { inset-inline-start: 52%; opacity: 0.18; }
+  .blog-doodles svg:nth-child(even) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-doodles svg { animation: none; }
 }
 
 .blog-masthead h1 {
