@@ -12,7 +12,21 @@ export const BLOG_TOPICS = [
   { slug: "feedback", title: "Product feedback", href: "/explore/product-feedback", link: "Explore product feedback" },
 ];
 
-export const BLOG_PAGE_SIZE = 10;
+export const BLOG_PAGE_SIZE = 8;
+export const BLOG_SPOTLIGHT_SIZE = 4;
+
+export function blogPageCount(total, topic) {
+  const spotlightCount = topic ? 0 : BLOG_SPOTLIGHT_SIZE;
+  return Math.max(1, Math.ceil((total - spotlightCount) / BLOG_PAGE_SIZE));
+}
+
+export function blogPageRange(topic, page) {
+  const spotlightCount = topic ? 0 : BLOG_SPOTLIGHT_SIZE;
+  return {
+    start: page === 1 ? 0 : (page - 1) * BLOG_PAGE_SIZE + spotlightCount,
+    end: page * BLOG_PAGE_SIZE + spotlightCount,
+  };
+}
 export const RESERVED_BLOG_SLUGS = ["preview"];
 export const BLOG_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

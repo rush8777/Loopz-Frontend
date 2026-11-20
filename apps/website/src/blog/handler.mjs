@@ -1,6 +1,6 @@
 /// <reference types="@cloudflare/workers-types" />
 
-import { BLOG_PAGE_SIZE, BLOG_PATH, BLOG_SITEMAP_PATH, BLOG_TOPICS, blogListUrl, isArticleSlug } from "./config.mjs";
+import { BLOG_PATH, BLOG_SITEMAP_PATH, BLOG_TOPICS, blogListUrl, blogPageCount, isArticleSlug } from "./config.mjs";
 import { blogClient, feedArticles, getArticle, listArticles, relatedArticles, sitemapArticles } from "./content.mjs";
 import { inPreview, startPreview, stopPreview } from "./preview.mjs";
 import { additionalHead, articleSeo, blogFeed, blogSitemap, listingSeo, renderArticle, renderListing, renderMessage } from "./render.mjs";
@@ -80,7 +80,7 @@ async function routeResponse(env, url, route, draft) {
   if (route?.kind === "list") {
     const { topic, page } = route;
     const { items, total } = await listArticles(client, topic, page);
-    const pages = Math.max(1, Math.ceil(total / BLOG_PAGE_SIZE));
+    const pages = blogPageCount(total, topic);
     if (page <= pages) {
       return blogHtml(await shellFor(env, url), renderListing({ items, total, topic, page, pages }),
         listingSeo(topic, page), { cacheable: !!client && !draft, draft });

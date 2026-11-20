@@ -1,6 +1,6 @@
 import { escapeHTML, toHTML, uriLooksSafe } from "@portabletext/to-html";
 import {
-  BLOG_DESCRIPTION, BLOG_ORIGIN, BLOG_PATH, BLOG_TITLE, BLOG_TOPICS, blogListUrl, isArticleSlug,
+  BLOG_DESCRIPTION, BLOG_ORIGIN, BLOG_PATH, BLOG_TITLE, BLOG_SPOTLIGHT_SIZE, BLOG_TOPICS, blogListUrl, isArticleSlug,
 } from "./config.mjs";
 
 const DEFAULT_SOCIAL_IMAGE = "https://movcues.com/movcues-blog-social.png";
@@ -29,7 +29,7 @@ function imageUrl(image, width) {
   return url.href;
 }
 
-function coverImage(image, { lead = false, inline = false } = {}) {
+function coverImage(image, { lead = false, inline = false, compact = false } = {}) {
   const width = inline || lead ? 1440 : 640;
   const src = imageUrl(image, width);
   if (!src) return "";
@@ -41,7 +41,7 @@ function coverImage(image, { lead = false, inline = false } = {}) {
     .concat(displayWidth)
     .map((size) => `${escape(imageUrl(image, size))} ${size}w`)
     .join(", ");
-  const sizes = inline ? "(max-width: 720px) 90vw, 720px"
+  const sizes = compact ? "(max-width: 620px) 36vw, 240px" : inline ? "(max-width: 720px) 90vw, 720px"
     : lead ? "(max-width: 760px) 90vw, (max-width: 1200px) 55vw, 980px"
       : "(max-width: 580px) 90vw, (max-width: 960px) 45vw, 370px";
   return `<img src="${escape(src)}" srcset="${srcset}" sizes="${sizes}" alt="${escape(image.alt)}"
@@ -57,19 +57,21 @@ function articleMeta(article) {
     .filter(Boolean).join('<span aria-hidden="true">·</span>');
 }
 
-function articleCard(article, featured = false) {
+function articleCard(article, variant = "standard") {
   const topic = topicFor(article);
-  const image = coverImage(article.cover, { lead: featured });
+  const image = coverImage(article.cover, { lead: variant === "lead", compact: variant === "brief" });
+  const heading = variant === "standard" ? "h3" : "h2";
   const href = articlePath(article.slug);
-  return `<article class="blog-card${featured ? " blog-card--featured" : ""}${image ? "" : " blog-card--text"}">
+  return `<article class="blog-card blog-card--${variant}${image ? "" : " blog-card--text"}">
     <a class="blog-card-link" href="${href}">
       ${image ? `<div class="blog-card-image">${image}</div>` : ""}
       <div class="blog-card-copy">
         ${topic ? `<span class="blog-topic">${escape(topic.title)}</span>` : ""}
-        <h${featured ? 2 : 3}>${escape(article.title)}</h${featured ? 2 : 3}>
+        <${heading}>${escape(article.title)}</${heading}>
         <p>${escape(article.summary)}</p>
         <div class="blog-card-footer">
-          <div class="blog-meta">${articleMeta(article)}</div>
+          <div class="blog-meta">${[escape(article.author) || publicationDate(article.publishedAt), minutesToRead(article)]
+            .filter(Boolean).join('<span aria-hidden="true">·</span>')}</div>
           <span class="blog-card-arrow" aria-hidden="true">↗</span>
         </div>
       </div>
@@ -90,13 +92,13 @@ function pagination(topic, page, pages) {
   return `<nav class="blog-pagination" aria-label="Blog pagination">
     ${page > 1 ? `<a rel="prev" href="${escape(blogListUrl(topic, page - 1))}">← Previous</a>` : "<span></span>"}
     <span>Page ${page} of ${pages}</span>
-    ${page < pages ? `<a rel="next" href="${escape(blogListUrl(topic, page + 1))}">Next →</a>` : "<span></span>"}
+    ${page < pages ? `<a rel="next" href="${escape(blogListUrl(topic, page + 1))}">More articles →</a>` : "<span></span>"}
   </nav>`;
 }
 
 export function renderListing({ items, total, topic, page, pages = 1 }) {
   const articles = items.filter((article) => isArticleSlug(article.slug));
-  const featured = !topic && page === 1 ? articles.shift() : null;
+  const [featured, ...briefs] = !topic && page === 1 ? articles.splice(0, BLOG_SPOTLIGHT_SIZE) : [];
   const topicTitle = BLOG_TOPICS.find((item) => item.slug === topic)?.title;
   const grid = articles.length ? `<div class="blog-grid">${articles.map((article) => articleCard(article)).join("")}</div>` : "";
   const empty = !featured && !articles.length ? `<div class="blog-empty">
@@ -106,17 +108,21 @@ export function renderListing({ items, total, topic, page, pages = 1 }) {
       : 'In the meantime, explore <a href="/explore/user-onboarding">user onboarding</a> or <a href="/explore/analytics">product analytics</a>.'}</p>
   </div>` : "";
   return `<div class="section-shell blog-listing">
-    <header class="blog-intro">
-      <p class="blog-topic">Movcues Blog</p>
-      <h1>Help more users<br class="blog-title-break"> reach first value.</h1>
+    <header class="blog-masthead">
+      <h1>Movcues Blog</h1>
       <p>${BLOG_DESCRIPTION}</p>
     </header>
-    ${topicsNav(topic)}
-    ${featured ? articleCard(featured, true) : ""}
-    ${grid ? `<section class="blog-recent" aria-labelledby="blog-recent-title">
-      <h2 id="blog-recent-title">${escape(topicTitle ?? "Latest articles")}</h2>${grid}</section>` : ""}
-    ${empty}
-    ${pagination(topic, page, pages)}
+    ${featured ? `<section class="blog-spotlight${briefs.length ? "" : " blog-spotlight--single"}" aria-label="Featured articles">
+      ${articleCard(featured, "lead")}
+      ${briefs.length ? `<div class="blog-briefs">${briefs.map((article) => articleCard(article, "brief")).join("")}</div>` : ""}
+    </section>` : ""}
+    <section class="blog-catalog" aria-labelledby="blog-catalog-title">
+      <h2 id="blog-catalog-title">${escape(topicTitle ?? "Articles & insights")}</h2>
+      ${topicsNav(topic)}
+      ${grid}
+      ${empty}
+      ${pagination(topic, page, pages)}
+    </section>
     ${total ? '<div class="blog-feed"><a href="/blog/feed.xml">RSS feed</a></div>' : ""}
   </div>`;
 }

@@ -1,5 +1,5 @@
 import { createClient } from "@sanity/client";
-import { BLOG_PAGE_SIZE } from "./config.mjs";
+import { blogPageRange } from "./config.mjs";
 
 const ARTICLE_TYPE = '_type == "blogPost" && defined(slug.current)';
 const VISIBLE_ARTICLE = `${ARTICLE_TYPE} && dateTime(publishedAt) <= dateTime(now())`;
@@ -43,10 +43,10 @@ export async function listArticles(client, topic, page) {
   if (!client) return { total: 0, items: [] };
   const filter = `${VISIBLE_ARTICLE} && ($topic == null || topic == $topic)`;
   const order = topic ? "publishedAt desc, _id asc" : "coalesce(featured, false) desc, publishedAt desc, _id asc";
-  const start = (page - 1) * BLOG_PAGE_SIZE;
+  const { start, end } = blogPageRange(topic, page);
   return client.fetch(`{
     "total": count(*[${filter}]),
-    "items": *[${filter}] | order(${order})[${start}...${start + BLOG_PAGE_SIZE}]{${SUMMARY_FIELDS}}
+    "items": *[${filter}] | order(${order})[${start}...${end}]{${SUMMARY_FIELDS}}
   }`, { topic }, requestOptions());
 }
 

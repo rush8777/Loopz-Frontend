@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isArticleSlug } from "../src/blog/config.mjs";
+import { blogPageCount, blogPageRange, isArticleSlug } from "../src/blog/config.mjs";
 import { additionalHead, articleSeo, blogFeed, blogSitemap, listingSeo, renderArticle, renderListing } from "../src/blog/render.mjs";
 import { inPreview } from "../src/blog/preview.mjs";
 
@@ -75,4 +75,32 @@ test("arbitrary preview cookies do not grant draft access", async () => {
     headers: { Cookie: "movcues_blog_preview=" + forged },
   });
   assert.equal(await inPreview(request, { SANITY_PREVIEW_TOKEN: "test.token.preview" }), false);
+});
+
+test("the home page renders four unique spotlight articles and eight grid articles", () => {
+  const cover = { url: "https://cdn.sanity.io/images/project/production/cover-1200x800.jpg", alt: "Sanity cover", width: 1200, height: 800 };
+  const items = Array.from({ length: 12 }, (_, index) => ({ ...article, slug: "post-" + index, cover }));
+  const html = renderListing({ items, total: 13, topic: null, page: 1, pages: 2 });
+  assert.equal((html.match(/blog-card--lead/g) ?? []).length, 1);
+  assert.equal((html.match(/blog-card--brief/g) ?? []).length, 3);
+  assert.equal((html.match(/blog-card--standard/g) ?? []).length, 8);
+  assert.equal(new Set(html.match(/href="\/blog\/post-\d+"/g)).size, 12);
+  assert.match(html, /alt="Sanity cover"/);
+  assert.match(html, /fetchpriority="high"/);
+
+  for (const topic of [null, "onboarding"]) {
+    const filtered = renderListing({ items: items.slice(0, 8), total: 20, topic, page: topic ? 1 : 2, pages: 2 });
+    assert.doesNotMatch(filtered, /class="blog-spotlight/);
+    assert.equal(blogPageRange(topic, 1).end, blogPageRange(topic, 2).start);
+  }
+  assert.equal(blogPageCount(12, null), 1);
+  assert.equal(blogPageCount(13, null), 2);
+  assert.equal(blogPageCount(9, "onboarding"), 2);
+});
+
+test("a single article without a cover still renders a lead story", () => {
+  const html = renderListing({ items: [article], total: 1, topic: null, page: 1 });
+  assert.match(html, /blog-spotlight--single/);
+  assert.match(html, /blog-card--lead blog-card--text/);
+  assert.doesNotMatch(html, /blog-empty|blog-briefs|blog-card-image/);
 });
