@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MovcuesAiPage } from "./MovcuesAiPage";
+import { AppShell } from "@/components/AppShell";
 import * as auth from "@/auth/AuthContext";
 import * as workspace from "@/auth/WorkspaceContext";
 import * as aiApi from "@/api/ai";
@@ -23,9 +24,22 @@ describe("Geo page", () => {
     vi.mocked(aiApi.sendAiMessage).mockResolvedValue({ userMessage: { ...assistant, id: "aim_1", role: "user", content: "What changed?", evidence: [] }, assistantMessage: assistant });
   });
 
-  it("shows the native welcome workspace and authenticated first name", async () => {
-    render(<MemoryRouter><MovcuesAiPage /></MemoryRouter>);
-    expect(await screen.findByRole("heading", { name: "Welcome back, Sam" })).toBeInTheDocument();
+  it("shows the welcome workspace in the full dashboard pane", async () => {
+    render(
+      <MemoryRouter initialEntries={["/ai"]}>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route path="/ai" element={<MovcuesAiPage />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+    const main = screen.getByRole("main");
+    const background = main.querySelector(".geo-welcome-background");
+    const heading = await screen.findByRole("heading", { name: "Welcome back, Sam" });
+    expect(main).toHaveAttribute("class", "w-full");
+    expect(background?.parentElement).toBe(main.firstElementChild);
+    expect(background?.nextElementSibling).toContainElement(heading);
     expect(screen.getByPlaceholderText("Ask anything about your product, users, or performance...")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Performance digest" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Conversation history" })).toBeInTheDocument();

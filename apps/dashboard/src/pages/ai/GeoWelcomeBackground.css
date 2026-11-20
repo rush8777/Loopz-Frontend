@@ -4,7 +4,17 @@
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background-color: var(--background);
+}
+
+.geo-welcome-background::after,
+.geo-welcome-background canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.geo-welcome-background::after {
+  content: "";
   background:
     radial-gradient(ellipse at 50% 45%, var(--background), transparent 72%),
     repeating-linear-gradient(90deg, transparent 0 15px, rgb(49 86 200 / 5%) 19px, rgb(255 255 255 / 25%) 21px, transparent 23px),
@@ -16,20 +26,38 @@
   width: 100%;
   height: 100%;
   visibility: hidden;
-  position: absolute;
-  inset: 0;
 }
 
-.geo-welcome-background:has(canvas[data-rendered]) {
-  background: none;
+.geo-welcome-background:has(canvas[data-rendered])::after {
+  display: none;
 }
 
 .geo-welcome-background canvas[data-rendered] {
   visibility: visible;
 }
 
+@media (min-width: 64rem) {
+  .geo-welcome-background::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: clamp(10rem, 24%, 23rem);
+    background: linear-gradient(180deg, #c6e0ff 10%, #e8f5ff 44%, #ebf6ff 56%, #e6f3ff 70%, #cae7ff 100%);
+    mask-image: linear-gradient(to right, black, transparent);
+  }
+
+  .geo-welcome-background::after,
+  .geo-welcome-background canvas {
+    mask-image: linear-gradient(to right, transparent, black clamp(6rem, 15%, 15rem));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .geo-welcome-background canvas {
     display: none;
+  }
+
+  .geo-welcome-background:has(canvas[data-rendered])::after {
+    display: block;
   }
 }
