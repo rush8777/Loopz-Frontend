@@ -1,0 +1,117 @@
+.geo-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.geo-avatar[data-size="hero"] {
+  inline-size: 4.25rem;
+  block-size: 4.25rem;
+  border-radius: 1.125rem;
+}
+
+.geo-avatar__cube {
+  display: block;
+  inline-size: 1.375rem;
+  block-size: auto;
+  overflow: visible;
+  transform-origin: center;
+}
+
+.geo-avatar[data-size="hero"] .geo-avatar__cube {
+  inline-size: 2.625rem;
+}
+
+.geo-avatar__eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.geo-avatar__smile {
+  opacity: 0;
+}
+
+.geo-avatar[data-state="idle"] .geo-avatar__cube {
+  animation: geo-idle 7.2s ease-in-out infinite;
+}
+
+.geo-avatar[data-state="idle"] .geo-avatar__eyes {
+  animation: geo-blink 5.8s ease-in-out infinite;
+}
+
+.geo-avatar[data-state="thinking"] .geo-avatar__cube {
+  animation: geo-think 2.8s ease-in-out infinite;
+}
+
+.geo-avatar[data-state="thinking"] .geo-avatar__gaze {
+  animation: geo-scan 2.8s ease-in-out infinite;
+}
+
+.geo-avatar[data-state="thinking"] .geo-avatar__eyes {
+  animation: geo-blink 2.8s ease-in-out infinite;
+}
+
+.geo-avatar[data-state="replying"] .geo-avatar__cube {
+  animation: geo-reply 2.1s ease-in-out infinite;
+}
+
+.geo-avatar[data-state="replying"] .geo-avatar__eyes {
+  animation: geo-reply-eyes 2.1s ease-in-out infinite;
+}
+
+.geo-avatar[data-state="replying"] .geo-avatar__smile {
+  animation: geo-reply-smile 2.1s ease-in-out infinite;
+}
+
+@keyframes geo-idle {
+  0%, 24%, 100% { transform: none; }
+  52% { transform: translateY(-2px) rotate(-4deg); }
+  75% { transform: translateY(-1px) rotate(2deg); }
+}
+
+@keyframes geo-blink {
+  0%, 66%, 72%, 100% { scale: 1; }
+  68%, 70% { scale: 1 0.18; }
+}
+
+@keyframes geo-think {
+  0%, 100% { transform: none; }
+  24% { transform: perspective(90px) translateY(-1px) rotate(-8deg) rotateY(-13deg); }
+  50% { transform: translateY(-2px) rotate(-2deg); }
+  76% { transform: perspective(90px) translateY(-1px) rotate(6deg) rotateY(12deg); }
+}
+
+@keyframes geo-scan {
+  0%, 100% { transform: none; }
+  24%, 34% { transform: translate(-2px, 0); }
+  65%, 76% { transform: translate(1.5px, -1px); }
+}
+
+@keyframes geo-reply {
+  0%, 100% { transform: none; }
+  22% { transform: translateY(-2px) rotate(-4deg); }
+  45% { transform: translateY(0.5px) rotate(3deg); }
+  67% { transform: translateY(-1px) rotate(-1deg); }
+}
+
+@keyframes geo-reply-eyes {
+  0%, 14%, 68%, 100% { opacity: 1; }
+  30%, 52% { opacity: 0; }
+}
+
+@keyframes geo-reply-smile {
+  0%, 14%, 68%, 100% { opacity: 0; }
+  30%, 52% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geo-avatar[data-state] :is(.geo-avatar__cube, .geo-avatar__eyes, .geo-avatar__gaze, .geo-avatar__smile) {
+    animation: none;
+  }
+}
