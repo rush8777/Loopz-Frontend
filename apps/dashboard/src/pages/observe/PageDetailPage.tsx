@@ -88,10 +88,6 @@ export function PageDetailPage() {
         <AnalyticsMetricCard label="Sessions" value={page.uniqueSessions.toLocaleString()} description="Sessions containing a matching page view" />
         <AnalyticsMetricCard label="Last seen" value={page.lastSeenAt ? formatRelativeTime(page.lastSeenAt) : "—"} description="Most recent matching page view" />
       </div>
-      <section className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4" aria-label="Heatmap status">
-        <div><h2 className="text-sm font-semibold">Heatmaps</h2><p className="mt-1 text-xs text-muted-foreground">Visualize clicks, scroll depth, and interaction patterns on this Page.</p></div>
-        <Badge variant="secondary">Coming soon</Badge>
-      </section>
       <div role="tablist" aria-label="Page detail" className="mb-4 flex gap-1 overflow-x-auto border-b">
         <Button role="tab" aria-selected="true" variant="ghost" className="rounded-b-none border-b-2 border-primary text-foreground">Overview</Button>
       </div>

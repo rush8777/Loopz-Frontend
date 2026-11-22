@@ -203,19 +203,6 @@ function OverviewSection({
         {timeseries === null ? <Skeleton className="h-[140px]" /> : <SparkBarChart points={timeseries} />}
       </div>
 
-      {summary.usedIn.patterns.length > 0 && (
-        <div className="rounded-lg border bg-card p-4">
-          <div className="mb-2 text-[13.5px] font-semibold">Used in</div>
-          <div className="mb-1 text-[12.5px] text-muted-foreground">Patterns</div>
-          <div className="flex flex-col gap-1">
-            {summary.usedIn.patterns.map((p) => (
-              <div key={p.id} className="text-[13px] text-foreground">
-                {p.name}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </>
   );
 }

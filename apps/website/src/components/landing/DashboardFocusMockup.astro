@@ -1,12 +1,12 @@
 ---
 import {
   ArrowUpRight, BarChart2, CheckSquare, ChevronDown, Ellipsis, FileText,
-  Flame, Gauge, Info, LayoutTemplate, ListChecks, MousePointerClick,
+  Gauge, Info, LayoutTemplate, ListChecks, MousePointerClick,
   Network, PanelLeftClose, Settings, Sparkles, UserRoundPen, Users, Waypoints
 } from "lucide-astro";
 
 // The data in this marketing demonstration is illustrative, not a live dashboard query.
-type SidebarSection = { title: string; items: Array<{ name: string; Icon: typeof Gauge; active?: boolean; soon?: boolean }> };
+type SidebarSection = { title: string; items: Array<{ name: string; Icon: typeof Gauge; active?: boolean }> };
 const sections: SidebarSection[] = [
   { title: "WORKSPACE", items: [
     { name: "Overview", Icon: Gauge },
@@ -24,7 +24,6 @@ const sections: SidebarSection[] = [
     { name: "Sessions", Icon: MousePointerClick },
     { name: "Events", Icon: Waypoints },
     { name: "Funnels", Icon: Network },
-    { name: "Heatmaps", Icon: Flame, soon: true }
   ] },
   { title: "PEOPLE", items: [
     { name: "Segments", Icon: UserRoundPen },
@@ -75,11 +74,10 @@ const userScale = [4,3,2,1,0];
       {sections.map((section) => (
         <div class="df-nav-section">
           <p>{section.title}</p>
-          {section.items.map(({ name, Icon, active, soon }) => (
-            <div class:list={["df-nav-item", active && "df-active", soon && "df-disabled"]}>
+          {section.items.map(({ name, Icon, active }) => (
+            <div class:list={["df-nav-item", active && "df-active"]}>
               <Icon size={13} strokeWidth={1.8} aria-hidden="true"/>
               <span>{name}</span>
-              {soon && <small>Soon</small>}
             </div>
           ))}
         </div>
@@ -252,8 +250,6 @@ const userScale = [4,3,2,1,0];
   .df-nav-item {height:24px;padding:0 6px;display:flex;gap:7px;align-items:center;color:#29333e;font-size:9px;white-space:nowrap;border-radius:6px;}
   .df-nav-item svg {width:12px;height:12px;flex:none;}
   .df-nav-item.df-active {background:rgba(255,255,255,.65);box-shadow:0 1px 2px rgba(82,143,223,.12);font-weight:600;}
-  .df-nav-item.df-disabled {color:#9baaba;}
-  .df-nav-item small {margin-left:auto;color:#99a9b9;border:1px solid #ffffff75;border-radius:3px;padding:1px 2px;font-size:7px;}
   .df-sidebar-settings {margin-top:auto;display:flex;align-items:center;gap:7px;padding:9px 6px;color:#2b3a49;font-size:9px;}
 
   .df-main {min-width:0;min-height:0;padding:9px 9px 10px;background:#fcfcfc;}

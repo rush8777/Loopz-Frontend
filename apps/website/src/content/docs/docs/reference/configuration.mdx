@@ -23,10 +23,6 @@ All settings are passed to `init(config)` or `createAnalytics(config)`. `siteId`
 | `autocapture.click` | `true` | Enabled; limited to intentional interactive elements in MVP1. |
 | `autocapture.scroll` | `true` | Enabled. |
 | `autocapture.rageClick` | `true` | Enabled. |
-| `autocapture.move` | `false` | Release-disabled. |
-| `autocapture.hover` | `false` | Release-disabled. |
-| `autocapture.cursor` | `false` | Release-disabled. |
-| `autocapture.elementCrawler` | `false` | Release-disabled. |
 
 ## Collector tuning
 
@@ -46,8 +42,8 @@ All settings are passed to `init(config)` or `createAnalytics(config)`. `siteId`
 
 ## Bundle overrides
 
-The types include `experienceRuntimeBundleUrl`, `editorRuntimeBundleUrl`, and `heatmapSnapshotBundleUrl`. They are runtime-asset location overrides, not feature toggles. Keep the defaults unless a compatible hosted asset location has been explicitly supplied.
+The types include `experienceRuntimeBundleUrl` and `editorRuntimeBundleUrl`. They are runtime-asset location overrides, not feature toggles. Keep the defaults unless a compatible hosted asset location has been explicitly supplied.
 
-## Source-visible but not documented as production capabilities
+## Legacy options
 
-The configuration type also contains detailed `move`, `hover`, `cursor`, `sessionReplay`, and `feedback` settings. This documentation intentionally does not present them as supported customer controls: MVP1 policy forces movement, hover, cursor, replay, and heatmap collection off, and the feedback default API base is a placeholder. See [release availability](/docs/reference/availability/).
+The SDK ignores older movement, hover, element crawling, replay, heatmap, and pattern feedback configuration. Remove these settings from new installations.

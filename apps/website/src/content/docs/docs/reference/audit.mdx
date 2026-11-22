@@ -18,7 +18,7 @@ The first documentation pass was grounded in the SDK source at the repository’
 | Source finding | Documentation decision |
 | --- | --- |
 | Historical React and Next examples import `movcues/sdk`. | Use the package-manifest name `@movcues/sdk`; registry publication still needs release verification. |
-| Older README language promotes move, hover, cursor, replay, and heatmap collection. | Do not represent them as active: the current `MVP1_POLICY` hard-disables those collectors. |
+| Older README language promotes move, hover, cursor, replay, and heatmap collection. | The current SDK has retired these collectors. |
 | `debug` resolves to `true` by default. | Recommend explicitly setting `debug: false` for production. |
 | Do Not Track support is opt-in. | Document `respectDoNotTrack: true` as an explicit policy choice. |
 | Privacy markers work on a node and its ancestors. | Document subtree markers and require explicit markers around sensitive textarea/select regions. |
@@ -28,7 +28,7 @@ The first documentation pass was grounded in the SDK source at the repository’
 1. Verify the npm registry release and package installation workflow.
 2. Confirm the dashboard location and permission model for Site IDs.
 3. Publish a supported browser and CSP compatibility matrix.
-4. Add versioned release notes for changes to release-locked collectors.
+4. Add versioned release notes for changes to automatic capture.
 5. Decide whether endpoint and runtime-bundle overrides are customer-supported or deployment-only.
 
 This audit is intentionally visible so product, engineering, and support can resolve those gaps before the corresponding docs become a customer promise.

@@ -1,13 +1,13 @@
 ---
 import {
   ArrowUp, BarChart2, CheckSquare, ChevronDown, Ellipsis, FileText,
-  Flame, Gauge, LayoutTemplate, ListChecks, MousePointerClick, Network,
+  Gauge, LayoutTemplate, ListChecks, MousePointerClick, Network,
   PanelLeftClose, Settings, Sparkles, UserRoundPen, Waypoints
 } from "lucide-astro";
 
 type GeoNavGroup = {
   label: string;
-  items: Array<{ label: string; Icon: typeof Gauge; active?: boolean; soon?: boolean }>;
+  items: Array<{ label: string; Icon: typeof Gauge; active?: boolean }>;
 };
 const navigation: GeoNavGroup[] = [
   { label: "WORKSPACE", items: [
@@ -26,7 +26,6 @@ const navigation: GeoNavGroup[] = [
     { label: "Sessions", Icon: MousePointerClick },
     { label: "Events", Icon: Waypoints },
     { label: "Funnels", Icon: Network },
-    { label: "Heatmaps", Icon: Flame, soon: true }
   ] },
   { label: "PEOPLE", items: [
     { label: "Segments", Icon: UserRoundPen },
@@ -83,11 +82,10 @@ const ticks = [
         {navigation.map((group) => (
           <div class="geo-nav-group">
             <p>{group.label}</p>
-            {group.items.map(({ label, Icon, active, soon }) => (
-              <div class:list={["geo-nav-item", active && "is-active", soon && "is-disabled"]}>
+            {group.items.map(({ label, Icon, active }) => (
+              <div class:list={["geo-nav-item", active && "is-active"]}>
                 <Icon size={15} strokeWidth={1.75} aria-hidden="true" />
                 <span class="geo-nav-text">{label}</span>
-                {soon && <small>Soon</small>}
               </div>
             ))}
           </div>
@@ -213,9 +211,6 @@ const ticks = [
   .geo-nav-item { display:flex; align-items:center; gap:7px; min-height:25px; border-radius:6px; padding:0 5px; color:#333d46; font-size:9px; font-weight:470; white-space:nowrap; }
   .geo-nav-item svg { flex:none; width:13px; height:13px; color:#26313d; }
   .geo-nav-item.is-active { background:rgba(248,252,255,.67); color:#282d36; box-shadow:0 1px 2px #79b3f933; }
-  .geo-nav-item.is-disabled { color:#9cadbc; }
-  .geo-nav-item.is-disabled svg { color:#9cadbc; }
-  .geo-nav-item small { margin-left:auto; padding:2px 3px; border-radius:3px; border:1px solid #ffffff88; font-size:7px; color:#9cadbc; }
   .geo-chat-content { position:relative; display:flex; flex-direction:column; min-width:0; background:#fcfcfc; padding:0 17px 12px; }
   .geo-background-strip { position:absolute; top:-8px; right:0; width:74%; height:11px; border-radius:0 0 11px 11px; background:#f4f4f4; }
   .geo-conversation { flex:1; min-width:0; width:100%; max-width:610px; margin:0 auto; }
@@ -281,7 +276,6 @@ const ticks = [
     .geo-app-layout { grid-template-columns:41px minmax(0,1fr); min-height:420px; }
     .geo-nav { padding-inline:5px; }
     .geo-site-header { justify-content:center; padding:0; }
-    .geo-site-header>span, .geo-site-header>svg:not(.geo-collapse-icon), .geo-nav-group p, .geo-nav-text, .geo-nav-item small { display:none; }
     .geo-collapse-icon { margin:0; }
     .geo-nav-groups { gap:11px; padding-top:12px; }
     .geo-nav-item { padding:4px 7px; justify-content:center; }

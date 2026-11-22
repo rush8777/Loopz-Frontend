@@ -14,12 +14,6 @@ import { EventDetailPage } from "./pages/observe/EventDetailPage";
 import { PageEditorPage } from "./pages/observe/PageEditorPage";
 import { PageDetailPage } from "./pages/observe/PageDetailPage";
 import { SessionDetailPage } from "./pages/observe/SessionDetailPage";
-import { HeatmapsPage } from "./pages/observe/HeatmapsPage";
-// import { ReplayPage } from "./pages/observe/ReplayPage";
-// import { PatternAnalysisPage } from "./pages/analysis/PatternAnalysisPage";
-// import { PatternClusterPage } from "./pages/analysis/PatternClusterPage";
-// import { DiscoveredPatternsPage } from "./pages/analysis/DiscoveredPatternsPage";
-// import { PatternCandidateDetailPage } from "./pages/analysis/PatternCandidateDetailPage";
 import { UsersPage } from "./pages/users/UsersPage";
 import { UserProfilePage } from "./pages/users/UserProfilePage";
 import { AnonymousVisitorPage } from "./pages/users/AnonymousVisitorPage";
@@ -95,13 +89,9 @@ export default function App() {
               <Route path="observe/pages/:pageId" element={<PageDetailPage />} />
               <Route path="observe/pages/:pageId/edit" element={<PageEditorPage />} />
               <Route path="observe/elements" element={<Navigate to="/observe/pages" replace />} />
-              <Route path="observe/heatmaps" element={<HeatmapsPage />} />
-              <Route path="observe/heatmaps/:pageId" element={<HeatmapsPage />} />
-              {/* <Route path="observe/replay" element={<ReplayPage />} /> */}
-              {/* <Route path="analysis/patterns" element={<PatternAnalysisPage />} /> */}
-              {/* <Route path="analysis/clusters" element={<PatternClusterPage />} /> */}
-              {/* <Route path="analysis/discovered" element={<DiscoveredPatternsPage />} /> */}
-              {/* <Route path="analysis/discovered/:candidateId" element={<PatternCandidateDetailPage />} /> */}
+              <Route path="observe/heatmaps" element={<Navigate to="/observe/pages" replace />} />
+              <Route path="observe/heatmaps/:pageId" element={<Navigate to="/observe/pages" replace />} />
+              <Route path="observe/replay" element={<Navigate to="/observe/sessions" replace />} />
               <Route path="users" element={<UsersPage />} />
               <Route path="users/anonymous/:anonymousId" element={<AnonymousVisitorPage />} />
               <Route path="users/:userId" element={<UserProfilePage />} />

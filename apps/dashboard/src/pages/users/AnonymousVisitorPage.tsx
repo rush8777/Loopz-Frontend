@@ -249,7 +249,6 @@ export function AnonymousVisitorPage() {
                         <th>Events</th>
                         <th>Duration</th>
                         <th>Last seen</th>
-                        <th>Replay</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -262,7 +261,6 @@ export function AnonymousVisitorPage() {
                           <td className="mono text-muted-foreground">
                             {formatRelativeTime(s.lastSeen)}
                           </td>
-                          <td>{s.hasReplay ? <span className="badge badge-observe">available</span> : "—"}</td>
                         </tr>
                       ))}
                     </tbody>

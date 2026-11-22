@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import { PageHeader } from "../../components/PageHeader";
 import { EmptyState } from "../../components/EmptyState";
@@ -17,7 +17,6 @@ const FILTERS: [FilterKind, string][] = [["click", "Clicks"], ["custom", "Applic
 export function SessionDetailPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { currentOrg, currentSite } = useWorkspace();
-  const navigate = useNavigate();
   const [session, setSession] = useState<SessionActivity | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +64,7 @@ export function SessionDetailPage() {
     {notFound && <DataTableFrame><EmptyState title="Session not found" description="This session doesn't exist for this site." /></DataTableFrame>}
     {!error && !notFound && !session && <DataTableFrame><LoadingRows count={6} /></DataTableFrame>}
     {session && <>
-      <SessionSummary session={session} visitorPath={visitorPath} onViewHeatmap={() => navigate(`/observe/heatmaps?session=${session.sessionId}`)} />
+      <SessionSummary session={session} visitorPath={visitorPath} />
       <div className="mb-4 rounded-lg border bg-card px-4 py-3"><div className="flex flex-wrap items-center gap-4"><strong className="text-[13px]">Show</strong>{FILTERS.map(([kind, label]) => <label key={kind} className="inline-flex cursor-pointer items-center gap-2 text-[13px]"><Checkbox checked={filters[kind]} onCheckedChange={(checked) => setFilters((value) => ({ ...value, [kind]: checked === true }))} />{label}</label>)}</div></div>
       {episodes.length === 0 ? <div className="card"><EmptyState title="No page activity" description="No behavioral episodes could be built for this session." /></div> : <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]"><div className="mx-auto w-full max-w-3xl space-y-3">{episodes.map((episode) => <div key={episode.id} ref={(node) => { episodeRefs.current[episode.id] = node; }}><SessionEpisodeCard episode={episode} firstObserved={session.firstObserved} active={episode.id === activeEpisodeId} expanded={expandedIds.has(episode.id)} onToggle={() => { setActiveEpisodeId(episode.id); setExpandedIds((current) => { const next = new Set(current); if (next.has(episode.id)) next.delete(episode.id); else next.add(episode.id); return next; }); }} /></div>)}</div><SessionNavigator episodes={episodes} density={density} durationMs={session.observedDurationMs} activeEpisodeId={activeEpisodeId} onSelect={selectEpisode} /></div>}
     </>}

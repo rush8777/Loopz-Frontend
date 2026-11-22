@@ -11,7 +11,7 @@ vi.mock("../../auth/WorkspaceContext");
 
 const page: PageDetail = {
   id: "page_1", siteId: "site_1", name: "Settings", description: null, area: null, pageType: "settings",
-  rules: [{ id: "r1", kind: "include", operator: "equals", value: "/settings" }], heatmapEnabled: true,
+  rules: [{ id: "r1", kind: "include", operator: "equals", value: "/settings" }],
   views: 0, uniqueVisitors: 0, uniqueSessions: 0, lastSeenAt: null, createdAt: "2026-01-01", updatedAt: "2026-01-01", matchedPaths: [],
 };
 

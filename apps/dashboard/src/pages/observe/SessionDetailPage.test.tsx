@@ -15,7 +15,6 @@ const mockedWorkspace = vi.mocked(workspace);
 
 const activity: SessionActivity = {
   sessionId: "sess_1",
-  hasReplay: false,
   visitor: { type: "anonymous", id: "anon_1", label: "anon_1" },
   firstObserved: "2026-08-30T10:00:00.000Z",
   lastObserved: "2026-08-30T10:01:00.000Z",

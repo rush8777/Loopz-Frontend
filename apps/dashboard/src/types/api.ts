@@ -70,7 +70,6 @@ export interface SessionSummary {
   firstSeen: string;
   lastSeen: string;
   durationMs: number;
-  hasReplay: boolean;
   /** Present on the generic Observe Sessions endpoint; optional for older/profile-specific consumers. */
   pageVisitCount?: number;
   clickCount?: number;
@@ -109,12 +108,6 @@ export interface SessionEvent {
   // to analytics.event(name, properties?). null for every other type.
   name: string | null;
   properties: Record<string, unknown> | null;
-}
-
-export interface SessionDetail {
-  sessionId: string;
-  hasReplay: boolean;
-  events: SessionEvent[];
 }
 
 export interface SessionActivityEvidence {
@@ -175,7 +168,6 @@ export interface SessionActivityEpisode {
 
 export interface SessionActivity {
   sessionId: string;
-  hasReplay: boolean;
   visitor: SessionVisitor | null;
   firstObserved: string;
   lastObserved: string;
@@ -185,15 +177,6 @@ export interface SessionActivity {
   pages: SessionActivityPageGroup[];
   coverage: { complete: boolean; rawEventCount: number; cursorSampleCount: number };
   limitations: { observedDuration: string; hover: string; pointer: string };
-}
-
-export interface SnapshotResponse {
-  sessionId: string;
-  timestamp: string;
-  data: {
-    node: unknown; // serializedNodeWithId from rrweb-snapshot
-    initialOffset: { top: number; left: number };
-  };
 }
 
 // --- User Profile / User 360 ---
@@ -314,116 +297,6 @@ export type AnonymousVisitorDetail =
       resolvedTo: { trackedUserId: string; externalUserId: string };
     };
 
-// --- Pattern Analysis ---
-
-export type PatternStepVerb = "enter" | "hover" | "click" | "scroll_past";
-
-export interface PatternStep {
-  id: string;
-  verb: PatternStepVerb;
-  target?: { selector: string };
-  minDurationMs?: number;
-  minScrollPercent?: number;
-  required?: boolean;
-  maxGapMs?: number;
-}
-
-export interface PatternFeedback {
-  message: string;
-  targetSelector: string;
-}
-
-export interface Pattern {
-  id: string;
-  siteId: string;
-  name: string;
-  origin: "AUTHORED" | "DISCOVERED";
-  status: "DRAFT" | "ACTIVE" | "PAUSED";
-  matchWindowMs: number;
-  steps: PatternStep[];
-  feedback: PatternFeedback;
-  matchCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PatternMatchLogEntry {
-  sessionId: string;
-  matchedAt: string;
-}
-
-export interface SimilarSessionMatch {
-  sessionId: string;
-  similarity: number;
-  actionTokens: string[];
-}
-
-// --- Session clustering (k-means archetypes) ---
-
-export interface SessionCluster {
-  clusterId: number;
-  sessionCount: number;
-  conversionRate: number;
-  averages: Record<string, number>;
-  sampleSessionIds: string[];
-}
-
-export interface ClusterResult {
-  totalSessions: number;
-  clusters: SessionCluster[];
-  note?: string;
-}
-
-// --- Pattern Observer (discovered recurring pattern candidates) ---
-
-export interface PatternCandidateQuality {
-  frequencyScore: number;
-  coverageScore: number;
-  consistencyScore: number;
-  recencyScore: number;
-  overallScore: number;
-}
-
-export interface PatternCandidateSimilarityStats {
-  average: number;
-  minimum: number;
-  maximum: number;
-}
-
-export interface PatternCandidate {
-  id: string;
-  representativeSequence: string[];
-  occurrenceCount: number;
-  uniqueSessionCount: number;
-  firstSeenAt: string;
-  lastSeenAt: string;
-  similarity: PatternCandidateSimilarityStats;
-  quality: PatternCandidateQuality;
-}
-
-export interface ObservationResult {
-  sessionCount: number;
-  episodeCount: number;
-  candidateCount: number;
-  candidates: PatternCandidate[];
-}
-
-export interface PatternCandidateEpisodeEvidence {
-  episodeId: string;
-  sessionId: string;
-  startedAt: string;
-  endedAt: string;
-  startReason: string;
-  endReason: string;
-  /** `token` is the canonical grouping/identity string (selector-based); `label` is the SDK-computed friendly name for the same step, when captured. */
-  steps: { token: string; label?: string }[];
-}
-
-export interface PatternCandidateDetail {
-  candidate: PatternCandidate;
-  evidence: PatternCandidateEpisodeEvidence[];
-}
-
 // --- Pages (URL-rule-based logical pages, Pendo-style) ---
 
 export type PageRuleKind = "include" | "exclude";
@@ -457,7 +330,6 @@ export interface PageDefinition {
   area: string | null;
   pageType: PageType | null;
   rules: PageRule[];
-  heatmapEnabled: boolean;
   views: number;
   uniqueVisitors: number;
   uniqueSessions: number;
@@ -499,11 +371,6 @@ export interface EventDefinitionSummary {
   lastSeenAt: string;
 }
 
-export interface UsedInPattern {
-  id: string;
-  name: string;
-}
-
 export interface EventSummary {
   name: string;
   occurrences: number;
@@ -511,7 +378,6 @@ export interface EventSummary {
   sessions: number;
   firstSeenAt: string | null;
   lastSeenAt: string | null;
-  usedIn: { patterns: UsedInPattern[] };
 }
 
 export interface TimeseriesPoint {
@@ -756,66 +622,6 @@ export interface FunnelStepUser {
   externalUserId: string | null;
   anonymousId: string | null;
   lastSeenAt: string | null;
-}
-
-// --- Element catalog (from the SDK's ElementCrawler) ---
-
-export interface CatalogElement {
-  id: string;
-  selector: string;
-  tagName: string;
-  label: string | null;
-  role: string | null;
-  /** "crawl" (SDK-computed, may be refreshed by later crawls) or "manual" (a human renamed it - never overwritten by a crawl again). */
-  source: "crawl" | "manual";
-  isIgnored: boolean;
-  seenCount: number;
-  firstSeenAt: string;
-  lastSeenAt: string;
-}
-
-export type HeatmapDevice = "desktop" | "tablet" | "mobile";
-export type HeatmapLayer = "click" | "hover" | "cursor" | "scroll" | "rage_click";
-export interface HeatmapDateRange { from: string; to: string }
-export interface HeatmapIndexRow { id: string; name: string; heatmapEnabled: boolean; interactions: number; clicks: number; lastActivityAt: string | null; referenceStatus: "ready" | "needed"; referenceCapturedAt: string | null }
-
-export interface PageHeatmapState {
-  id: string;
-  name: string;
-  selector: string | null;
-}
-
-export interface PageHeatmapPoint {
-  x?: number;
-  y?: number;
-  scrollPercent?: number;
-  count: number;
-}
-
-export interface PageHeatmapResult {
-  page: { id: string; name: string };
-  stateId: string;
-  device: HeatmapDevice;
-  layer: HeatmapLayer;
-  interactionCount: number;
-  points: PageHeatmapPoint[];
-  metrics: { visits: number; totalClicks: number; averageTimeMs: number; dropOffRate: number };
-  topClickedElements: { selector: string; label: string | null; count: number; percentage: number }[];
-  scrollReach: { depth: number; reached: number }[];
-  targetUrl: string | null;
-  snapshot: null | {
-    imageDataUrl: string;
-    pagePath: string;
-    viewportWidth: number;
-    viewportHeight: number;
-    documentWidth: number;
-    documentHeight: number;
-    capturedAt: string;
-  };
-}
-
-export interface PageElement extends CatalogElement {
-  matchedPaths: string[];
 }
 
 export type DashboardGranularity = "day" | "week" | "month";

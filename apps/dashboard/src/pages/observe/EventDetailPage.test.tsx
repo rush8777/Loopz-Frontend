@@ -42,7 +42,6 @@ describe("EventDetailPage", () => {
       sessions: 1041,
       firstSeenAt: "2026-08-02T00:00:00.000Z",
       lastSeenAt: "2026-08-28T00:00:00.000Z",
-      usedIn: { patterns: [] },
     });
     mockedEventsApi.getEventTimeseries.mockResolvedValue({
       points: [{ date: "2026-08-28", count: 5 }],
