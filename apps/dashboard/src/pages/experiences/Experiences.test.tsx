@@ -141,6 +141,33 @@ describe("Experiences dashboard",()=>{
     const item={...onsiteExperience(),kind:"checklist" as const,widgetType:null};mockedExperiences.createExperience.mockResolvedValue(item);mockedExperiences.createEditorSession.mockResolvedValue({sessionId:"ees",launchUrl:"https://app.example.com/home?movcues_editor_token=checklist",expiresAt:"2027-01-01"});
     render(<MemoryRouter><CreateExperienceModal kind="checklist" singularLabel="checklist" open onOpenChange={vi.fn()}/></MemoryRouter>);fireEvent.click(screen.getByRole("button",{name:/On-site Visual Builder/}));await screen.findByRole("option",{name:"Home"});expect(screen.getByLabelText("Build on page")).toBeInTheDocument();fireEvent.click(screen.getByRole("button",{name:"Create & open on site"}));await waitFor(()=>expect(mockedExperiences.createExperience).toHaveBeenCalledWith("org_1","site_1",expect.objectContaining({kind:"checklist",builderMode:"onsite",buildPageId:"pg_1",template:"blank"})));await waitFor(()=>expect(popupHarness.location.replace).toHaveBeenCalledWith(expect.stringContaining("movcues_editor_token=checklist")));
   });
+  it("defaults eligible guides to Guided Capture and launches the standard authenticated editor session", async () => {
+    mockedExperiences.listExperienceTemplates.mockResolvedValue({ templates: [], presets: ["modern"], hasSiteTheme: false, guidedCaptureEnabled: true });
+    mockedExperiences.createExperience.mockResolvedValue({ ...guideExperience(), builderMode: "onsite", guidedCapturePending: true });
+    mockedExperiences.createEditorSession.mockResolvedValue({ sessionId: "capture", launchUrl: "https://app.example.com/home?movcues_editor_token=capture", expiresAt: "2027-01-01" });
+    render(<MemoryRouter><CreateExperienceModal kind="guide" open onOpenChange={vi.fn()} /></MemoryRouter>);
+    expect(await screen.findByRole("button", { name: /^Guided Capture/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByLabelText("First step")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Manual Creation/ }));
+    fireEvent.click(screen.getByRole("button", { name: /On-site Visual Builder/ }));
+    expect(screen.getByLabelText("First step")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Guided Capture/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Begin Guided Capture" }));
+    await waitFor(() => expect(mockedExperiences.createExperience).toHaveBeenCalledWith("org_1", "site_1", expect.objectContaining({
+      kind: "guide", builderMode: "onsite", guideCreation: "guided_capture", useBuildPageAsTarget: true,
+    })));
+    expect(mockedExperiences.createExperience.mock.calls[0][2]).not.toHaveProperty("guidePattern");
+    await waitFor(() => expect(popupHarness.location.replace).toHaveBeenCalledWith(expect.stringContaining("movcues_editor_token=capture")));
+  });
+
+  it("disables publish review until a pending capture is applied", async () => {
+    mockedExperiences.getExperience.mockResolvedValue({ ...guideExperience(), builderMode: "onsite", guidedCapturePending: true });
+    render(<MemoryRouter initialEntries={["/experiences/exp_1/edit"]}><Routes><Route path="/experiences/:experienceId/edit" element={<ExperienceEditorPage />} /></Routes></MemoryRouter>);
+    expect(await screen.findByRole("button", { name: "Resume Guided Capture" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Review & publish" })).toBeDisabled();
+    expect(screen.getByRole("heading", { name: /Finish Guided Capture/ })).toBeInTheDocument();
+  });
+
   it("creates a blank on-site experience with the selected visual preset",async()=>{
     mockedExperiences.listExperienceTemplates.mockResolvedValue({templates:[{id:"guide-product-tour",version:1,category:"guide",name:"Product tour",description:"Introduce key areas.",accent:"#4f46e5",surface:"#f8fafc",preset:"modern"}],presets:["minimal","modern","soft","dark"],hasSiteTheme:true});
     mockedExperiences.createExperience.mockResolvedValue({...guideExperience(),builderMode:"onsite"});mockedExperiences.createEditorSession.mockResolvedValue({sessionId:"ees",launchUrl:"https://app.example.com/home?movcues_editor_token=token",expiresAt:"2027-01-01"});

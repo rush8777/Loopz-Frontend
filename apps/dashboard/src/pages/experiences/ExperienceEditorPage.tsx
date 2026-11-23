@@ -625,7 +625,7 @@ export function ExperienceEditorPage() {
     checklistBuilderFlush.current?.();
   };
   const prepareReview = async () => {
-    if (preparingReview) return;
+    if (preparingReview || experience?.guidedCapturePending) return;
     setError(null);
     setPreparingReview(true);
     try {
@@ -808,7 +808,7 @@ export function ExperienceEditorPage() {
             )}
             <Button
               aria-label={
-                experience.builderMode === "onsite"
+                experience.guidedCapturePending ? "Resume Guided Capture" : experience.builderMode === "onsite"
                   ? "Open on-site builder"
                   : "Open live editor"
               }
@@ -818,17 +818,17 @@ export function ExperienceEditorPage() {
             >
               <ExternalLink />{" "}
               <span className="hidden sm:inline">
-                {experience.builderMode === "onsite"
+                {experience.guidedCapturePending ? "Resume Guided Capture" : experience.builderMode === "onsite"
                   ? "Open on-site builder"
                   : "Open live editor"}
               </span>
-              <span className="sm:hidden">Edit</span>
+              <span className="sm:hidden">{experience.guidedCapturePending ? "Resume capture" : "Edit"}</span>
             </Button>
             {survey && <Button variant="outline" size="sm" onClick={() => void openResults()} disabled={leavingForResults}>{leavingForResults ? "Saving…" : "Results"}</Button>}
             <Button
               size="sm"
               onClick={() => void prepareReview()}
-              disabled={preparingReview}
+              disabled={preparingReview || experience.guidedCapturePending}
             >
               {preparingReview ? "Preparing…" : "Review & publish"}
             </Button>
@@ -1464,6 +1464,13 @@ function OnsiteBuilderLaunchCard({
   experience: Experience;
   onOpen: () => void;
 }) {
+  if (experience.guidedCapturePending) return (
+    <section className="mx-auto mt-12 max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
+      <h2 className="text-xl font-semibold">Finish Guided Capture in your product</h2>
+      <p className="mt-3 text-sm text-muted-foreground">Your selections are saved as you capture. Apply the generated guide to open it in the on-site visual builder.</p>
+      <Button className="mt-6" onClick={onOpen}><ExternalLink /> Continue capture on site</Button>
+    </section>
+  );
   return (
     <div className="grid min-h-[calc(100dvh-6rem)] place-items-center bg-gradient-to-b from-slate-50 to-background p-6">
       <section className="w-full max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
