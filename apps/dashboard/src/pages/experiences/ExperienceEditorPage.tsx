@@ -1467,7 +1467,7 @@ function OnsiteBuilderLaunchCard({
   if (experience.guidedCapturePending) return (
     <section className="mx-auto mt-12 max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
       <h2 className="text-xl font-semibold">Finish Guided Capture in your product</h2>
-      <p className="mt-3 text-sm text-muted-foreground">Your selections are saved as you capture. Apply the generated guide to open it in the on-site visual builder.</p>
+      <p className="mt-3 text-sm text-muted-foreground">Resume your captured steps, prompt, and plan. Apply the preview to open the guide in the on-site visual builder.</p>
       <Button className="mt-6" onClick={onOpen}><ExternalLink /> Continue capture on site</Button>
     </section>
   );
