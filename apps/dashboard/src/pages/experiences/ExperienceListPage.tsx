@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CheckCheck, Eye, MousePointerClick, Plus, Sparkles, Trash2 } from "lucide-react";
 import { useWorkspace } from "../../auth/WorkspaceContext";
 import * as experiencesApi from "../../api/experiences";
-import { getGuideStepPattern, type Experience, type ExperienceAnalytics, type ExperienceDesign, type ExperienceKind, type WidgetBuilderState, type WidgetType } from "../../types/experiences";
+import { getGuideStepPattern, type Experience, type ExperienceAnalytics, type ExperienceDesign, type ExperienceKind, type WidgetBuilderState, type ExperienceWidgetType, type WidgetType } from "../../types/experiences";
 import { PageHeader } from "../../components/PageHeader";
 import { EmptyState } from "../../components/EmptyState";
 import { DataTableFrame, ErrorNotice, LoadingRows, dataTableClass } from "@/components/PageSurface";
@@ -15,7 +15,7 @@ import { CreateExperienceModal } from "./CreateExperienceModal";
 
 interface ExperienceListPageProps {
   kind: ExperienceKind;
-  widgetType?: WidgetType;
+  widgetType?: ExperienceWidgetType;
   singularLabel?: string;
   pluralLabel?: string;
   description?: string;
@@ -158,6 +158,7 @@ function MobileExperienceCard({ item, analytics, deleting, onEdit, onResults, on
 }
 
 function PerformanceMetrics({ analytics, item }: { analytics?: ExperienceAnalytics; item: Experience }) {
+  if (item.widgetType === "geo_agent") return <span className="text-xs text-muted-foreground">Conversation activity in editor</span>;
   const views = analytics?.summary.usersSeen ?? 0;
   const engaged = analytics?.summary.usersStarted ?? 0;
   const completed = analytics ? analytics.survey?.responseCount ?? analytics.survey?.submitted ?? analytics.checklist?.usersCompleted ?? analytics.summary.completed : 0;
@@ -204,9 +205,10 @@ function previewSource(item: Experience): PreviewSource {
     return { mode: "guide", builder: step.builder, previewWidth: widgetPreviewWidth(widgetType, design), heading: step.content.heading, body: step.content.body, action: step.content.primaryAction?.label, steps: definition.steps.length, theme: definition.design.theme };
   }
   if ("items" in definition) return { mode: "checklist", builder: definition.builder, previewWidth: builderPreviewWidth(definition.builder, 360), heading: definition.title, body: definition.description ?? "", items: definition.items.length };
+  if ("geoAgent" in definition) return { mode: "authored", heading: definition.geoAgent.appearance.name, body: definition.geoAgent.appearance.welcome };
   const surveyStep = definition.survey?.steps[0];
   const design = surveyStep?.size ? { ...definition.design, size: surveyStep.size } : definition.design;
-  return { mode: "authored", builder: surveyStep?.builder ?? definition.builder, previewWidth: item.widgetType ? widgetPreviewWidth(item.widgetType, design) : undefined, heading: surveyStep?.content.heading ?? definition.content.heading, body: surveyStep?.content.body ?? definition.content.body, action: definition.survey?.submitLabel ?? definition.content.primaryAction?.label };
+  return { mode: "authored", builder: surveyStep?.builder ?? definition.builder, previewWidth: item.widgetType && item.widgetType !== "geo_agent" ? widgetPreviewWidth(item.widgetType, design) : undefined, heading: surveyStep?.content.heading ?? definition.content.heading, body: surveyStep?.content.body ?? definition.content.body, action: definition.survey?.submitLabel ?? definition.content.primaryAction?.label };
 }
 
 function previewScale(source: PreviewSource) {
@@ -263,6 +265,7 @@ function targetingLabel(item: Experience) {
 function experienceType(item: Experience) {
   if (item.kind === "guide") return "Guide";
   if (item.kind === "checklist") return "Checklist";
+  if (item.widgetType === "geo_agent") return "Geo Agent";
   return (item.widgetType ?? "Widget").replaceAll("_", " ");
 }
 

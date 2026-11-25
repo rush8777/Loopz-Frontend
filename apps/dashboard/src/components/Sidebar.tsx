@@ -11,6 +11,7 @@ interface NavItem { adminOnly?: boolean; label: string; path?: string; disabled?
 interface NavSection { label: string; items: NavItem[] }
 
 const OTHER_EXPERIENCE_ITEMS: NavItem[] = [
+  { label: "Geo Agent", path: "/experiences/geo-agents", icon: Sparkles },
   { label: "Banners", path: "/experiences/banners", icon: Grip },
   { label: "Anchored cards", path: "/experiences/anchored-cards", icon: Grip },
   { label: "Toasts", path: "/experiences/toasts", icon: Grip },

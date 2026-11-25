@@ -62,6 +62,7 @@ export function summarizeBuilder(builder?: WidgetBuilderState): Record<string, u
 export function summarizeDefinition(definition: ExperienceDefinition): Record<string, unknown> {
   if (isGuideDefinition(definition)) return { kind: "guide", steps: definition.steps.map((step, index) => ({ index, id: step.id, heading: step.content.heading, builder: summarizeBuilder(step.builder) })) };
   if (isChecklistDefinition(definition)) return { kind: "checklist", items: definition.items.map((item, index) => ({ index, id: item.id, title: item.title })), builder: summarizeBuilder(definition.builder) };
+  if ("geoAgent" in definition) return { kind: "geo_agent", schemaVersion: definition.geoAgent.schemaVersion };
   if (definition.survey) return { kind: "survey", steps: definition.survey.steps.map((step, index) => ({ index, id: step.id, heading: step.content.heading, builder: summarizeBuilder(step.builder) })) };
   return { kind: "widget", builder: summarizeBuilder(definition.builder) };
 }

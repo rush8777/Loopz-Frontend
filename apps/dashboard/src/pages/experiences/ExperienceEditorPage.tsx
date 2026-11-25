@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowDown,
@@ -112,6 +112,8 @@ const blankSurveyStep = (): SurveyStep => ({
   content: { heading: "Follow-up", body: "Add questions for this slide." },
   questions: [],
 });
+
+const GeoAgentEditor = lazy(() => import("./GeoAgentEditor").then(module => ({ default: module.GeoAgentEditor })));
 
 export function ExperienceEditorPage() {
   const { experienceId } = useParams();
@@ -398,8 +400,7 @@ export function ExperienceEditorPage() {
     definition && isChecklistDefinition(definition) ? definition : null;
   const widget =
     definition &&
-    !isGuideDefinition(definition) &&
-    !isChecklistDefinition(definition)
+    isWidgetDefinition(definition)
       ? definition
       : null;
   const survey = widget?.survey ?? null;
@@ -415,7 +416,7 @@ export function ExperienceEditorPage() {
         ? (step?.content ?? null)
         : survey
           ? (surveyStep?.content ?? null)
-          : widget!.content;
+          : (widget?.content ?? null);
   useEffect(() => {
     const length = guide?.steps.length ?? survey?.steps.length;
     if (length && selectedStep >= length) setSelectedStep(length - 1);
@@ -524,8 +525,7 @@ export function ExperienceEditorPage() {
     const nextIndex = survey.steps.length;
     mutate((draft) => {
       if (
-        !isGuideDefinition(draft) &&
-        !isChecklistDefinition(draft) &&
+        isWidgetDefinition(draft) &&
         draft.survey
       )
         draft.survey.steps.push(blankSurveyStep());
@@ -542,8 +542,7 @@ export function ExperienceEditorPage() {
     flushActiveBuilder();
     mutate((draft) => {
       if (
-        !isGuideDefinition(draft) &&
-        !isChecklistDefinition(draft) &&
+        isWidgetDefinition(draft) &&
         draft.survey
       )
         [draft.survey.steps[index], draft.survey.steps[nextIndex]] = [
@@ -560,8 +559,7 @@ export function ExperienceEditorPage() {
     flushActiveBuilder();
     mutate((draft) => {
       if (
-        !isGuideDefinition(draft) &&
-        !isChecklistDefinition(draft) &&
+        isWidgetDefinition(draft) &&
         draft.survey
       )
         draft.survey.steps.splice(index, 1);
@@ -715,6 +713,11 @@ export function ExperienceEditorPage() {
     return (
       <div className="text-sm text-muted-foreground">Loading experience...</div>
     );
+  if ("geoAgent" in definition) {
+    return <Suspense fallback={<p role="status">Loading Geo Agent…</p>}><GeoAgentEditor key={experience.id} experience={experience} initial={definition} orgId={currentOrg.orgId}
+      siteId={currentSite.id} segments={segments} editable={currentOrg.role === "ADMIN" || currentOrg.role === "OWNER"} /></Suspense>;
+  }
+  if (experience.widgetType === "geo_agent") return <ErrorNotice>Geo Agent configuration is unavailable.</ErrorNotice>;
   if (checklist)
     return (
       <>
@@ -1223,8 +1226,7 @@ export function ExperienceEditorPage() {
                       ? (layer) =>
                           mutate((draft) => {
                             if (
-                              !isGuideDefinition(draft) &&
-                              !isChecklistDefinition(draft) &&
+                              isWidgetDefinition(draft) &&
                               draft.survey
                             ) {
                               const target = draft.survey.steps[selectedStep];

@@ -104,6 +104,7 @@ export default function App() {
               <Route path="segments/:segmentId" element={<SegmentDetailPage />} />
               <Route path="segments/:segmentId/edit" element={<SegmentBuilderPage />} />
               <Route path="experiences/guides" element={<ExperienceListPage kind="guide" />} />
+              <Route path="experiences/geo-agents" element={<ExperienceListPage kind="widget" widgetType="geo_agent" singularLabel="Geo Agent" pluralLabel="Geo Agents" description="Create a customer-facing assistant for your product." />} />
               <Route path="experiences/surveys" element={<ExperienceListPage kind="widget" widgetType="survey" singularLabel="survey" pluralLabel="Surveys" description="Collect contextual, multi-step feedback from active users." />} />
               <Route path="experiences/banners" element={<ExperienceListPage kind="widget" widgetType="banner" singularLabel="banner" pluralLabel="Banners" description="Create full-width banner experiences inside your product." />} />
               <Route path="experiences/anchored-cards" element={<ExperienceListPage kind="widget" widgetType="anchored_card" singularLabel="anchored card" pluralLabel="Anchored cards" description="Attach contextual cards to specific parts of your product." />} />
