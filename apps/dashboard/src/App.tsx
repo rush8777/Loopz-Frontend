@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { WorkspaceProvider } from "./auth/WorkspaceContext";
@@ -36,6 +37,8 @@ import { CheckoutPage } from "./pages/billing/CheckoutPage";
 import { OnboardingPage } from "./pages/auth/OnboardingPage";
 import { MovcuesAiPage } from "./pages/ai/MovcuesAiPage";
 
+const KnowledgePage = lazy(() => import("./pages/knowledge/KnowledgePage").then(module => ({ default: module.KnowledgePage })));
+
 function AuthEntryReady() {
   const { user, bootstrapping } = useAuth();
   // Login/signup render nothing during bootstrap and redirect signed-in users.
@@ -70,6 +73,7 @@ export default function App() {
             >
               <Route index element={<Navigate to="/analytics" replace />} />
               <Route path="billing" element={<BillingPage />} />
+              <Route path="knowledge" element={<Suspense fallback={<p role="status">Loading knowledge…</p>}><KnowledgePage /></Suspense>} />
               <Route path="ai" element={<MovcuesAiPage />} />
               <Route path="dashboard" element={<DashboardListPage />} />
               <Route path="dashboard/new" element={<DashboardWorkspacePage mode="new" />} />

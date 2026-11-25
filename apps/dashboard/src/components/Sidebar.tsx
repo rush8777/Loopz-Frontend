@@ -1,4 +1,4 @@
-import { BarChart2, Ellipsis, Grip, UserRoundPen, CheckSquare, ChevronDown, FileText, Gauge, LayoutTemplate, ListChecks, MousePointerClick, Network, PanelLeftClose, PanelLeftOpen, Settings, Sparkles, Users, Waypoints, X } from "lucide-react";
+import { BookOpen, BarChart2, Ellipsis, Grip, UserRoundPen, CheckSquare, ChevronDown, FileText, Gauge, LayoutTemplate, ListChecks, MousePointerClick, Network, PanelLeftClose, PanelLeftOpen, Settings, Sparkles, Users, Waypoints, X } from "lucide-react";
 import type { ComponentType } from "react";
 import { NavLink } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
@@ -7,7 +7,7 @@ import { Button } from "@movcues/ui";
 import { cn } from "@movcues/ui";
 import type { SettingsSection } from "./settings/SettingsModal";
 
-interface NavItem { label: string; path?: string; disabled?: boolean; icon: ComponentType<{ className?: string }> }
+interface NavItem { adminOnly?: boolean; label: string; path?: string; disabled?: boolean; icon: ComponentType<{ className?: string }> }
 interface NavSection { label: string; items: NavItem[] }
 
 const OTHER_EXPERIENCE_ITEMS: NavItem[] = [
@@ -21,7 +21,7 @@ const OTHER_EXPERIENCE_ITEMS: NavItem[] = [
 ];
 
 const SECTIONS: NavSection[] = [
-  { label: "Workspace", items: [{ label: "Overview", path: "/analytics", icon: Gauge }, { label: "Dashboards", path: "/dashboard", icon: BarChart2 }, { label: "Geo", path: "/ai", icon: Sparkles }] },
+  { label: "Workspace", items: [{ label: "Overview", path: "/analytics", icon: Gauge }, { label: "Dashboards", path: "/dashboard", icon: BarChart2 }, { label: "Geo", path: "/ai", icon: Sparkles }, { label: "Knowledge", path: "/knowledge", icon: BookOpen, adminOnly: true }] },
   { label: "Experiences", items: [{ label: "Surveys", path: "/experiences/surveys", icon: ListChecks }, { label: "Guides", path: "/experiences/guides", icon: LayoutTemplate  }, { label: "Checklists", path: "/experiences/checklists", icon: CheckSquare }] },
   { label: "Observe", items: [{ label: "Pages", path: "/observe/pages", icon: FileText }, { label: "Sessions", path: "/observe/sessions", icon: MousePointerClick }, { label: "Events", path: "/observe/events", icon: Waypoints }, { label: "Funnels", path: "/observe/funnels", icon: Network }] },
   { label: "People", items: [ { label: "Segments", path: "/segments", icon: UserRoundPen },{ label: "Users", path: "/users", icon: Users }] },
@@ -54,7 +54,8 @@ function useScrollState() {
    text/content so it stays usable, not decorative-heavy.
    ──────────────────────────────────────────────────────────────────────── */
 export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, mobileOpen = false, onMobileClose }: SidebarProps) {
-  const { currentSite } = useWorkspace();
+  const { currentSite, currentOrg } = useWorkspace();
+  const isAdmin = currentOrg?.role === "ADMIN" || currentOrg?.role === "OWNER";
   const { isScrolling, handleScroll } = useScrollState();
 
   const content = (compact: boolean, mobile: boolean) => (
@@ -73,7 +74,7 @@ export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, 
           <div key={section.label}>
             {!compact && <div className="mb-1 px-2 text-[10px] font-semibold uppercase text-[#474747]/70">{section.label}</div>}
             <div className="space-y-0.5">
-              {section.items.map((item) => {
+              {section.items.filter(item => !item.adminOnly || isAdmin).map((item) => {
                 const Icon = item.icon;
                 return item.disabled || !item.path ? (
                   <div key={item.label} title={compact ? item.label : undefined} className={cn("flex h-8 items-center rounded-lg text-[13px] text-[#141414]/35", compact ? "justify-center" : "gap-2 px-2")} aria-disabled="true">
