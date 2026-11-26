@@ -1,6 +1,8 @@
+import type { SkillRegistration, SkillSuggestion } from "../../../api/agentSkills";
+import { emptyMetadata, SkillMetadataFields, validMetadata } from "./SkillMetadataFields";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, CircleAlert } from "lucide-react";
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from "@movcues/ui";
+import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from "@movcues/ui";
 import type { Experience, ExperienceDefinition } from "../../../types/experiences";
 import { getGuideStepPattern, guideStepRequiresTarget, isChecklistDefinition, isGuideDefinition, isWidgetDefinition } from "../../../types/experiences";
 import { audienceLabel, frequencyLabel, launchSummary, pageLabel, scheduleLabel, triggerLabel } from "./launchSummary";
@@ -17,7 +19,8 @@ interface Props {
   onOpenChange(open: boolean): void;
   onChange(definition: ExperienceDefinition): void;
   onCompleteSetup(): Promise<void>;
-  onPublish(): Promise<Experience>;
+  onPublish(skill?: SkillRegistration): Promise<Experience>;
+  suggestSkill?(): Promise<SkillSuggestion>;
   onEditExternal(target: ExternalEdit): void;
   onEditGuideTarget?(stepIndex: number): void;
 }
@@ -25,7 +28,7 @@ interface Props {
 const clone = <T,>(value: T): T => structuredClone(value);
 const selectClass = "h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring/30";
 
-export function ReviewPublishDialog({ open, experience, definition, references, onOpenChange, onChange, onCompleteSetup, onPublish, onEditExternal, onEditGuideTarget }: Props) {
+export function ReviewPublishDialog({ open, experience, definition, references, onOpenChange, onChange, onCompleteSetup, onPublish, suggestSkill, onEditExternal, onEditGuideTarget }: Props) {
   const steps = useMemo<SetupStep[]>(() => isChecklistDefinition(definition) ? ["audience", "pages", "timing", "specific", "review"] : ["audience", "pages", "trigger", "timing", "specific", "review"], [definition]);
   const [stepIndex, setStepIndex] = useState(0);
   const [completing, setCompleting] = useState(false);
@@ -33,6 +36,9 @@ export function ReviewPublishDialog({ open, experience, definition, references, 
   const [serverError, setServerError] = useState<string | null>(null);
   const [broadAcknowledged, setBroadAcknowledged] = useState(false);
   const [published, setPublished] = useState<Experience | null>(null);
+  const [skillEnabled, setSkillEnabled] = useState(false);
+  const [metadata, setMetadata] = useState(() => emptyMetadata(experience.name));
+  const showSkillForm = isGuideDefinition(definition) && !!suggestSkill;
   const current = steps[stepIndex];
   const firstTime = !experience.launchSetupCompletedAt;
   const checks = getLaunchChecks(experience, definition, references);
@@ -46,7 +52,9 @@ export function ReviewPublishDialog({ open, experience, definition, references, 
     setServerError(null);
     setBroadAcknowledged(false);
     setPublished(null);
-  }, [open, experience.id, experience.launchSetupCompletedAt, steps.length]);
+    setSkillEnabled(false);
+    setMetadata(emptyMetadata(experience.name));
+  }, [open, experience.id, experience.launchSetupCompletedAt, experience.name, steps.length]);
 
   const mutate = (change: (draft: ExperienceDefinition) => void) => { const next = clone(definition); change(next); onChange(next); };
   const goNext = async () => {
@@ -60,7 +68,7 @@ export function ReviewPublishDialog({ open, experience, definition, references, 
   };
   const publish = async () => {
     setPublishing(true); setServerError(null);
-    try { setPublished(await onPublish()); } catch (caught) { setServerError(caught instanceof Error ? caught.message : "Publish failed."); }
+    try { setPublished(await (showSkillForm && skillEnabled ? onPublish({ enabled: true, metadata }) : onPublish())); } catch (caught) { setServerError(caught instanceof Error ? caught.message : "Publish failed."); }
     finally { setPublishing(false); }
   };
   const external = (target: ExternalEdit) => { onOpenChange(false); onEditExternal(target); };
@@ -82,11 +90,15 @@ export function ReviewPublishDialog({ open, experience, definition, references, 
       {current === "timing" && <TimingStep definition={definition} mutate={mutate} />}
       {current === "specific" && <SpecificStep experience={experience} definition={definition} references={references} onEdit={external} onEditGuideTarget={(index) => { onOpenChange(false); if (onEditGuideTarget) onEditGuideTarget(index); else onEditExternal("live"); }} />}
       {current === "review" && <ReviewStep experience={experience} definition={definition} references={references} checks={{ blocking, warnings }} broad={broad} broadAcknowledged={broadAcknowledged} setBroadAcknowledged={setBroadAcknowledged} onEditStep={(step) => setStepIndex(steps.indexOf(step))} onEditExternal={external} />}
+      {current === "review" && showSkillForm && suggestSkill && <section className="mt-5 grid gap-3 rounded-lg border p-4">
+        <label className="flex items-center gap-2 text-sm font-medium"><Checkbox checked={skillEnabled} onCheckedChange={checked => setSkillEnabled(checked === true)} />Make this guide available to Geo Agent</label>
+        {skillEnabled && <SkillMetadataFields value={metadata} onChange={setMetadata} suggest={suggestSkill} />}
+      </section>}
     </div>
     <DialogFooter className="shrink-0 border-t px-5 py-3">
       <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={publishing || completing}>Cancel</Button><span className="flex-1" />
       {stepIndex > 0 && firstTime && <Button variant="outline" onClick={() => setStepIndex((index) => index - 1)} disabled={publishing || completing}>Back</Button>}
-      {current !== "review" ? firstTime ? <Button onClick={() => void goNext()} disabled={completing}>{completing ? "Saving setup…" : "Continue"}</Button> : <Button onClick={() => setStepIndex(steps.length - 1)}>Back to review</Button> : <Button onClick={() => void publish()} disabled={publishing || blocking.length > 0 || (broad && !broadAcknowledged)}>{publishing ? "Publishing…" : "Publish now"}</Button>}
+      {current !== "review" ? firstTime ? <Button onClick={() => void goNext()} disabled={completing}>{completing ? "Saving setup…" : "Continue"}</Button> : <Button onClick={() => setStepIndex(steps.length - 1)}>Back to review</Button> : <Button onClick={() => void publish()} disabled={publishing || (showSkillForm && skillEnabled && !validMetadata(metadata)) || blocking.length > 0 || (broad && !broadAcknowledged)}>{publishing ? "Publishing…" : "Publish now"}</Button>}
     </DialogFooter>
   </DialogContent></Dialog>;
 }

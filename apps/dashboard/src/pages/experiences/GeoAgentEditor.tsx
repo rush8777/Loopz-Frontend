@@ -3,18 +3,22 @@ import { Link } from "react-router-dom";
 import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from "@movcues/ui";
 import { MessageCircle } from "lucide-react";
 import * as experiences from "@/api/experiences";
+import { GeoAgentSkills, SkillPreviewDiagnostics } from "./GeoAgentSkills";
 import { getGeoAgentMetrics, previewGeoAgent } from "@/api/geoAgent";
 import { knowledgeApi, type KnowledgeSource } from "@/api/knowledge";
 import { PageHeader } from "@/components/PageHeader";
 import { ErrorNotice } from "@/components/PageSurface";
 import type { Segment } from "@/types/api";
 import type { Experience } from "@/types/experiences";
-import type { GeoAgentCitation, GeoAgentConfig, GeoAgentDefinition, GeoAgentMetrics } from "@/types/geoAgent";
+import type { GeoAgentConfig, GeoAgentDefinition, GeoAgentMetrics, GeoAgentPreviewResult } from "@/types/geoAgent";
 
 const selectClass = "h-9 w-full rounded-md border border-input bg-background px-2 text-sm";
 const errors: Record<string, string> = {
   invalid_geo_agent_sources: "Each selected source must be enabled and available to visitors before publishing.",
   geo_agent_verified_identity_required: "Add your Ed25519 public key to use segment targeting.",
+  invalid_geo_agent_skills: "Remove unavailable skills from the widget before saving.",
+  preview_visitor_context_required: "Enter a full URL for the visitor simulation.",
+  invalid_visitor_identity: "The signed visitor identity could not be verified.",
   draft_conflict: "This draft changed elsewhere. Reload to get the latest saved revision.",
   reviewed_draft_changed: "This draft changed after review. Reload and review it again.",
 };
@@ -32,7 +36,11 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
   const [busy, setBusy] = useState(false);
   const [review, setReview] = useState<{ draftVersionId: string; revision: number } | null>(null);
   const [question, setQuestion] = useState("");
-  const [preview, setPreview] = useState<{ message: string; citations: GeoAgentCitation[] } | null>(null);
+  const [preview, setPreview] = useState<GeoAgentPreviewResult | null>(null);
+  const [mode, setMode] = useState<"admin" | "visitor">("admin");
+  const [visitorUrl, setVisitorUrl] = useState("");
+  const [identityToken, setIdentityToken] = useState("");
+  const [priorQuestion, setPriorQuestion] = useState("");
   const [testing, setTesting] = useState(false);
   const [testError, setTestError] = useState("");
   const { geoAgent: config, targeting } = definition;
@@ -89,7 +97,13 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
     if (!question.trim() || testing) return;
     setTesting(true);
     setTestError("");
-    try { setPreview(await previewGeoAgent(orgId, siteId, experience.id, config, question)); }
+    setPreview(null);
+    try {
+      setPreview(await previewGeoAgent(orgId, siteId, experience.id, config, question, {
+        mode, priorQuestion: priorQuestion.trim() || undefined,
+        ...(mode === "visitor" ? { url: visitorUrl.trim(), targeting, identityToken: identityToken.trim() || undefined } : {}),
+      }));
+    }
     catch (failure) { setTestError(explain(failure)); }
     finally { setTesting(false); }
   }
@@ -113,7 +127,7 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
       <fieldset className="min-w-0" disabled={!editable || busy}>
         <Tabs defaultValue="appearance" className="rounded-xl border bg-card p-4">
-          <TabsList><TabsTrigger value="appearance">Appearance</TabsTrigger><TabsTrigger value="knowledge">Knowledge</TabsTrigger><TabsTrigger value="behavior">Behavior</TabsTrigger></TabsList>
+          <TabsList><TabsTrigger value="appearance">Appearance</TabsTrigger><TabsTrigger value="knowledge">Knowledge</TabsTrigger><TabsTrigger value="skills">Skills</TabsTrigger><TabsTrigger value="behavior">Behavior</TabsTrigger></TabsList>
           <TabsContent value="appearance" className="mt-4 grid gap-3">
             <Label className="grid gap-1.5">Assistant name<Input maxLength={60} value={appearance.name} onChange={event => changeAppearance({ name: event.target.value })} /></Label>
             <Label className="grid gap-1.5">Avatar URL<Input type="url" value={appearance.avatarUrl ?? ""} placeholder="https://…" onChange={event => changeAppearance({ avatarUrl: event.target.value || undefined })} /></Label>
@@ -143,6 +157,9 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
             <Label className="grid gap-1.5">Tone and presentation instructions<Textarea value={config.instructions} maxLength={1500} onChange={event => changeConfig({ instructions: event.target.value })} /></Label>
             <Label className="grid gap-1.5">Fallback reply<Textarea value={config.fallback} maxLength={350} onChange={event => changeConfig({ fallback: event.target.value })} /></Label>
           </TabsContent>
+          <TabsContent value="skills" className="mt-4">
+            <GeoAgentSkills orgId={orgId} siteId={siteId} selected={config.skillIds ?? []} onChange={skillIds => changeConfig({ skillIds })} editable={editable} />
+          </TabsContent>
           <TabsContent value="behavior" className="mt-4 grid gap-3">
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={config.enabled} onCheckedChange={value => changeConfig({ enabled: value === true })} />Enable Geo Agent</label>
             <label className="flex items-center gap-2 text-sm"><Checkbox checked={config.showLauncher} onCheckedChange={value => changeConfig({ showLauncher: value === true })} />Show launcher</label>
@@ -165,11 +182,25 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
           <div className="flex items-center gap-2 font-medium">{avatar ? <img className="size-7 rounded-full object-cover" alt="" referrerPolicy="no-referrer" src={avatar} /> : <MessageCircle className="size-4" />}{appearance.name}</div>
           <p className="whitespace-pre-wrap break-words text-sm">{appearance.welcome}</p>
           {appearance.suggestions.length > 0 && <div className="flex flex-wrap gap-1">{appearance.suggestions.map((suggestion, index) => <Button key={index} size="sm" variant="outline" onClick={() => setQuestion(suggestion)}>{suggestion}</Button>)}</div>}
-          <form className="flex gap-2" onSubmit={test}><Input aria-label="Preview question" maxLength={1000} value={question} onChange={event => setQuestion(event.target.value)} placeholder={appearance.placeholder} /><Button type="submit" disabled={!editable || !question.trim() || testing}>{testing ? "Asking…" : "Ask"}</Button></form>
+          {editable && <details className="text-sm">
+            <summary className="cursor-pointer font-medium">Test context</summary>
+            <div className="mt-2 grid gap-2">
+              <Label className="grid gap-1.5">Preview mode<select className={selectClass} value={mode} onChange={event => { setMode(event.target.value as typeof mode); setPreview(null); }}>
+                <option value="admin">Admin diagnostics</option><option value="visitor">Simulated visitor</option>
+              </select></Label>
+              {mode === "visitor" && <>
+                <Label className="grid gap-1.5">Visitor page URL<Input type="url" maxLength={2048} placeholder="https://your-app.example/settings" value={visitorUrl} onChange={event => setVisitorUrl(event.target.value)} /></Label>
+                <Label className="grid gap-1.5">Signed visitor identity (optional)<Input type="password" autoComplete="off" maxLength={4000} value={identityToken} onChange={event => setIdentityToken(event.target.value)} /></Label>
+              </>}
+              <Label className="grid gap-1.5">Previous question (optional)<Input maxLength={1000} value={priorQuestion} onChange={event => setPriorQuestion(event.target.value)} /></Label>
+            </div>
+          </details>}
+          <form className="flex gap-2" onSubmit={test}><Input aria-label="Preview question" maxLength={1000} value={question} onChange={event => setQuestion(event.target.value)} placeholder={appearance.placeholder} /><Button type="submit" disabled={!editable || !question.trim() || testing || (mode === "visitor" && !visitorUrl.trim())}>{testing ? "Asking…" : "Ask"}</Button></form>
           {testError && <ErrorNotice>{testError}</ErrorNotice>}
           {preview && <div className="rounded-md border p-2 text-sm">
             <p className="whitespace-pre-wrap break-words">{preview.message}</p>
             {preview.citations.map(citation => <div key={citation.documentId}>{citation.url ? <a className="text-xs underline" href={citation.url} target="_blank" rel="noreferrer">{citation.title}</a> : <span className="text-xs">{citation.title}</span>}</div>)}
+            <SkillPreviewDiagnostics result={preview} />
           </div>}
         </div>
         {launcherVisible ? <div className={`flex ${appearance.position === "bottom-left" ? "justify-start" : "justify-end"}`}>
@@ -191,7 +222,7 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
     {review && <Dialog open onOpenChange={open => { if (!open && !busy) { setReview(null); setError(""); } }}><DialogContent>
       <DialogHeader><DialogTitle>Publish {experience.name}?</DialogTitle><DialogDescription>{launcherVisible ? "Visitors who match your page and audience rules will see this launcher." : "The launcher is currently hidden by the widget settings."}</DialogDescription></DialogHeader>
       <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-        <dt>Sources</dt><dd>{config.sourceIds.length}</dd><dt>Pages</dt><dd>{targeting.pageRules.length || "All"}</dd><dt>Audience</dt><dd>{identityNeeded ? "Verified segment" : "All visitors"}</dd>
+        <dt>Sources</dt><dd>{config.sourceIds.length}</dd><dt>Skills</dt><dd>{config.skillIds?.length ?? 0}</dd><dt>Pages</dt><dd>{targeting.pageRules.length || "All"}</dd><dt>Audience</dt><dd>{identityNeeded ? "Verified segment" : "All visitors"}</dd>
       </dl>
       {error && <ErrorNotice>{error}</ErrorNotice>}
       <DialogFooter><Button variant="outline" disabled={busy} onClick={() => setReview(null)}>Cancel</Button><Button disabled={busy} onClick={() => void apply(async () => {

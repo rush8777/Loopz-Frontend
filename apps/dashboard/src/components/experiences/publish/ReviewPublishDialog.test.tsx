@@ -56,3 +56,33 @@ describe("ReviewPublishDialog", () => {
     expect(await screen.findByText("A referenced Segment no longer exists.")).toBeInTheDocument();
   });
 });
+
+const guideDefinition: ExperienceDefinition = {
+  design: definition.design,
+  steps: [{ id: "start", pattern: "modal", content: { heading: "Create an invoice", body: "Open Billing." }, behavior: { dismissible: true }, advance: { type: "button" } }],
+  targeting: { pageRules: page.rules, audience: { type: "all" }, trigger: { type: "page_load" }, frequency: { mode: "once" }, priority: 0 },
+};
+const guide = { ...experience, kind: "guide" as const, widgetType: null, name: "Create invoice", launchSetupCompletedAt: "2026-01-02" };
+
+it("keeps ordinary Guide publication opt-in free", async () => {
+  const { props } = renderDialog({ experience: guide, definition: guideDefinition, suggestSkill: vi.fn() });
+  expect(screen.getByRole("checkbox", { name: "Make this guide available to Geo Agent" })).not.toBeChecked();
+  expect(screen.queryByLabelText("Skill name")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Publish now" }));
+  await waitFor(() => expect(props.onPublish).toHaveBeenCalledWith());
+});
+
+it("reviews, edits, and sends metadata only when Guide skill availability is enabled", async () => {
+  const metadata = { name: "Create invoice", description: "Create an invoice.", intentExamples: ["How do I create an invoice?"], keywords: ["billing"], preconditions: [] };
+  const suggestSkill = vi.fn().mockResolvedValue({ metadata, method: "ai" });
+  const { props } = renderDialog({ experience: guide, definition: guideDefinition, suggestSkill });
+  fireEvent.click(screen.getByRole("checkbox", { name: "Make this guide available to Geo Agent" }));
+  expect(screen.getByRole("button", { name: "Publish now" })).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: "Suggest metadata" }));
+  await screen.findByText("Review the suggested details before enabling the skill.");
+  fireEvent.change(screen.getByLabelText("Skill description"), { target: { value: "Create and save an invoice." } });
+  fireEvent.click(screen.getByRole("button", { name: "Publish now" }));
+  await waitFor(() => expect(props.onPublish).toHaveBeenCalledWith({
+    enabled: true, metadata: { ...metadata, description: "Create and save an invoice." },
+  }));
+});

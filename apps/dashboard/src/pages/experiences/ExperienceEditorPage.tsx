@@ -1,3 +1,5 @@
+import { agentSkills, type SkillRegistration } from "../../api/agentSkills";
+import { PublishedGuideSkill } from "../../components/experiences/publish/PublishedGuideSkill";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
@@ -660,7 +662,7 @@ export function ExperienceEditorPage() {
     );
     setExperience(item);
   };
-  const publish = async (): Promise<Experience> => {
+  const publish = async (skill?: SkillRegistration): Promise<Experience> => {
     if (!currentOrg || !currentSite || !experience || publishing)
       throw new Error("Publish is already in progress.");
     setError(null);
@@ -672,7 +674,7 @@ export function ExperienceEditorPage() {
         currentOrg.orgId,
         currentSite.id,
         experience.id,
-        reviewed.current ?? { draftVersionId: "", revision: -1 },
+        { ...(reviewed.current ?? { draftVersionId: "", revision: -1 }), ...(skill ? { skill } : {}) },
       );
       reviewed.current = null; lastServer.current = item;
       setExperience(item);
@@ -1425,6 +1427,7 @@ export function ExperienceEditorPage() {
           </section>
         </div>
       </div>
+      {guide && (currentOrg.role === "ADMIN" || currentOrg.role === "OWNER") && <PublishedGuideSkill key={experience.id} orgId={currentOrg.orgId} experience={experience} />}
       <ReviewPublishDialog
         open={reviewOpen}
         experience={experience}
@@ -1438,6 +1441,13 @@ export function ExperienceEditorPage() {
         }}
         onCompleteSetup={completeLaunchSetup}
         onPublish={publish}
+        suggestSkill={guide && (currentOrg.role === "ADMIN" || currentOrg.role === "OWNER") ? async () => {
+          flushEditor();
+          await flush();
+          const draft = reviewed.current;
+          if (!draft) throw new Error("Review the current guide before generating metadata.");
+          return agentSkills(currentOrg.orgId, currentSite.id).suggest(experience.id, draft.draftVersionId, draft.revision);
+        } : undefined}
         onEditGuideTarget={(index) => {
           setSelectedStep(index);
           void openLive(index);
