@@ -25,6 +25,7 @@ import { FunnelBuilderPage } from "./pages/funnels/FunnelBuilderPage";
 import { FunnelDetailPage } from "./pages/funnels/FunnelDetailPage";
 import { ExperienceListPage } from "./pages/experiences/ExperienceListPage";
 import { ExperienceEditorPage } from "./pages/experiences/ExperienceEditorPage";
+import { ThemeStudioPage } from "./pages/experiences/ThemeStudioPage";
 import { GeoAgentDashboard } from "./pages/experiences/GeoAgentDashboard";
 import { geoAgentPages } from "./lib/geoAgentNavigation";
 import { SurveyResultsPage } from "./pages/experiences/SurveyResultsPage";
@@ -106,6 +107,8 @@ export default function App() {
               <Route path="segments/:segmentId" element={<SegmentDetailPage />} />
               <Route path="segments/:segmentId/edit" element={<SegmentBuilderPage />} />
               <Route path="experiences/guides" element={<ExperienceListPage kind="guide" />} />
+              <Route path="experiences/themes" element={<ThemeStudioPage />} />
+              <Route path="settings/themes" element={<Navigate to="/experiences/themes" replace />} />
               <Route path="experiences/surveys" element={<ExperienceListPage kind="widget" widgetType="survey" singularLabel="survey" pluralLabel="Surveys" description="Collect contextual, multi-step feedback from active users." />} />
               <Route path="experiences/banners" element={<ExperienceListPage kind="widget" widgetType="banner" singularLabel="banner" pluralLabel="Banners" description="Create full-width banner experiences inside your product." />} />
               <Route path="experiences/anchored-cards" element={<ExperienceListPage kind="widget" widgetType="anchored_card" singularLabel="anchored card" pluralLabel="Anchored cards" description="Attach contextual cards to specific parts of your product." />} />

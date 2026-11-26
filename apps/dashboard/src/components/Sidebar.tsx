@@ -7,6 +7,7 @@ import { Button } from "@movcues/ui";
 import { cn } from "@movcues/ui";
 import type { SettingsSection } from "./settings/SettingsModal";
 import { geoAgentPages, geoAgentSection } from "@/lib/geoAgentNavigation";
+import { Palette } from "lucide-react";
 
 interface NavItem { adminOnly?: boolean; label: string; path?: string; disabled?: boolean; icon: ComponentType<{ className?: string }> }
 interface NavSection { label: string; items: NavItem[] }
@@ -32,6 +33,7 @@ const EXPERIENCE_ITEMS: NavItem[] = [
   { label: "Surveys", path: "/experiences/surveys", icon: ListChecks },
   { label: "Guides", path: "/experiences/guides", icon: Compass },
   { label: "Checklists", path: "/experiences/checklists", icon: CheckSquare },
+  { label: "Themes", path: "/experiences/themes", icon: Palette },
 ];
 
 const geoAgentIcons = { overview: Gauge, skills: Compass, behaviour: Workflow, knowledge: BookOpen, conversations: FileText, appearance: LayoutTemplate };
