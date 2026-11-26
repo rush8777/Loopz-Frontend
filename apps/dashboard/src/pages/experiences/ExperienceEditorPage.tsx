@@ -70,6 +70,7 @@ import { openLiveEditorPopup } from "./liveEditorPopup";
 import { ChecklistEditor } from "./ChecklistEditor";
 import { ReviewPublishDialog } from "../../components/experiences/publish/ReviewPublishDialog";
 import { AdvancedFrequencyControls } from "../../components/experiences/AdvancedFrequencyControls";
+import { SaveExperienceTemplate } from "./SaveExperienceTemplate";
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 export function publishErrorMessage(message: string): string {
@@ -145,6 +146,7 @@ export function ExperienceEditorPage() {
   const [preparingReview, setPreparingReview] = useState(false);
   const [leavingForResults, setLeavingForResults] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [templateOpen, setTemplateOpen] = useState(false);
   const [choosingGuideStep, setChoosingGuideStep] = useState(false);
   const [activePanel, setActivePanel] = useState<
     "questions" | "behavior" | "targeting" | null
@@ -722,10 +724,15 @@ export function ExperienceEditorPage() {
       siteId={currentSite.id} segments={segments} editable={currentOrg.role === "ADMIN" || currentOrg.role === "OWNER"} /></Suspense>;
   }
   if (experience.widgetType === "geo_agent") return <ErrorNotice>Geo Agent configuration is unavailable.</ErrorNotice>;
+  const canSaveTemplate = experience.builderMode === "onsite" && !experience.guidedCapturePending
+    && (currentOrg.role === "OWNER" || currentOrg.role === "ADMIN");
+  const templateDialog = canSaveTemplate && <SaveExperienceTemplate key={experience.id} orgId={currentOrg.orgId}
+    siteId={currentSite.id} experience={experience} open={templateOpen} onOpenChange={setTemplateOpen}/>;
   if (checklist)
     return (
       <>
         {recoveryControls}
+        {templateDialog}
         <ChecklistEditor
           experience={experience}
           definition={checklist as ChecklistExperienceDefinition}
@@ -742,6 +749,7 @@ export function ExperienceEditorPage() {
             setDefinition(next);
           }}
           onOpenLive={() => void openLive()}
+          onSaveTemplate={canSaveTemplate ? () => setTemplateOpen(true) : undefined}
           onReview={() => void prepareReview()}
           onRegisterBuilderFlush={registerChecklistBuilderFlush}
         />
@@ -852,6 +860,7 @@ export function ExperienceEditorPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {canSaveTemplate && <DropdownMenuItem onSelect={() => setTemplateOpen(true)}>Save as template</DropdownMenuItem>}
                 {survey && (
                   <DropdownMenuItem onSelect={() => togglePanel("questions")}>
                     Questions
@@ -876,6 +885,7 @@ export function ExperienceEditorPage() {
           </div>
         )}
         {recoveryControls}
+        {templateDialog}
         <div className="flex min-h-0 flex-1">
           <section className="relative flex min-w-0 flex-1 flex-col overflow-visible [&>div.mt-4]:mt-0">
             {guide && experience.builderMode === "grapesjs" && (
