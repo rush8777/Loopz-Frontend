@@ -4,8 +4,12 @@ import { themeComponentNames, isValidThemeTokens } from "../../components/settin
 import type { SiteThemeTokens, ThemePreview } from "../../types/themes";
 import type { ExperienceTemplateSummary } from "../../api/experiences";
 
+const configuredPreviewUrl = import.meta.env.VITE_THEME_PREVIEW_URL?.trim();
+const useLocalPreview = import.meta.env.DEV && !configuredPreviewUrl;
+const localPreviewUrl = "/__movcues/sdk-theme-preview.min.js";
 const previewScript = (() => {
-  const url = new URL(import.meta.env.VITE_THEME_PREVIEW_URL || "https://cdn.movcues.com/sdk-theme-preview.min.js");
+  if (useLocalPreview) return localPreviewUrl;
+  const url = new URL(configuredPreviewUrl || "https://cdn.movcues.com/sdk-theme-preview.min.js");
   if (url.protocol !== "https:" && !(import.meta.env.DEV && url.protocol === "http:")) throw new Error("Invalid theme preview URL");
   return url.href.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
 })();
@@ -59,7 +63,16 @@ export function ThemePreviewGallery({ orgId, siteId, tokens, imported = false }:
   const [previews, setPreviews] = useState<ThemePreview[]>([]);
   const [templates, setTemplates] = useState<ExperienceTemplateSummary[]>([]);
   const [error, setError] = useState(false);
+  const [localPreviewReady, setLocalPreviewReady] = useState<boolean | null>(useLocalPreview ? null : true);
   const valid = isValidThemeTokens(tokens);
+  useEffect(() => {
+    if (!useLocalPreview) return;
+    const controller = new AbortController();
+    void fetch(localPreviewUrl, { method: "HEAD", signal: controller.signal }).then(response => {
+      if (!controller.signal.aborted) setLocalPreviewReady(response.ok);
+    }).catch(() => { if (!controller.signal.aborted) setLocalPreviewReady(false); });
+    return () => controller.abort();
+  }, []);
   useEffect(() => {
     if (!valid) return;
     let current = true;
@@ -78,9 +91,12 @@ export function ThemePreviewGallery({ orgId, siteId, tokens, imported = false }:
     {!imported && <h2 className="text-lg font-semibold tracking-tight">Experience previews</h2>}
     {!valid && <p role="status" className="text-sm text-muted-foreground">Previews show the latest valid values.</p>}
     {error && <p role="alert" className="text-sm text-destructive">Experience previews couldn’t be prepared.</p>}
-    {valid && !error && !previews.length && <p role="status" className="text-sm text-muted-foreground">Preparing runtime previews…</p>}
+    {localPreviewReady === false && <p role="alert" className="text-sm text-muted-foreground">
+      Build the SDK in the sibling <code>Loopz</code> checkout, then refresh. To use another SDK server, set <code>VITE_THEME_PREVIEW_URL</code> in the dashboard environment.
+    </p>}
+    {valid && !error && localPreviewReady !== false && (!previews.length || localPreviewReady === null) && <p role="status" className="text-sm text-muted-foreground">Preparing runtime previews…</p>}
     <div className="grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {visible.map(sample => <PreviewFrame key={sample.id} sample={sample}/>)}
+      {localPreviewReady && visible.map(sample => <PreviewFrame key={sample.id} sample={sample}/>)}
     </div>
     {!imported && templates.length > 0 && <section aria-label="Built-in templates" className="rounded-xl border bg-card">
       <details>
