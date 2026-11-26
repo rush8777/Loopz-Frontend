@@ -1,21 +1,21 @@
 reference_id,source_author,source_url,canonical_url,published_at,captured_at,permission_status,topic,performance_evidence_url,performance_metric,analysis_split,notes
-analyst-01,,,,,,pending,,,,train,
-analyst-02,,,,,,pending,,,,train,
-analyst-03,,,,,,pending,,,,train,
-analyst-04,,,,,,pending,,,,train,
-analyst-05,,,,,,pending,,,,train,
-analyst-06,,,,,,pending,,,,train,
-analyst-07,,,,,,pending,,,,train,
-analyst-08,,,,,,pending,,,,train,
-analyst-09,,,,,,pending,,,,train,
-analyst-10,,,,,,pending,,,,train,
-analyst-11,,,,,,pending,,,,train,
-analyst-12,,,,,,pending,,,,train,
-analyst-13,,,,,,pending,,,,train,
-analyst-14,,,,,,pending,,,,train,
-analyst-15,,,,,,pending,,,,train,
-analyst-16,,,,,,pending,,,,evaluation,
-analyst-17,,,,,,pending,,,,evaluation,
-analyst-18,,,,,,pending,,,,evaluation,
-analyst-19,,,,,,pending,,,,evaluation,
-analyst-20,,,,,,pending,,,,evaluation,
+analyst-01,James Clear,https://jamesclear.com/marginal-gains,https://jamesclear.com/marginal-gains,,2026-11-21,metadata-only,marginal-gains,https://jamesclear.com/best-articles-2014,author-reports-most-read-2014,train,article-text-not-stored
+analyst-02,James Clear,https://jamesclear.com/quality-comparison,https://jamesclear.com/quality-comparison,,2026-11-21,metadata-only,quality-comparison,https://jamesclear.com/best-articles-2014,author-reports-facebook-breakout,train,article-text-not-stored
+analyst-03,James Clear,https://jamesclear.com/physics-productivity,https://jamesclear.com/physics-productivity,,2026-11-21,metadata-only,physics-productivity,https://jamesclear.com/best-articles-2014,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-04,James Clear,https://jamesclear.com/cumulative-stress,https://jamesclear.com/cumulative-stress,,2026-11-21,metadata-only,cumulative-stress,https://jamesclear.com/best-articles-2014,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-05,James Clear,https://jamesclear.com/new-habit,https://jamesclear.com/new-habit,,2026-11-21,metadata-only,new-habit,https://jamesclear.com/best-articles-2014,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-06,James Clear,https://jamesclear.com/buffett-focus,https://jamesclear.com/buffett-focus,,2026-11-21,metadata-only,buffett-focus,https://jamesclear.com/best-articles-2014,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-07,James Clear,https://jamesclear.com/habit-guide,https://jamesclear.com/habit-guide,,2026-11-21,metadata-only,habit-guide,https://jamesclear.com/best-articles-2014,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-08,James Clear,https://jamesclear.com/better-sleep,https://jamesclear.com/better-sleep,,2026-11-21,metadata-only,better-sleep,https://jamesclear.com/best-articles-2014,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-09,James Clear,https://jamesclear.com/repetitions,https://jamesclear.com/repetitions,,2026-11-21,metadata-only,repetitions,https://jamesclear.com/best-articles-2014,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-10,James Clear,https://jamesclear.com/eisenhower-box,https://jamesclear.com/eisenhower-box,,2026-11-21,metadata-only,eisenhower-box,https://jamesclear.com/best-articles-2014,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-11,James Clear,https://jamesclear.com/paper-clips,https://jamesclear.com/paper-clips,,2026-11-21,metadata-only,paper-clips,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-12,James Clear,https://jamesclear.com/diderot-effect,https://jamesclear.com/diderot-effect,,2026-11-21,metadata-only,diderot-effect,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-13,James Clear,https://jamesclear.com/common-mental-errors,https://jamesclear.com/common-mental-errors,,2026-11-21,metadata-only,common-mental-errors,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-14,James Clear,https://jamesclear.com/ivy-lee,https://jamesclear.com/ivy-lee,,2026-11-21,metadata-only,ivy-lee,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-15,James Clear,https://jamesclear.com/feynman-mental-models,https://jamesclear.com/feynman-mental-models,,2026-11-21,metadata-only,feynman-mental-models,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,train,article-text-not-stored
+analyst-16,James Clear,https://jamesclear.com/overrated-underrated,https://jamesclear.com/overrated-underrated,,2026-11-21,metadata-only,overrated-underrated,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,evaluation,article-text-not-stored
+analyst-17,James Clear,https://jamesclear.com/marriage-ready,https://jamesclear.com/marriage-ready,,2026-11-21,metadata-only,marriage-ready,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,evaluation,article-text-not-stored
+analyst-18,James Clear,https://jamesclear.com/albert-einstein-desk,https://jamesclear.com/albert-einstein-desk,,2026-11-21,metadata-only,albert-einstein-desk,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,evaluation,article-text-not-stored
+analyst-19,James Clear,https://jamesclear.com/giving-up,https://jamesclear.com/giving-up,,2026-11-21,metadata-only,giving-up,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,evaluation,article-text-not-stored
+analyst-20,James Clear,https://jamesclear.com/habits-fail,https://jamesclear.com/habits-fail,,2026-11-21,metadata-only,habits-fail,https://jamesclear.com/best-articles-2015,year-end-selection-not-verified-traffic,evaluation,article-text-not-stored

@@ -6,6 +6,8 @@ Status: **starter hypothesis**; refine after 20 permitted references are collect
 
 - Tone: Practical, stepwise, precise
 - Editorial structure: Start with the job-to-be-done, show setup/diagnostics, pitfalls, examples, and checklist.
+- Opening: Start with a recognizable decision, workflow, or problem in plain language. Show its practical consequence and promise a useful next step; do not invent first-hand experience.
+- Accessibility: Explain necessary technical terms when first used, with a brief example. Translate diagnostics into questions and actions a nontechnical reader can follow without sacrificing accuracy.
 - Claim discipline: state what's observed, what is inferred, what is hypothetical, and the source.
 - Avoid: copied wording, signatures/pet phrases from identifiable writers, stock intros, unsupported statistics and unnatural keyword repetition.
 - Paragraphs: vary deliberately for reading flow; headings should describe reader value.

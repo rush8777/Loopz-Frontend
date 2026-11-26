@@ -23,19 +23,19 @@ export function GeoAgentSkills({ orgId, siteId, selected, onChange, editable }: 
   const query = search.trim().toLowerCase();
   const visible = skills?.filter(({ metadata }) => [metadata.name, metadata.description, ...metadata.keywords].some(text => text.toLowerCase().includes(query)));
   return <section className="grid gap-3">
-    <p className="text-sm text-muted-foreground">Select the guides this widget can recommend when a visitor is eligible.</p>
-    <div className="flex items-end gap-2">
+    <div><h2 className="text-base font-semibold">Guide skills</h2><p className="mt-1 text-sm text-muted-foreground">Select the guides this widget can recommend when a visitor is eligible.</p></div>
+    <div className="flex flex-wrap items-end gap-2">
       <Label className="grid grow gap-1.5">Search skills<Input value={search} onChange={event => setSearch(event.target.value)} /></Label>
       <Button type="button" variant="outline" size="sm" onClick={() => { setSkills(null); setError(false); setRefresh(n => n + 1); }}>Refresh</Button>
     </div>
     {error ? <p role="alert" className="text-sm text-destructive">Couldn’t load skills.</p> : !skills ? <p role="status" className="text-sm">Loading skills…</p> : !visible?.length && <p className="text-sm text-muted-foreground">{query ? "No skills match this search." : "Enable Geo Agent availability on a published guide to add a skill."}</p>}
     {visible?.map(skill => {
       const checked = selected.includes(skill.id);
-      return <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-2" key={skill.id}>
+      return <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3" key={skill.id}>
         <label className="flex items-center gap-2 text-sm"><Checkbox checked={checked} disabled={!checked && (!skill.enabled || selected.length >= 500)} onCheckedChange={value => onChange(value === true ? [...selected, skill.id] : selected.filter(id => id !== skill.id))} />
           <span>{skill.metadata.name} <span className="ml-1 text-xs text-muted-foreground">{skillStatus[skill.status]}</span></span>
         </label>
-        <Link aria-label={`Edit guide for ${skill.metadata.name}`} className="text-xs underline" to={`/experiences/${encodeURIComponent(skill.guideId)}/edit`}>Edit guide</Link>
+        <Link aria-label={`Edit guide for ${skill.metadata.name}`} className="text-xs font-medium underline underline-offset-4" to={`/experiences/${encodeURIComponent(skill.guideId)}/edit`}>Edit guide</Link>
       </div>;
     })}
     {skills && selected.filter(id => !skills.some(skill => skill.id === id)).map(id =>

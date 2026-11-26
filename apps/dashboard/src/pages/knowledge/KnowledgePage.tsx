@@ -26,16 +26,16 @@ const errors: Record<string, string> = {
 const explain = (error: unknown) => error instanceof Error ? errors[error.message] ?? error.message : "Something went wrong. Try again.";
 const working = (source: KnowledgeSource) => source.status === "queued" || source.status === "processing";
 
-export function KnowledgePage() {
+export function KnowledgePage({ agentSettings }: { agentSettings?: (sources: KnowledgeSource[]) => React.ReactNode } = {}) {
   const { currentOrg, currentSite } = useWorkspace();
   if (!currentOrg || !currentSite) return <EmptyState title="Choose a site" description="Select a site to manage its knowledge." />;
   if (!["OWNER", "ADMIN"].includes(currentOrg.role)) {
     return <EmptyState title="Administrator access required" description="Ask a workspace administrator to manage this site’s knowledge." />;
   }
-  return <SiteKnowledge key={`${currentOrg.orgId}/${currentSite.id}`} orgId={currentOrg.orgId} siteId={currentSite.id} />;
+  return <SiteKnowledge key={`${currentOrg.orgId}/${currentSite.id}`} orgId={currentOrg.orgId} siteId={currentSite.id} agentSettings={agentSettings} />;
 }
 
-function SiteKnowledge({ orgId, siteId }: { orgId: string; siteId: string }) {
+function SiteKnowledge({ orgId, siteId, agentSettings }: { orgId: string; siteId: string; agentSettings?: (sources: KnowledgeSource[]) => React.ReactNode }) {
   const api = useMemo(() => knowledgeApi(orgId, siteId), [orgId, siteId]);
   const [sources, setSources] = useState<KnowledgeSource[] | null>(null);
   const [error, setError] = useState("");
@@ -112,6 +112,7 @@ function SiteKnowledge({ orgId, siteId }: { orgId: string; siteId: string }) {
         </table>
       </div>}
     </DataTableFrame>
+    {sources && agentSettings?.(sources)}
 
     <section aria-labelledby="knowledge-test-title" className="mt-6 space-y-3 rounded-xl border bg-card p-4">
       <h2 id="knowledge-test-title" className="font-semibold">Test retrieval</h2>

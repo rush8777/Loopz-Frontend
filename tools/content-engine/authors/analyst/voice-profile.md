@@ -1,6 +1,15 @@
 # Movcues house voice: Evidence-first analyst
 
-Status: **starter hypothesis**; refine after 20 permitted references are collected. This is an original editorial style, not an imitation or byline of the source writer.
+Status: **preliminary**. Twenty James Clear source URLs are catalogued, but the 15 training and five holdout references have not all been analyzed. This is an original editorial style, not an imitation or byline of the source writer.
+
+## Initial observations (2026-11-21)
+
+- In the [cycling article](https://jamesclear.com/marginal-gains), a concrete historical case precedes an explanation and practical interpretation. The article includes footnotes; independently verify any underlying claims before using them.
+- In the [habit guide](https://jamesclear.com/habit-guide), actionable steps and everyday illustrations make an abstract topic easier to apply.
+- The [paper-clips article](https://jamesclear.com/paper-clips) opens with a named person's workplace experience, then explains the practical behavior behind it. Treat it as a reported anecdote, not proof that a practice causes the same outcome for everyone.
+- The [habit-formation article](https://jamesclear.com/new-habit) starts with a familiar belief, traces its origin and discusses research. The [Diderot article](https://jamesclear.com/diderot-effect) uses a historical story to introduce a broader concept; the [Ivy Lee article](https://jamesclear.com/ivy-lee) turns a historical anecdote into an ordered set of actions. Verify historical details and claims independently before using any such examples.
+- For Movcues, translate these broad patterns into original, sourced product-team examples: introduce a real problem, distinguish observation from inference, and explain a practical next step. Never invent customer experiences, copy stories or adopt distinctive phrases.
+- The 2014 and 2015 year-end lists establish editorial selection; only the 2014 list explicitly identifies the cycling article as that year's most read and the comparison article as a Facebook breakout. Current article-level traffic and viral rankings remain unknown. Text-storage permission is unverified, so the manifest contains metadata only.
 
 ## Voice principles
 

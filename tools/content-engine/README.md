@@ -1,6 +1,6 @@
 # Movcues Content Engine (Codex implementation scaffold)
 
-> Status: **Design + local deterministic preflight starter.** Not a configured crawler, SEO data provider, end-to-end autonomous agent, or live Sanity publisher. No content has been published.
+> Status: **Partial Codex-assisted workflow.** Local reference import, research compilation, staged run tracking, draft mapping and deterministic preflight exist. They do not provide autonomous research, independent review, a connected draft command, or publication. See `OPERATOR_GUIDE.md` for the current handoff and limitations.
 
 ## Correct placement in Loopz-Frontend
 
@@ -21,7 +21,7 @@ Do **not** install this under `apps/website/src`, `apps/dashboard`, `cms/studio`
 - `apps/website/scripts/build-blog-worker.mjs` assembles the Cloudflare runtime.
 - Blog posts are served through Cloudflare Pages Functions and backed by Sanity, not static Astro markdown.
 
-The four *current* Sanity categories (`onboarding`, `analytics`, `adoption`, `feedback`) are **not** the target editorial taxonomy. `config/taxonomy.json` lists proposed broader pillars. New categories must not be used for publishing until the actual CMS schema and website filtering support them. Prefer **Sanity-managed category documents**, rather than growing a permanent hardcoded list; keep legacy slugs and article URLs working during migration.
+The four categories in the deployed production schema (`onboarding`, `analytics`, `adoption`, `feedback`) are **not** the target editorial taxonomy. Local Studio and website code contain a staged Sanity-managed category migration, but the deployed schema inspected on 2026-11-21 still requires a legacy topic. New categories must not be used for publication until compatible website and Studio changes are deployed and verified; preserve legacy slugs and article URLs during migration.
 
 ## Architecture
 
@@ -50,7 +50,7 @@ npx sanity@latest mcp configure
 
 The example article is deliberately **not publishable**; it demonstrates draft validation with fictitious placeholders and will report blockers. Tests use the Node.js standard library and do not make network requests.
 
-## Suggested commands after Codex completes integration
+## Codex workflow requests
 
 - `$movcues-content-pipeline research https://example.com/reference --voice analyst`
 - `$movcues-content-pipeline brief ...`
@@ -59,7 +59,7 @@ The example article is deliberately **not publishable**; it demonstrates draft v
 - `$movcues-content-pipeline sanity-draft ...`
 - `$movcues-content-pipeline publish ...` — only after authenticated, explicit approval and final revision verification.
 
-Command forms above are **desired workflows**, not a claim that a runnable orchestrator already exists. Codex must implement and demonstrate the interfaces.
+These are natural-language workflow examples, not implemented command-line subcommands. The skill requires a research brief and human approval; publication requires a separate explicit instruction. See the operator guide for the actual `runs.mjs` commands and their limitations.
 
 ## Practical restrictions
 

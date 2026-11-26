@@ -1,32 +1,40 @@
-import { BookOpen, BarChart2, Ellipsis, Grip, UserRoundPen, CheckSquare, ChevronDown, FileText, Gauge, LayoutTemplate, ListChecks, MousePointerClick, Network, PanelLeftClose, PanelLeftOpen, Settings, Sparkles, Users, Waypoints, X } from "lucide-react";
+import { BookOpen, Ellipsis, UserRoundPen, CheckSquare, ChevronDown, ChevronRight, FileText, Gauge, LayoutTemplate, ListChecks, PanelLeftClose, PanelLeftOpen, Settings, Waypoints, X, GalleryVerticalEnd, CreditCard, MessageSquareText, Pointer, SquareMousePointer, PanelRight, MapPinned, Bot, Globe2, Compass, Workflow, Eye, UsersRound, ChartNoAxesCombined } from "lucide-react";
 import type { ComponentType } from "react";
-import { NavLink } from "react-router-dom";
+import { matchPath, NavLink, useLocation } from "react-router-dom";
 import { useWorkspace } from "@/auth/WorkspaceContext";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@movcues/ui";
 import { cn } from "@movcues/ui";
 import type { SettingsSection } from "./settings/SettingsModal";
+import { geoAgentPages, geoAgentSection } from "@/lib/geoAgentNavigation";
 
 interface NavItem { adminOnly?: boolean; label: string; path?: string; disabled?: boolean; icon: ComponentType<{ className?: string }> }
 interface NavSection { label: string; items: NavItem[] }
 
 const OTHER_EXPERIENCE_ITEMS: NavItem[] = [
-  { label: "Geo Agent", path: "/experiences/geo-agents", icon: Sparkles },
-  { label: "Banners", path: "/experiences/banners", icon: Grip },
-  { label: "Anchored cards", path: "/experiences/anchored-cards", icon: Grip },
-  { label: "Toasts", path: "/experiences/toasts", icon: Grip },
-  { label: "Cursor followers", path: "/experiences/cursor-followers", icon: Grip },
-  { label: "Modals", path: "/experiences/modals", icon: Grip },
-  { label: "Slideouts", path: "/experiences/slideouts", icon: Grip },
-  { label: "Hotspots", path: "/experiences/hotspots", icon: Grip },
+  { label: "Banners", path: "/experiences/banners", icon: GalleryVerticalEnd },
+  { label: "Anchored cards", path: "/experiences/anchored-cards", icon: CreditCard },
+  { label: "Toasts", path: "/experiences/toasts", icon: MessageSquareText },
+  { label: "Cursor followers", path: "/experiences/cursor-followers", icon: Pointer },
+  { label: "Modals", path: "/experiences/modals", icon: SquareMousePointer },
+  { label: "Slideouts", path: "/experiences/slideouts", icon: PanelRight },
+  { label: "Hotspots", path: "/experiences/hotspots", icon: MapPinned },
 ];
 
 const SECTIONS: NavSection[] = [
-  { label: "Workspace", items: [{ label: "Overview", path: "/analytics", icon: Gauge }, { label: "Dashboards", path: "/dashboard", icon: BarChart2 }, { label: "Geo", path: "/ai", icon: Sparkles }, { label: "Knowledge", path: "/knowledge", icon: BookOpen, adminOnly: true }] },
-  { label: "Experiences", items: [{ label: "Surveys", path: "/experiences/surveys", icon: ListChecks }, { label: "Guides", path: "/experiences/guides", icon: LayoutTemplate  }, { label: "Checklists", path: "/experiences/checklists", icon: CheckSquare }] },
-  { label: "Observe", items: [{ label: "Pages", path: "/observe/pages", icon: FileText }, { label: "Sessions", path: "/observe/sessions", icon: MousePointerClick }, { label: "Events", path: "/observe/events", icon: Waypoints }, { label: "Funnels", path: "/observe/funnels", icon: Network }] },
-  { label: "People", items: [ { label: "Segments", path: "/segments", icon: UserRoundPen },{ label: "Users", path: "/users", icon: Users }] },
+  { label: "Workspace", items: [{ label: "Overview", path: "/analytics", icon: Gauge }, { label: "Dashboards", path: "/dashboard", icon: ChartNoAxesCombined }, { label: "Geo", path: "/ai", icon: Globe2 }] },
+  { label: "AI Adoption", items: [] },
+  { label: "Observe", items: [{ label: "Pages", path: "/observe/pages", icon: FileText }, { label: "Sessions", path: "/observe/sessions", icon: Eye }, { label: "Events", path: "/observe/events", icon: Waypoints }, { label: "Funnels", path: "/observe/funnels", icon: Workflow }] },
+  { label: "People", items: [ { label: "Segments", path: "/segments", icon: UserRoundPen },{ label: "Users", path: "/users", icon: UsersRound }] },
 ];
+
+const EXPERIENCE_ITEMS: NavItem[] = [
+  { label: "Surveys", path: "/experiences/surveys", icon: ListChecks },
+  { label: "Guides", path: "/experiences/guides", icon: Compass },
+  { label: "Checklists", path: "/experiences/checklists", icon: CheckSquare },
+];
+
+const geoAgentIcons = { overview: Gauge, skills: Compass, behaviour: Workflow, knowledge: BookOpen, conversations: FileText, appearance: LayoutTemplate };
 
 interface SidebarProps {
   onOpenSettings: (section?: SettingsSection) => void;
@@ -58,6 +66,14 @@ export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, 
   const { currentSite, currentOrg } = useWorkspace();
   const isAdmin = currentOrg?.role === "ADMIN" || currentOrg?.role === "OWNER";
   const { isScrolling, handleScroll } = useScrollState();
+  const { pathname } = useLocation();
+  const experienceActive = [...EXPERIENCE_ITEMS, ...OTHER_EXPERIENCE_ITEMS].some(item => item.path && matchPath({ path: item.path, end: false }, pathname))
+    || Boolean(matchPath("/experiences/:experienceId/edit", pathname) || matchPath("/experiences/:experienceId/results", pathname));
+  const [experiencesOpen, setExperiencesOpen] = useState(experienceActive);
+  const geoActive = Boolean(geoAgentSection(pathname));
+  const [geoAgentOpen, setGeoAgentOpen] = useState(geoActive);
+  useEffect(() => { if (geoActive) setGeoAgentOpen(true); }, [pathname, geoActive]);
+  useEffect(() => { if (experienceActive) setExperiencesOpen(true); }, [pathname, experienceActive]);
 
   const content = (compact: boolean, mobile: boolean) => (
     <aside className={cn("relative flex h-full flex-col overflow-hidden border-r border-white/30 transition-[padding] duration-200", compact ? "p-2" : "p-3")}>
@@ -87,7 +103,25 @@ export function Sidebar({ onOpenSettings, collapsed = false, onCollapsedChange, 
                   </NavLink>
                 );
               })}
-              {section.label === "Experiences" && <OtherExperiencesMenu compact={compact} onNavigate={onMobileClose} />}
+              {section.label === "AI Adoption" && <div>
+                <button type="button" onClick={() => setGeoAgentOpen(open => !open)} aria-expanded={geoAgentOpen} aria-label={compact ? "Agent" : undefined} title={compact ? "Agent" : undefined} className={cn("flex h-8 w-full items-center rounded-lg text-[13px] text-[#474747] transition-colors hover:bg-white/50 hover:text-[#141414] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20", compact ? "justify-center" : "gap-2 px-2")}>
+                  <Bot className="size-4" />{!compact && <><span className="flex-1 text-left">Agent</span><ChevronRight className={cn("size-3.5 transition-transform duration-200", geoAgentOpen && "rotate-90")} /></>}
+                </button>
+                {geoAgentOpen && geoAgentPages.filter(item => item.id !== "knowledge" || isAdmin).map(item => {
+                  const Icon = geoAgentIcons[item.id];
+                  return <NavLink key={item.path} end to={item.path} onClick={onMobileClose} aria-label={compact ? `Geo Agent ${item.label}` : undefined} title={compact ? item.label : undefined} className={({ isActive }) => cn("flex h-8 items-center rounded-lg text-[13px] text-[#474747] transition-colors hover:bg-white/50 hover:text-[#141414] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20", compact ? "justify-center" : "gap-2 px-2 pl-5", isActive && "bg-[#eff6ff]/80 font-medium text-[#1d4ed8] shadow-[0_1px_2px_rgba(59,130,246,0.15)]")}><Icon className="size-4" />{!compact && item.label}</NavLink>;
+                })}
+                <button type="button" onClick={() => setExperiencesOpen(open => !open)} aria-expanded={experiencesOpen} aria-label={compact ? "Experiences" : undefined} title={compact ? "Experiences" : undefined} className={cn("flex h-8 w-full items-center rounded-lg text-[13px] text-[#474747] transition-colors hover:bg-white/50 hover:text-[#141414] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20", compact ? "justify-center" : "gap-2 px-2")}>
+                  <LayoutTemplate className="size-4" />{!compact && <><span className="flex-1 text-left">Experiences</span><ChevronRight className={cn("size-3.5 transition-transform duration-200", experiencesOpen && "rotate-90")} /></>}
+                </button>
+                {experiencesOpen && <div className={cn("space-y-0.5", !compact && "pl-3")}>
+                  {EXPERIENCE_ITEMS.map(item => {
+                    const Icon = item.icon;
+                    return <NavLink key={item.path} to={item.path!} onClick={onMobileClose} aria-label={compact ? item.label : undefined} title={compact ? item.label : undefined} className={({ isActive }) => cn("flex h-8 items-center rounded-lg text-[13px] text-[#474747] transition-colors hover:bg-white/50 hover:text-[#141414] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/20", compact ? "justify-center" : "gap-2 px-2", isActive && "bg-[#eff6ff]/80 font-medium text-[#1d4ed8] shadow-[0_1px_2px_rgba(59,130,246,0.15)]")}><Icon className="size-4" />{!compact && item.label}</NavLink>;
+                  })}
+                  <OtherExperiencesMenu compact={compact} onNavigate={onMobileClose} />
+                </div>}
+              </div>}
             </div>
           </div>
         ))}

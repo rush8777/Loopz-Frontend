@@ -36,3 +36,6 @@ dist-ssr
 .dev.vars
 .dev.vars.*
 .sanity/
+
+# Local tools
+/tools/

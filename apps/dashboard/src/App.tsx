@@ -1,4 +1,3 @@
-import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { WorkspaceProvider } from "./auth/WorkspaceContext";
@@ -26,6 +25,8 @@ import { FunnelBuilderPage } from "./pages/funnels/FunnelBuilderPage";
 import { FunnelDetailPage } from "./pages/funnels/FunnelDetailPage";
 import { ExperienceListPage } from "./pages/experiences/ExperienceListPage";
 import { ExperienceEditorPage } from "./pages/experiences/ExperienceEditorPage";
+import { GeoAgentDashboard } from "./pages/experiences/GeoAgentDashboard";
+import { geoAgentPages } from "./lib/geoAgentNavigation";
 import { SurveyResultsPage } from "./pages/experiences/SurveyResultsPage";
 import { DashboardListPage } from "./pages/dashboard/DashboardListPage";
 import { DashboardWorkspacePage } from "./pages/dashboard/DashboardWorkspacePage";
@@ -37,7 +38,6 @@ import { CheckoutPage } from "./pages/billing/CheckoutPage";
 import { OnboardingPage } from "./pages/auth/OnboardingPage";
 import { MovcuesAiPage } from "./pages/ai/MovcuesAiPage";
 
-const KnowledgePage = lazy(() => import("./pages/knowledge/KnowledgePage").then(module => ({ default: module.KnowledgePage })));
 
 function AuthEntryReady() {
   const { user, bootstrapping } = useAuth();
@@ -73,7 +73,9 @@ export default function App() {
             >
               <Route index element={<Navigate to="/analytics" replace />} />
               <Route path="billing" element={<BillingPage />} />
-              <Route path="knowledge" element={<Suspense fallback={<p role="status">Loading knowledge…</p>}><KnowledgePage /></Suspense>} />
+              <Route element={<GeoAgentDashboard />}>
+                {geoAgentPages.map(page => <Route key={page.id} path={page.path} element={null} />)}
+              </Route>
               <Route path="ai" element={<MovcuesAiPage />} />
               <Route path="dashboard" element={<DashboardListPage />} />
               <Route path="dashboard/new" element={<DashboardWorkspacePage mode="new" />} />
@@ -104,7 +106,6 @@ export default function App() {
               <Route path="segments/:segmentId" element={<SegmentDetailPage />} />
               <Route path="segments/:segmentId/edit" element={<SegmentBuilderPage />} />
               <Route path="experiences/guides" element={<ExperienceListPage kind="guide" />} />
-              <Route path="experiences/geo-agents" element={<ExperienceListPage kind="widget" widgetType="geo_agent" singularLabel="Geo Agent" pluralLabel="Geo Agents" description="Create a customer-facing assistant for your product." />} />
               <Route path="experiences/surveys" element={<ExperienceListPage kind="widget" widgetType="survey" singularLabel="survey" pluralLabel="Surveys" description="Collect contextual, multi-step feedback from active users." />} />
               <Route path="experiences/banners" element={<ExperienceListPage kind="widget" widgetType="banner" singularLabel="banner" pluralLabel="Banners" description="Create full-width banner experiences inside your product." />} />
               <Route path="experiences/anchored-cards" element={<ExperienceListPage kind="widget" widgetType="anchored_card" singularLabel="anchored card" pluralLabel="Anchored cards" description="Attach contextual cards to specific parts of your product." />} />

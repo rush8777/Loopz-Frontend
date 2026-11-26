@@ -13,6 +13,10 @@ test('requires an identifiable article and permission', () => {
   assert.throws(() => extractArticle('<div>missing</div>'), /No article/);
   assert.throws(() => importReference({voice:'analyst',url:'https://example.com',html:'<article>Text</article>'}), /permission/);
 });
+test('extracts the downloaded site content container without navigation', () => {
+  const result = extractArticle('<title>Example</title><nav>Menu</nav><div class="page__content page-content-style"><p>Article text</p><aside>Unrelated</aside></div>');
+  assert.equal(result.text, 'Article text');
+});
 test('deduplicates sources and keeps authors separate', () => {
   const store = fs.mkdtempSync(path.join(os.tmpdir(), 'movcues-ref-'));
   try {
