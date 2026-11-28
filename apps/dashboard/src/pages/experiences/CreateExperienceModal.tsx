@@ -9,7 +9,7 @@ import type { PageDefinition } from "../../types/api";
 import type { BuilderMode, ExperienceKind, ExperienceWidgetType } from "../../types/experiences";
 import { Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from "@movcues/ui";
 import { LayoutDashboard, MousePointer2, Palette, Sparkles } from "lucide-react";
-import { openLiveEditorPopup } from "./liveEditorPopup";
+import { openLiveEditorPopup, trackLiveEditorPopup } from "./liveEditorPopup";
 
 const presets: Array<{ id: VisualPresetId; label: string; colors: [string, string, string] }> = [
   { id: "minimal", label: "Minimal", colors: ["#ffffff", "#111827", "#2563eb"] },
@@ -72,7 +72,18 @@ export function CreateExperienceModal({ kind, widgetType: fixedExperienceWidgetT
       const theme: experiencesApi.CreateExperienceInput["theme"] = themeSource === "preset" ? { source: themeSource, preset: visualPreset }
         : themeSource === "saved" ? { source: themeSource, presetId: savedThemeId } : { source: themeSource };
       const experience = await experiencesApi.createExperience(currentOrg.orgId, currentSite.id, { kind, widgetType: kind === "widget" ? fixedExperienceWidgetType : null, builderMode, ...(guidedCapture ? { guideCreation: "guided_capture" as const } : kind === "guide" && builderMode === "onsite" ? { guidePattern } : {}), name: name.trim(), buildPageId: geoAgent || (kind === "checklist" && builderMode !== "onsite") || source === "manual" ? null : source, buildUrl: geoAgent || kind === "checklist" && builderMode !== "onsite" ? null : source === "manual" ? manualUrl : null, template: builderMode === "onsite" ? guidedCapture && template !== "guide-feature-discovery" ? "blank" : template : kind === "checklist" ? legacyPreset : "blank", ...(builderMode === "onsite" ? { theme } : {}), useBuildPageAsTarget: geoAgent || kind === "checklist" ? false : guidedCapture ? captureTargetPage : targetPage });
-      let launchError: string | null = null; if (builderMode === "onsite" && popup) { try { const session = await experiencesApi.createEditorSession(currentOrg.orgId, currentSite.id, experience.id); popup.location.replace(session.launchUrl); popup.focus(); } catch (caught) { popup.close(); launchError = caught instanceof Error ? caught.message : "The on-site builder could not be opened."; } }
+      let launchError: string | null = null;
+      if (builderMode === "onsite" && popup) {
+        try {
+          const session = await experiencesApi.createEditorSession(currentOrg.orgId, currentSite.id, experience.id);
+          popup.location.replace(session.launchUrl);
+          trackLiveEditorPopup(experience.id, popup);
+          popup.focus();
+        } catch (caught) {
+          popup.close();
+          launchError = caught instanceof Error ? caught.message : "The on-site builder could not be opened.";
+        }
+      }
       navigate(`/experiences/${experience.id}/edit`, launchError ? { state: { onsiteLaunchError: `${launchError} The draft was created safely; ${guidedCapture ? "use Resume Guided Capture" : "use Open on-site builder"} to try again.` } } : undefined); onOpenChange(false); onCreated?.();
     } catch (caught) { popup?.close(); setError(caught instanceof Error ? caught.message : "Couldn't create the draft."); } finally { setSaving(false); }
   }

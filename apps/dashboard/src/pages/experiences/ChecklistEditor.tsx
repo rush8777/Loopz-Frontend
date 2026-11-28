@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ArrowLeft, ExternalLink, MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "@movcues/ui";
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@movcues/ui";
 import * as experiencesApi from "../../api/experiences";
 import type { PageDefinition, Segment } from "../../types/api";
 import type {
@@ -49,6 +49,7 @@ interface ChecklistEditorProps {
   onOpenLive(): void;
   onSaveTemplate?(): void;
   onRegisterBuilderFlush(flush: (() => void) | null): void;
+  renderFlow(openSettings: () => void): ReactNode;
 }
 
 export function ChecklistEditor({
@@ -66,8 +67,11 @@ export function ChecklistEditor({
   onOpenLive,
   onSaveTemplate,
   onRegisterBuilderFlush,
+  renderFlow,
 }: ChecklistEditorProps) {
   const [guides, setGuides] = useState<Experience[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [legacyFlowOpen, setLegacyFlowOpen] = useState(false);
   const [selection, setSelection] = useState<ChecklistSelection>({
     type: "root",
   });
@@ -136,7 +140,38 @@ export function ChecklistEditor({
   const visibleStatus = status || "Saved";
   const statusClass = visibleStatus === "Published" ? "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200" : visibleStatus === "Saving..." ? "bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-200" : visibleStatus.startsWith("Autosave failed") ? "bg-destructive/10 text-destructive ring-1 ring-inset ring-destructive/20" : "bg-sky-100 text-sky-700 ring-1 ring-inset ring-sky-200";
 
-  if(experience.builderMode === "onsite") return <div className="flex min-h-dvh flex-col gap-5 p-5"><header className="flex flex-wrap items-center justify-between gap-3"><div><Link to="/experiences/checklists">Checklists</Link><h1 className="text-lg font-semibold">{experience.name}</h1><span className="text-xs">On-site · {visibleStatus}</span></div><div className="flex flex-wrap gap-2">{onSaveTemplate && <Button type="button" variant="outline" onClick={onSaveTemplate}>Save as template</Button>}<Button type="button" onClick={() => onOpenLive()}>Open on-site builder</Button><Button disabled={preparingReview} onClick={onReview}>Review & publish</Button></div></header>{error&&<ErrorNotice>{error}</ErrorNotice>}<section className="rounded-xl border p-6"><h2 className="font-medium">Design this Checklist in your product</h2><p className="mt-2 text-sm text-muted-foreground">Edit tasks and the expanded, collapsed and completed views on your website.</p><Button type="button" className="mt-4" variant="outline" onClick={() => onOpenLive()}>Launch on-site builder</Button></section><section className="max-w-xl"><ChecklistInspector definition={definition} selection={{type:"targeting"}} guides={guides} segments={segments} pages={pages} orgId={orgId} siteId={siteId} experienceId={experience.id} onChange={structured}/></section></div>;
+  if (experience.builderMode === "onsite" || legacyFlowOpen) return (
+    <div className="flex min-h-[calc(100dvh-3rem)] flex-col bg-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+      <header className="flex min-h-12 shrink-0 flex-wrap items-center justify-between gap-2 border-b px-3 py-1.5 sm:px-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <Button asChild variant="ghost" size="sm"><Link to="/experiences/checklists" aria-label="Back to Checklists"><ArrowLeft /><span className="hidden sm:inline">Checklists</span></Link></Button>
+          <h1 className="truncate text-sm font-semibold">{experience.name}</h1>
+          <span className="text-xs text-muted-foreground" role="status">{visibleStatus}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {legacyFlowOpen ? <Button type="button" size="sm" variant="outline" onClick={() => setLegacyFlowOpen(false)}>Legacy editor</Button>
+            : <Button type="button" size="sm" variant="outline" aria-label="Open on-site builder" onClick={onOpenLive}><ExternalLink /> <span className="hidden sm:inline">Open on-site builder</span></Button>}
+          <Button size="sm" disabled={preparingReview} onClick={onReview}>Review & publish</Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label="Editor options"><MoreHorizontal /></Button></DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {onSaveTemplate && <DropdownMenuItem onSelect={onSaveTemplate}>Save as template</DropdownMenuItem>}
+              <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>Launch settings</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+      {error && <ErrorNotice>{error}</ErrorNotice>}
+      {renderFlow(() => setSettingsOpen(true))}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-h-[90dvh] overflow-auto">
+          <DialogHeader><DialogTitle>Launch settings</DialogTitle></DialogHeader>
+          <ChecklistInspector definition={definition} selection={{ type: "targeting" }} guides={guides} segments={segments}
+            pages={pages} orgId={orgId} siteId={siteId} experienceId={experience.id} onChange={structured}/>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
   return (
     <div className="flex h-dvh min-h-[620px] flex-col overflow-hidden bg-background">
       <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b bg-background px-3 sm:px-4">
@@ -157,6 +192,7 @@ export function ChecklistEditor({
               Draft <span aria-hidden="true">·</span> {status || "Saved"}
             </p>
           </div>
+          <Button size="sm" variant="outline" onClick={() => { builder.current?.flush(); setLegacyFlowOpen(true); }}>Flow</Button>
         </div>
         <Button
           size="sm"

@@ -66,11 +66,13 @@ import {
   summarizeBuilder,
   summarizeDefinition,
 } from "../../components/experiences/builderDebug";
-import { openLiveEditorPopup } from "./liveEditorPopup";
+import { getLiveEditorPopup, openLiveEditorPopup, releaseLiveEditorPopup, trackLiveEditorPopup } from "./liveEditorPopup";
 import { ChecklistEditor } from "./ChecklistEditor";
 import { ReviewPublishDialog } from "../../components/experiences/publish/ReviewPublishDialog";
 import { AdvancedFrequencyControls } from "../../components/experiences/AdvancedFrequencyControls";
 import { SaveExperienceTemplate } from "./SaveExperienceTemplate";
+import { AnchoredCardBehaviorEditor, BackdropBehaviorEditor } from "./ExperienceBehaviorFields";
+import { guideStepPage } from "./flow/flowGraph";
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 export function publishErrorMessage(message: string): string {
@@ -118,9 +120,14 @@ const blankSurveyStep = (): SurveyStep => ({
 });
 
 const GeoAgentEditor = lazy(() => import("./GeoAgentEditor").then(module => ({ default: module.GeoAgentEditor })));
+const ExperienceFlowCanvas = lazy(() => import("./flow/ExperienceFlowCanvas").then(module => ({ default: module.ExperienceFlowCanvas })));
 
 export function ExperienceEditorPage() {
   const { experienceId } = useParams();
+  return <ExperienceEditor key={experienceId} experienceId={experienceId}/>;
+}
+
+function ExperienceEditor({ experienceId }: { experienceId?: string }) {
   const { currentOrg, currentSite } = useWorkspace();
   const navigate = useNavigate();
   const location = useLocation();
@@ -148,6 +155,7 @@ export function ExperienceEditorPage() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [templateOpen, setTemplateOpen] = useState(false);
   const [choosingGuideStep, setChoosingGuideStep] = useState(false);
+  const [legacyFlowOpen, setLegacyFlowOpen] = useState(false);
   const [activePanel, setActivePanel] = useState<
     "questions" | "behavior" | "targeting" | null
   >(null);
@@ -156,6 +164,7 @@ export function ExperienceEditorPage() {
   const saveQueue = useRef<Promise<Experience> | null>(null);
   const revision = useRef(1);
   const lastServer = useRef<Experience | null>(null);
+  const flowStepId = useRef<string | undefined>(undefined);
   const pendingDraft = useRef<ExperienceDefinition | null>(null);
   const saveFailure = useRef<unknown>(null);
   const reviewed = useRef<{ draftVersionId: string; revision: number } | null>(null);
@@ -170,6 +179,7 @@ export function ExperienceEditorPage() {
   );
   useEffect(() => {
     if (!currentOrg || !currentSite || !experienceId) return;
+    let active = true;
     builderDebug(
       experienceId,
       "editor:load:start",
@@ -190,6 +200,7 @@ export function ExperienceEditorPage() {
       experiencesApi.listExperiences(currentOrg.orgId, currentSite.id, "guide"),
     ])
       .then(([item, pageResult, segmentResult, eventResult, guideResult]) => {
+        if (!active) return;
         const loaded = item.draftVersion?.definition ?? null;
         builderDebug(
           experienceId,
@@ -212,6 +223,7 @@ export function ExperienceEditorPage() {
         setGuides(guideResult.experiences);
       })
       .catch((caught) => {
+        if (!active) return;
         builderDebug(
           experienceId,
           "editor:load:error",
@@ -222,6 +234,7 @@ export function ExperienceEditorPage() {
         );
         setError("Couldn't load the experience editor.");
       });
+    return () => { active = false; };
   }, [currentOrg, currentSite, experienceId]);
   const save = useCallback(
     (draft: ExperienceDefinition) => {
@@ -252,11 +265,28 @@ export function ExperienceEditorPage() {
           "info",
         );
         const expectedRevision = revision.current;
+        const serverDraft = lastServer.current?.draftVersion?.definition;
+        let flow: NonNullable<Parameters<typeof experiencesApi.updateExperience>[3]["settings"]>["flow"];
+        if (experience.builderMode === "onsite" && serverDraft) {
+          if (isGuideDefinition(snapshot) && isGuideDefinition(serverDraft) && JSON.stringify(snapshot.steps) !== JSON.stringify(serverDraft.steps)) {
+            const savedSteps = new Set(serverDraft.steps.map(step => step.id));
+            flow = {
+              kind: "guide",
+              steps: snapshot.steps.map(step => ({
+                id: step.id, label: step.label, advance: step.advance, presentation: step.presentation, behavior: step.behavior,
+                seed: savedSteps.has(step.id) ? undefined : step,
+              })),
+            };
+          } else if (isWidgetDefinition(snapshot) && snapshot.survey && isWidgetDefinition(serverDraft) &&
+            JSON.stringify(snapshot.survey.steps) !== JSON.stringify(serverDraft.survey?.steps)) {
+            flow = { kind: "survey", steps: snapshot.survey.steps.map(({ id, branching }) => ({ id, branching })) };
+          }
+        }
         const input =
           experience.builderMode === "onsite"
             ? {
                 revision: expectedRevision,
-                settings: { targeting: snapshot.targeting },
+                settings: { targeting: snapshot.targeting, ...(flow ? { flow } : {}) },
               }
             : { revision: expectedRevision, definition: snapshot };
         const item = await experiencesApi.updateExperience(
@@ -283,6 +313,11 @@ export function ExperienceEditorPage() {
         );
         if (latest.current === draft) {
           dirty.current = false;
+          setExperience(item);
+          if (flow && item.draftVersion) {
+            latest.current = item.draftVersion.definition;
+            setDefinition(item.draftVersion.definition);
+          }
           setStatus("Draft saved");
         }
         return item;
@@ -343,23 +378,49 @@ export function ExperienceEditorPage() {
   }, [definition, experience, save]);
   useEffect(() => {
     if (!currentOrg || !currentSite || !experienceId) return;
+    let active = true;
+    let refreshing = false;
     const refresh = () => {
-      if (dirty.current || saveQueue.current || reviewed.current) return;
-      const startingRevision = revision.current; const startingDraft = latest.current;
+      if (!active || refreshing || dirty.current || saveQueue.current || reviewed.current) return false;
+      refreshing = true;
+      const startingRevision = revision.current;
+      const startingDraft = latest.current;
       void experiencesApi
         .getExperience(currentOrg.orgId, currentSite.id, experienceId)
         .then((item) => {
-          if (dirty.current || saveQueue.current || reviewed.current || startingRevision !== revision.current || startingDraft !== latest.current) return;
+          if (!active || dirty.current || saveQueue.current || reviewed.current || startingRevision !== revision.current || startingDraft !== latest.current) return;
+          const previous = lastServer.current;
+          if (previous?.id === item.id && previous.draftVersion?.id === item.draftVersion?.id &&
+            previous.draftVersion?.revision === item.draftVersion?.revision && previous.guidedCapturePending === item.guidedCapturePending &&
+            previous.updatedAt === item.updatedAt) return;
           lastServer.current = item;
-          dirty.current = false;
           revision.current = item.draftVersion?.revision ?? 1;
           setExperience(item);
           setDefinition(item.draftVersion?.definition ?? null);
           latest.current = item.draftVersion?.definition ?? null;
-        }).catch(() => { /* Retain current draft on a failed background refresh. */ });
+        }).catch(() => { /* Retain current draft on a failed background refresh. */ })
+        .finally(() => { refreshing = false; });
+      return true;
     };
     window.addEventListener("focus", refresh);
-    return () => window.removeEventListener("focus", refresh);
+    const onVisible = () => { if (!document.hidden) refresh(); };
+    document.addEventListener("visibilitychange", onVisible);
+    const monitor = window.setInterval(() => {
+      const popup = getLiveEditorPopup(experienceId);
+      if (!popup) {
+        if (lastServer.current?.guidedCapturePending) refresh();
+        return;
+      }
+      if (popup.closed) {
+        if (refresh()) releaseLiveEditorPopup(popup);
+      } else if (!document.hidden || lastServer.current?.guidedCapturePending) refresh();
+    }, 2500);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", onVisible);
+      clearInterval(monitor);
+    };
   }, [currentOrg, currentSite, experienceId]);
   const flush = useCallback(async () => {
     if (timer.current) {
@@ -577,7 +638,7 @@ export function ExperienceEditorPage() {
           : current,
     );
   };
-  const openLive = async (guideStepIndex = selectedStep) => {
+  const openLive = async (guideStepIndex?: number, requestedStepId?: string) => {
     if (!currentOrg || !currentSite || !experience) return;
     const popup = openLiveEditorPopup();
     if (!popup) {
@@ -588,18 +649,22 @@ export function ExperienceEditorPage() {
     }
     try {
       widgetBuilder.current?.flush();
-      await flush();
+      const saved = await flush();
       const session = await experiencesApi.createEditorSession(
         currentOrg.orgId,
         currentSite.id,
         experience.id,
       );
       const launch = new URL(session.launchUrl);
-      const activeGuideStep = guide?.steps[guideStepIndex];
-      const pagePath =
-        activeGuideStep && guideStepRequiresTarget(activeGuideStep)
-          ? activeGuideStep.target?.targetContext?.pagePath
-          : undefined;
+      const draft = saved.draftVersion?.definition;
+      const savedGuide = draft && isGuideDefinition(draft) ? draft : null;
+      const savedWidget = draft && isWidgetDefinition(draft) ? draft : null;
+      const journey = savedGuide?.steps ?? savedWidget?.survey?.steps;
+      const stableStepId = requestedStepId ?? (guideStepIndex === undefined ? flowStepId.current : undefined);
+      const stableIndex = stableStepId ? journey?.findIndex(item => item.id === stableStepId) : undefined;
+      if (requestedStepId && (stableIndex === undefined || stableIndex < 0)) throw new Error("This step is no longer in the saved draft.");
+      const stepIndex = Math.min(Math.max(0, stableIndex !== undefined && stableIndex >= 0 ? stableIndex : guideStepIndex ?? selectedStep), Math.max(0, (journey?.length ?? 1) - 1));
+      const pagePath = guideStepPage(savedGuide?.steps[stepIndex]) ?? savedWidget?.target?.targetContext?.pagePath;
       if (pagePath) {
         const sessionParams = [...launch.searchParams.entries()];
         const savedPage = new URL(pagePath, launch.origin);
@@ -609,12 +674,13 @@ export function ExperienceEditorPage() {
         for (const [key, value] of sessionParams)
           launch.searchParams.set(key, value);
       }
-      if (guide || survey)
+      if (journey)
         launch.searchParams.set(
           "movcues_editor_step",
-          String(guide ? guideStepIndex : selectedStep),
+          String(stepIndex),
         );
       popup.location.replace(launch.toString());
+      trackLiveEditorPopup(experience.id, popup);
       popup.focus();
     } catch (caught) {
       popup.close();
@@ -726,8 +792,35 @@ export function ExperienceEditorPage() {
   if (experience.widgetType === "geo_agent") return <ErrorNotice>Geo Agent configuration is unavailable.</ErrorNotice>;
   const canSaveTemplate = experience.builderMode === "onsite" && !experience.guidedCapturePending
     && (currentOrg.role === "OWNER" || currentOrg.role === "ADMIN");
+  const openTemplate = async () => {
+    try {
+      await flush();
+      setTemplateOpen(true);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Save the draft before saving a template.");
+    }
+  };
   const templateDialog = canSaveTemplate && <SaveExperienceTemplate key={experience.id} orgId={currentOrg.orgId}
     siteId={currentSite.id} experience={experience} open={templateOpen} onOpenChange={setTemplateOpen}/>;
+  const flowCanvas = (openSettings: () => void) => (
+    <Suspense fallback={<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground" role="status">Loading flow…</div>}>
+      <ExperienceFlowCanvas key={experience.id}
+        experience={experience} definition={definition} events={events} pages={pages}
+        editable={currentOrg.role === "ADMIN" || currentOrg.role === "OWNER"}
+        onOpenLive={stepId => void openLive(undefined, stepId)} onOpenSettings={openSettings}
+        onSelectStep={stepId => { flowStepId.current = stepId; }}
+        onChange={next => mutate(draft => {
+          if (isGuideDefinition(draft) && isGuideDefinition(next)) draft.steps = next.steps;
+          if (isWidgetDefinition(draft) && isWidgetDefinition(next) && next.survey) draft.survey = next.survey;
+        })}
+        onCreateGuideStep={pattern => {
+          const next = createGuideStep(pattern);
+          next.content.primaryAction = { label: "Next", type: "next_step" };
+          return next;
+        }}
+      />
+    </Suspense>
+  );
   if (checklist)
     return (
       <>
@@ -749,9 +842,10 @@ export function ExperienceEditorPage() {
             setDefinition(next);
           }}
           onOpenLive={() => void openLive()}
-          onSaveTemplate={canSaveTemplate ? () => setTemplateOpen(true) : undefined}
+          onSaveTemplate={canSaveTemplate ? () => void openTemplate() : undefined}
           onReview={() => void prepareReview()}
           onRegisterBuilderFlush={registerChecklistBuilderFlush}
+          renderFlow={flowCanvas}
         />
         <ReviewPublishDialog
           open={reviewOpen}
@@ -773,7 +867,8 @@ export function ExperienceEditorPage() {
         />
       </>
     );
-  if (!content)
+  const showFlow = experience.builderMode === "onsite" || legacyFlowOpen;
+  if (!content && !showFlow)
     return (
       <div className="text-sm text-muted-foreground">Loading experience...</div>
     );
@@ -809,8 +904,15 @@ export function ExperienceEditorPage() {
                 {headerStatus}
               </span>
             </div>
+            {experience.builderMode === "grapesjs" && <Button variant="outline" size="sm" onClick={() => {
+              flushActiveBuilder();
+              flowStepId.current = undefined;
+              setActivePanel(null);
+              setLegacyFlowOpen(open => !open);
+            }}>{showFlow ? "Legacy editor" : "Flow"}</Button>}
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            {showFlow && status && status !== "Save conflict" && !saveProblem && <span role="status" className="text-xs text-muted-foreground max-md:sr-only">{status}</span>}
             {status === "Save conflict" && (
               <Button
                 type="button"
@@ -860,13 +962,13 @@ export function ExperienceEditorPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {canSaveTemplate && <DropdownMenuItem onSelect={() => setTemplateOpen(true)}>Save as template</DropdownMenuItem>}
-                {survey && (
+                {canSaveTemplate && <DropdownMenuItem onSelect={() => void openTemplate()}>Save as template</DropdownMenuItem>}
+                {survey && !showFlow && (
                   <DropdownMenuItem onSelect={() => togglePanel("questions")}>
                     Questions
                   </DropdownMenuItem>
                 )}
-                {experience.builderMode === "grapesjs" && (
+                {!showFlow && (
                   <DropdownMenuItem onSelect={() => togglePanel("behavior")}>
                     {guide || survey ? "How this step works" : "Behavior"}
                   </DropdownMenuItem>
@@ -888,7 +990,7 @@ export function ExperienceEditorPage() {
         {templateDialog}
         <div className="flex min-h-0 flex-1">
           <section className="relative flex min-w-0 flex-1 flex-col overflow-visible [&>div.mt-4]:mt-0">
-            {guide && experience.builderMode === "grapesjs" && (
+            {guide && !showFlow && (
               <FloatingPanel
                 open={choosingGuideStep}
                 title="Add step"
@@ -922,13 +1024,8 @@ export function ExperienceEditorPage() {
                 </Button>
               </FloatingPanel>
             )}
-            <div className="mt-4">
-              {experience.builderMode === "onsite" ? (
-                <OnsiteBuilderLaunchCard
-                  experience={experience}
-                  onOpen={() => void openLive()}
-                />
-              ) : survey ? (
+            {showFlow ? flowCanvas(() => togglePanel("targeting")) : <div className="mt-4">
+              {survey ? (
                 <GrapesWidgetBuilder
                   ref={widgetBuilder}
                   experienceKey={`${experience.id}:${experience.draftVersion?.id ?? "draft"}:${surveyStep!.id}`}
@@ -1143,8 +1240,8 @@ export function ExperienceEditorPage() {
                   }
                 />
               )}
-            </div>
-            <FloatingPanel
+            </div>}
+            {!showFlow && <FloatingPanel
               open={
                 experience.builderMode === "grapesjs" &&
                 activePanel === "behavior"
@@ -1252,7 +1349,7 @@ export function ExperienceEditorPage() {
                   onSelectInLive={openLive}
                 />
               )}
-            </FloatingPanel>
+            </FloatingPanel>}
             <FloatingPanel
               open={activePanel === "targeting"}
               title="Launch settings"
@@ -1478,46 +1575,6 @@ export function ExperienceEditorPage() {
         }}
       />
     </>
-  );
-}
-
-function OnsiteBuilderLaunchCard({
-  experience,
-  onOpen,
-}: {
-  experience: Experience;
-  onOpen: () => void;
-}) {
-  if (experience.guidedCapturePending) return (
-    <section className="mx-auto mt-12 max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
-      <h2 className="text-xl font-semibold">Finish Guided Capture in your product</h2>
-      <p className="mt-3 text-sm text-muted-foreground">Resume your captured steps, prompt, and plan. Apply the preview to open the guide in the on-site visual builder.</p>
-      <Button className="mt-6" onClick={onOpen}><ExternalLink /> Continue capture on site</Button>
-    </section>
-  );
-  return (
-    <div className="grid min-h-[calc(100dvh-6rem)] place-items-center bg-gradient-to-b from-slate-50 to-background p-6">
-      <section className="w-full max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
-        <span className="mx-auto grid size-12 place-items-center rounded-xl bg-violet-100 text-violet-700">
-          <ExternalLink className="size-5" />
-        </span>
-        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-violet-700">
-          On-site visual builder
-        </p>
-        <h2 className="mt-2 text-xl font-semibold tracking-tight">
-          Design this {experience.kind === "guide" ? "guide" : "widget"} in
-          your product
-        </h2>
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-          Content, placement, and preview controls open on the selected build
-          page so you can edit against the real interface. Launch settings and
-          publishing stay here.
-        </p>
-        <Button aria-label="Launch on-site builder" className="mt-6" onClick={onOpen}>
-          <ExternalLink /> Open on-site builder
-        </Button>
-      </section>
-    </div>
   );
 }
 
@@ -2579,104 +2636,6 @@ function LayeringEditor({
     </fieldset>
   );
 }
-type AnchoredCardBehavior = Pick<
-  ExperienceBehavior,
-  "placement" | "alignment" | "offset" | "pointer"
->;
-function AnchoredCardBehaviorEditor({
-  behavior,
-  onChange,
-}: {
-  behavior: AnchoredCardBehavior;
-  onChange: (change: (behavior: AnchoredCardBehavior) => void) => void;
-}) {
-  return (
-    <>
-      <Label>
-        Placement
-        <select
-          value={behavior.placement ?? "auto"}
-          onChange={(event) =>
-            onChange((value) => {
-              value.placement = event.target.value as NonNullable<
-                ExperienceBehavior["placement"]
-              >;
-            })
-          }
-        >
-          <option value="auto">Auto</option>
-          <option value="top">Top</option>
-          <option value="right">Right</option>
-          <option value="bottom">Bottom</option>
-          <option value="left">Left</option>
-        </select>
-      </Label>
-      <Label>
-        Alignment
-        <select
-          value={behavior.alignment ?? "center"}
-          onChange={(event) =>
-            onChange((value) => {
-              value.alignment = event.target.value as NonNullable<
-                ExperienceBehavior["alignment"]
-              >;
-            })
-          }
-        >
-          <option value="start">Start</option>
-          <option value="center">Center</option>
-          <option value="end">End</option>
-        </select>
-      </Label>
-      <Label>
-        Distance from target
-        <Input
-          type="number"
-          min="0"
-          max="100"
-          value={behavior.offset ?? 8}
-          onChange={(event) =>
-            onChange((value) => {
-              value.offset = Math.max(
-                0,
-                Math.min(100, Number(event.target.value)),
-              );
-            })
-          }
-        />
-      </Label>
-      <label className="flex gap-2">
-        <Switch
-          checked={behavior.pointer?.enabled ?? true}
-          onCheckedChange={(checked) =>
-            onChange((value) => {
-              value.pointer = { ...value.pointer, enabled: checked };
-            })
-          }
-        />
-        Show pointer
-      </label>
-      <Label>
-        Pointer size
-        <Input
-          type="number"
-          min="4"
-          max="30"
-          value={behavior.pointer?.size ?? 10}
-          disabled={behavior.pointer?.enabled === false}
-          onChange={(event) =>
-            onChange((value) => {
-              value.pointer = {
-                ...value.pointer,
-                size: Math.max(4, Math.min(30, Number(event.target.value))),
-              };
-            })
-          }
-        />
-      </Label>
-    </>
-  );
-}
 function WidgetBehaviorEditor({
   type,
   behavior,
@@ -2957,69 +2916,6 @@ function WidgetBehaviorEditor({
         />
         Dismissible
       </label>
-    </>
-  );
-}
-
-type BackdropBehavior = Pick<
-  ExperienceBehavior,
-  "backdrop" | "backdropOpacity" | "closeOnBackdrop"
->;
-function BackdropBehaviorEditor({
-  behavior,
-  onChange,
-  defaultEnabled = false,
-  defaultOpacity = 0.45,
-}: {
-  behavior: BackdropBehavior;
-  onChange: (change: (behavior: BackdropBehavior) => void) => void;
-  defaultEnabled?: boolean;
-  defaultOpacity?: number;
-}) {
-  const enabled = behavior.backdrop ?? defaultEnabled;
-  return (
-    <>
-      <label className="flex gap-2">
-        <Switch
-          checked={enabled}
-          onCheckedChange={(checked) =>
-            onChange((value) => {
-              value.backdrop = checked;
-            })
-          }
-        />
-        Backdrop
-      </label>
-      {enabled && (
-        <>
-          <Label>
-            Backdrop opacity
-            <Input
-              type="number"
-              min="0"
-              max="0.9"
-              step="0.05"
-              value={behavior.backdropOpacity ?? defaultOpacity}
-              onChange={(event) =>
-                onChange((value) => {
-                  value.backdropOpacity = Number(event.target.value);
-                })
-              }
-            />
-          </Label>
-          <label className="flex gap-2">
-            <Switch
-              checked={behavior.closeOnBackdrop ?? false}
-              onCheckedChange={(checked) =>
-                onChange((value) => {
-                  value.closeOnBackdrop = checked;
-                })
-              }
-            />
-            Dismiss when backdrop is clicked
-          </label>
-        </>
-      )}
     </>
   );
 }

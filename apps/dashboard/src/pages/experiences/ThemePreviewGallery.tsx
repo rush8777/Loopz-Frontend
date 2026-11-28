@@ -4,15 +4,7 @@ import { themeComponentNames, isValidThemeTokens } from "../../components/settin
 import type { SiteThemeTokens, ThemePreview } from "../../types/themes";
 import type { ExperienceTemplateSummary } from "../../api/experiences";
 
-const configuredPreviewUrl = import.meta.env.VITE_THEME_PREVIEW_URL?.trim();
-const useLocalPreview = import.meta.env.DEV && !configuredPreviewUrl;
-const localPreviewUrl = "/__movcues/sdk-theme-preview.min.js";
-const previewScript = (() => {
-  if (useLocalPreview) return localPreviewUrl;
-  const url = new URL(configuredPreviewUrl || "https://cdn.movcues.com/sdk-theme-preview.min.js");
-  if (url.protocol !== "https:" && !(import.meta.env.DEV && url.protocol === "http:")) throw new Error("Invalid theme preview URL");
-  return url.href.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
-})();
+import { localPreviewUrl, previewScript, useLocalPreview } from "./themePreviewScript";
 
 const frameDocument = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

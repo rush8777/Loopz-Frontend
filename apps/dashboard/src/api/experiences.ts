@@ -1,6 +1,6 @@
 import { apiRequest } from "./client";
 import type { SkillRegistration } from "./agentSkills";
-import type { BuilderMode, Experience, ExperienceAnalytics, ExperienceDefinition, ExperienceKind, ExperienceTargeting, SurveyResponseRecord, ExperienceWidgetType, WidgetType } from "../types/experiences";
+import type { BuilderMode, Experience, ExperienceAnalytics, ExperienceDefinition, ExperienceKind, ExperienceTargeting, GuideStep, SurveyStep, SurveyResponseRecord, ExperienceWidgetType, WidgetType } from "../types/experiences";
 export type VisualPresetId = "minimal" | "modern" | "soft" | "dark";
 export interface ExperienceTemplateSummary { id: string; version: 1; category: "widget" | "guide" | "survey" | "checklist"; widgetType?: WidgetType; name: string; description: string; accent: string; surface: string; preset: VisualPresetId }
 export interface CreateExperienceInput { kind: ExperienceKind; widgetType?: ExperienceWidgetType | null; builderMode: BuilderMode; guidePattern?: "anchored_card" | "modal"; guideCreation?: "guided_capture"; name: string; buildPageId?: string | null; buildUrl?: string | null; template: string; theme?: { source: "template" | "site" } | { source: "preset"; preset: VisualPresetId } | { source: "saved"; presetId: string }; useBuildPageAsTarget: boolean }
@@ -15,7 +15,9 @@ const savedTemplates = (orgId: string, siteId: string) => `/orgs/${orgId}/sites/
 export const listSavedTemplates = (orgId: string, siteId: string) => apiRequest<{ templates: ExperienceTemplateSummary[] }>(savedTemplates(orgId, siteId));
 export const deleteSavedTemplate = (orgId: string, siteId: string, id: string) => apiRequest<void>(`${savedTemplates(orgId, siteId)}/${encodeURIComponent(id)}`, { method: "DELETE" });
 export function getExperience(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`); }
-export function updateExperience(orgId: string, siteId: string, id: string, input: { name?: string; definition?: ExperienceDefinition; settings?: { targeting: ExperienceTargeting | Pick<ExperienceTargeting,"pageRules"|"audience"|"priority"|"schedule"|"allowedOrigins"> }; revision?: number }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`, { method: "PATCH", body: input }); }
+type GuideFlowStep = Pick<GuideStep, "id" | "label" | "advance" | "presentation" | "behavior"> & { seed?: GuideStep };
+type FlowSettings = { kind: "guide"; steps: GuideFlowStep[] } | { kind: "survey"; steps: Pick<SurveyStep, "id" | "branching">[] };
+export function updateExperience(orgId: string, siteId: string, id: string, input: { name?: string; definition?: ExperienceDefinition; settings?: { targeting: ExperienceTargeting | Pick<ExperienceTargeting,"pageRules"|"audience"|"priority"|"schedule"|"allowedOrigins">; flow?: FlowSettings }; revision?: number }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}`, { method: "PATCH", body: input }); }
 export function deleteExperience(orgId: string, siteId: string, id: string) { return apiRequest<void>(`${base(orgId, siteId)}/${id}`, { method: "DELETE" }); }
 export function publishExperience(orgId: string, siteId: string, id: string, reviewed: { draftVersionId: string; revision: number; skill?: SkillRegistration }) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/publish`, { method: "POST", body: reviewed }); }
 export function completeLaunchSetup(orgId: string, siteId: string, id: string) { return apiRequest<Experience>(`${base(orgId, siteId)}/${id}/launch-setup/complete`, { method: "POST" }); }
