@@ -1,6 +1,6 @@
 .experience-flow {
-  --flow-surface: #f1f4f8;
-  --flow-dot-grid: #c2cddb;
+  --flow-surface: #f4f7fa;
+  --flow-dot-grid: #9fc9ed;
   --flow-card: #fff;
   --flow-border: #dbe4ed;
   --flow-ink: #22324b;
@@ -19,8 +19,8 @@
   color: var(--flow-ink);
 }
 .dark .experience-flow {
-  --flow-surface: #172231;
-  --flow-dot-grid: #374758;
+  --flow-surface: #e8eef4;
+  --flow-dot-grid: #9fc9ed;
   --flow-card: #222f41;
   --flow-border: #3d4b5e;
   --flow-ink: #e0e8f3;
@@ -30,7 +30,7 @@
   --flow-accent-soft: #203f44;
   --flow-alert: #f2b47d;
 }
-.experience-flow > .react-flow { position: absolute; inset: 0; }
+.experience-flow > .react-flow { position: absolute; inset: 0; --xy-background-color: var(--flow-surface); background: var(--flow-surface); }
 .experience-flow[data-arranging="true"] .react-flow__node { transition: transform 210ms ease; }
 .experience-flow:focus { outline: none; }
 .experience-flow button:focus-visible, .experience-flow .react-flow__node:focus-visible {
@@ -48,10 +48,10 @@
   width: 292px;
   height: 250px;
   display: grid;
-  grid-template-rows: 42px 170px auto;
-  gap: 4px;
-  padding: 7px 12px 8px;
-  border-radius: 17px;
+  grid-template-rows: 30px 200px 12px;
+  gap: 1px;
+  padding: 2px 5px 3px;
+  border-radius: 12px;
   transition: border-color 150ms ease, box-shadow 150ms ease;
   animation: flow-card-appear 170ms ease both;
 }
@@ -60,7 +60,7 @@
   border-color: var(--flow-accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--flow-accent) 18%, transparent), 0 8px 20px #23355316;
 }
-.flow-card-header { display: flex; align-items: center; gap: 9px; min-width: 0; cursor: grab; }
+.flow-card-header { display: flex; align-items: center; gap: 7px; min-width: 0; cursor: grab; }
 .flow-card-header:active { cursor: grabbing; }
 .flow-card-index {
   display: grid;
@@ -79,7 +79,7 @@
 .flow-card-name span { font-size: 11px; color: var(--flow-muted); }
 .flow-preview {
   position: relative;
-  height: 170px;
+  height: 200px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--flow-line) 20%, transparent);
   border-radius: 10px;

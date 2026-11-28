@@ -66,7 +66,7 @@ function StepCard({ data, selected }: NodeProps<StepNode>) {
         {step.needsTarget ? <>
           <span className="flow-target" data-missing={!step.target}><span className="flow-dot"/>{step.target ? "Target set" : "Select target"}</span>
           {step.target?.targetContext?.pagePath && <span className="flow-path" title={step.target.targetContext.pagePath}>{step.target.targetContext.pagePath}</span>}
-        </> : step.index === undefined ? <span className="flow-target"><span className="flow-dot"/>Standalone</span> : <span className="flow-target"><span className="flow-dot"/>On screen</span>}
+        </> : step.index === undefined ? <span className="flow-target"><span className="flow-dot"/>Standalone</span> : null}
       </footer>
     </article>
   );
@@ -306,7 +306,7 @@ function Canvas({ experience, definition, events = [], pages = [], editable, onO
         panOnScroll zoomOnScroll={false} zoomOnDoubleClick={false} minZoom={0.12} maxZoom={1.65}
         deleteKeyCode={null} selectionKeyCode={null} multiSelectionKeyCode={null}
         elevateEdgesOnSelect={false} onlyRenderVisibleElements fitView fitViewOptions={{ padding: 0.15, maxZoom: 1 }}
-        colorMode="system"
+        colorMode="light"
         onKeyDown={event => {
           const node = (event.target as HTMLElement).closest<HTMLElement>(".react-flow__node");
           const id = node?.dataset.id;

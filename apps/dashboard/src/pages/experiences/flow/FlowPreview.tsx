@@ -6,8 +6,8 @@ import type { FlowStep } from "./flowGraph";
 
 const frameWidth = 1040;
 const frameHeight = 720;
-const previewWidth = 266;
-const previewHeight = 170;
+const previewWidth = 280;
+const previewHeight = 200;
 const frameDocument = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
