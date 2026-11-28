@@ -20,7 +20,7 @@ export interface SiteThemeTokens {
   shared?: Partial<Record<ThemeControl, ThemeControlStyle>>;
   components?: Partial<Record<ThemeComponent, ThemeComponentStyle>>;
 }
-export type ThemeComponent = "modal" | "anchored_card" | "survey" | "checklist" | "banner" | "slideout" | "toast" | "hotspot" | "cursor_follow" | "guide";
+export type ThemeComponent = "modal" | "anchored_card" | "survey" | "checklist" | "banner" | "slideout" | "toast" | "hotspot" | "cursor_follow" | "guide" | "geo_agent";
 export type ThemePresetId = "minimal" | "modern" | "soft" | "dark";
 export type ThemeSelection = { source: "preset"; preset: ThemePresetId } | { source: "saved"; presetId: string };
 export type SavedTheme = { id: string; name: string; tokens: SiteThemeTokens; updatedAt: string; sourceCaptureId?: string | null; sourceDesign?: ImportedDesign | null };

@@ -1,3 +1,4 @@
+import type { SiteThemeTokens } from "./themes";
 import type { ExperienceTargeting } from "./experiences";
 
 export interface GeoAgentConfig {
@@ -12,6 +13,9 @@ export interface GeoAgentConfig {
   persistence: "page" | "tab";
   sourceIds: string[];
   skillIds?: string[];
+  guidance?: { enabled: boolean; collapseOnStart: boolean; reopenOnEnd: boolean };
+  themeSnapshot?: SiteThemeTokens;
+  themeName?: string;
   instructions: string;
   fallback: string;
   identityPublicKey?: string;
@@ -21,6 +25,11 @@ export interface GeoAgentCitation { documentId: string; title: string; url: stri
 export interface GeoAgentMetrics {
   conversations: number; visitors: number; messages: number; responses: number; failed: number;
   helpful: number; unhelpful: number; answeredWithKnowledge: number; tokens: number;
+  guidanceRecommendations?: number;
+  guidance?: {
+    accepted: number; started: number; completed: number; cancelled: number; failed: number;
+    recoveries: number; missingTargets: number; stepAdvances: number;
+  };
   averageLatencyMs: number | null; averageFirstDeltaMs: number | null;
 }
 
@@ -41,4 +50,6 @@ export interface GeoAgentPreviewResult {
   documentation: { title: string; url: string | null; excerpt: string; score: number }[];
   retrievalMs: number;
   permitted: boolean;
+  guidance?: { available: false; reason: string }
+    | { available: true; label: "Guide me"; entry: { mode: "here" } | { mode: "navigate"; path: string } };
 }

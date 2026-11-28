@@ -67,6 +67,12 @@ export function SkillPreviewDiagnostics({ result }: { result: GeoAgentPreviewRes
       <p>{recommendation ? `Recommend ${recommendedName ?? "the selected skill"}` : decision ? decisions[decision.decision as keyof typeof decisions] : "Answer only"}</p>
       {recommendation && <p>{recommendation.reason}</p>}
       <p>Retrieval {result.retrievalMs ?? 0} ms</p>
+      {result.guidance?.available ? <div className="grid gap-1">
+        <Button type="button" size="sm" variant="outline" className="w-fit" disabled>{result.guidance.label}</Button>
+        <p>{result.guidance.entry.mode === "navigate" ? `Approved entry page ${result.guidance.entry.path}` : "Starts on the current page."}</p>
+      </div> : result.guidance && <p>{result.guidance.reason === "guidance_disabled" ? "Interactive guidance is disabled."
+        : result.guidance.reason === "guidance_entry_unavailable" ? "The guide has no approved entry from this page."
+        : "No eligible guide action."}</p>}
       <h3 className="font-medium">Skill candidates</h3>
       {result.candidates?.length ? <ol className="grid gap-1">
         {result.candidates.map(candidate => <li key={candidate.id}><strong>{candidate.name}</strong> · {candidate.score.toFixed(3)} · {candidate.eligible ? "Eligible" : "Excluded"}{candidate.reason ? ` · ${explanations[candidate.reason] ?? candidate.reason.replaceAll("_", " ")}` : ""}</li>)}

@@ -13,7 +13,7 @@ const desktopWidth = 900;
 const mobileWidth = 390;
 const galleryHeights: Record<ThemeComponent, number> = {
   modal: 192, survey: 234, checklist: 226, anchored_card: 192, guide: 192,
-  banner: 136, slideout: 192, toast: 144, hotspot: 192, cursor_follow: 168,
+  banner: 136, slideout: 192, toast: 144, hotspot: 192, cursor_follow: 168, geo_agent: 234,
 };
 const allowedScriptOrigin = new URL(previewScript, window.location.href).origin;
 const frameDocument = `<!doctype html><html lang="en"><head><meta charset="utf-8">

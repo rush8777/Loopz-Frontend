@@ -1,3 +1,5 @@
+import { listSavedThemes } from "@/api/themes";
+import type { SavedTheme } from "@/types/themes";
 import { Suspense, useEffect, useMemo, useState, type ComponentType, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Badge, Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Textarea } from "@movcues/ui";
@@ -14,6 +16,7 @@ import type { Experience } from "@/types/experiences";
 import type { GeoAgentConfig, GeoAgentDefinition, GeoAgentMetrics, GeoAgentPreviewResult } from "@/types/geoAgent";
 import { geoAgentPages, type GeoAgentSection } from "@/lib/geoAgentNavigation";
 
+const rate = (count: number, total: number) => total ? `${Math.round(100 * count / total)}%` : "—";
 const selectClass = "h-9 w-full rounded-md border border-input bg-background px-2 text-sm";
 const errors: Record<string, string> = {
   invalid_geo_agent_sources: "Each selected source must be enabled and available to visitors before publishing.",
@@ -42,6 +45,7 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
   const [legacySection, setLegacySection] = useState<GeoAgentSection>("appearance");
   const section = dashboard?.section ?? legacySection;
   const [sources, setSources] = useState<KnowledgeSource[] | null>(null);
+  const [savedThemes, setSavedThemes] = useState<SavedTheme[]>([]);
   const [metrics, setMetrics] = useState<GeoAgentMetrics | null>(null);
   const [metricsError, setMetricsError] = useState(false);
   const [error, setError] = useState("");
@@ -58,6 +62,9 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
   const [testError, setTestError] = useState("");
   const { geoAgent: config, targeting } = definition;
   const { appearance } = config;
+  const guidance = config.guidance ?? { enabled: false, collapseOnStart: true, reopenOnEnd: true };
+  const theme = config.themeSnapshot;
+  const chatStyle = theme?.components?.geo_agent;
   const dirty = JSON.stringify(saved.draftVersion?.definition) !== JSON.stringify(definition);
   const identityNeeded = targeting.audience.type !== "all";
   const launcherVisible = config.enabled && config.showLauncher;
@@ -89,6 +96,13 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
     }).catch(() => { if (!controller.signal.aborted) setMetricsError(true); });
     return () => controller.abort();
   }, [editable, orgId, siteId, experience.id, section]);
+
+  useEffect(() => {
+    if (section !== "appearance" || !editable) return;
+    let current = true;
+    void listSavedThemes(orgId, siteId).then(result => { if (current) setSavedThemes(result.presets); }).catch(() => {});
+    return () => { current = false; };
+  }, [section, editable, orgId, siteId]);
 
   function changeConfig(patch: Partial<GeoAgentConfig>) {
     setDefinition(current => ({ ...current, geoAgent: { ...current.geoAgent, ...patch } }));
@@ -190,6 +204,15 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
       </section>}
       {section === "appearance" && <fieldset disabled={!editable || busy} className="grid min-w-0 gap-5 rounded-lg border bg-card p-4 sm:p-6">
         <div><h2 className="text-base font-semibold">Appearance</h2><p className="mt-1 text-sm text-muted-foreground">Customize how your assistant looks and greets visitors.</p></div>
+        <Label className="grid gap-1.5">Saved design system<select className={selectClass} value="" onChange={event => {
+          const preset = savedThemes.find(savedTheme => savedTheme.id === event.target.value);
+          if (preset) changeConfig({ themeSnapshot: preset.tokens, themeName: preset.name });
+          else if (event.target.value === "clear") changeConfig({ themeSnapshot: undefined, themeName: undefined });
+        }}>
+          <option value="">{config.themeName ?? "Default chat styling"}</option>
+          {savedThemes.map(preset => <option key={preset.id} value={preset.id}>{preset.name}</option>)}
+          {theme && <option value="clear">Use default chat styling</option>}
+        </select></Label>
         <Label className="grid gap-1.5">Assistant name<Input maxLength={60} value={appearance.name} onChange={event => changeAppearance({ name: event.target.value })} /></Label>
         <Label className="grid gap-1.5">Avatar URL<Input type="url" value={appearance.avatarUrl ?? ""} placeholder="https://…" onChange={event => changeAppearance({ avatarUrl: event.target.value || undefined })} /></Label>
         <div className="grid gap-5 sm:grid-cols-2">
@@ -205,6 +228,16 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
       </fieldset>}
       {section === "skills" && <fieldset disabled={!editable || busy} className="min-w-0 rounded-lg border bg-card p-4 sm:p-6">
         <GeoAgentSkills orgId={orgId} siteId={siteId} selected={config.skillIds ?? []} onChange={skillIds => changeConfig({ skillIds })} editable={editable} />
+        <div className="mt-5 grid gap-3 border-t pt-4">
+          <label className="flex items-center gap-2 text-sm font-medium"><Checkbox checked={guidance.enabled}
+            onCheckedChange={value => changeConfig({ guidance: { ...guidance, enabled: value === true } })} />Allow visitors to launch guides</label>
+          {guidance.enabled && <>
+            <label className="flex items-center gap-2 text-sm"><Checkbox checked={guidance.collapseOnStart}
+              onCheckedChange={value => changeConfig({ guidance: { ...guidance, collapseOnStart: value === true } })} />Collapse chat when guidance starts</label>
+            <label className="flex items-center gap-2 text-sm"><Checkbox checked={guidance.reopenOnEnd}
+              onCheckedChange={value => changeConfig({ guidance: { ...guidance, reopenOnEnd: value === true } })} />Reopen chat when guidance ends</label>
+          </>}
+        </div>
       </fieldset>}
       {section === "behaviour" && <fieldset disabled={!editable || busy} className="grid min-w-0 gap-5 rounded-lg border bg-card p-4 sm:p-6">
         <div><h2 className="text-base font-semibold">Behaviour and targeting</h2><p className="mt-1 text-sm text-muted-foreground">Control where the assistant appears and who can see it.</p></div>
@@ -219,7 +252,11 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
       </fieldset>}
       {showsPreview && <section className="min-w-0 space-y-4 rounded-lg border bg-card p-4 sm:p-5" aria-label="Widget preview">
         <div><h2 className="text-base font-semibold">Live preview</h2><p className="mt-1 text-sm text-muted-foreground">Preview and test your assistant privately.</p></div>
-        <div className={`min-w-0 space-y-4 rounded-lg border p-4 shadow-sm ${style}`} style={{ borderTopColor: appearance.brandColor, borderTopWidth: 3 }}>
+        <div className={`min-w-0 space-y-4 rounded-lg border p-4 shadow-sm ${style}`} style={{ borderTopColor: appearance.brandColor, borderTopWidth: 3, ...(theme ? {
+          background: chatStyle?.background ?? theme.colors.background, color: chatStyle?.text ?? theme.colors.text,
+          borderRadius: chatStyle?.radius ?? theme.radii.lg, fontFamily: theme.typography.bodyFontFamily,
+          fontSize: chatStyle?.bodyFontSize ?? theme.typography.bodyFontSize, padding: chatStyle?.spacing ?? theme.spacing,
+        } : {}) }}>
           <div className="flex items-center gap-2 font-medium">{avatar ? <img className="size-7 rounded-full object-cover" alt="" referrerPolicy="no-referrer" src={avatar} /> : <MessageCircle className="size-4" />}{appearance.name}</div>
           <p className="whitespace-pre-wrap break-words text-sm">{appearance.welcome}</p>
           {appearance.suggestions.length > 0 && <div className="flex flex-wrap gap-1">{appearance.suggestions.map((suggestion, index) => <Button key={index} size="sm" variant="outline" onClick={() => setQuestion(suggestion)}>{suggestion}</Button>)}</div>}
@@ -258,6 +295,15 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
           ["Conversations", metrics.conversations], ["Unique visitors", metrics.visitors], ["Messages", metrics.messages], ["Responses", metrics.responses],
           ["Failed responses", metrics.failed], ["Helpful votes", metrics.helpful], ["Unhelpful votes", metrics.unhelpful],
           ["Responses with retrieved knowledge", metrics.answeredWithKnowledge], ["AI tokens", metrics.tokens],
+          ...(metrics.guidance ? [
+            ["Guide recommendations", metrics.guidanceRecommendations ?? 0], ["Walkthroughs accepted", metrics.guidance.accepted],
+            ["Walkthroughs started", metrics.guidance.started], ["Walkthroughs completed", metrics.guidance.completed],
+            ["Walkthroughs cancelled", metrics.guidance.cancelled], ["Walkthroughs failed", metrics.guidance.failed],
+            ["Missing targets", metrics.guidance.missingTargets], ["Recoveries", metrics.guidance.recoveries],
+            ["Acceptance rate", rate(metrics.guidance.accepted, metrics.guidanceRecommendations ?? 0)],
+            ["Launch rate", rate(metrics.guidance.started, metrics.guidance.accepted)],
+            ["Walkthrough completion rate", rate(metrics.guidance.completed, metrics.guidance.started)],
+          ] : []),
           ["Average response time", metrics.averageLatencyMs === null ? "—" : `${metrics.averageLatencyMs} ms`],
         ].map(([label, value]) => <Metric key={label} label={String(label)} value={value} />)}
       </MetricGrid>}
@@ -266,7 +312,7 @@ export function GeoAgentEditor({ experience, initial, orgId, siteId, segments, e
       <DialogHeader className="border-b px-5 py-4 pr-12"><DialogTitle className="text-[17px] tracking-[-0.01em]">Publish {experience.name}?</DialogTitle><DialogDescription className="text-[13px] leading-5">{launcherVisible ? "Visitors who match your page and audience rules will see this launcher." : "The launcher is currently hidden by the widget settings."}</DialogDescription></DialogHeader>
       <div className="space-y-4 px-5 py-5">
         <dl className="divide-y rounded-lg border text-sm">
-          {[["Sources", config.sourceIds.length], ["Skills", config.skillIds?.length ?? 0], ["Pages", targeting.pageRules.length || "All"], ["Audience", identityNeeded ? "Verified segment" : "All visitors"]].map(([label, value]) => <div key={label} className="flex items-center justify-between gap-4 px-4 py-3"><dt className="text-muted-foreground">{label}</dt><dd className="text-right font-medium">{value}</dd></div>)}
+          {[["Sources", config.sourceIds.length], ["Skills", config.skillIds?.length ?? 0], ["Interactive guidance", guidance.enabled ? "Enabled" : "Disabled"], ["Pages", targeting.pageRules.length || "All"], ["Audience", identityNeeded ? "Verified segment" : "All visitors"]].map(([label, value]) => <div key={label} className="flex items-center justify-between gap-4 px-4 py-3"><dt className="text-muted-foreground">{label}</dt><dd className="text-right font-medium">{value}</dd></div>)}
         </dl>
         {launcherVisible && dashboard?.hasOtherPublishedAgent && <p className="text-sm text-muted-foreground">Another Geo Agent is published on this site. If both match a visitor, delivery priority and agent ID determine which launcher appears.</p>}
         {error && <ErrorNotice>{error}</ErrorNotice>}

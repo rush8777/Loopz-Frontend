@@ -78,6 +78,7 @@ const experienceNumbers: Array<{ key: keyof Pick<ThemeComponentStyle, "spacing" 
   { key: "width", name: "Default width", min: 200, max: 960 },
 ];
 const defaultWidths: Record<ThemeComponent, number> = {
+  geo_agent: 368,
   modal: 600, survey: 700, anchored_card: 320, guide: 320, checklist: 360,
   slideout: 400, banner: 960, toast: 380, hotspot: 300, cursor_follow: 280,
 };

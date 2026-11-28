@@ -54,5 +54,5 @@ export function colorPickerValue(value: string): string {
 export const themeComponentNames: Record<ThemeComponent, string> = {
   modal: "Modal", anchored_card: "Anchored card", survey: "Survey", checklist: "Checklist",
   banner: "Banner", slideout: "Slideout", toast: "Toast", hotspot: "Hotspot",
-  cursor_follow: "Cursor follower", guide: "Guide tooltip",
+  cursor_follow: "Cursor follower", guide: "Guide tooltip", geo_agent: "Geo Agent",
 };

@@ -168,3 +168,25 @@ it("retains unsaved changes across pages, reuses Knowledge, and publishes one re
   await waitFor(() => expect(api.publish).toHaveBeenCalledExactlyOnceWith("org", "site-a", "a", { draftVersionId: "draft-a", revision: 2 }));
   expect(await screen.findByText("Geo Agent published.")).toBeVisible();
 });
+
+it("keeps interactive guidance opt-in and saves the chosen chat behavior with the draft", async () => {
+  const draft = agent("a", "Billing assistant");
+  api.list.mockResolvedValue({ experiences: [draft] });
+  api.update.mockImplementation(async (_org, _site, _id, input) => ({
+    ...draft, draftVersion: { ...draft.draftVersion!, definition: input.definition, revision: 2 },
+  }));
+  render(page(geoAgentPages.find(item => item.id === "skills")!.path));
+  const enable = await screen.findByRole("checkbox", { name: "Allow visitors to launch guides" });
+  expect(enable).not.toBeChecked();
+  fireEvent.click(enable);
+  const collapse = screen.getByRole("checkbox", { name: "Collapse chat when guidance starts" });
+  expect(collapse).toBeChecked();
+  fireEvent.click(collapse);
+  const save = screen.getByRole("button", { name: "Save draft" });
+  fireEvent.click(save);
+  await waitFor(() => expect(api.update).toHaveBeenCalledWith("org", "site-a", "a", {
+    revision: 1, definition: expect.objectContaining({ geoAgent: expect.objectContaining({
+      guidance: { enabled: true, collapseOnStart: false, reopenOnEnd: true },
+    }) }),
+  }));
+});
